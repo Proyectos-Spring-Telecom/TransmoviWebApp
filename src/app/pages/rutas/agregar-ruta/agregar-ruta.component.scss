@@ -1,0 +1,227 @@
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  border: none;
+  background-color: #002136;
+}
+
+.total-registros-label {
+    font-size: 16px; 
+    font-weight: bold; 
+    color: #f7fb06; 
+    padding: 8px 15px; 
+    border-radius: 5px; 
+    background-color: #515237; 
+    display: inline-block; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+  }
+  
+  .data {
+    min-width: 1000px;
+  }
+  .header-dispositivos {
+    text-align: center;
+    background-color: #00836d;
+    padding: 20px;
+  }
+  
+  .fa-arrows-alt {
+    font-size: 30px;
+    color: #09fa3a;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  
+  .titulo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+  }
+  
+  .subtitulo {
+    font-size: 14px;
+    color: #fff;
+    margin-top: 5px;
+  }
+  
+  
+  .map-container {
+    border-radius: 15px;
+    height: 450px;
+    flex: 1; /* Se adapta al contenedor */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #e9ecef;
+  }
+
+
+/* CSS */
+.button-18 {
+  margin-top: 1%;
+  align-items: center;
+  background-color: #0A66C2;
+  border: 0;
+  border-radius: 100px;
+  box-sizing: border-box;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  justify-content: center;
+  line-height: 20px;
+  width: 20%;
+  height: 40%;
+  min-width: 0px;
+  overflow: hidden;
+  padding: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+  touch-action: manipulation;
+  transition: background-color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, box-shadow 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+}
+
+.button-18:hover,
+.button-18:focus { 
+  background-color: #16437E;
+  color: #ffffff;
+}
+
+.button-18:active {
+  background: #09223b;
+  color: rgb(255, 255, 255, .7);
+}
+
+.button-18:disabled { 
+  cursor: not-allowed;
+  background: rgba(0, 0, 0, .08);
+  color: rgba(0, 0, 0, .3);
+}
+
+.boton-ruta {
+  min-width: 160px;
+  font-size: 14px;
+  text-align: center;
+  border-radius: 8px;
+
+  @media (max-width: 576px) {
+    width: 100%;
+  }
+}
+
+
+.modal-content {
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  background: #b4a178;
+  color: white;
+  border-radius: 12px 12px 0 0;
+  padding: 1rem;
+}
+
+.card {
+  border: none;
+  border-radius: 8px;
+}
+
+.card-header {
+  border-bottom: none;
+  background: #00836d;
+  font-size: 1.1rem;
+}
+
+.modal-footer {
+  margin-top: -30px;
+  border-top: none;
+  padding: 1rem;
+}
+
+.rutas{
+  color: white;
+}
+
+.btn-regresar {
+  border-radius: 100px;
+  width: 180px;
+  padding: 8px 16px;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.info-ruta-card {
+  background-color: #002136;
+  border-radius: 12px;
+  padding: 0.5rem 1rem;
+  color: #f1f5f9;
+  display: flex;
+  flex-wrap: wrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  margin: 10px 0;
+
+  .info-cell {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .info-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #94a3b8;
+      margin-bottom: 0.25rem;
+      letter-spacing: 0.5px;
+    }
+
+    .info-value {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #f8fafc;
+    }
+  }
+
+
+  .info-cell:nth-child(3n) {
+    border-right: none;
+  }
+
+  @media (max-width: 767px) {
+    .info-cell {
+      border-right: none !important;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .info-cell:nth-child(3n) {
+      border-right: none;
+    }
+  }
+}
+
+
+
+.header-dispositivos {
+  position: relative;
+  padding: 2rem;
+
+  .boton-cancelar-header {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+  }
+}

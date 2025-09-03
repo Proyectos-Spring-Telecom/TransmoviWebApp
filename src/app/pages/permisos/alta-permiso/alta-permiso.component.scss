@@ -1,0 +1,253 @@
+.card-header-custom {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  background: linear-gradient(135deg, #00836d, #005748); // morado a azul
+  color: #fff;
+
+  .icon-wrapper {
+    background: #00584a;
+    padding: 12px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    i {
+      font-size: 22px;
+      color: #fff;
+    }
+  }
+
+  .header-text {
+    h5 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    span {
+      font-size: 0.9rem;
+      opacity: 0.95;
+    }
+  }
+}
+
+.section-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 20px 0 16px;
+  color: white;
+  border-left: 4px solid #00836d;
+  padding-left: 8px;
+}
+
+label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+  display: block;
+  color: #fff;
+}
+
+.form-control {
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: white;
+  background: #343845;
+  border: 1px solid #2f395a;
+  transition: all 0.25s ease;
+
+  &:focus {
+    background: #343845;
+    border-color: #00836d;
+    box-shadow: 0 0 6px rgba(106, 17, 203, 0.3);
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-top: 24px;
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: 0.3s ease;
+  }
+}
+
+.file-upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .file-input {
+    display: none; // oculta el input real
+  }
+
+  .file-label {
+    display: inline-block;
+    padding: 10px 16px;
+    background: #00b4d8;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    text-align: center;
+
+    i {
+      margin-right: 8px;
+    }
+
+    &:hover {
+      background: #0096c7;
+    }
+  }
+
+  .file-name {
+    font-size: 0.9rem;
+    color: #ddd;
+    font-style: italic;
+  }
+
+  .preview {
+    margin-top: 6px;
+
+    img {
+      max-width: 100px;
+      max-height: 100px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      object-fit: cover;
+    }
+  }
+}
+
+.upload-modal-wrapper {
+  border: 2px dashed #00836d;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  background: rgba(255,255,255,0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  .modal-header{
+    background-color: #00836d;
+  }
+
+  &:hover {
+    border-color: #005748;
+    background: rgba(37,117,252,0.05);
+  }
+
+  .hidden-file-input {
+    display: none;
+  }
+
+  .upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #aaa;
+
+    i {
+      font-size: 40px;
+      color: #00836d;
+      margin-bottom: 10px;
+    }
+
+    span {
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
+
+    small {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+  }
+
+  .preview-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    img {
+      max-width: 250px;
+      max-height: 160px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #444;
+      object-fit: cover;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: #ddd;
+      margin: 0;
+      font-style: italic;
+    }
+
+    button {
+      margin-top: 6px;
+    }
+  }
+}
+
+::ng-deep .swal2-container .swal2-title {
+    font-size: 24px;
+    font-weight: 200;
+    color: #ffffff;
+}
+
+.swal2-container .swal2-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+::ng-deep div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  border: none;
+  background-color: #002136;
+}

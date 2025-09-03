@@ -1,0 +1,88 @@
+<div class="container-fluid">
+    <app-page-title title="Leaflet Maps" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Example</h4>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;" leaflet [leafletOptions]="options"></div>
+                </div>
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Markers, circles and polygons</h4>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;" leaflet [leafletOptions]="options1" [leafletLayers]="layers"></div>
+                </div>
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col -->
+    </div>
+    <!-- end row -->
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Working with popups</h4>
+                </div>
+                <div class="card-body">
+                    <div leaflet style="height: 300px;" [leafletOptions]="options2" [leafletLayers]="layers2">
+                    </div>
+                </div>
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Markers with Custom Icons</h4>
+                </div>
+                <div class="card-body">
+                    <div leaflet style="height: 300px;" [leafletOptions]="options5" [leafletLayers]="layers5"></div>
+                </div>
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col -->
+    </div>
+    <!-- end row -->
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Interactive Choropleth Map</h4>
+                </div>
+                <div class="card-body">
+                    <div leaflet style="height: 300px;" [leafletOptions]="options3" [leafletLayers]="layers3"></div>
+                </div>
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Layer Groups and Layers Control</h4>
+                </div>
+                <div class="card-body">
+                    <div leaflet style="height: 300px;" [leafletOptions]="options4" [leafletLayers]="layers4"></div>
+                </div>
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col -->
+    </div>
+    <!-- end row -->
+</div>

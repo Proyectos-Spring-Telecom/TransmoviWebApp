@@ -1,0 +1,151 @@
+.total-registros-label {
+    font-size: 16px; 
+    font-weight: bold; 
+    color: #f7fb06; 
+    padding: 8px 15px; 
+    border-radius: 5px; 
+    background-color: #515237; 
+    display: inline-block; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+  }
+  
+  .data {
+    min-width: 1000px;
+  }
+  .header-dispositivos {
+    text-align: center;
+    background-color: #00836d;
+    padding: 20px;
+  }
+  
+  .header-dispositivos i {
+    font-size: 30px;
+    color: #09fa3a;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  
+  .titulo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+  }
+  
+  .subtitulo {
+    font-size: 14px;
+    color: #fff;
+    margin-top: 5px;
+  }
+  
+  
+  
+  
+  ::ng-deep .dx-searchbox .dx-texteditor-input {
+    --radii: 2.0em;
+    cursor: pointer;
+    min-height: 38px;
+    font-size: var(--size, 14px);
+    font-weight: 500;
+    transition: 0.8s;
+    background-size: 280% auto;
+    background-color: #0a66c2;
+    border: none;
+    border-radius: var(--radii);
+  }
+  
+  ::ng-deep .dx-searchbox .dx-texteditor-input:hover {
+    background-position: right top;
+  }
+  
+  ::ng-deep .dx-searchbox .dx-texteditor-input:is(:focus, :focus-visible, :active) {
+    outline: none;
+    box-shadow:
+        0 0 0 0px var(--btn-bg-color),
+        0 0 0 0px var(--btn-bg-2);
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .dx-searchbox .dx-texteditor-input {
+        transition: linear;
+    }
+  }
+  
+  ::ng-deep .dx-icon-clear:before {
+    color: white;
+  }
+  
+  ::ng-deep .dx-icon-search:before {
+    color: white !important;
+  }
+  
+  ::ng-deep .dx-searchbox .dx-placeholder::before,
+  .dx-searchbox .dx-texteditor-input,
+  .dx-searchbox.dx-editor-underlined .dx-texteditor-buttons-container+.dx-texteditor-input-container .dx-texteditor-input,
+  .dx-searchbox.dx-editor-underlined .dx-texteditor-input {
+    padding-inline-start: 34px;
+    color: white;
+  }
+
+  .map-container {
+    border-radius: 15px;
+    height: 650px;
+    flex: 1; /* Se adapta al contenedor */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #e9ecef;
+  }
+
+
+.button-18 {
+  margin-top: 1%;
+  align-items: center;
+  background-color: #0A66C2;
+  border: 0;
+  border-radius: 100px;
+  box-sizing: border-box;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  justify-content: center;
+  line-height: 20px;
+  width: 20%;
+  height: 40%;
+  min-width: 0px;
+  overflow: hidden;
+  padding: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+  touch-action: manipulation;
+  transition: background-color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, box-shadow 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+}
+
+.button-18:hover,
+.button-18:focus { 
+  background-color: #16437E;
+  color: #ffffff;
+}
+
+.button-18:active {
+  background: #09223b;
+  color: rgb(255, 255, 255, .7);
+}
+
+.button-18:disabled { 
+  cursor: not-allowed;
+  background: rgba(0, 0, 0, .08);
+  color: rgba(0, 0, 0, .3);
+}
+
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  border: none;
+  background-color: #002136;
+}

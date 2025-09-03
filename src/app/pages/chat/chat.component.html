@@ -1,0 +1,273 @@
+<div class="container-fluid">
+    <app-page-title title="Chat" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+    <div class="d-lg-flex mb-4">
+        <div class="chat-leftsidebar card">
+            <div class="p-3 px-4">
+                <div class="d-flex align-items-start">
+                    <div class="flex-shrink-0 me-3 align-self-center">
+                        <img src="assets/images/users/avatar-2.jpg" class="avatar-xs rounded-circle" alt="">
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="font-size-16 mb-1"><a href="javascript:void(0);" class="text-reset">José <i class="mdi mdi-circle text-success align-middle font-size-10 ms-1"></i></a></h5>
+                        <p class="text-muted mb-0">Available</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="dropdown chat-noti-dropdown" ngbDropdown>
+                            <button class="btn dropdown-toggle py-0" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ngbDropdownToggle>
+                                <i class="uil uil-ellipsis-h"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end" ngbDropdownMenu>
+                                <a class="dropdown-item" href="javascript: void(0);">Profile</a>
+                                <a class="dropdown-item" href="javascript: void(0);">Edit</a>
+                                <a class="dropdown-item" href="javascript: void(0);">Add Contact</a>
+                                <a class="dropdown-item" href="javascript: void(0);">Setting</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-3">
+                <div class="search-box chat-search-box">
+                    <div class="position-relative">
+                        <input type="text" class="form-control bg-light border-light rounded" placeholder="Search...">
+                        <i class="uil uil-search search-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pb-3">
+                <ngx-simplebar style="max-height: 510px;">
+                    <div class="p-4 border-top">
+                        <div>
+                            <div class="float-end   ">
+                                <a href="javascript:void(0);" class="text-primary"><i class="mdi mdi-plus"></i> New
+                                    Group</a>
+                            </div>
+                            <h5 class="font-size-16 mb-3"><i class="uil uil-users-alt me-1"></i> Groups</h5>
+
+                            <ul class="list-unstyled chat-list group-list">
+                                <li>
+                                    <a href="javascript:void(0);" (click)="chatUsername('General','Online')">
+                                        <div class="d-flex align-items-start align-items-center">
+                                            <div class="avatar-xs me-3">
+                                                <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
+                                                    G
+                                                </span>
+                                            </div>
+
+                                            <div class="flex-1">
+                                                <h5 class="font-size-14 mb-0">General</h5>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0);" (click)="chatUsername('Designers','Online')">
+                                        <div class="d-flex align-items-start align-items-center">
+                                            <div class="avatar-xs me-3">
+                                                <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
+                                                    <i class="uil uil-edit-alt"></i>
+                                                </span>
+                                            </div>
+
+                                            <div class="flex-1">
+                                                <h5 class="font-size-14 mb-0">Designers</h5>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0);" (click)="chatUsername('Meeting','Online')">
+                                        <div class="d-flex align-items-start align-items-center">
+                                            <div class="avatar-xs me-3">
+                                                <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
+                                                    <i class="uil uil-users-alt"></i>
+                                                </span>
+                                            </div>
+
+                                            <div class="flex-1">
+                                                <h5 class="font-size-14 mb-0">Meeting</h5>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="p-4 border-top">
+                        <div>
+                            <div class="float-end">
+                                <a href="javascript:void(0);" class="text-primary"><i class="mdi mdi-plus"></i> New
+                                    Contact</a>
+                            </div>
+                            <h5 class="font-size-16 mb-3"><i class="uil uil-user me-1"></i> Contacts</h5>
+
+                            <ul class="list-unstyled chat-list">
+                                @for(data of chatData;track $index){
+                                <li [ngClass]="{'unread': data.unread, 'active': data.name == username}">
+                                    <a href="javascript: void(0);" (click)="chatUsername(data.name,data.status)">
+                                        <div class="d-flex align-items-start">
+                                            <div class="flex-shrink-0 align-self-center">
+                                                @if(data.image){
+                                                <div class="user-img {{data.status}} align-self-center me-3">
+                                                    <img src="{{ data.image }}" class="rounded-circle avatar-xs" alt="">
+                                                    <span class="user-status"></span>
+                                                </div>}
+                                                @else{
+                                                <div class="user-img online align-self-center me-3">
+                                                    <div class="avatar-xs align-self-center">
+                                                        <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
+                                                            {{data.name.charAt(0)}}
+                                                        </span>
+                                                    </div>
+                                                    <span class="user-status"></span>
+                                                </div>}
+                                            </div>
+
+
+                                            <div class="flex-grow-1 overflow-hidden">
+                                                <h5 class="text-truncate font-size-14 mb-1">{{ data.name }}</h5>
+                                                <p class="text-truncate text-body mb-0">{{ data.message }}</p>
+                                            </div>
+                                            <div class="flex-shrink-0">
+                                                <div class="font-size-11">{{ data.time }}</div>
+                                                @if(data.unread){
+                                                <div class="unread-message">
+                                                    <span class="badge bg-danger rounded-pill">{{ data.unread }}</span>
+                                                </div>}
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </ngx-simplebar>
+            </div>
+
+        </div>
+        <!-- end chat-leftsidebar -->
+
+        <div class="w-100 user-chat mt-4 mt-sm-0 ms-lg-1">
+            <div class="card">
+                <div class="p-3 px-lg-4 border-bottom">
+                    <div class="row">
+                        <div class="col-md-4 col-6">
+                            <h5 class="font-size-16 mb-1 text-truncate"><a href="javascript:void(0);" class="text-reset">{{username}}</a></h5>
+                            <p class="text-muted text-truncate mb-0"><i class="mdi mdi-circle text-success align-middle font-size-10 ms-1" [ngClass]="{'text-warning': status === 'away'}"></i> {{status}}
+                            </p>
+                        </div>
+                        <div class="col-md-8 col-6">
+                            <ul class="list-inline user-chat-nav text-end mb-0">
+                                <li class="list-inline-item">
+                                    <div class="dropdown" ngbDropdown>
+                                        <button class="btn nav-btn dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ngbDropdownToggle>
+                                            <i class="uil uil-search"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-md" ngbDropdownMenu>
+                                            <form class="p-2">
+                                                <div>
+                                                    <input type="text" class="form-control rounded" placeholder="Search...">
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </li>
+
+
+                                <li class="list-inline-item">
+                                    <div class="dropdown" ngbDropdown>
+                                        <button class="btn nav-btn dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ngbDropdownToggle>
+                                            <i class="uil uil-ellipsis-h"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end" ngbDropdownMenu>
+                                            <a class="dropdown-item" href="javascript: void(0);">Profile</a>
+                                            <a class="dropdown-item" href="javascript: void(0);">Archive</a>
+                                            <a class="dropdown-item" href="javascript: void(0);">Muted</a>
+                                            <a class="dropdown-item" href="javascript: void(0);" (click)="deleteAllMessage($event)">Delete</a>
+                                        </div>
+                                    </div>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-lg-2">
+                    <div class="chat-conversation p-3">
+                        <ngx-simplebar style="height: 510px;" #componentRef>
+                            <ul class="list-unstyled mb-0">
+                                <li class="chat-day-title">
+                                    <div class="title">Today</div>
+                                </li>
+                                @for(data of chatMessagesData;track $index){
+                                <li [ngClass]=" {'right': data.align==='right' }">
+                                    <div class="conversation-list">
+                                        <div class="ctext-wrap">
+                                            <div class="ctext-wrap-content">
+                                                <h5 class="font-size-14 conversation-name"><a href="javascript: void(0);" class="text-reset">{{ data.name
+                                                        }}</a> <span class="d-inline-block font-size-12 text-muted ms-2">{{ data.time
+                                                        }}</span></h5>
+                                                <p class="mb-0">
+                                                    {{ data.message }}
+                                                </p>
+                                                @if(data.files){
+                                                <ul class="list-inline message-img mt-3 mb-0">
+                                                    @for(file of data.files;track $index){
+                                                    <li class="list-inline-item message-img-list">
+                                                        <a class="d-inline-block m-1" href="javascript:void(0);">
+                                                            <img src="{{file.src}}" alt="" class="rounded img-thumbnail">
+                                                        </a>
+                                                    </li>
+                                                    }
+                                                </ul>
+                                                }
+                                            </div>
+
+                                            <div class="dropdown" ngbDropdown>
+                                                <a class="dropdown-toggle" href="javascript: void(0);" role="button" ngbDropdownToggle>
+                                                    <i class="bx bx-dots-vertical-rounded"></i>
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-end" ngbDropdownMenu>
+                                                    <a class="dropdown-item" href="javascript: void(0);" (click)="copyMessage($event)">Copy</a>
+                                                    <a class="dropdown-item" href="javascript: void(0);">Save</a>
+                                                    <a class="dropdown-item" href="javascript: void(0);">Forward</a>
+                                                    <a class="dropdown-item" href="javascript: void(0);" (click)="deleteMessage($event)">Delete</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                }
+                            </ul>
+                        </ngx-simplebar>
+                    </div>
+                </div>
+
+                <div class="p-3 chat-input-section">
+                    <form (ngSubmit)="messageSave()" [formGroup]="formData" class="row">
+                        <div class="col">
+                            <div class="position-relative">
+                                <input type="text" class="form-control chat-input rounded" placeholder="Enter Message..." formControlName="message" [ngClass]="{'is-invalid': chatSubmit && form.message.errors}">
+                                @if(chatSubmit && form.message.errors){
+                                <div class="invalid-feedback">
+                                    @if(form.message.errors.required){
+                                    <span>This value is required.</span>}
+                                </div>}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary chat-send w-md waves-effect waves-light"><span class="d-none d-sm-inline-block me-2">Send</span> <i class="mdi mdi-send float-end"></i></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End d-lg-flex  -->
+
+</div> <!-- container-fluid -->

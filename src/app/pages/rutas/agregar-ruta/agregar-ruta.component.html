@@ -1,0 +1,174 @@
+<!-- <div id="loading" class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+</div> -->
+
+<div [@fadeInUp] class="container-fluid">
+
+    <div class="card">
+        <div class="card-body">
+            <div class="header-dispositivos position-relative">
+                <div style="display: grid; justify-content: center; align-items: center;">
+                    <i class="fa fa-arrows-alt" aria-hidden="true"></i>
+                    <span class="titulo">{{ title }}</span>
+                </div>
+                <div class="subtitulo">{{ subtitle }}</div>
+                <button *ngIf="!showId" (click)="irRuta()" class="btn btn-danger" style="margin-top: 1%; border-radius: 100px; width: 250px;">
+                    <i class="fa fa-arrow-left"></i>&nbsp;&nbsp;Regresar
+                </button>
+            </div>
+
+            <div class="row">
+                <div *ngIf="showId" class="col-12">
+                    <div class="info-ruta-card row g-0">
+                        <div class="col-12 col-md-6 col-lg-4 info-cell">
+                            <label>NOMBRE RUTA:</label>
+                            <div>{{ nombreRuta }}</div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-4 info-cell">
+                            <label>TARIFA BASE:</label>
+                            {{ isNumber(tarifa) ? (tarifa | currency: '$') : 'Sin información' }}
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-4 info-cell">
+                            <label>DISTANCIA BASE KM:</label>
+                            <div>{{ distancia + 'km' }}</div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-4 info-cell">
+                            <label>INCREMENTO X METROS:</label>
+                            <div>{{ incrementoMetros }}</div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-4 info-cell">
+                            <label>COSTO ADICIONAL:</label>
+                            {{ isNumber(costoAdicional) ? (costoAdicional | currency: '$') : 'Sin información' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-lg-12">
+                    <div class="map-container" id="map"></div>
+                    <button [@fadeInUp] (click)="eliminarUltimoPunto()"
+                        *ngIf="mostrarBotonDeshacer && !idRutaEspecifica" style="
+                        position: absolute;
+                        top: 20px;
+                        right: 20px;
+                        z-index: 999;
+                        padding: 15px 60px;
+                        background-color: #005081;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        ">
+                        Deshacer Punto
+                    </button>
+                </div>
+                <div class="col-lg-12">
+                    <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+                        <button (click)="detalleRuta()" *ngIf="path.length >= 2" [@fadeInUp]
+                            class="btn boton-ruta btn-success">
+                            <i class="fa fa-check"></i> Guardar Ruta
+                        </button>
+                        <button (click)="cancelar()" *ngIf="path.length >= 2" [@fadeInUp] class="btn btn-warning boton-ruta">
+                            <i class="fa fa-repeat"></i> Limpiar Ruta
+                        </button>
+                        <button (click)="irRuta()" *ngIf="showId" [@fadeInUp] class="btn btn-danger w-25">
+                            <i class="fa fa-arrow-left"></i> Regresar
+                        </button>
+                        <!-- <button (click)="largeModal(largeDataModalsConfig)" class="btn boton-ruta btn-primary">
+                            <i class="fa fa-download"></i> Cargar Ruta
+                        </button> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #largeDataModalsConfig let-modal>
+    <form [formGroup]="configRuta">
+        <div [@fadeInUp] class="modal-content p-0">
+            <div class="modal-body">
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-header bg text-white">
+                        <i class="fa fa-money"></i> Configurar Tarifa
+                    </div>
+                    <div class="card-body text-white mt-3" style="background-color: #54565a;">
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <i class="fa fa-dollar-sign"></i>&nbsp;
+                                <label>Tarifa Base: <span class="text-danger">*</span></label>
+                                <input formControlName="tarifaBase" class="form-control" type="number" pe="text"
+                                    (input)="validarMaxCaracteres($event, 10)" required />
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <i class="fa fa-road"></i>&nbsp;
+                                <label>Distancia Base km: <span class="text-danger">*</span></label>
+                                <input formControlName="distanciaBaseKm" class="form-control" type="number" pe="text"
+                                    (input)="validarMaxCaracteres($event, 10)" required />
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md-6 form-group">
+                                <i class="fa fa-ruler-horizontal"></i>&nbsp;
+                                <label>Incremento x Metros: <span class="text-danger">*</span></label>
+                                <input formControlName="incrementoCadaMetros" class="form-control" type="number"
+                                    pe="text" (input)="validarMaxCaracteres($event, 10)" required />
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <i class="fa fa-coins"></i>&nbsp;
+                                <label>Costo Adicional: <span class="text-danger">*</span></label>
+                                <input formControlName="costoAdicional" class="form-control" type="number" pe="text"
+                                    (input)="validarMaxCaracteres($event, 10)" required />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 d-flex justify-content-center">
+                <button type="button" class="btn btn-success w-25" (click)="configurarRuta(modal)">
+                    <i class="fa fa-check"></i>&nbsp;Guardar
+                </button>
+                <!-- <button type="button" class="btn btn-danger w-25" (click)="cancelar(modal)">
+                    <i class="fa fa-times"></i>&nbsp;Cancelar
+                </button> -->
+            </div>
+        </div>
+    </form>
+</ng-template>
+
+<ng-template #largeDataModals let-modal>
+    <form [formGroup]="guardarRutaNueva">
+        <div class="modal-content p-0" [@fadeInUp]>
+            <div class="modal-body">
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-header bg text-white">
+                        <i class="fa fa-map-pin"></i> Configurar Ruta
+                    </div>
+                    <div class="card-body text-white mt-3" style="background-color: #54565a;">
+                        <div class="row">
+                            <div class="col-md-12 form-group">
+                                <i class="fa fa-file-text"></i>&nbsp;
+                                <label>Nombre: <span class="text-danger">*</span></label>
+                                <input class="form-control" formControlName="nombreRuta"
+                                    placeholder="Inserte un nombre para identificar esta ruta" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 d-flex justify-content-center">
+                <button type="button" class="btn btn-success w-25" (click)="guardarRutaServi(modal)">
+                    <i class="fa fa-check"></i>&nbsp;Guardar
+                </button>
+                <!-- <button type="button" class="btn btn-danger w-25" (click)="cancelar(modal)">
+                    <i class="fa fa-times"></i>&nbsp;Cancelar
+                </button> -->
+            </div>
+        </div>
+    </form>
+</ng-template>
+
+<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
+    [shading]="true" [closeOnOutsideClick]="false" [message]="'Cargando...'">
+</dx-load-panel>

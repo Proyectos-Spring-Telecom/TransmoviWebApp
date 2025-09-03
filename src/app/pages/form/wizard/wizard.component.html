@@ -1,0 +1,308 @@
+<div class="container-fluid">
+  <app-page-title title="Wizard" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Basic Wizard</h4>
+
+          <ng-stepper #cdkStepper [linear]="true" class="wizard">
+
+            <cdk-step [optional]="false">
+              <ng-template cdkStepLabel>
+                <span class="number">1.</span>
+                <span>Seller Details</span>
+              </ng-template>
+              @if(cdkStepper.selectedIndex === 0){
+              <ng-template [ngTemplateOutlet]="SellerContent"></ng-template>
+              }
+              <ul class="list-inline wizard d-flex justify-content-end mb-0">
+                <li class="previous list-inline-item" aria-disabled="true"><button class="btn btn-primary" cdkStepperPrevious disabled>Previous</button></li>
+                <li class="next list-inline-item" aria-disabled="false"><button class="btn btn-primary" cdkStepperNext>Next</button></li>
+              </ul>
+            </cdk-step>
+
+            <cdk-step [optional]="false">
+              <ng-template cdkStepLabel>
+                <span class="number">2.</span>
+                <span>Company Document</span>
+              </ng-template>
+              @if(cdkStepper.selectedIndex === 1){
+              <ng-template [ngTemplateOutlet]="companyDocument"></ng-template>
+              }
+              <ul class="list-inline wizard d-flex justify-content-end mb-0">
+                <li class="previous list-inline-item" aria-disabled="true"><button class="btn btn-primary" cdkStepperPrevious>Previous</button></li>
+                <li class="next list-inline-item" aria-disabled="false"><button class="btn btn-primary" cdkStepperNext>Next</button></li>
+              </ul>
+            </cdk-step>
+
+            <cdk-step [optional]="false">
+              <ng-template cdkStepLabel>
+                <span class="number">3.</span>
+                <span>Bank Details</span>
+              </ng-template>
+              @if(cdkStepper.selectedIndex === 2){
+              <ng-template [ngTemplateOutlet]="bankDetail"></ng-template>
+              }
+              <ul class="list-inline wizard d-flex justify-content-end mb-0">
+                <li class="previous list-inline-item" aria-disabled="true"><button class="btn btn-primary" cdkStepperPrevious>Previous</button></li>
+                <li class="next list-inline-item" aria-disabled="false"><button class="btn btn-primary" cdkStepperNext>Next</button></li>
+              </ul>
+            </cdk-step>
+
+            <cdk-step [optional]="false">
+              <ng-template cdkStepLabel>
+                <span class="number">4.</span>
+                <span>Confirm Detail</span>
+              </ng-template>
+              @if(cdkStepper.selectedIndex === 3){
+              <ng-template [ngTemplateOutlet]="confirmDetail"></ng-template>
+              }
+              <ul class="list-inline wizard d-flex justify-content-end mb-0">
+                <li class="previous list-inline-item" aria-disabled="true"><button class="btn btn-primary" cdkStepperPrevious>Previous</button></li>
+                <li class="next list-inline-item" aria-disabled="false"><button class="btn btn-primary" cdkStepperNext>Finish</button></li>
+              </ul>
+            </cdk-step>
+
+          </ng-stepper>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- end row -->
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4"> Vertical Wizard</h4>
+
+          <ng-stepper #cdkStepper [linear]="true" id="vertical-example" class="vertical-wizard">
+            <cdk-step [optional]="false">
+              <ng-template cdkStepLabel>
+                <span class="number">1.</span>
+                <span>Seller Details</span>
+              </ng-template>
+              <ng-template [ngTemplateOutlet]="SellerContent"></ng-template>
+
+              <ul class="list-inline wizard d-flex justify-content-end mb-0">
+                <li class="previous list-inline-item" aria-disabled="true"><button class="btn btn-primary" cdkStepperPrevious disabled>Previous</button></li>
+                <li class="next list-inline-item" aria-disabled="false"><button class="btn btn-primary" cdkStepperNext>Next</button></li>
+              </ul>
+            </cdk-step>
+
+            <cdk-step [optional]="false">
+              <ng-template cdkStepLabel>
+                <span class="number">2.</span>
+                <span>Company Document</span>
+              </ng-template>
+              <ng-template [ngTemplateOutlet]="companyDocument"></ng-template>
+
+              <ul class="list-inline wizard d-flex justify-content-end mb-0">
+                <li class="previous list-inline-item" aria-disabled="true"><button class="btn btn-primary" cdkStepperPrevious>Previous</button></li>
+                <li class="next list-inline-item" aria-disabled="false"><button class="btn btn-primary" cdkStepperNext>Next</button></li>
+              </ul>
+            </cdk-step>
+
+            <cdk-step [optional]="false">
+              <ng-template cdkStepLabel>
+                <span class="number">3.</span>
+                <span>Bank Details</span>
+              </ng-template>
+              <ng-template [ngTemplateOutlet]="bankDetail"></ng-template>
+
+              <ul class="list-inline wizard d-flex justify-content-end mb-0">
+                <li class="previous list-inline-item" aria-disabled="true"><button class="btn btn-primary" cdkStepperPrevious>Previous</button></li>
+                <li class="next list-inline-item" aria-disabled="false"><button class="btn btn-primary" cdkStepperNext>Next</button></li>
+              </ul>
+            </cdk-step>
+
+            <cdk-step [optional]="false">
+              <ng-template cdkStepLabel>
+                <span class="number">4.</span>
+                <span>Confirm Detail</span>
+              </ng-template>
+              <ng-template [ngTemplateOutlet]="confirmDetail"></ng-template>
+              <ul class="list-inline wizard d-flex justify-content-end mb-0">
+                <li class="previous list-inline-item" aria-disabled="true"><button class="btn btn-primary" cdkStepperPrevious>Previous</button></li>
+                <li class="next list-inline-item" aria-disabled="false"><button class="btn btn-primary" cdkStepperNext>Finish</button></li>
+              </ul>
+            </cdk-step>
+          </ng-stepper>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #SellerContent>
+  <div class="tab-pane" id="seller-details">
+    <form>
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="mb-3">
+            <label for="basicpill-firstname-input">First name</label>
+            <input type="text" class="form-control" id="basicpill-firstname-input" placeholder="Enter your First name">
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="mb-3">
+            <label for="basicpill-lastname-input">Last name</label>
+            <input type="text" class="form-control" id="basicpill-lastname-input" placeholder="Enter your Last Name">
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="mb-3">
+            <label for="basicpill-phoneno-input">Phone</label>
+            <input type="text" class="form-control" id="basicpill-phoneno-input" placeholder="Enter your Phone Number">
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="mb-3">
+            <label for="basicpill-email-input">Email</label>
+            <input type="email" class="form-control" id="basicpill-email-input" placeholder="Enter your email address">
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="mb-3">
+            <label for="basicpill-address-input">Address</label>
+            <textarea id="basicpill-address-input" class="form-control" rows="2" placeholder="Enter your Address"></textarea>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</ng-template>
+
+<ng-template #companyDocument>
+  <div class="tab-pane" id="company-document">
+    <div>
+      <form>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label for="basicpill-pancard-input">PAN Card</label>
+              <input type="text" class="form-control" id="basicpill-pancard-input" placeholder="Enter your Pancard Number">
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label for="basicpill-vatno-input">VAT/TIN No.</label>
+              <input type="text" class="form-control" id="basicpill-vatno-input" placeholder="Enter your VAT/TIN number.">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label for="basicpill-cstno-input">CST No.</label>
+              <input type="text" class="form-control" id="basicpill-cstno-input" placeholder="Enter your CST number">
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label for="basicpill-servicetax-input">Service Tax No.</label>
+              <input type="text" class="form-control" id="basicpill-servicetax-input" placeholder="Enter your Service Tax number">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label for="basicpill-companyuin-input">Company UIN</label>
+              <input type="text" class="form-control" id="basicpill-companyuin-input" placeholder="Enter your Company UIN number">
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label for="basicpill-declaration-input">Declaration</label>
+              <input type="text" class="form-control" id="basicpill-declaration-input" placeholder="Enter your Declaration">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #bankDetail>
+  <div class="tab-pane" id="bank-detail">
+    <div>
+      <form>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label for="basicpill-namecard-input">Name on Card</label>
+              <input type="text" class="form-control" id="basicpill-namecard-input" placeholder="Enter your Name on Card">
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label>Credit Card Type</label>
+              <select class="form-select">
+                <option selected>Select Card Type</option>
+                <option value="AE">American Express</option>
+                <option value="VI">Visa</option>
+                <option value="MC">MasterCard</option>
+                <option value="DI">Discover</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label for="basicpill-cardno-input">Credit Card Number</label>
+              <input type="text" class="form-control" id="basicpill-cardno-input" placeholder="Enter your Enter your Credit Card Number">
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label for="basicpill-card-verification-input">Card Verification Number</label>
+              <input type="text" class="form-control" id="basicpill-card-verification-input" placeholder="Enter your Card Verification Number">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label for="basicpill-expiration-input">Expiration Date</label>
+              <input type="text" class="form-control" id="basicpill-expiration-input" placeholder="Enter your Expiration Date">
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #confirmDetail>
+  <div class="tab-pane" id="confirm-detail">
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <div class="text-center">
+          <div class="mb-4">
+            <i class="mdi mdi-check-circle-outline text-success display-4"></i>
+          </div>
+          <div>
+            <h5>Confirm Detail</h5>
+            <p class="text-muted">If several languages coalesce, the grammar of the resulting</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,71 @@
+<!-- <div id="loading" class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+</div> -->
+
+<div [@fadeInUp] class="container-fluid">
+
+    <div class="card">
+        <div class="card-body">
+            <div class="header-dispositivos">
+                <div style="display: grid; justify-content: center; align-items: center;">
+                    <i class="fas fa-car"></i>
+                    <span class="titulo">Gestión de Vehículos</span>
+                </div>
+                <div class="subtitulo">Consulta, busca y navega entre tus vehículos registrados</div>
+                <button class="button-18" role="button" (click)="agregarVehiculo()">Agregar Vehículo</button>
+            </div>
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <div class="table-responsive mb-4 col-12 col-lg-12">
+                        <dx-data-grid id="gridContainer" [columnHidingEnabled]="true" [showBorders]="true"
+                            [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
+                            [dataSource]="listaVehiculos" [keyExpr]="'Id'" [width]="'100%'">
+                            <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
+                            <dxo-paging [pageSize]="20"></dxo-paging>
+                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20, 50, 100, 200]" [showInfo]="true"></dxo-pager>
+                            <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
+                            <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
+                            <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
+                            <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
+                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="180"></dxi-column>
+                            <dxi-column dataField="Id" caption="ID" alignment="center"></dxi-column>
+                            <dxi-column dataField="Marca" caption="Marca" alignment="center"></dxi-column>
+                            <dxi-column dataField="Modelo" caption="Modelo" alignment="center"></dxi-column>
+                            <dxi-column dataField="Ano" caption="Año" alignment="center"></dxi-column>
+                            <dxi-column dataField="Placa" caption="Placa" alignment="center"></dxi-column>
+                            <dxo-export [enabled]="false" [allowExportSelectedData]="true"
+                                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
+                            </dxo-export>
+                            <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
+                                <div>
+                                    <button valueExpr="id" id="actualizarButton" class="btnAcciones"
+                                        (click)="actualizarVehiculo(row.data.Id)">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                </div>
+                                <div>
+                                    <button id="deleteButton" class="btnAcciones" (click)="eliminarVehiculo(row.data)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div>
+                                    <button *ngIf="row.data.Estatus === 0" id="pinButton" class="btnAcciones" (click)="activar(row.data)">
+                                        <i class="fa fa-arrow-up"></i>
+                                    </button>
+                                    <button *ngIf="row.data.Estatus === 1" id="deleteButton" class="btnAcciones"
+                                        (click)="desactivar(row.data)">
+                                        <i class="fa fa-arrow-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </dx-data-grid>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
+  [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
+</dx-load-panel>

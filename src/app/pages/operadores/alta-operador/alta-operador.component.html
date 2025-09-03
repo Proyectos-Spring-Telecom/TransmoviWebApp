@@ -1,0 +1,141 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-header-custom">
+            <div class="icon-wrapper">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="header-text">
+                <h5>{{title}}</h5>
+                <span>Completa la información para registrar un nuevo operador.</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <form [formGroup]="operadorForm" class="cliente-form">
+                <h6 class="section-title">Datos Generales</h6>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <label>Nombre</label>
+                        <input type="text" class="form-control" formControlName="Nombre" placeholder="Ej: Alonso">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Apellido Paterno</label>
+                        <input type="text" class="form-control" formControlName="ApellidoPaterno"
+                            placeholder="Ej: Rodríguez">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Apellido Materno</label>
+                        <input type="text" class="form-control" formControlName="ApellidoMaterno"
+                            placeholder="Ej: Santos">
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <label>Número Licencia</label>
+                        <input type="email" class="form-control" formControlName="NumeroLicencia"
+                            placeholder="Ej: XZ92K7LM5QP4A8SD">
+                    </div>
+                    <div class="col-md-3">
+                        <label>Fecha Nacimiento</label>
+                        <input type="date" class="form-control" formControlName="FechaNacimiento"
+                            placeholder="Ej: 12/05/1999">
+                    </div>
+                    <div class="col-md-3">
+                        <label>Teléfono</label>
+                        <input class="form-control" formControlName="Telefono" placeholder="Ej: 5555555555"
+                            maxlength="10" (keypress)="allowOnlyNumbers($event)">
+                    </div>
+                    <div class="col-md-3">
+                        <label>Correo</label>
+                        <input type="email" class="form-control" formControlName="Correo"
+                            placeholder="Ej: contacto@ejemplo.com">
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <!-- INE -->
+                            <div class="tc-upload">
+                                <label>INE</label>
+
+                                <!-- PREVIEW -->
+                                <div class="tc-preview" *ngIf="inePreviewUrl; else ineTile">
+                                    <img [src]="inePreviewUrl" alt="INE" />
+                                    <div class="tc-actions">
+                                        <button type="button" class="btn-change"
+                                            (click)="openIneFilePicker()">Cambiar</button>
+                                        <button type="button" class="btn-remove" (click)="clearIneImage($event)">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- TILE -->
+                                <ng-template #ineTile>
+                                    <div class="tc-tile" (click)="openIneFilePicker()"
+                                        (dragover)="onIneDragOver($event)" (dragleave)="onIneDragLeave($event)"
+                                        (drop)="onIneDrop($event)" [class.dragging]="ineDragging">
+
+                                        <div class="circle">
+                                            <i class="fas fa-id-card"></i>
+                                        </div>
+                                        <div class="meta">
+                                            <div class="title">Arrastra o haz clic</div>
+                                            <div class="hint">JPG/PNG/PDF/DOC/XLS · máx 3 MB</div>
+                                        </div>
+                                    </div>
+                                </ng-template>
+
+                                <input type="file" #ineFileInput
+                                    accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx" hidden
+                                    (change)="onIneFileSelected($event)">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <!-- LICENCIA -->
+                            <div class="tc-upload">
+                                <label>Licencia</label>
+
+                                <!-- PREVIEW -->
+                                <div class="tc-preview" *ngIf="licenciaPreviewUrl; else licenciaTile">
+                                    <img [src]="licenciaPreviewUrl" alt="Licencia" />
+                                    <div class="tc-actions">
+                                        <button type="button" class="btn-change"
+                                            (click)="openLicenciaFilePicker()">Cambiar</button>
+                                        <button type="button" class="btn-remove" (click)="clearLicenciaImage($event)">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- TILE -->
+                                <ng-template #licenciaTile>
+                                    <div class="tc-tile" (click)="openLicenciaFilePicker()"
+                                        (dragover)="onLicenciaDragOver($event)"
+                                        (dragleave)="onLicenciaDragLeave($event)" (drop)="onLicenciaDrop($event)"
+                                        [class.dragging]="licenciaDragging">
+
+                                        <div class="circle">
+                                            <i class="fas fa-address-card"></i>
+                                        </div>
+                                        <div class="meta">
+                                            <div class="title">Arrastra o haz clic</div>
+                                            <div class="hint">JPG/PNG/PDF/DOC/XLS · máx 3 MB</div>
+                                        </div>
+                                    </div>
+                                </ng-template>
+
+                                <input type="file" #licenciaFileInput
+                                    accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx" hidden
+                                    (change)="onLicenciaFileSelected($event)">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="form-actions mt-4">
+                    <button type="submit" class="btn btn-success" (click)="submit()">{{submitButton}}</button>
+                    <button type="button" class="btn btn-danger" (click)="regresar()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,39 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-header-custom">
+            <div class="icon-wrapper">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="header-text">
+                <h5>{{title}}</h5>
+                <span>Completa la información para registrar un nuevo operador.</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <form [formGroup]="dispositivoForm" class="cliente-form">
+                <h6 class="section-title">Datos del Equipo</h6>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <label>Número de Serie</label>
+                        <input type="text" class="form-control" formControlName="NumeroSerie"
+                            placeholder="Ej: 41f170e5dafc640e">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Marca</label>
+                        <input type="text" class="form-control" formControlName="Marca"
+                            placeholder="Ej: Zebra">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Módelo</label>
+                        <input type="text" class="form-control" formControlName="Modelo"
+                            placeholder="Ej: ZQ520">
+                    </div>
+                </div>
+                <div class="form-actions mt-4">
+                    <button type="submit" class="btn btn-success" (click)="submit()">{{submitButton}}</button>
+                    <button type="button" class="btn btn-danger" (click)="regresar()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

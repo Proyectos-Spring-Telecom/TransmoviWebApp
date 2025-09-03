@@ -1,0 +1,69 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-body">
+            <div class="header-dispositivos">
+                <div style="display: grid; justify-content: center; align-items: center;">
+                    <i class="fas fa-address-book"></i>
+                    <span class="titulo">Gestión de Clientes</span>
+                </div>
+                <div class="subtitulo">Consulta, busca y edita entre tus clientes registrados</div>
+                <button class="button-18" role="button" (click)="agregarCliente()">Agregar Cliente</button>
+            </div>
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <div class="table-responsive mb-4 col-12 col-lg-12">
+                        <dx-data-grid id="gridContainer" [columnHidingEnabled]="true" [showBorders]="true"
+                            [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
+                            [dataSource]="listaClientes" [keyExpr]="'Id'" [width]="'100%'">
+                            <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
+                            <dxo-paging [pageSize]="20"></dxo-paging>
+                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20, 50, 100, 200]" [showInfo]="true"></dxo-pager>
+                            <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
+                            <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
+                            <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
+                            <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
+                            <!-- <dxi-column dataField="Logotipo" caption="Logotipo" alignment="center" cellTemplate="cellTemplate">
+                                <ng-template *dxTemplate="let d of 'cellTemplate'">
+                                    <img [src]="d.data.Logotipo" alt="Logo" width="50">
+                                </ng-template>
+                            </dxi-column> -->
+                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="150"></dxi-column>
+                            <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center"></dxi-column>
+                            <dxi-column dataField="Telefono" caption="Teléfono" alignment="center"></dxi-column>
+                            <dxi-column dataField="RFC" caption="RFC" alignment="center"></dxi-column>
+                            <dxi-column dataField="Correo" caption="Correo" alignment="center"></dxi-column>
+                            <dxi-column dataField="TipoPersona" caption="Tipo Persona" alignment="center"></dxi-column>
+                            <dxi-column dataField="NombreEncargado" caption="Nombre Encargado" alignment="center"></dxi-column>
+                            <dxi-column dataField="TelefonoEncargado" caption="Teléfono Encargado" alignment="center"></dxi-column>
+                            <dxi-column dataField="EmailEncargado" caption="Email Encargado" alignment="center"></dxi-column>
+                            <dxi-column dataField="IdPadre" caption="Id Padre" alignment="center"></dxi-column>
+                            <dxi-column dataField="DireccionCompleta" caption="Dirección"></dxi-column>
+                            <dxi-column dataField="NumeroExterior" caption="Número Exterior" alignment="center"></dxi-column>
+                            <dxi-column dataField="NumeroInterior" caption="Número Interior" alignment="center"></dxi-column>
+                            <dxo-export [enabled]="false" [allowExportSelectedData]="true"
+                                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
+                            </dxo-export>
+                            <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
+                                <div>
+                                    <button valueExpr="id" id="actualizarButton" class="btnAcciones"
+                                        (click)="actualizarCliente(row.data.Id)">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                </div>
+                                <div>
+                                    <button id="deleteButton" class="btnAcciones" (click)="eliminarCliente(row.data)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </dx-data-grid>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
+    [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
+</dx-load-panel>

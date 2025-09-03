@@ -1,0 +1,82 @@
+.profile-card {
+  border: none;
+  background-color: #002136;
+  border-radius: 20px;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+}
+
+.profile-banner {
+  background: radial-gradient(circle at top center, #00304e 0%, #002136 100%);
+  padding: 40px 20px;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.avatar-wrapper {
+  background: #00836d ;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 12px rgba(255, 45, 117, 0.4);
+  font-size: 50px;
+  color: white;
+}
+
+.badge.bg-accent {
+  background-color: #00836d ;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  margin-top: 5px;
+}
+
+.info-box {
+  background-color: #002136;
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.info-box label {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.info-box p {
+  margin: 0;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.action-tile {
+  background-color: #001b2c;
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  transition: 0.3s;
+  cursor: pointer;
+  color: #d4d7e2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.action-tile i {
+  font-size: 24px;
+  color: #09fa3a ;
+}
+
+.action-tile:hover {
+  background-color: #001a2b;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+

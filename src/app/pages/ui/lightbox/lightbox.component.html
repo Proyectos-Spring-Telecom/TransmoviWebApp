@@ -1,0 +1,167 @@
+<div class="container-fluid">
+    <app-page-title title="Lightbox" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <h4 class="card-title">Single image lightbox</h4>
+                    <p class="card-title-desc">Three simple popups with different scaling settings.</p>
+
+                    <div class="row">
+                        <div class="col-6">
+                            @for(image of images;track $index){
+                            <div>
+                                <h5 class="font-size-14">Fits (Horz/Vert)</h5>
+                                <a class="image-popup-vertical-fit" href="javascript:void(0);" title="Caption. Can be aligned it to any side and contain any HTML.">
+                                    <img class="img-fluid" alt="" [src]="image.thumb" (click)="openImage($index)" width="145">
+                                </a>
+                            </div>}
+                        </div>
+                        <div class="col-6">
+                            @for(image of images;track $index){
+                            <div>
+                                <h5 class="font-size-14">Effects</h5>
+                                <a class="image-popup-no-margins" href="javascript:void(0);">
+                                    <img class="img-fluid" alt="" [src]="image.thumb" (click)="openImage($index)" width="75">
+                                </a>
+                                <p class="mt-2 mb-0 text-muted">No gaps, zoom animation, close icon in top-right corner.
+                                </p>
+                            </div>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <h4 class="card-title">Lightbox gallery</h4>
+                    <p class="card-title-desc mb-1">In this example lazy-loading of images is enabled for the next image
+                        based on move direction. </p>
+
+                    <div class="popup-gallery">
+                        <div class="row">
+                            @for(image of albums;track $index){
+                            <div class="col-xl-2 col-md-4 col-6">
+                                <div class="mt-4">
+                                    <a href="javascript:void(0);" title="Project 1">
+                                        <div class="img-fluid">
+                                            <img [src]="image.thumb" (click)="open($index)" alt="" class="img-fluid d-block">
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>}
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div> <!-- end col -->
+    </div> <!-- end row -->
+
+
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+
+                    <h4 class="card-title">Zoom Gallery</h4>
+                    <p class="card-title-desc">Zoom effect works only with images.</p>
+
+                    <div class="zoom-gallery">
+                        @for(image of gallery;track $index){
+                        <a class="float-start" href="javascript:void(0);" title="Project 1">
+                            <img [src]="image.thumb" (click)="openZoomGallery($index)" alt="" width="275"></a>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+
+                    <h4 class="card-title">Popup with video or map</h4>
+                    <p class="card-title-desc">In this example lazy-loading of images is enabled for the next image
+                        based on
+                        move direction. </p>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-flex flex-wrap gap-2">
+                                <a class="popup-youtube btn btn-light mo-mb-2" href="javascript:void(0);" (click)="openYoutubeModal(youtube)">Open YouTube Video</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Youtube Modal Open -->
+            <ng-template #youtube role="document" let-modal>
+                <div class="modal-header">
+                    <button type="button" class="btn-close text-white" aria-hidden="true" (click)="modal.dismiss('Cross click')"></button>
+                </div>
+                <div class="modal-body" style="height: 300px;">
+                    <iframe src="https://www.youtube.com/embed/1y_kfWUCFDQ" class="embed-responsive-item w-100 h-100"></iframe>
+                </div>
+            </ng-template>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Popup with form</h4>
+                    <div>
+                        <a class="popup-form btn btn-primary" href="javascript:void(0);" (click)="openModal(content)">Popup form</a>
+                    </div>
+
+                    <ng-template #content role="document" let-modal>
+                        <div class="modal-header">
+                            <h5 class="modal-title mt-0">Form</h5>
+                            <button type="button" class="btn-close" aria-hidden="true" (click)="modal.dismiss('Cross click')"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <div class="mb-3">
+                                            <label for="name" class="form-label">Name</label>
+                                            <input type="text" class="form-control" id="name" placeholder="Enter Name">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="mb-3">
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="email" placeholder="Enter Email">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="mb-3">
+                                            <label for="password" class="form-label">Password</label>
+                                            <input type="password" class="form-control" id="password" placeholder="Enter Password">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <textarea class="form-control" id="subject" rows="3"></textarea>
+                                </div>
+
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
+                            </form>
+                        </div>
+                    </ng-template>
+
+                </div>
+            </div>
+        </div> <!-- end col -->
+    </div> <!-- end row -->
+</div>

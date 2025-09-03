@@ -1,0 +1,71 @@
+.side-nav-link-ref {
+  background-color: transparent !important;
+  color: white !important;
+  font-weight: normal;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.side-nav-link-ref:hover {
+  background-color: #00836d !important;
+  color: #fff !important;
+}
+
+.side-nav-link-ref.active-link {
+  background-color: #00836d !important;
+  color: #fff !important;
+  font-weight: bold;
+}
+
+.side-nav-link-ref.active-link i {
+  color: #09fa3a !important;
+}
+
+
+.side-nav-link-ref i {
+  color: white !important;
+  transition: color 0.2s ease;
+}
+
+.side-nav-link-ref:hover i,
+.side-nav-link-ref.active-link i {
+  color: #09fa3a !important;
+}
+
+.vertical-menu {
+
+  .side-nav-link-ref {
+    color: #fff !important;
+  }
+  .side-nav-link-ref i {
+    color: #fff !important;
+  }
+
+  li > .is-parent {
+    color: #fff !important;
+  }
+  li > .is-parent i {
+    color: #fff !important;
+  }
+
+  .is-parent.has-arrow::after {
+    border-color: rgba(255,255,255,0.8) !important;
+    opacity: 1;
+  }
+
+  .sub-menu a.side-nav-link-ref {
+    color: #fff !important;
+  }
+  .sub-menu a.side-nav-link-ref i {
+    color: #fff !important;
+  }
+
+  .metismenu li > a,
+  .metismenu li > button.is-parent {
+    color: #fff !important;
+  }
+  .metismenu li > a i,
+  .metismenu li > button.is-parent i {
+    color: #fff !important;
+  }
+}

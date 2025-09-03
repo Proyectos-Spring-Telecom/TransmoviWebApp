@@ -1,0 +1,185 @@
+<div class="container-fluid">
+    <app-page-title title="Offcanvas" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Demo</h5>
+                    <p class="card-title-desc">Use the buttons below to show and hide an offcanvas element via
+                        JavaScript that toggles the <code>.show</code> class on an element with the
+                        <code>.offcanvas</code> class.
+                    </p>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-primary" data-bs-toggle="offcanvas" href="javascript:void(0);" role="button"
+                            aria-controls="offcanvasExample" (click)="openLeft(content)">
+                            Link with href
+                        </a>
+                        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvasExample" aria-controls="offcanvasExample"
+                            (click)="openLeft(content)">
+                            Button with data-bs-target
+                        </button>
+                    </div>
+
+                    <ng-template #content let-offcanvas>
+                        <div class="offcanvas-header">
+                            <h5 class="offcanvas-title" id="offcanvasExampleLabel">Offcanvas</h5>
+                            <button type="button" class="btn-close text-dark" data-bs-dismiss="offcanvas"
+                                aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                            <div>
+                                Some text as placeholder. In real life you can have the elements you have chosen. Like,
+                                text, images, lists, etc.
+                            </div>
+                            <div class="dropdown mt-3" ngbDropdown>
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton"
+                                    data-bs-toggle="dropdown" ngbDropdownToggle>
+                                    Dropdown button <i class="mdi mdi-chevron-down"></i>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" ngbDropdownMenu>
+                                    <li><a class="dropdown-item" href="javascript:void(0);">Action</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0);">Another action</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0);">Something else here</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </ng-template>
+                </div>
+                <!-- end card body  -->
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col -->
+
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Placement</h5>
+                    <p class="card-title-desc">Offcanvas Diffrent Placement Example: Left, Right & Bottom</p>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvasTop" aria-controls="offcanvasTop"
+                            (click)="openTop(Topcontent)">Toggle top offcanvas</button>
+
+                        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"
+                            (click)="openRight(Rightcontent)">Toggle right
+                            offcanvas</button>
+
+                        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom"
+                            (click)="openBottom(Bottomcontent)">Toggle bottom
+                            offcanvas</button>
+                    </div>
+
+                    <!-- top offcanvas -->
+                    <ng-template #Topcontent let-offcanvas>
+                        <div class="offcanvas-header">
+                            <h5 id="offcanvasTopLabel">Offcanvas top</h5>
+                            <button type="button" class="btn-close text-dark" data-bs-dismiss="offcanvas"
+                                aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                            ...
+                        </div>
+                    </ng-template>
+
+                    <!-- right offcanvas -->
+                    <ng-template #Rightcontent let-offcanvas>
+                        <div class="offcanvas-header">
+                            <h5 id="offcanvasRightLabel">Offcanvas Right</h5>
+                            <button type="button" class="btn-close text-dark" data-bs-dismiss="offcanvas"
+                                aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                            ...
+                        </div>
+                    </ng-template>
+
+                    <!-- left offcanvas -->
+                    <ng-template #Bottomcontent let-offcanvas>
+                        <div class="offcanvas-header">
+                            <h5 id="offcanvasBottomLabel">Offcanvas Bottom</h5>
+                            <button type="button" class="btn-close text-dark" data-bs-dismiss="offcanvas"
+                                aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                            ...
+                        </div>
+                    </ng-template>
+                </div>
+                <!-- end card body  -->
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col -->
+    </div>
+    <!-- end row -->
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Backdrop</h5>
+                    <p class="card-title-desc">Scrolling the <code>&lt;body&gt;</code> element is disabled when an
+                        offcanvas and its backdrop are visible. Use the <code>data-bs-scroll</code> attribute to toggle
+                        <code>&lt;body&gt;</code> scrolling and <code>data-bs-backdrop</code> to toggle the backdrop.
+                    </p>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling"
+                            (click)="openNoBackdrop(NoBackdropcontent)">No Backdrop</button>
+                        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvasWithBackdrop" aria-controls="offcanvasWithBackdrop"
+                            (click)="openScroll(Scrollcontent)">Scrolling of main content enabled</button>
+                        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions"
+                            (click)="openNoKeyboard(NoKeyboardcontent)">Escape does not dismiss</button>
+                    </div>
+
+                    <ng-template #NoBackdropcontent let-offcanvas>
+                        <div class="offcanvas-header">
+                            <h5 class="offcanvas-title" id="offcanvasScrollingLabel">Colored with scrolling</h5>
+                            <button type="button" class="btn-close text-dark" data-bs-dismiss="offcanvas"
+                                aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                            <p>Try scrolling the rest of the page to see this option in action.</p>
+                        </div>
+                    </ng-template>
+                    <ng-template #Scrollcontent let-offcanvas>
+                        <div class="offcanvas-header">
+                            <h5 class="offcanvas-title" id="offcanvasWithBackdropLabel">Offcanvas with backdrop</h5>
+                            <button type="button" class="btn-close text-dark" data-bs-dismiss="offcanvas"
+                                aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                            <p>.....</p>
+                        </div>
+                    </ng-template>
+                    <ng-template #NoKeyboardcontent let-offcanvas>
+                        <div class="offcanvas-header">
+                            <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Backdroped with scrolling
+                            </h5>
+                            <button type="button" class="btn-close text-dark" data-bs-dismiss="offcanvas"
+                                aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                            <p>Try scrolling the rest of the page to see this option in action.</p>
+                        </div>
+                    </ng-template>
+                </div>
+                <!-- end card body  -->
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col -->
+    </div>
+    <!-- end row -->
+
+</div>

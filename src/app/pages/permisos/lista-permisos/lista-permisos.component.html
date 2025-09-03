@@ -1,0 +1,98 @@
+<!-- <div id="loading" class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+</div> -->
+
+<div [@fadeInUp] class="container-fluid">
+
+    <div class="card">
+        <div class="card-body">
+            <div class="header-dispositivos">
+                <div style="display: grid; justify-content: center; align-items: center;">
+                    <i class="fas fa-list-ol"></i>
+                    <span class="titulo">Gestión de Permisos</span>
+                </div>
+                <div class="subtitulo">Consulta, busca y navega entre tus Permisos registrados</div>
+                <div *appHasPermission="'6'">
+                    <button class="button-18" role="button" (click)="agregarPermiso()">Agregar Permiso</button>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <div class="table-responsive mb-4 col-12 col-lg-12">
+                        <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
+                            [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
+                            [rowAlternationEnabled]="'true'" [dataSource]="listaPermisos" [keyExpr]="'Id'"
+                            [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
+                            [pager]="{ 
+                                showPageSizeSelector: true, 
+                                allowedPageSizes: [50], 
+                                showInfo: true,
+                                infoText: 'Página {0} de {1}', 
+                                visible: true 
+                            }" (onPageIndexChanged)=" onPageIndexChanged($event)" (onOptionChanged)="onGridOptionChanged($event)">
+                            <dxo-search-panel [visible]="true" [width]="200"
+                                placeholder="Búsqueda Inteligente"></dxo-search-panel>
+                            <dxo-toolbar>
+                                <dxi-item name="groupPanel" location="before"></dxi-item>
+                                <dxi-item name="exportButton" location="after"
+                                    [options]="{ text: 'Exportar Grid', icon: 'export' }" [showText]="'always'">
+                                </dxi-item>
+                                <dxi-item name="searchPanel" location="after"></dxi-item>
+                            </dxo-toolbar>
+                            <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
+                            <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
+                            <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
+                            <dxi-column caption="Acciones" cellTemplate="acciones" alignment="center" [width]="150"></dxi-column>
+                            <dxo-grouping #expand [autoExpandAll]="true"></dxo-grouping>
+                            <dxi-column dataField="Nombre" caption="Nombre" alignment="center" dataType="string"[allowSearch]="true"></dxi-column>
+                            <dxi-column dataField="Descripcion" caption="Descripción" alignment="center" dataType="string" [allowSearch]="true"></dxi-column>
+                            <dxi-column dataField="Modulo.Nombre" caption="Módulo" alignment="center" dataType="string" [allowSearch]="true">
+                                <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+                            </dxi-column>
+                            <dxi-column dataType="string" [allowSearch]="true" dataField="estatusTexto" caption="Estatus" alignment="center" cellTemplate="estatus">
+                                <div *dxTemplate="let est of 'estatus'">
+                                    <div [ngClass]="{
+                                        'badge': true,
+                                        'rounded-pill': true,
+                                        'font-size-14': true,
+                                        'text-success': est.data.estatus === 1,
+                                        'text-danger': est.data.estatus === 0,
+                                        'bg-success-subtle': est.data.estatus === 1,
+                                        'bg-danger-subtle': est.data.estatus === 0
+                                        }">
+                                        {{ est.data.estatusTexto }}
+                                    </div>
+                                </div>
+                            </dxi-column>
+                            <div *dxTemplate="let row of 'acciones'" class="d-flex gap-3 justify-content-center">
+                                <div>
+                                    <button valueExpr="id" id="actualizarButton" class="btnAcciones"
+                                        (click)="actualizarPermiso(row.data.id)">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                </div>
+                                <div>
+                                    <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones"
+                                        (click)="activar(row.data)">
+                                        <i class="fa fa-arrow-up"></i>
+                                    </button>
+                                    <button *ngIf="row.data.estatus === 1" id="deleteButton" class="btnAcciones"
+                                        (click)="desactivar(row.data)">
+                                        <i class="fa fa-arrow-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <dxo-export [enabled]="false" [allowExportSelectedData]="false"
+                                [texts]="{ exportAll: 'Exportar todos los datos a Excel' }">
+                            </dxo-export>
+                        </dx-data-grid>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
+    [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
+</dx-load-panel>

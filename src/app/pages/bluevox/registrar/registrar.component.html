@@ -1,0 +1,29 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-header-custom">
+            <div class="icon-wrapper">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="header-text">
+                <h5>Registrar</h5>
+                <span>Completa la información para registrar un nuevo cliente.</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <form  class="cliente-form">
+                <h6 class="section-title">Datos Generales</h6>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <label>Nombre</label>
+                        <input type="text" class="form-control" formControlName="Nombre"
+                            placeholder="Ej: Comercializadora Ejemplo">
+                    </div>
+                </div>
+                <div class="form-actions mt-4">
+                    <button type="submit" class="btn btn-success">guardar</button>
+                    <button type="button" class="btn btn-danger" (click)="cancelar()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

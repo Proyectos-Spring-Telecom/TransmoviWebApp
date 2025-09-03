@@ -1,0 +1,69 @@
+.container-fluid {
+  padding: 5px;
+}
+
+
+.search-bar {
+  display: flex;
+  align-items: center;
+}
+
+.search-bar input {
+  margin-right: 10px;
+  flex-grow: 1;
+}
+
+.operations-list {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.operation .card {
+  margin-bottom: 15px;
+}
+
+.image-container img {
+  width: 100%;
+  height: auto;
+}
+
+.no-image {
+  width: 100%;
+  height: 150px;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.content-cards {
+	/*display: block;*/
+	max-height: 600px;
+	overflow: auto;
+}
+
+.map-container{
+  height: 600px;
+                position: relative;
+                overflow: hidden;
+            
+}
+
+.wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.full {
+  height: 100% !important;
+}
+
+.fondoAmarillo{
+  color: yellow;
+}
+
+.col-md-12{
+  font-size: 15px;
+}

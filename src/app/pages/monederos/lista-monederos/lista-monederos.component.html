@@ -1,0 +1,166 @@
+<!-- <div id="loading" class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+</div> -->
+
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-body">
+            <div class="header-dispositivos">
+                <div style="display: grid; justify-content: center; align-items: center;">
+                    <i class="fas fa-money"></i>
+                    <span class="titulo">Gestión de Monedores</span>
+                </div>
+                <div class="subtitulo">Consulta, agrega, modifica, busca y navega entre tus monederos registrados</div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <div class="table-responsive mb-4 col-12 col-lg-12">
+                        <dx-data-grid id="gridContainer" [columnHidingEnabled]="true" [showBorders]="true"
+                            [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
+                            [dataSource]="listaMonederos" [keyExpr]="'Id'" [width]="'100%'">
+                            <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
+                            <dxo-paging [pageSize]="20"></dxo-paging>
+                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20, 50, 100, 200]" [showInfo]="true"></dxo-pager>
+                            <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
+                            <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
+                            <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
+                            <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
+                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="150"></dxi-column>
+                            <dxi-column dataField="Id" caption="ID" alignment="center"></dxi-column>
+                            <dxi-column dataField="NumeroSerie" caption="NumeroSerie" alignment="center"></dxi-column>
+                            <dxi-column dataField="FechaActivacion" caption="Fecha Activación" alignment="center" cellTemplate="fecActi">
+                                <div *dxTemplate="let a of 'fecActi'">
+                                    {{ a.data.FechaActivacion | date: 'dd/MM/yyyy' : '+0000' }}
+                                </div>
+                            </dxi-column>
+                            <dxi-column dataField="Saldo" caption="Saldo" alignment="center" cellTemplate="sald">
+                                <div *dxTemplate="let f of 'sald' ">
+                                    {{f.data.Saldo | currency: '$'}}
+                                </div>
+                            </dxi-column>
+                            <dxo-summary>
+                                <dxi-total-item column="Saldo" summaryType="sum" displayFormat="Total: {0}"
+                                    valueFormat="currency">
+                                </dxi-total-item>
+                            </dxo-summary>
+                            <div *dxTemplate="let monedero of 'Acciones'" class="d-flex gap-3 justify-content-center">
+                                <div>
+                                    <button
+                                        (click)="centerModalRecarga(centerDataModalRecarga, monedero.data.Id, monedero.data.NumeroSerie, monedero.data.Saldo)"
+                                        class="btn btn-success btn-md btn-rounded waves-effect waves-light"
+                                        type="button" placement="top" role="button">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </div>
+                                <div>
+                                    <button
+                                        (click)="centerModalDebito(centerDataModalDebito, monedero.data.Id, monedero.data.NumeroSerie, monedero.data.Saldo)"
+                                        class="btn btn-danger btn-md btn-rounded waves-effect waves-light" type="button"
+                                        placement="top" role="button">
+                                        <i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <dxo-export [enabled]="false" [allowExportSelectedData]="true"
+                                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
+                            </dxo-export>
+                        </dx-data-grid>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="col-lg-6">
+    <ng-template #centerDataModalRecarga let-modal>
+        <form [formGroup]="recargaForm">
+            <div class="modal-content p-3">
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-header bg text-white">
+                        <i class="fa fa-money"></i> Realizar Recarga: {{ selectedTransactionId }}
+                    </div>
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-white">
+                        <div class="d-flex justify-content-between w-100 text-white">
+                            <div><strong>Monto Actual:</strong> {{ selectedMonto | currency }}</div>
+                            <div><strong>Número Serie:</strong> {{ selectedSerie }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mb-3 mt-0">
+                    <div class="card-body" style="background-color: #54565a;">
+                        <label style="color: white;"><i class="fa fa-money"></i> Monto</label>
+                        <input formControlName="Monto" class="form-control" type="number"
+                            placeholder="Ingrese un monto" />
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0">
+                    <div class="row w-100">
+                        <div class="col-12 col-md-6">
+                            <button type="button" class="btn btn-success w-100" (click)="crearTransaccionRecarga()"
+                                [disabled]="recargaForm.invalid || loading">
+                                <i class="fa fa-check" *ngIf="!loading"></i>&nbsp;{{submitButton}}
+                            </button>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <button type="button" class="btn btn-danger w-100" (click)="modal.close()">
+                                <i class="fa fa-times"></i>&nbsp;Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </ng-template>
+
+</div>
+
+
+
+<div class="col-lg-6">
+    <ng-template #centerDataModalDebito let-modal>
+        <form [formGroup]="debitoForm">
+            <div class="modal-content p-3">
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-header bg text-white">
+                        <i class="fa fa-money"></i> Realizar Débito: {{ selectedTransactionId }}
+                    </div>
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-white">
+                        <div class="d-flex justify-content-between w-100 text-white">
+                            <div><strong>Monto Actual:</strong> {{ selectedMonto | currency }}</div>
+                            <div><strong>Número Serie:</strong> {{ selectedSerie }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mb-3 mt-0">
+                    <div class="card-body" style="background-color: #54565a;">
+                        <label style="color: white;"><i class="fa fa-money"></i> Monto</label>
+                        <input formControlName="Monto" class="form-control" type="number"
+                            placeholder="Ingrese un monto" />
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0">
+                    <div class="row w-100">
+                        <div class="col-12 col-md-6">
+                            <button type="button" class="btn btn-success w-100" (click)="crearTransaccionDebito()"
+                                [disabled]="debitoForm.invalid || loading">
+                                <i class="fa fa-check" *ngIf="!loading"></i>&nbsp;{{submitButton}}
+                            </button>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <button type="button" class="btn btn-danger w-100" (click)="modal.close()">
+                                <i class="fa fa-times"></i>&nbsp;Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </ng-template>
+
+</div>
+
+<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
+    [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
+</dx-load-panel>

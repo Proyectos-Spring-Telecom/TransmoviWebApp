@@ -1,0 +1,174 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-header-custom">
+            <div class="icon-wrapper">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="header-text">
+                <h5>{{title}}</h5>
+                <span>Completa la información para registrar un nuevo cliente.</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <form [formGroup]="clienteForm" class="cliente-form">
+                <h6 class="section-title">Datos Generales</h6>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>ID Padre</label>
+                        <select class="form-control" formControlName="IdPadre">
+                            <option value="">Seleccione un cliente</option>
+                            <option *ngFor="let cliente of listaClientes" [value]="cliente.Id">
+                            {{ cliente.Nombre }} {{ cliente.ApellidoPaterno }} {{ cliente.ApellidoMaterno }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>RFC *</label>
+                        <input class="form-control" id="RFC" placeholder="Ej: ABC123456789" formControlName="RFC"
+                            maxlength="13" (input)="sanitizeInput($event)" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Tipo Persona</label>
+                        <select class="form-control" formControlName="TipoPersona"
+                            (change)="onTipoPersonaChange($event)">
+                            <option value="">Seleccione un cliente</option>
+                            <option value="1">Física</option>
+                            <option value="2">Moral</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <label>Nombre</label>
+                        <input type="text" class="form-control" formControlName="Nombre"
+                            placeholder="Ej: Comercializadora Ejemplo">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Apellido Paterno</label>
+                        <input type="text" class="form-control" formControlName="ApellidoPaterno"
+                            placeholder="Ej: Rodríguez">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Apellido Materno</label>
+                        <input type="text" class="form-control" formControlName="ApellidoMaterno"
+                            placeholder="Ej: Santos">
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <label>Teléfono</label>
+                        <input class="form-control" formControlName="Telefono" placeholder="Ej: 5555555555"
+                            maxlength="10" (keypress)="allowOnlyNumbers($event)">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Correo</label>
+                        <input type="email" class="form-control" formControlName="Correo"
+                            placeholder="Ej: contacto@ejemplo.com">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Logotipo</label>
+                        <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal"
+                            data-bs-target=".bs-example-modal-center" (click)="centerModal(centerDataModal)">
+                            Subir Imagen
+                        </button>
+                    </div>
+                    <ng-template #centerDataModal let-modal>
+                        <div class="modal-header">
+                            <h5 class="modal-title">Subir Logotipo</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                                (click)="modal.dismiss('Cross click')"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="upload-modal-wrapper" (click)="fileInput.click()">
+                                <input type="file" #fileInput class="hidden-file-input"
+                                    (change)="onFileSelected($event, modal)" accept="image/*">
+
+                                <div class="upload-content" *ngIf="!previewUrl">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>Haz clic aquí para subir una imagen</span>
+                                    <small>Formatos: JPG, PNG</small>
+                                </div>
+
+                                <div class="preview-content" *ngIf="previewUrl">
+                                    <img [src]="previewUrl" alt="Vista previa del logotipo">
+                                    <p>{{ selectedFileName }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                                (click)="modal.close()">Subir Imagen</button>
+                        </div>
+                    </ng-template>
+                </div>
+                <h6 class="section-title mt-4">Dirección</h6>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Estado</label>
+                        <input type="text" class="form-control" formControlName="Estado"
+                            placeholder="Ej: Ciudad de México">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Municipio</label>
+                        <input type="text" class="form-control" formControlName="Municipio"
+                            placeholder="Ej: Benito Juárez">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Colonia</label>
+                        <input type="text" class="form-control" formControlName="Colonia" placeholder="Ej: Del Valle">
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <label>Calle</label>
+                        <input type="text" class="form-control" formControlName="Calle"
+                            placeholder="Ej: Av. Insurgentes Sur">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Entre Calles</label>
+                        <input type="text" class="form-control" formControlName="EntreCalles"
+                            placeholder="Ej: Xola y Eugenia">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Código Postal</label>
+                        <input pattern="[0-9]*" maxlength="5" class="form-control" formControlName="CP"
+                            placeholder="Ej: 03100">
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <label>Número Exterior</label>
+                        <input type="text" class="form-control" formControlName="NumeroExterior" placeholder="Ej: 123">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Número Interior</label>
+                        <input type="text" class="form-control" formControlName="NumeroInterior" placeholder="Ej: 2B">
+                    </div>
+                </div>
+                <h6 class="section-title mt-4">Datos del Encargado</h6>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Nombre Encargado</label>
+                        <input type="text" class="form-control" formControlName="NombreEncargado"
+                            placeholder="Ej: Luis Hernández">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Teléfono Encargado</label>
+                        <input maxlength="10" (keypress)="allowOnlyNumbers($event)" class="form-control"
+                            formControlName="TelefonoEncargado" placeholder="Ej: 5566778899">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Email Encargado</label>
+                        <input type="email" class="form-control" formControlName="EmailEncargado"
+                            placeholder="Ej: luis.hdz@ejemplo.com">
+                    </div>
+                </div>
+                <div class="form-actions mt-4">
+                    <button type="submit" class="btn btn-success" (click)="submit()">{{submitButton}}</button>
+                    <button type="button" class="btn btn-danger" (click)="regresar()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,34 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-header-custom">
+            <div class="icon-wrapper">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="header-text">
+                <h5>{{title}}</h5>
+                <span>Completa la información para registrar un nuevo cliente.</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <form [formGroup]="moduloForm" class="cliente-form">
+                <h6 class="section-title">Datos Generales</h6>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <label>Nombre</label>
+                        <input type="text" class="form-control" formControlName="nombre"
+                            placeholder="Ej: Consultar Administración">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Descripción</label>
+                        <input type="text" class="form-control" formControlName="descripcion"
+                            placeholder="Ej: Permite visualizar el contenido del módulo">
+                    </div>
+                </div>
+                <div class="form-actions mt-4">
+                    <button type="submit" class="btn btn-success" (click)="submit()">{{submitButton}}</button>
+                    <button type="button" class="btn btn-danger" (click)="regresar()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

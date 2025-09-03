@@ -1,0 +1,175 @@
+<div class="container-fluid">
+    <app-page-title title="Toasts" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Live Example</h5>
+                    <p class="card-title-des">Click the button below to show a toast (positioned with our
+                        utilities in the
+                        lower right corner) that has been hidden by default.
+                    </p>
+
+                    <button type="button" class="btn btn-primary" id="liveToastBtn" (click)="show = true">Show live
+                        toast</button>
+                    @if(show){
+                    <hr>
+                    }
+                    @if(show){
+                    <ngb-toast [autohide]="false" (hidden)="show=false">
+                        <ng-template ngbToastHeader>
+                            <img src="assets/images/logo-sm.png" alt="" class="me-2" height="18">
+                            <strong class="me-auto">Minible</strong>
+                            <small class="text-muted">11 mins ago</small>
+                        </ng-template>
+                        Hello, world! This is a toast message.
+                    </ngb-toast>
+                    }
+                </div><!-- end card-body -->
+            </div><!-- end card -->
+        </div><!-- end col -->
+    </div>
+    <!-- end row -->
+
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+
+                    <h5 class="card-title">Basic Toast</h5>
+                    <p class="card-title-desc">Toasts are as flexible as you need and have very little
+                        required markup.
+                        At a minimum, we require a single element to contain your
+                        “toasted” content and strongly encourage a dismiss button.</p>
+
+                    <!--Basic Toast example-->
+                    <div style="min-height: 110px;">
+                        @if(basic){
+                        <ngb-toast [autohide]="false" (hidden)="basic=false">
+                            <ng-template ngbToastHeader>
+                                <img src="assets/images/logo-sm.png" alt="" class="me-2" height="18">
+                                <strong class="me-auto">Minible</strong>
+                                <small class="text-muted">11 mins ago</small>
+                            </ng-template>
+                            Hello, world! This is a toast message.
+                        </ngb-toast>}
+                        <!--end toast-->
+                    </div>
+
+                </div><!-- end card-body -->
+            </div><!-- end card -->
+        </div><!-- end col -->
+
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+
+                    <h5 class="card-title">Translucent</h5>
+                    <p class="card-title-desc">Toasts are slightly translucent, too, so they blend over
+                        whatever they might appear over. For browsers that
+                        support the <code>backdrop-filter</code> CSS property,
+                        we’ll also attempt to blur the elements under a toast.</p>
+
+                    <!--Translucent Toast example-->
+                    <div style="min-height: 110px;">
+                        @if(translucent){
+                        <ngb-toast [autohide]="false" (hidden)="translucent=false">
+                            <ng-template ngbToastHeader>
+                                <img src="assets/images/logo-sm.png" alt="" class="me-2" height="18">
+                                <strong class="me-auto">Minible</strong>
+                                <small class="text-muted">11 mins ago</small>
+                            </ng-template>
+                            Hello, world! This is a toast message.
+                        </ngb-toast>}
+                        <!--end toast-->
+                    </div>
+
+                </div><!-- end card-body -->
+            </div><!-- end card -->
+        </div><!-- end col -->
+
+    </div>
+    <!-- end row -->
+
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+
+                    <h5 class="card-title">Stacking</h5>
+                    <p class="card-title-desc">For systems that generate more notifications, consider using
+                        a wrapping element
+                        so they can easily stack.
+                    </p>
+
+                    <!--Stacking Toast example-->
+                    <div style="min-height: 230px;">
+                        <div aria-live="polite" aria-atomic="true" class="position-relative">
+                            <!-- Position it: -->
+                            <!-- - `.toast-container` for spacing between toasts -->
+                            <!-- - `.position-absolute`, `top-0` & `end-0` to position the toasts in the upper right corner -->
+                            <!-- - `.p-3` to prevent the toasts from sticking to the edge of the container  -->
+                            <div class="toast-container position-absolute top-0 end-0 p-2 p-lg-3">
+
+                                <!-- Then put toasts within -->
+                                @if(stacking){
+                                <ngb-toast [autohide]="false" (hidden)="stacking=false">
+                                    <ng-template ngbToastHeader>
+                                        <img src="assets/images/logo-sm.png" alt="" class="me-2" height="18">
+                                        <strong class="me-auto">Minible</strong>
+                                        <small class="text-muted">just now</small>
+                                    </ng-template>
+                                    See? Just like this.
+                                </ngb-toast>
+                                }
+                                @if(stackingsecond){
+                                <ngb-toast [autohide]="false" (hidden)="stackingsecond=false">
+                                    <ng-template ngbToastHeader>
+                                        <img src="assets/images/logo-sm.png" alt="" class="me-2" height="18">
+                                        <strong class="me-auto">Minible</strong>
+                                        <small class="text-muted">2 sec ago</small>
+                                    </ng-template>
+                                    Heads up, toasts will stack automatically
+                                </ngb-toast>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- end card-body -->
+            </div><!-- end card -->
+        </div><!-- end col -->
+    </div>
+    <!-- end row -->
+
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Toasts Example</h5>
+                    <p class="card-title-des">Click the button below to show a toast</p>
+
+                    <!-- Toast example-->
+                    <div class="d-flex flex-wrap gap-2">
+                        <div class="position-relative">
+                            <div class="hstack flex-wrap gap-2">
+                                <button type="button" class="btn btn-primary" id="borderedToast1Btn" (click)="showStandard()">Primary
+                                    toast</button>
+                                <button type="button" class="btn btn-success" id="borderedToast2Btn" (click)="showSuccess()">Success
+                                    toast</button>
+                                <button type="button" class="btn btn-warning" id="borderedTost3Btn" (click)="showWarning()">Warning
+                                    toast</button>
+                                <button type="button" class="btn btn-danger" id="borderedToast4Btn" (click)="showDanger()">danger
+                                    toast</button>
+                            </div>
+                            <app-toast aria-live="polite" aria-atomic="true"></app-toast>
+
+                        </div>
+                    </div>
+                </div><!-- end card-body -->
+            </div><!-- end card -->
+        </div><!-- end col -->
+    </div>
+    <!-- end row -->
+
+</div>

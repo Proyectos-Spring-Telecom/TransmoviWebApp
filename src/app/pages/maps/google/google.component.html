@@ -1,0 +1,41 @@
+<div class="container-fluid">
+  <app-page-title title="Google Maps" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-3">Basic</h4>
+          <p class="card-title-dsec">Example of google maps.</p>
+          <!-- Map -->
+          <google-map [latitude]="latitude" [longitude]="longitude" [zoom]="15" width="100%" height="300px"></google-map>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-3">Markers</h4>
+          <p class="card-title-dsec">Example of google maps.</p>
+          <google-map height="300px" width="100%" [options]="mapOptions">
+            @for(marker of markers;track $index){
+            <map-marker [position]="marker.position"></map-marker>}
+          </google-map>
+        </div>
+      </div>
+    </div> <!-- end col -->
+  </div> <!-- end row -->
+
+  <div class="row">
+
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="mb-3 card-title">Location</h4>
+          <p class="card-title-dsec">Example of google maps.</p>
+          <google-map [latitude]="latitude" [longitude]="longitude" [zoom]="5" width="100%" height="300px"></google-map>
+        </div>
+      </div>
+    </div> <!-- end col -->
+  </div>
+</div>

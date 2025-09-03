@@ -1,0 +1,88 @@
+<!-- <div id="loading" class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+</div> -->
+
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-body">
+            <div class="header-dispositivos">
+                <div style="display: grid; justify-content: center; align-items: center;">
+                    <i class="fa fa-clipboard-list"></i>
+                    <span class="titulo">Bitácora de Viaje BlueVox</span>
+                </div>
+                <div class="subtitulo">Consulta y analiza los registros de entradas y salidas realizadas por cada
+                    dispositivo BlueVox en sus respectivas rutas.</div>
+                <!-- <button class="button-18" role="button" (click)="realizarRegistro()">Agregar Cliente</button> -->
+                <!-- <button class="button-18" role="button" (click)="agregarRuta()">Agregar Ruta</button> -->
+            </div>
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <div class="row mt-1 align-items-center">
+                        <div class="col-auto">
+                            <div class="mt-3" style="display: inline-block;">
+                                <label>Fecha Inicial</label>
+                                <dx-date-box #dateBoxInicial type="datetime" [width]="200" [(value)]="fechaInicial">
+                                    <dx-validator>
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dx-validator>
+                                </dx-date-box>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="mt-3" style="display: inline-block;">
+                                <label>Fecha Final</label>
+                                <dx-date-box #dateBoxFinal type="datetime" [width]="200" [(value)]="fechaFinal">
+                                    <dx-validator>
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dx-validator>
+                                </dx-date-box>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <button id="agregarBoton" mat-raised-button class="btn btn-success" valueExpr="id"
+                                style="margin-top: 3rem; width: 120px;" (click)="buscarBlueVox()">
+                                <i class="fa fa-search" style="text-align: center;"></i>&nbsp;Buscar
+                            </button>
+                        </div>
+                        <div class="col-auto">
+                            <button id="limpiarBoton" mat-raised-button class="btn btn-secondary" (click)="limpiarCampos()" style="margin-top: 3rem; width: 120px;">
+                                <i class="fa fa-undo"></i>&nbsp;Limpiar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive mb-4 col-12 col-lg-12">
+                        <dx-data-grid #gridContainer1 id="gridContainer1" [columnHidingEnabled]="true" [showBorders]="true"
+                            [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
+                            [dataSource]="listaBluevox" [keyExpr]="'Id'" [width]="'100%'">
+                            <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
+                            <dxo-paging [pageSize]="20"></dxo-paging>
+                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20, 50, 100, 200]" [showInfo]="true"></dxo-pager>
+                            <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
+                            <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
+                            <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
+                            <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
+                            <dxi-column dataField="FolioViaje" caption="Folio" alignment="center"></dxi-column>
+                            <dxi-column dataField="Diferencia" caption="Diferencia" alignment="center" [width]="200"></dxi-column>
+                            <dxi-column dataField="ClaveBlueVox" caption="Clave" alignment="center"></dxi-column>
+                            <dxi-column dataField="Entradas" caption="Entradas" alignment="center" [width]="200"></dxi-column>
+                            <dxi-column dataField="Salidas" caption="Salidas" alignment="center" [width]="200"></dxi-column>
+                            <dxi-column dataField="FechaHora" caption="Fecha y Hora" [width]="220" alignment="center" cellTemplate="fechaTemplate">
+                                <div *dxTemplate="let data of 'fechaTemplate'">
+                                    {{ data.value | date: 'dd/MM/yyyy HH:mm' : 'UTC' }}
+                                </div>
+                            </dxi-column>
+                            <dxi-column dataField="IdRuta" caption="Ruta" alignment="center" [width]="200"></dxi-column>
+                            <dxo-export [enabled]="false" [allowExportSelectedData]="true"
+                                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
+                            </dxo-export>
+                        </dx-data-grid>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
+    [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
+</dx-load-panel>

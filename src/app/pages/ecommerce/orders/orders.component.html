@@ -1,0 +1,132 @@
+<div class="container-fluid">
+  <app-page-title title="Transacciones"></app-page-title>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body">
+          <div>
+            <div class="float-end">
+              <form class="d-inline-flex mb-3">
+                <label class="form-check-label my-2 me-2" for="order-selectinput">Transacciones</label>
+                <select class="form-select" id="order-selectinput">
+                  <option selected>Todo</option>
+                  <option value="1">Active</option>
+                  <option value="2">Unpaid</option>
+                </select>
+              </form>
+            </div>
+            <!-- <button type="button" class="btn btn-success mb-3"><i class="mdi mdi-plus me-1"></i>
+              Add New Order
+            </button> -->
+          </div>
+          <div class="row mb-md-2">
+            <div class="col-sm-12 col-md-6">
+              <div class="dataTables_length"><label class="d-inline-flex align-items-center">Mostrar<select name="pageSize" [(ngModel)]="service.pageSize" class="custom-select custom-select-sm form-control form-control-sm form-select form-select-sm">
+                    <option [ngValue]="3">3</option>
+                    <option [ngValue]="10">10</option>
+                    <option [ngValue]="25">25</option>
+                    <option [ngValue]="50">50</option>
+                    <option [ngValue]="100">100</option>
+                  </select></label>
+                </div>
+            </div>
+            <!-- Search -->
+            <div class="col-sm-12 col-md-6">
+              <div id="tickets-table_filter" class="dataTables_filter text-md-end"><label class="d-inline-flex align-items-center">Buscar:
+                  <input type="text" name="searchTerm" class="form-control form-control-sm ms-2" aria-controls="tickets-table" [(ngModel)]="service.searchTerm"></label></div>
+            </div>
+            <!-- End search -->
+          </div>
+
+          <div class="table-responsive mb-4 col-12 col-lg-12">
+
+            <table class="table table-centered datatables dt-responsive nowrap table-card-list" style="border-collapse: collapse; width: 100%;">
+              <thead>
+                <tr>
+                  <!-- <th style="width: 24px;">
+                    <div class="form-check text-center font-size-16">
+                      <input type="checkbox" class="form-check-input" id="ordercheck">
+                      <label class="form-check-label" for="ordercheck"></label>
+                    </div>
+                  </th> -->
+                  <th style="text-align: center;" class="sorting" scope="col" sortable="no" (sort)="onSort($event)">N° Orden</th>
+                  <th style="text-align: center;" class="sorting" scope="col" sortable="fecha" (sort)="onSort($event)">Fecha</th>
+                  <th style="text-align: center;" class="sorting" scope="col" sortable="hora" (sort)="onSort($event)">Hora</th>
+                  <!-- <th style="text-align: center;" scope="col" sortable="proveedor" (sort)="onSort($event)">Proveedor</th> -->
+                  <th style="text-align: center;" scope="col" sortable="distribuidor" (sort)="onSort($event)">Distribuidor</th>
+                  <th style="text-align: center;" scope="col" sortable="region" (sort)="onSort($event)">Región</th>
+                  <th style="text-align: center;" scope="col" sortable="producto" (sort)="onSort($event)">Producto</th>
+                  <th style="text-align: center;" scope="col" sortable="monto" (sort)="onSort($event)">Monto</th>
+                  <th style="text-align: center;" scope="col" sortable="telefono" (sort)="onSort($event)">Teléfono</th> 
+                  <th style="text-align: center;" scope="col" sortable="trn" (sort)="onSort($event)">TRN</th> 
+                  <th style="text-align: center;" scope="col" sortable="Estatus" (sort)="onSort($event)">Estatus</th>
+                  <th style="text-align: center;" scope="col" sortable="Tiempo" (sort)="onSort($event)">Tiempo</th>
+                  <!-- <th scope="col" sortable="name" (sort)="onSort($event)">Billing Name</th>
+                  <th scope="col" sortable="amount" (sort)="onSort($event)">Total</th>
+                  <th scope="col" sortable="status" (sort)="onSort($event)">Payment Status</th> -->
+                  <!-- <th style="width: 170px;">Action</th> -->
+                </tr>
+              </thead>
+              <tbody>
+                @for(data of transactions$ | async;track $index){
+                <tr class="odd">
+
+                  <!-- <td>
+                    <div class="form-check text-center">
+                      <input id="ordercheck{{data.index}}" type="checkbox" class="form-check-input" />
+                      <label class="form-check-label" for="ordercheck{{data.index}}">&nbsp;</label>
+                    </div>
+                  </td> -->
+                  <td style="text-align: center;">
+                    <ngb-highlight [result]="data.no" [term]="service.searchTerm"></ngb-highlight>
+                  </td>
+                  <td style="text-align: center;">
+                    <ngb-highlight [result]="data.fecha" [term]="service.searchTerm"></ngb-highlight>
+                  </td>
+                  <td style="text-align: center;">
+                    <ngb-highlight [result]="data.hora" [term]="service.searchTerm"></ngb-highlight>
+                  </td>
+                  <!-- <td style="text-align: center;">
+                    <ngb-highlight [result]="data.proveedor" [term]="service.searchTerm"></ngb-highlight>
+                  </td> -->
+                  <td style="text-align: center;">
+                    <ngb-highlight [result]="data.distribuidor" [term]="service.searchTerm"></ngb-highlight>
+                  </td>
+                  <td style="text-align: center;">
+                    <ngb-highlight [result]="data.region" [term]="service.searchTerm"></ngb-highlight>
+                  </td>
+                  <td style="text-align: center;">
+                    <ngb-highlight [result]="data.producto" [term]="service.searchTerm"></ngb-highlight>
+                  </td>
+                  <td style="text-align: center;">
+                    <ngb-highlight [result]="data.monto" [term]="service.searchTerm"></ngb-highlight>
+                  </td>
+                  <td style="text-align: center;">
+                    <ngb-highlight [result]="data.telefono" [term]="service.searchTerm"></ngb-highlight>
+                  </td>
+                  <td style="text-align: center;">
+                    <ngb-highlight [result]="data.trn" [term]="service.searchTerm"></ngb-highlight>
+                  </td>
+                  <td style="text-align: center;">
+                    <ngb-highlight [result]="data.codigo" [term]="service.searchTerm"></ngb-highlight>
+                  </td>
+                  <td style="text-align: center;">
+                    <ngb-highlight [result]="data.segundos" [term]="service.searchTerm"></ngb-highlight>
+                  </td>
+                  }
+              </tbody>
+            </table>
+
+            <div class="float-end">
+              <ngb-pagination [collectionSize]="(total$ | async)!" [(page)]="service.page" [pageSize]="service.pageSize">
+                <ng-template ngbPaginationPrevious>Anterior</ng-template>
+                <ng-template ngbPaginationNext>Siguiente</ng-template>
+              </ngb-pagination>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

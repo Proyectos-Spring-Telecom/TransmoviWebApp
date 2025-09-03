@@ -1,0 +1,245 @@
+.total-registros-label {
+  font-size: 16px; 
+  font-weight: bold; 
+  color: #f7fb06; 
+  padding: 8px 15px; 
+  border-radius: 5px; 
+  background-color: #515237; 
+  display: inline-block; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  border: none;
+  background-color: #002136;
+}
+
+.data {
+  min-width: 1000px;
+}
+.header-dispositivos {
+  text-align: center;
+  background-color: #00836d;
+  padding: 20px;
+}
+
+.header-dispositivos i {
+  font-size: 30px;
+  color: #09fa3a;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.titulo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.subtitulo {
+  font-size: 14px;
+  color: #fff;
+  margin-top: 5px;
+}
+
+
+.modal-content {
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  background: #b4a178;
+  color: white;
+  border-radius: 12px 12px 0 0;
+  padding: 1rem;
+}
+
+.card {
+  border: none;
+  border-radius: 8px;
+}
+
+.card-header {
+  border-bottom: none;
+  background: #00836d;
+  font-size: 1.1rem;
+}
+
+.modal-footer {
+  border-top: none;
+  padding: 1rem;
+}
+
+.shadow-sm{
+  background-color: #54565a;
+}
+
+.modal-title{
+  color: white;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  color: #fff;
+}
+
+.btn-close:hover {
+  color: #ccc;
+}
+
+.data {
+  min-width: 1000px;
+}
+.content-cards {
+  max-height: 56vh; // ajusta según tu diseño
+  overflow-y: auto;
+  padding-right: 0.5rem;
+
+  .lista-vehiculos {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .vehiculo-item {
+      display: flex;
+      padding: 1rem;
+      background: #002b47;
+      border-radius: 10px;
+      border: 1px solid #002b47;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+
+      .vehiculo-img {
+        width: 60px;
+        height: 60px;
+        margin-right: 1rem;
+        background-color: #f0f0f0;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .no-img {
+          font-size: 0.75rem;
+          color: #888;
+          text-align: center;
+        }
+      }
+
+      .vehiculo-detalles {
+        flex: 1;
+
+        h6 {
+          margin-bottom: 0.3rem;
+          font-weight: bold;
+        }
+
+        p {
+          margin: 0.2rem 0;
+          font-size: 0.85rem;
+        }
+
+        .btn-ubicar {
+          margin-top: 0.5rem;
+          padding: 0.25rem 0.75rem;
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+}
+
+
+
+/* Mapa */
+.map-container {
+  border-radius: 15px;
+  height: 520px;
+  flex: 1; /* Se adapta al contenedor */
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: #e9ecef;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .search-bar {
+    flex-direction: column;
+
+    input {
+      margin-bottom: 10px;
+      width: 100%;
+    }
+
+    button {
+      margin-left: 0;
+      width: 100%;
+      margin-bottom: 5px;
+    }
+  }
+}
+
+
+
+
+/* Contenedor general del tooltip */
+.custom-tooltip {
+  position: absolute;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  color: #333;
+  padding: 15px;
+  font-family: 'Arial', sans-serif;
+  max-width: 260px;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  border: 1px solid #e0e0e0;
+}
+
+/* Encabezado del tooltip */
+.custom-tooltip .tooltip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.custom-tooltip .tooltip-header h3 {
+  font-size: 1.1rem;
+  margin: 0;
+  color: #007bff;
+}
+
+/* Botón de cierre */
+.custom-tooltip .tooltip-close {
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #999;
+}
+
+.custom-tooltip .tooltip-close:hover {
+  color: #ff0000;
+}
+
+/* Cuerpo del tooltip */
+.custom-tooltip .tooltip-body {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.custom-tooltip .tooltip-body p {
+  margin: 5px 0;
+}
