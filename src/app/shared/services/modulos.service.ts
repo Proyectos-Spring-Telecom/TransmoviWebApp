@@ -12,7 +12,7 @@ export class ModulosService {
   private apiUrl = `${environment.API_SECURITY}/api/modulos`;
 
   obtenerModulos(): Observable<any> {
-    return this.http.get<any>(`${environment.API_SECURITY}/modulos`);
+    return this.http.get<any>(`${environment.API_SECURITY}/modulos/page/1/10`);
   }
 
   agregarModulo(data: FormData) {

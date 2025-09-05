@@ -11,7 +11,7 @@ export class UsuariosService {
   constructor(private http: HttpClient) { }
 
   obtenerUsuarios(): Observable<any> {
-    return this.http.get<any>(`${environment.API_SECURITY}/usuarios`);
+    return this.http.get<any>(`${environment.API_SECURITY}/usuarios/page/1/5`);
   }
 
   agregarUsuario(data: FormData) {

@@ -29,7 +29,7 @@ export class ListaPermisosComponent implements OnInit {
 
   public paginaActual: number = 1;
   public totalRegistros: number = 0;
-  public pageSize: number = 50;
+  public pageSize: number = 10;
   public totalPaginas: number = 0;
   public data: string;
   public paginaActualData: any[] = [];
@@ -64,37 +64,54 @@ export class ListaPermisosComponent implements OnInit {
   }
 
   setupDataSource() {
-    this.loading = true;
-    this.listaPermisos = new CustomStore({
-      key: "id",
-      load: async (loadOptions: any) => {
-        const skipValue = loadOptions.skip || 0;
-        const page = Math.floor(skipValue / this.pageSize) + 1;
-        try {
-          const response: any = await lastValueFrom(this.permService.obtenerPermisos(page, this.pageSize));
-          this.loading = false;
-          this.totalRegistros = response.total;
-          this.paginaActual = page;
-          this.totalPaginas = Math.ceil(this.totalRegistros / this.pageSize);
-          const dataTransformada = response.data.map((item: any) => {
-            return {
-              ...item,
-              estatusTexto: item.Estatus === 1 ? 'Activo' : 'Inactivo'
-            };
-          });
-          this.paginaActualData = dataTransformada;
+  this.loading = true;
+  this.listaPermisos = new CustomStore({
+    key: "id",
+    load: async (loadOptions: any) => {
+      const skipValue = Number(loadOptions?.skip) || 0;
+      const takeValue = Number(loadOptions?.take) || this.pageSize; // Dx envía 'take'
+      const page = Math.floor(skipValue / takeValue) + 1;
+
+      try {
+        const response: any = await lastValueFrom(
+          this.permService.obtenerPermisos(page, takeValue)
+        );
+
+        this.loading = false;
+
+        // === Mapeo según tu backend ===
+        const totalPaginas   = Number(response?.paginated?.total) || 0; // total de páginas
+        const totalRegistros = Number(response?.paginated?.limit) || 0; // total de registros
+        const paginaActual   = Number(response?.paginated?.page)  || page;
+
+        this.totalRegistros = totalRegistros;      // total de registros (para tu UI)
+        this.paginaActual   = paginaActual;        // página actual
+        this.totalPaginas   = totalPaginas;        // total de páginas (si lo muestras en tu UI)
+
+        const dataTransformada = (Array.isArray(response?.data) ? response.data : []).map((item: any) => {
           return {
-            data: dataTransformada,
-            totalCount: this.totalRegistros
+            ...item,
+            // En tu respuesta viene 'Estatus' con mayúscula
+            estatusTexto: Number(item?.Estatus) === 1 ? 'Activo' : 'Inactivo'
           };
-        } catch (error) {
-          this.loading = false;
-          console.error('Error en la solicitud de datos:', error);
-          return { data: [], totalCount: 0 };
-        }
+        });
+
+        this.paginaActualData = dataTransformada;
+
+        // Importante: DevExtreme espera totalCount = TOTAL DE REGISTROS
+        return {
+          data: dataTransformada,
+          totalCount: totalRegistros
+        };
+      } catch (error) {
+        this.loading = false;
+        console.error('Error en la solicitud de datos:', error);
+        return { data: [], totalCount: 0 };
       }
-    });
-  }
+    }
+  });
+}
+
 
   onGridOptionChanged(e: any) {
     if (e.fullName === "searchPanel.text") {

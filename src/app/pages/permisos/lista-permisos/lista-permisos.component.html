@@ -44,9 +44,9 @@
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxi-column caption="Acciones" cellTemplate="acciones" alignment="center" [width]="150"></dxi-column>
                             <dxo-grouping #expand [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column dataField="Nombre" caption="Nombre" alignment="center" dataType="string"[allowSearch]="true"></dxi-column>
-                            <dxi-column dataField="Descripcion" caption="Descripción" alignment="center" dataType="string" [allowSearch]="true"></dxi-column>
-                            <dxi-column dataField="Modulo.Nombre" caption="Módulo" alignment="center" dataType="string" [allowSearch]="true">
+                            <dxi-column dataField="nombre" caption="Nombre" alignment="center" dataType="string"[allowSearch]="true"></dxi-column>
+                            <dxi-column dataField="descripcion" caption="Descripción" alignment="center" dataType="string" [allowSearch]="true"></dxi-column>
+                            <dxi-column dataField="idModulo2.nombre" caption="Módulo" alignment="center" dataType="string" [allowSearch]="true">
                                 <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
                             </dxi-column>
                             <dxi-column dataType="string" [allowSearch]="true" dataField="estatusTexto" caption="Estatus" alignment="center" cellTemplate="estatus">
