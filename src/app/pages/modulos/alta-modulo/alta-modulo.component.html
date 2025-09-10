@@ -5,10 +5,11 @@
                 <i class="fas fa-user-plus"></i>
             </div>
             <div class="header-text">
-                <h5>{{title}}</h5>
+                <h5>{{ title }}</h5>
                 <span>Completa la información para registrar un nuevo cliente.</span>
             </div>
         </div>
+
         <div class="card-body">
             <form [formGroup]="moduloForm" class="cliente-form">
                 <h6 class="section-title">Datos Generales</h6>
@@ -25,8 +26,8 @@
                     </div>
                 </div>
                 <div class="form-actions mt-4">
-                    <button type="submit" class="btn btn-success" (click)="submit()">{{submitButton}}</button>
-                    <button type="button" class="btn btn-danger" (click)="regresar()">Cancelar</button>
+                    <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
+                    <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
                 </div>
             </form>
         </div>

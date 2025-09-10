@@ -1,42 +1,67 @@
 <div [@fadeInUp] class="container-fluid">
     <div class="card">
         <div class="card-body">
-            <div class="header-dispositivos">
-                <div style="display: grid; justify-content: center; align-items: center;">
-                    <i class="fas fa-users"></i>
-                    <span class="titulo">Gestión de Usuarios</span>
+            <div class="u-banner">
+                <div class="u-banner__icon">
+                    <div class="u-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
                 </div>
-                <div class="subtitulo">Administra, consulta y edita la información de todos los usuarios registrados en el sistema</div>
-                <button class="button-18" role="button" (click)="agregarUsuario()">Agregar Usuario</button>
+                <div class="u-banner__body">
+                    <h2 class="u-banner__title">Gestión de Usuarios</h2>
+                    <p class="u-banner__subtitle">
+                        Consulta, busca y navega entre tus usuarios registrados
+                    </p>
+                    <div>
+                        <button class="u-btn u-btn--primary" (click)="agregarUsuario()">
+                            <i class="fas fa-plus"></i>
+                            <span>Agregar Usuario</span>
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="row mt-4">
                 <div class="col-lg-12">
                     <div class="table-responsive mb-4 col-12 col-lg-12">
                         <dx-data-grid id="gridContainer" [columnHidingEnabled]="true" [showBorders]="true"
                             [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
-                            [dataSource]="listaUsuarios" [keyExpr]="'Id'" [width]="'100%'">
+                            [dataSource]="listaUsuarios" [keyExpr]="'Id'" [remoteOperations]="{ paging: true }"
+                            [width]="'100%'" [paging]="{ pageSize: pageSize }" [pager]="{ 
+                showPageSizeSelector: true, 
+                allowedPageSizes: [50], 
+                showInfo: true,
+                infoText: 'Página {0} de {1}', 
+                visible: true 
+              }" (onPageIndexChanged)=" onPageIndexChanged($event)" (onOptionChanged)="onGridOptionChanged($event)">
                             <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
-                            <dxo-paging [pageSize]="20"></dxo-paging>
-                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20, 50, 100, 200]"[showInfo]="true"></dxo-pager>
                             <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
+                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
                             <!-- <dxi-column dataField="Logotipo" caption="Logotipo" alignment="center" cellTemplate="cellTemplate">
                                 <ng-template *dxTemplate="let d of 'cellTemplate'">
                                     <img [src]="d.data.Logotipo" alt="Logo" width="50">
                                 </ng-template>
                             </dxi-column> -->
-                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="150"></dxi-column>
+                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center"
+                                [width]="150"></dxi-column>
                             <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center"></dxi-column>
                             <dxi-column dataField="Telefono" caption="Teléfono" alignment="center"></dxi-column>
-                            <dxi-column dataField="UserName" caption="Correo Electrónico" alignment="center"></dxi-column>
+                            <dxi-column dataField="UserName" caption="Correo Electrónico"
+                                alignment="center"></dxi-column>
                             <dxi-column dataField="Estatus" caption="Estatus" alignment="center" cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
-                                    {{ f.data.Estatus === 1 ? 'Activo' : 'Inactivo' }}
+                                    <span *ngIf="toNum(f.data.Estatus) === 1" class="estatus estatus-activo">
+                                        Activo
+                                    </span>
+                                    <span *ngIf="toNum(f.data.Estatus) !== 1" class="estatus estatus-inactivo">
+                                        Inactivo
+                                    </span>
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="IdRol" caption="Rol" alignment="center"></dxi-column>
+
+                            <dxi-column dataField="RolNombre" caption="Rol" alignment="center"></dxi-column>
                             <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
                                 <div>
                                     <button valueExpr="id" id="actualizarButton" class="btnAcciones"
@@ -45,8 +70,13 @@
                                     </button>
                                 </div>
                                 <div>
-                                    <button id="deleteButton" class="btnAcciones" (click)="eliminarUsuario(row.data)">
-                                        <i class="fa fa-trash"></i>
+                                    <button *ngIf="row.data.Estatus === 0" id="pinButton" class="btnAcciones"
+                                        (click)="activar(row.data)">
+                                        <i class="fa fa-arrow-up"></i>
+                                    </button>
+                                    <button *ngIf="row.data.Estatus === 1" id="deleteButton" class="btnAcciones"
+                                        (click)="desactivar(row.data)">
+                                        <i class="fa fa-arrow-down"></i>
                                     </button>
                                 </div>
                             </div>

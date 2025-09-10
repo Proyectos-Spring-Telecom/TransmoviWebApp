@@ -5,168 +5,253 @@
                 <i class="fas fa-user-plus"></i>
             </div>
             <div class="header-text">
-                <h5>{{title}}</h5>
-                <span>Completa la información para registrar un nuevo cliente.</span>
+                <h5>{{ title }}</h5>
+                <span>Completa la información para registrar un nuevo usuario.</span>
             </div>
         </div>
         <div class="card-body">
             <form [formGroup]="clienteForm" class="cliente-form">
                 <h6 class="section-title">Datos Generales</h6>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-4 mt-3">
                         <label>ID Padre</label>
-                        <select class="form-control" formControlName="IdPadre">
-                            <option value="">Seleccione un cliente</option>
-                            <option *ngFor="let cliente of listaClientes" [value]="cliente.Id">
-                            {{ cliente.Nombre }} {{ cliente.ApellidoPaterno }} {{ cliente.ApellidoMaterno }}
+                        <select class="form-control" formControlName="idPadre">
+                            <option [ngValue]="null">Seleccione un cliente</option>
+                            <option *ngFor="let cliente of listaClientes" [ngValue]="cliente.id">
+                                {{ cliente.nombre }} {{ cliente.apellidoPaterno }} {{ cliente.apellidoMaterno }}
                             </option>
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 mt-3">
                         <label>RFC *</label>
-                        <input class="form-control" id="RFC" placeholder="Ej: ABC123456789" formControlName="RFC"
+                        <input class="form-control" id="rfc" placeholder="Ej: ABC123456789" formControlName="rfc"
                             maxlength="13" (input)="sanitizeInput($event)" />
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 mt-3">
                         <label>Tipo Persona</label>
-                        <select class="form-control" formControlName="TipoPersona"
+                        <select class="form-control" formControlName="tipoPersona"
                             (change)="onTipoPersonaChange($event)">
-                            <option value="">Seleccione un cliente</option>
-                            <option value="1">Física</option>
-                            <option value="2">Moral</option>
+                            <option [ngValue]="null">Seleccione un cliente</option>
+                            <option [ngValue]="1">Física</option>
+                            <option [ngValue]="2">Moral</option>
                         </select>
                     </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <label>Nombre</label>
-                        <input type="text" class="form-control" formControlName="Nombre"
-                            placeholder="Ej: Comercializadora Ejemplo">
+                    <div class="col-md-4 mt-3">
+                        <label>
+                            {{ clienteForm.value.tipoPersona == 2 ? 'Razón Social' : 'Nombre' }}
+                        </label>
+                        <input type="text" class="form-control" formControlName="nombre" [placeholder]="clienteForm.value.tipoPersona == 2 
+                            ? 'Ej: Comercializadora Ejemplo S.A. de C.V.' 
+                            : 'Ej: Juan'">
                     </div>
-                    <div class="col-md-4">
-                        <label>Apellido Paterno</label>
-                        <input type="text" class="form-control" formControlName="ApellidoPaterno"
-                            placeholder="Ej: Rodríguez">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Apellido Materno</label>
-                        <input type="text" class="form-control" formControlName="ApellidoMaterno"
-                            placeholder="Ej: Santos">
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-4">
+                    <ng-container *ngIf="clienteForm.value.tipoPersona != 2">
+                        <div class="col-md-4 mt-3">
+                            <label>Apellido Paterno</label>
+                            <input type="text" class="form-control" formControlName="apellidoPaterno"
+                                placeholder="Ej: Rodríguez">
+                        </div>
+                        <div class="col-md-4 mt-3">
+                            <label>Apellido Materno</label>
+                            <input type="text" class="form-control" formControlName="apellidoMaterno"
+                                placeholder="Ej: Santos">
+                        </div>
+                    </ng-container>
+                    <div class="col-md-4 mt-3">
                         <label>Teléfono</label>
-                        <input class="form-control" formControlName="Telefono" placeholder="Ej: 5555555555"
+                        <input class="form-control" formControlName="telefono" placeholder="Ej: 5555555555"
                             maxlength="10" (keypress)="allowOnlyNumbers($event)">
                     </div>
-                    <div class="col-md-4">
-                        <label>Correo</label>
-                        <input type="email" class="form-control" formControlName="Correo"
+                    <div class="col-md-4 mt-3">
+                        <label>Correo Electrónico</label>
+                        <input type="email" class="form-control" formControlName="correo"
                             placeholder="Ej: contacto@ejemplo.com">
                     </div>
-                    <div class="col-md-4">
-                        <label>Logotipo</label>
-                        <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal"
-                            data-bs-target=".bs-example-modal-center" (click)="centerModal(centerDataModal)">
-                            Subir Imagen
-                        </button>
-                    </div>
-                    <ng-template #centerDataModal let-modal>
-                        <div class="modal-header">
-                            <h5 class="modal-title">Subir Logotipo</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                                (click)="modal.dismiss('Cross click')"></button>
-                        </div>
-
-                        <div class="modal-body">
-                            <div class="upload-modal-wrapper" (click)="fileInput.click()">
-                                <input type="file" #fileInput class="hidden-file-input"
-                                    (change)="onFileSelected($event, modal)" accept="image/*">
-
-                                <div class="upload-content" *ngIf="!previewUrl">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                    <span>Haz clic aquí para subir una imagen</span>
-                                    <small>Formatos: JPG, PNG</small>
-                                </div>
-
-                                <div class="preview-content" *ngIf="previewUrl">
-                                    <img [src]="previewUrl" alt="Vista previa del logotipo">
-                                    <p>{{ selectedFileName }}</p>
+                    <div class="col-md-4 mt-3">
+                        <div class="tc-upload">
+                            <label>Logotipo</label>
+                            <div class="tc-preview" *ngIf="logoPreviewUrl; else logoTile">
+                                <img [src]="logoPreviewUrl" alt="Logotipo" />
+                                <div class="tc-actions">
+                                    <button type="button" class="btn-change"
+                                        (click)="openLogoFilePicker()">Cambiar</button>
+                                    <button type="button" class="btn-remove" (click)="clearLogoImage($event)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 </div>
                             </div>
+                            <ng-template #logoTile>
+                                <div class="tc-tile" (click)="openLogoFilePicker()" (dragover)="onLogoDragOver($event)"
+                                    (dragleave)="onLogoDragLeave($event)" (drop)="onLogoDrop($event)"
+                                    [class.dragging]="logoDragging">
+                                    <div class="circle"><i class="fas fa-image"></i></div>
+                                    <div class="meta">
+                                        <div class="title">Arrastra o haz clic para subir su logotipo</div>
+                                        <div class="hint">JPG/PNG/WEBP/PDF/DOC/XLS · máx 3 MB</div>
+                                    </div>
+                                </div>
+                            </ng-template>
+                            <input type="file" #logoFileInput accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
+                                hidden (change)="onLogoFileSelected($event)">
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                                (click)="modal.close()">Subir Imagen</button>
-                        </div>
-                    </ng-template>
+                    </div>
                 </div>
-                <h6 class="section-title mt-4">Dirección</h6>
+                <h6 class="section-title mt-1">Dirección</h6>
                 <div class="row">
                     <div class="col-md-4">
                         <label>Estado</label>
-                        <input type="text" class="form-control" formControlName="Estado"
+                        <input type="text" class="form-control" formControlName="estado"
                             placeholder="Ej: Ciudad de México">
                     </div>
                     <div class="col-md-4">
                         <label>Municipio</label>
-                        <input type="text" class="form-control" formControlName="Municipio"
+                        <input type="text" class="form-control" formControlName="municipio"
                             placeholder="Ej: Benito Juárez">
                     </div>
                     <div class="col-md-4">
                         <label>Colonia</label>
-                        <input type="text" class="form-control" formControlName="Colonia" placeholder="Ej: Del Valle">
+                        <input type="text" class="form-control" formControlName="colonia" placeholder="Ej: Del Valle">
                     </div>
                 </div>
                 <div class="row mt-3">
                     <div class="col-md-4">
                         <label>Calle</label>
-                        <input type="text" class="form-control" formControlName="Calle"
+                        <input type="text" class="form-control" formControlName="calle"
                             placeholder="Ej: Av. Insurgentes Sur">
                     </div>
                     <div class="col-md-4">
                         <label>Entre Calles</label>
-                        <input type="text" class="form-control" formControlName="EntreCalles"
+                        <input type="text" class="form-control" formControlName="entreCalles"
                             placeholder="Ej: Xola y Eugenia">
                     </div>
                     <div class="col-md-4">
                         <label>Código Postal</label>
-                        <input pattern="[0-9]*" maxlength="5" class="form-control" formControlName="CP"
+                        <input pattern="[0-9]*" maxlength="5" class="form-control" formControlName="cp"
                             placeholder="Ej: 03100">
                     </div>
                 </div>
                 <div class="row mt-3">
                     <div class="col-md-4">
                         <label>Número Exterior</label>
-                        <input type="text" class="form-control" formControlName="NumeroExterior" placeholder="Ej: 123">
+                        <input type="text" class="form-control" formControlName="numeroExterior" placeholder="Ej: 123">
                     </div>
                     <div class="col-md-4">
                         <label>Número Interior</label>
-                        <input type="text" class="form-control" formControlName="NumeroInterior" placeholder="Ej: 2B">
+                        <input type="text" class="form-control" formControlName="numeroInterior" placeholder="Ej: 2B">
                     </div>
                 </div>
-                <h6 class="section-title mt-4">Datos del Encargado</h6>
+                <h6 class="section-title mt-5">Datos del Encargado</h6>
                 <div class="row">
                     <div class="col-md-4">
                         <label>Nombre Encargado</label>
-                        <input type="text" class="form-control" formControlName="NombreEncargado"
+                        <input type="text" class="form-control" formControlName="nombreEncargado"
                             placeholder="Ej: Luis Hernández">
                     </div>
                     <div class="col-md-4">
                         <label>Teléfono Encargado</label>
                         <input maxlength="10" (keypress)="allowOnlyNumbers($event)" class="form-control"
-                            formControlName="TelefonoEncargado" placeholder="Ej: 5566778899">
+                            formControlName="telefonoEncargado" placeholder="Ej: 5566778899">
                     </div>
                     <div class="col-md-4">
-                        <label>Email Encargado</label>
-                        <input type="email" class="form-control" formControlName="EmailEncargado"
+                        <label>Correo Electrónico Encargado</label>
+                        <input type="email" class="form-control" formControlName="correoEncargado"
                             placeholder="Ej: luis.hdz@ejemplo.com">
+                    </div>
+                    <div class="col-md-4 mt-3">
+                        <label>Sitio Web</label>
+                        <input type="email" class="form-control" formControlName="sitioWeb" placeholder="Ej: devse.com">
+                    </div>
+                </div>
+                <h6 class="section-title mt-5">Archivos</h6>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="tc-upload">
+                            <label>Constancia de Situación Fiscal</label>
+                            <div class="tc-preview" *ngIf="csfPreviewUrl; else csfTile">
+                                <img [src]="csfPreviewUrl" alt="Constancia" />
+                                <div class="tc-actions">
+                                    <button type="button" class="btn-change"
+                                        (click)="openCsfFilePicker()">Cambiar</button>
+                                    <button type="button" class="btn-remove" (click)="clearCsfFile($event)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <ng-template #csfTile>
+                                <div class="tc-tile" (click)="openCsfFilePicker()" (dragover)="onCsfDragOver($event)"
+                                    (dragleave)="onCsfDragLeave($event)" (drop)="onCsfDrop($event)"
+                                    [class.dragging]="csfDragging">
+                                    <div class="circle"><i class="fas fa-file-invoice"></i></div>
+                                    <div class="meta">
+                                        <div class="title">Arrastra o haz clic para subir la constancia</div>
+                                        <div class="hint">PDF/DOC/XLS o imagen · máx 3 MB</div>
+                                    </div>
+                                </div>
+                            </ng-template>
+                            <input type="file" #csfFileInput accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
+                                hidden (change)="onCsfFileSelected($event)">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="tc-upload">
+                            <label>Comprobante de Domicilio</label>
+                            <div class="tc-preview" *ngIf="compDomPreviewUrl; else compDomTile">
+                                <img [src]="compDomPreviewUrl" alt="Comprobante de Domicilio" />
+                                <div class="tc-actions">
+                                    <button type="button" class="btn-change"
+                                        (click)="openCompDomFilePicker()">Cambiar</button>
+                                    <button type="button" class="btn-remove" (click)="clearCompDomFile($event)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <ng-template #compDomTile>
+                                <div class="tc-tile" (click)="openCompDomFilePicker()"
+                                    (dragover)="onCompDomDragOver($event)" (dragleave)="onCompDomDragLeave($event)"
+                                    (drop)="onCompDomDrop($event)" [class.dragging]="compDomDragging">
+                                    <div class="circle"><i class="fas fa-home"></i></div>
+                                    <div class="meta">
+                                        <div class="title">Arrastra o haz clic para subir el comprobante</div>
+                                        <div class="hint">PDF/DOC/XLS o imagen · máx 3 MB</div>
+                                    </div>
+                                </div>
+                            </ng-template>
+                            <input type="file" #compDomFileInput
+                                accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx" hidden
+                                (change)="onCompDomFileSelected($event)">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="tc-upload">
+                            <label>Acta Constitutiva</label>
+                            <div class="tc-preview" *ngIf="actaPreviewUrl; else actaTile">
+                                <img [src]="actaPreviewUrl" alt="Acta Constitutiva" />
+                                <div class="tc-actions">
+                                    <button type="button" class="btn-change"
+                                        (click)="openActaFilePicker()">Cambiar</button>
+                                    <button type="button" class="btn-remove" (click)="clearActaFile($event)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <ng-template #actaTile>
+                                <div class="tc-tile" (click)="openActaFilePicker()" (dragover)="onActaDragOver($event)"
+                                    (dragleave)="onActaDragLeave($event)" (drop)="onActaDrop($event)"
+                                    [class.dragging]="actaDragging">
+                                    <div class="circle"><i class="fas fa-file-contract"></i></div>
+                                    <div class="meta">
+                                        <div class="title">Arrastra o haz clic para subir el acta</div>
+                                        <div class="hint">PDF/DOC/XLS o imagen · máx 3 MB</div>
+                                    </div>
+                                </div>
+                            </ng-template>
+                            <input type="file" #actaFileInput accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
+                                hidden (change)="onActaFileSelected($event)">
+                        </div>
                     </div>
                 </div>
                 <div class="form-actions mt-4">
-                    <button type="submit" class="btn btn-success" (click)="submit()">{{submitButton}}</button>
-                    <button type="button" class="btn btn-danger" (click)="regresar()">Cancelar</button>
+                    <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
+                    <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
                 </div>
             </form>
         </div>

@@ -29,14 +29,14 @@ export class ListaPermisosComponent implements OnInit {
 
   public paginaActual: number = 1;
   public totalRegistros: number = 0;
-  public pageSize: number = 10;
+  public pageSize: number = 20;
   public totalPaginas: number = 0;
   public data: string;
   public paginaActualData: any[] = [];
   public filtroActivo: string = '';
   @ViewChild(DxDataGridComponent, { static: false }) dataGrid: DxDataGridComponent;
 
-  constructor(private permService:PermisosService, private route: Router, private permissionsService: NgxPermissionsService,) {
+  constructor(private permService: PermisosService, private route: Router, private permissionsService: NgxPermissionsService,) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
   }
@@ -64,53 +64,50 @@ export class ListaPermisosComponent implements OnInit {
   }
 
   setupDataSource() {
-  this.loading = true;
-  this.listaPermisos = new CustomStore({
-    key: "id",
-    load: async (loadOptions: any) => {
-      const skipValue = Number(loadOptions?.skip) || 0;
-      const takeValue = Number(loadOptions?.take) || this.pageSize; // Dx envía 'take'
-      const page = Math.floor(skipValue / takeValue) + 1;
+    this.loading = true;
+    this.listaPermisos = new CustomStore({
+      key: "id",
+      load: async (loadOptions: any) => {
+        const skipValue = Number(loadOptions?.skip) || 0;
+        const takeValue = Number(loadOptions?.take) || this.pageSize;
+        const page = Math.floor(skipValue / takeValue) + 1;
 
-      try {
-        const response: any = await lastValueFrom(
-          this.permService.obtenerPermisos(page, takeValue)
-        );
+        try {
+          const response: any = await lastValueFrom(
+            this.permService.obtenerPermisos(page, takeValue)
+          );
 
-        this.loading = false;
+          this.loading = false;
 
-        // === Mapeo según tu backend ===
-        const totalPaginas   = Number(response?.paginated?.total) || 0; // total de páginas
-        const totalRegistros = Number(response?.paginated?.limit) || 0; // total de registros
-        const paginaActual   = Number(response?.paginated?.page)  || page;
+          const totalPaginas = Number(response?.paginated?.total) || 0;
+          const totalRegistros = Number(response?.paginated?.limit) || 0;
+          const paginaActual = Number(response?.paginated?.page) || page;
 
-        this.totalRegistros = totalRegistros;      // total de registros (para tu UI)
-        this.paginaActual   = paginaActual;        // página actual
-        this.totalPaginas   = totalPaginas;        // total de páginas (si lo muestras en tu UI)
+          this.totalRegistros = totalRegistros;
+          this.paginaActual = paginaActual;
+          this.totalPaginas = totalPaginas;
 
-        const dataTransformada = (Array.isArray(response?.data) ? response.data : []).map((item: any) => {
+          const dataTransformada = (Array.isArray(response?.data) ? response.data : []).map((item: any) => {
+            return {
+              ...item,
+              estatusTexto: Number(item?.estatus) === 1 ? 'Activo' : 'Inactivo'
+            };
+          });
+
+          this.paginaActualData = dataTransformada;
+
           return {
-            ...item,
-            // En tu respuesta viene 'Estatus' con mayúscula
-            estatusTexto: Number(item?.Estatus) === 1 ? 'Activo' : 'Inactivo'
+            data: dataTransformada,
+            totalCount: totalRegistros
           };
-        });
-
-        this.paginaActualData = dataTransformada;
-
-        // Importante: DevExtreme espera totalCount = TOTAL DE REGISTROS
-        return {
-          data: dataTransformada,
-          totalCount: totalRegistros
-        };
-      } catch (error) {
-        this.loading = false;
-        console.error('Error en la solicitud de datos:', error);
-        return { data: [], totalCount: 0 };
+        } catch (error) {
+          this.loading = false;
+          console.error('Error en la solicitud de datos:', error);
+          return { data: [], totalCount: 0 };
+        }
       }
-    }
-  });
-}
+    });
+  }
 
 
   onGridOptionChanged(e: any) {
@@ -190,23 +187,41 @@ export class ListaPermisosComponent implements OnInit {
 
   activar(rowData: any) {
     Swal.fire({
-      title: 'Confirmar activación',
-      text: `¿Desea activar el permiso: ${rowData.nombre}?`,
+      title: '¡Activar!',
+      html: `¿Está seguro que requiere activar el permiso: <strong>${rowData.nombre}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Confirmar',
       cancelButtonText: 'Cancelar',
+      background: '#002136',
     }).then((result) => {
       if (result.value) {
-        this.permService.updateEstatus(rowData.id).subscribe(
+        this.permService.updateEstatus(rowData.id, 1).subscribe(
           (response) => {
-            Swal.fire('¡Actualizado!', 'El permiso se ha activado correctamente.', 'success');
+            Swal.fire({
+              title: '¡Confirmación Realizada!',
+              html: `El permiso ha sido activado.`,
+              icon: 'success',
+              background: '#002136',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'Confirmar',
+            })
+
             this.setupDataSource();
+            this.dataGrid.instance.refresh();
+            // this.obtenerListaModulos();
           },
           (error) => {
-            Swal.fire('¡Ops!', 'Error al intentar activar este permiso.', 'error');
+            Swal.fire({
+              title: '¡Ops!',
+              html: `${error}`,
+              icon: 'error',
+              background: '#002136',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'Confirmar',
+            })
           }
         );
       }
@@ -215,23 +230,40 @@ export class ListaPermisosComponent implements OnInit {
 
   desactivar(rowData: any) {
     Swal.fire({
-      title: 'Confirmar desactivación',
-      text: `¿Desea desactivar el permiso: ${rowData.nombre}?`,
+      title: '¡Desactivar!',
+      html: `¿Está seguro que requiere desactivar el permiso: <strong>${rowData.nombre}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Confirmar',
       cancelButtonText: 'Cancelar',
+      background: '#002136',
     }).then((result) => {
       if (result.value) {
-        this.permService.updateEstatus(rowData.id).subscribe(
+        this.permService.updateEstatus(rowData.id, 0).subscribe(
           (response) => {
-            Swal.fire('¡Actualizado!', 'El permiso se ha desactivado correctamente.', 'success');
+            Swal.fire({
+              title: '¡Confirmación Realizada!',
+              html: `El permiso ha sido desactivado`,
+              icon: 'success',
+              background: '#002136',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'Confirmar',
+            })
             this.setupDataSource();
+            this.dataGrid.instance.refresh();
+            // this.obtenerListaModulos();
           },
           (error) => {
-            Swal.fire('¡Ops!', 'Error al intentar desactivar este permiso.', 'error');
+            Swal.fire({
+              title: '¡Ops!',
+              html: `${error}`,
+              icon: 'error',
+              background: '#002136',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'Confirmar',
+            })
           }
         );
       }

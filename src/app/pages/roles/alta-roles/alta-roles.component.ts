@@ -3,21 +3,21 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
-import { ModulosService } from 'src/app/shared/services/modulos.service';
+import { RolesService } from 'src/app/shared/services/roles.service';
 import Swal from 'sweetalert2';
 
 @Component({
-  selector: 'app-alta-modulo',
-  templateUrl: './alta-modulo.component.html',
-  styleUrl: './alta-modulo.component.scss',
+  selector: 'app-alta-roles',
+  templateUrl: './alta-roles.component.html',
+  styleUrl: './alta-roles.component.scss',
   animations: [fadeInUpAnimation]
 })
-export class AltaModuloComponent implements OnInit {
+export class AltaRolesComponent implements OnInit {
   public submitButton: string = 'Guardar';
   public loading: boolean = false;
-  public moduloForm: FormGroup;
-  public idModulo: number;
-  public title = 'Agregar Módulo';
+  public rolForm: FormGroup;
+  public idRol: number;
+  public title = 'Agregar Rol';
   public listaClientes: any[] = [];
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
@@ -25,7 +25,7 @@ export class AltaModuloComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private modalService: NgbModal,
-    private moduService: ModulosService,
+    private rolService: RolesService,
     private activatedRouted: ActivatedRoute,
     private route: Router
   ) { }
@@ -35,29 +35,29 @@ export class AltaModuloComponent implements OnInit {
     this.initForm();
     this.activatedRouted.params.subscribe(
       (params) => {
-        this.idModulo = params['idModulo'];
-        if (this.idModulo) {
-          this.title = 'Actualizar Módulo';
-          this.obtenerModulo();
+        this.idRol = params['idRol'];
+        if (this.idRol) {
+          this.title = 'Actualizar Rol';
+          this.obtenerRol();
         }
       }
     )
   }
 
-  obtenerModulo() {
-    this.moduService.obtenerModulo(this.idModulo).subscribe(
+  obtenerRol() {
+    this.rolService.obtenerRole(this.idRol).subscribe(
       (response: any) => {
-        this.moduloForm.patchValue({
+        this.rolForm.patchValue({
           nombre: response.nombre,
           descripcion: response.descripcion,
-          idModulo: response.idModulo,
+          idRol: response.idRol,
         });
       }
     );
   }
 
   initForm() {
-    this.moduloForm = this.fb.group({
+    this.rolForm = this.fb.group({
       nombre: ['', Validators.required],
       descripcion: ['', Validators.required],
     });
@@ -66,7 +66,7 @@ export class AltaModuloComponent implements OnInit {
   submit() {
     this.submitButton = 'Cargando...';
     this.loading = true;
-    if (this.idModulo) {
+    if (this.idRol) {
       this.actualizar();
     } else {
       this.agregar();
@@ -76,18 +76,17 @@ export class AltaModuloComponent implements OnInit {
   agregar() {
     this.submitButton = 'Cargando...';
     this.loading = true;
-    if (this.moduloForm.invalid) {
+    if (this.rolForm.invalid) {
       this.submitButton = 'Guardar';
       this.loading = false;
       const etiquetas: any = {
         nombre: 'Nombre',
         descripcion: 'Descripción',
-        idModulo: 'Módulo',
       };
 
       const camposFaltantes: string[] = [];
-      Object.keys(this.moduloForm.controls).forEach(key => {
-        const control = this.moduloForm.get(key);
+      Object.keys(this.rolForm.controls).forEach(key => {
+        const control = this.rolForm.get(key);
         if (control?.invalid && control.errors?.['required']) {
           camposFaltantes.push(etiquetas[key] || key);
         }
@@ -119,15 +118,15 @@ export class AltaModuloComponent implements OnInit {
       });
       return;
     }
-    this.moduloForm.removeControl('id');
-    this.moduService.agregarModulo(this.moduloForm.value).subscribe(
+    this.rolForm.removeControl('id');
+    this.rolService.agregarRole(this.rolForm.value).subscribe(
       (response) => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
           title: '¡Operación Exitosa!',
           background: '#002136',
-          text: `Se agregó un nuevo módulo de manera exitosa.`,
+          text: `Se agregó un nuevo rol de manera exitosa.`,
           icon: 'success',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -140,7 +139,7 @@ export class AltaModuloComponent implements OnInit {
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: `Ocurrió un error al agregar el módulo.`,
+          text: `Ocurrió un error al agregar el rol.`,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -152,18 +151,17 @@ export class AltaModuloComponent implements OnInit {
   actualizar() {
     this.submitButton = 'Cargando...';
     this.loading = true;
-    if (this.moduloForm.invalid) {
+    if (this.rolForm.invalid) {
       this.submitButton = 'Guardar';
       this.loading = false;
       const etiquetas: any = {
         nombre: 'Nombre',
         descripcion: 'Descripción',
-        idModulo: 'Módulo',
       };
 
       const camposFaltantes: string[] = [];
-      Object.keys(this.moduloForm.controls).forEach(key => {
-        const control = this.moduloForm.get(key);
+      Object.keys(this.rolForm.controls).forEach(key => {
+        const control = this.rolForm.get(key);
         if (control?.invalid && control.errors?.['required']) {
           camposFaltantes.push(etiquetas[key] || key);
         }
@@ -194,14 +192,14 @@ export class AltaModuloComponent implements OnInit {
         }
       });
     }
-    this.moduService.actualizarModulo(this.idModulo, this.moduloForm.value).subscribe(
+    this.rolService.actualizarRoles(this.idRol, this.rolForm.value).subscribe(
       (response) => {
         this.submitButton = 'Actualizar';
         this.loading = false;
         Swal.fire({
           title: '¡Operación Exitosa!',
           background: '#002136',
-          text: `Los datos del módulo se actualizaron correctamente.`,
+          text: `Los datos del rol se actualizaron correctamente.`,
           icon: 'success',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -214,7 +212,7 @@ export class AltaModuloComponent implements OnInit {
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: `Ocurrió un error al actualizar el módulo.`,
+          text: `Ocurrió un error al actualizar el rol.`,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -224,7 +222,7 @@ export class AltaModuloComponent implements OnInit {
   }
 
   regresar() {
-    this.route.navigateByUrl('/modulos');
+    this.route.navigateByUrl('/roles');
   }
 
 

@@ -1,27 +1,46 @@
 <div [@fadeInUp] class="container-fluid">
     <div class="card">
         <div class="card-body">
-            <div class="header-dispositivos">
-                <div style="display: grid; justify-content: center; align-items: center;">
-                    <i class="fas fa-address-book"></i>
-                    <span class="titulo">Gestión de Clientes</span>
+            <div class="u-banner">
+                <div class="u-banner__icon">
+                    <div class="u-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
                 </div>
-                <div class="subtitulo">Consulta, busca y edita entre tus clientes registrados</div>
-                <button class="button-18" role="button" (click)="agregarCliente()">Agregar Cliente</button>
+                <div class="u-banner__body">
+                    <h2 class="u-banner__title">Gestión de Clientes</h2>
+                    <p class="u-banner__subtitle">
+                        Consulta, busca y navega entre tus clientes registrados
+                    </p>
+                    <div>
+                        <button class="u-btn u-btn--primary" (click)="agregarCliente()">
+                            <i class="fas fa-plus"></i>
+                            <span>Agregar Cliente</span>
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="row mt-4">
                 <div class="col-lg-12">
                     <div class="table-responsive mb-4 col-12 col-lg-12">
-                        <dx-data-grid id="gridContainer" [columnHidingEnabled]="true" [showBorders]="true"
-                            [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
-                            [dataSource]="listaClientes" [keyExpr]="'Id'" [width]="'100%'">
+                        <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
+                            [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
+                            [rowAlternationEnabled]="'true'" [dataSource]="listaClientes" [keyExpr]="'Id'"
+                            [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
+                            [pager]="{ 
+                                showPageSizeSelector: true, 
+                                allowedPageSizes: [50], 
+                                showInfo: true,
+                                infoText: 'Página {0} de {1}', 
+                                visible: true 
+                            }" (onPageIndexChanged)=" onPageIndexChanged($event)"
+                            (onOptionChanged)="onGridOptionChanged($event)">
                             <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
-                            <dxo-paging [pageSize]="20"></dxo-paging>
-                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20, 50, 100, 200]" [showInfo]="true"></dxo-pager>
                             <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
+                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
                             <!-- <dxi-column dataField="Logotipo" caption="Logotipo" alignment="center" cellTemplate="cellTemplate">
                                 <ng-template *dxTemplate="let d of 'cellTemplate'">
                                     <img [src]="d.data.Logotipo" alt="Logo" width="50">
@@ -29,30 +48,42 @@
                             </dxi-column> -->
                             <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="150"></dxi-column>
                             <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center"></dxi-column>
-                            <dxi-column dataField="Telefono" caption="Teléfono" alignment="center"></dxi-column>
-                            <dxi-column dataField="RFC" caption="RFC" alignment="center"></dxi-column>
-                            <dxi-column dataField="Correo" caption="Correo" alignment="center"></dxi-column>
-                            <dxi-column dataField="TipoPersona" caption="Tipo Persona" alignment="center"></dxi-column>
-                            <dxi-column dataField="NombreEncargado" caption="Nombre Encargado" alignment="center"></dxi-column>
-                            <dxi-column dataField="TelefonoEncargado" caption="Teléfono Encargado" alignment="center"></dxi-column>
-                            <dxi-column dataField="EmailEncargado" caption="Email Encargado" alignment="center"></dxi-column>
-                            <dxi-column dataField="IdPadre" caption="Id Padre" alignment="center"></dxi-column>
-                            <dxi-column dataField="DireccionCompleta" caption="Dirección"></dxi-column>
-                            <dxi-column dataField="NumeroExterior" caption="Número Exterior" alignment="center"></dxi-column>
-                            <dxi-column dataField="NumeroInterior" caption="Número Interior" alignment="center"></dxi-column>
+                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est">
+                                <div *dxTemplate="let f of 'est'">
+                                    <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
+                                        Activo
+                                    </span>
+                                    <span *ngIf="f.data.estatus !== 1" class="estatus estatus-inactivo">
+                                        Inactivo
+                                    </span>
+                                </div>
+                            </dxi-column>
+                            <dxi-column dataField="telefono" caption="Teléfono" alignment="center"></dxi-column>
+                            <dxi-column dataField="rfc" caption="RFC" alignment="center"></dxi-column>
+                            <dxi-column dataField="correo" caption="Correo" alignment="center"></dxi-column>
+                            <dxi-column dataField="tipoPersona" caption="Tipo Persona" alignment="center"></dxi-column>
+                            <dxi-column dataField="nombreEncargado" caption="Nombre Encargado" alignment="center"></dxi-column>
+                            <dxi-column dataField="telefonoEncargado" caption="Teléfono Encargado" alignment="center"></dxi-column>
+                            <dxi-column dataField="correoEncargado" caption="Email Encargado" alignment="center"></dxi-column>
+                            <dxi-column dataField="direccionCompleta" caption="Dirección"></dxi-column>
                             <dxo-export [enabled]="false" [allowExportSelectedData]="true"
                                 [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
                             </dxo-export>
                             <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
                                 <div>
                                     <button valueExpr="id" id="actualizarButton" class="btnAcciones"
-                                        (click)="actualizarCliente(row.data.Id)">
+                                        (click)="actualizarCliente(row.data.id)">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </div>
                                 <div>
-                                    <button id="deleteButton" class="btnAcciones" (click)="eliminarCliente(row.data)">
-                                        <i class="fa fa-trash"></i>
+                                    <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones"
+                                        (click)="activar(row.data)">
+                                        <i class="fa fa-arrow-up"></i>
+                                    </button>
+                                    <button *ngIf="row.data.estatus === 1" id="deleteButton" class="btnAcciones"
+                                        (click)="desactivar(row.data)">
+                                        <i class="fa fa-arrow-down"></i>
                                     </button>
                                 </div>
                             </div>

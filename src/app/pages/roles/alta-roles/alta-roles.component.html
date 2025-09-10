@@ -6,31 +6,23 @@
             </div>
             <div class="header-text">
                 <h5>{{ title }}</h5>
-                <span>Completa la información para registrar un nuevo permiso.</span>
+                <span>Completa la información para registrar un nuevo cliente.</span>
             </div>
         </div>
+
         <div class="card-body">
-            <form [formGroup]="permisoForm" class="cliente-form">
+            <form [formGroup]="rolForm" class="cliente-form">
                 <h6 class="section-title">Datos Generales</h6>
                 <div class="row mt-3">
-                    <div class="col-md-4">
-                        <label>Módulo</label>
-                        <select class="form-control" formControlName="idModulo">
-                            <option [ngValue]="null" disabled>Seleccione un módulo</option>
-                            <option *ngFor="let modulo of listaModulos" [ngValue]="modulo.id">
-                                {{ modulo.nombre }}
-                            </option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label>Nombre</label>
                         <input type="text" class="form-control" formControlName="nombre"
                             placeholder="Ej: Consultar Administración">
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label>Descripción</label>
                         <input type="text" class="form-control" formControlName="descripcion"
-                            placeholder="Ej: Permite visualizar el contenido del módulo">
+                            placeholder="Ej: Permite visualizar el contenido del rol">
                     </div>
                 </div>
                 <div class="form-actions mt-4">

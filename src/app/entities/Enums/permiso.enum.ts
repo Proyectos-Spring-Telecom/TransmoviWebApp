@@ -52,4 +52,9 @@ export enum Permiso {
     EditarVehiculo = "30",
     EliminarVehiculo = "31",
     /* #endregion */
+
+    AgregarModulo = "99",
+    ConsultarModulos = "29",
+    ActualizarModulo = "30",
+    EliminarModulo = "31",
 }

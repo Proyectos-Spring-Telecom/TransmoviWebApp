@@ -31,7 +31,7 @@ export class AltaPermisoComponent implements OnInit {
     private activatedRouted: ActivatedRoute,
     private route: Router,
     private moduSer: ModulosService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.obtenerModulo();
@@ -48,30 +48,35 @@ export class AltaPermisoComponent implements OnInit {
   public info: any;
   obtenerModulo() {
     this.moduSer.obtenerModulos().subscribe((response) => {
-      this.listaModulos = response.map((m: any) => ({
+      this.listaModulos = (response?.data || []).map((m: any) => ({
         ...m,
-        id: Number(m.id), // 🔹 normaliza ids a number
+        id: Number(m.id)
       }));
     });
   }
 
-  obtenerPermiso() {
-    this.permiService
-      .obtenerPermiso(this.idPermiso)
-      .subscribe((response: any) => {
-        this.info = Number(response.id); // 🔹 ahora es number
 
-        this.permisoForm.patchValue({
-          nombre: response.nombre,
-          descripcion: response.descripcion,
-          idModulo: Number(response.id), // 👈 convierte a number
-        });
+  obtenerPermiso() {
+    this.permiService.obtenerPermiso(this.idPermiso).subscribe((response: any) => {
+      const idModuloNum =
+        response?.idModulo != null
+          ? Number(response.idModulo)
+          : response?.idModulo2?.id != null
+            ? Number(response.idModulo2.id)
+            : null;
+
+      this.permisoForm.patchValue({
+        nombre: response.nombre,
+        descripcion: response.descripcion,
+        idModulo: idModuloNum,
       });
+    });
   }
+
 
   initForm() {
     this.permisoForm = this.fb.group({
-      idModulo: ['', Validators.required],
+      idModulo: [null, Validators.required],
       nombre: ['', Validators.required],
       descripcion: ['', Validators.required],
     });
@@ -137,8 +142,12 @@ export class AltaPermisoComponent implements OnInit {
       });
       return;
     }
+    const payload = {
+      ...this.permisoForm.value,
+      idModulo: Number(this.permisoForm.value.idModulo)
+    };
     this.permisoForm.removeControl('id');
-    this.permiService.agregarPermiso(this.permisoForm.value).subscribe(
+    this.permiService.agregarPermiso(payload).subscribe(
       (response) => {
         this.submitButton = 'Guardar';
         this.loading = false;
@@ -216,8 +225,12 @@ export class AltaPermisoComponent implements OnInit {
         },
       });
     }
+    const payload = {
+      ...this.permisoForm.value,
+      idModulo: Number(this.permisoForm.value.idModulo)
+    };
     this.permiService
-      .actualizarPermiso(this.idPermiso, this.permisoForm.value)
+      .actualizarPermiso(this.idPermiso, payload)
       .subscribe(
         (response) => {
           this.submitButton = 'Actualizar';

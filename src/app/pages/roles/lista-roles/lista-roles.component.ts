@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { DxDataGridComponent } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
@@ -6,31 +6,31 @@ import { NgxPermissionsService } from 'ngx-permissions';
 import { forkJoin, lastValueFrom, map, of, switchMap } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { Permiso } from 'src/app/entities/Enums/permiso.enum';
-import { ModulosService } from 'src/app/shared/services/modulos.service';
+import { RolesService } from 'src/app/shared/services/roles.service';
 import Swal from 'sweetalert2';
 
 @Component({
-  selector: 'app-lista-modulos',
-  templateUrl: './lista-modulos.component.html',
-  styleUrl: './lista-modulos.component.scss',
+  selector: 'app-lista-roles',
+  templateUrl: './lista-roles.component.html',
+  styleUrl: './lista-roles.component.scss',
   animations: [fadeInUpAnimation],
 })
-export class ListaModulosComponent {
-  public permisoConsultarModulo: string;
-  public permisoAgregarModulo: string;
-  public permisoActualizarModulo: string;
-  public permisoEliminarModulo: string;
+export class ListaRolesComponent implements OnInit {
+  public permisoConsultarRol: string;
+  public permisoAgregarRol: string;
+  public permisoActualizarRol: string;
+  public permisoEliminarRol: string;
+  public paginaActual: number = 1;
+  public totalRegistros: number = 0;
+  public pageSize: number = 20;
+  public totalPaginas: number = 0;
   public mensajeAgrupar: string = 'Arrastre un encabezado de columna aquí para agrupar por esa columna';
-  public listaModulos: any;
+  public listaRoles: any;
   public showFilterRow: boolean;
   public showHeaderFilter: boolean;
   public loading: boolean;
   public loadingMessage: string = 'Cargando...';
   public showExportGrid: boolean;
-  public paginaActual: number = 1;
-  public totalRegistros: number = 0;
-  public pageSize: number = 20;
-  public totalPaginas: number = 0;
   @ViewChild(DxDataGridComponent, { static: false }) dataGrid: DxDataGridComponent;
   public autoExpandAllGroups: boolean = true;
   isGrouped: boolean = false;
@@ -40,8 +40,8 @@ export class ListaModulosComponent {
 
   constructor(
     private router: Router,
-    private moduloService: ModulosService,
     private permissionsService: NgxPermissionsService,
+    private rolService: RolesService
   ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
@@ -49,7 +49,7 @@ export class ListaModulosComponent {
 
   ngOnInit() {
     this.setupDataSource();
-    // this.obtenerListaModulos();
+    // this.obtenerlistaRoles();
     this.obtenerPermisos();
   }
 
@@ -58,10 +58,10 @@ export class ListaModulosComponent {
   }
 
   obtenerPermisos() {
-    this.permisoAgregarModulo = Permiso.AgregarModulo;
+    this.permisoAgregarRol = Permiso.AgregarModulo;
 
     const permisos = [
-      this.permisoAgregarModulo,
+      this.permisoAgregarRol,
     ];
 
     this.permissionsService.loadPermissions(permisos);
@@ -70,26 +70,26 @@ export class ListaModulosComponent {
   hasPermission(permission: string): boolean {
     return this.permissionsService.getPermission(permission) !== undefined;
   }
-  obtenerListaModulos() {
+  obtenerlistaRoles() {
     this.loading = true;
-    this.moduloService.obtenerModulos().subscribe((response: any[]) => {
+    this.rolService.obtenerRoles().subscribe((response: any[]) => {
       this.loading = false;
-      this.listaModulos = response;
+      this.listaRoles = response;
     });
   }
 
-  agregarModulo() {
-    this.router.navigateByUrl('/modulos/agregar-modulo');
+  agregarRol() {
+    this.router.navigateByUrl('/roles/agregar-rol');
   }
 
-  actualizarModulo(idModulo: Number) {
-    this.router.navigateByUrl('/modulos/editar-modulo/' + idModulo);
+  actualizarRol(idRol: Number) {
+    this.router.navigateByUrl('/roles/editar-rol/' + idRol);
   }
 
   activar(rowData: any) {
     Swal.fire({
       title: '¡Activar!',
-      html: `¿Está seguro que desea activar el módulo: <strong>${rowData.nombre}</strong>?`,
+      html: `¿Está seguro que desea activar el rol: <strong>${rowData.nombre}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -99,11 +99,11 @@ export class ListaModulosComponent {
       background: '#002136',
     }).then((result) => {
       if (result.value) {
-        this.moduloService.updateEstatus(rowData.id, 1).subscribe(
+        this.rolService.updateEstatus(rowData.id, 1).subscribe(
           (response) => {
             Swal.fire({
               title: '¡Confirmación realizada!',
-              html: `El módulo ha sido activado.`,
+              html: `El rol ha sido activado.`,
               icon: 'success',
               background: '#002136',
               confirmButtonColor: '#3085d6',
@@ -112,7 +112,7 @@ export class ListaModulosComponent {
 
             this.setupDataSource();
             this.dataGrid.instance.refresh();
-            // this.obtenerListaModulos();
+            // this.obtenerlistaRoles();
           },
           (error) => {
             Swal.fire({
@@ -132,7 +132,7 @@ export class ListaModulosComponent {
   desactivar(rowData: any) {
     Swal.fire({
       title: '¡Desactivar!',
-      html: `¿Está seguro que requiere dar de baja el módulo: <strong>${rowData.nombre}</strong>?`,
+      html: `¿Está seguro que requiere dar de baja el rol: <strong>${rowData.nombre}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -142,11 +142,11 @@ export class ListaModulosComponent {
       background: '#002136',
     }).then((result) => {
       if (result.value) {
-        this.moduloService.updateEstatus(rowData.id, 0).subscribe(
+        this.rolService.updateEstatus(rowData.id, 0).subscribe(
           (response) => {
             Swal.fire({
               title: '¡Confirmación realizada!',
-              html: `El módulo ha sido desactivado.`,
+              html: `El rol ha sido desactivado.`,
               icon: 'success',
               background: '#002136',
               confirmButtonColor: '#3085d6',
@@ -154,7 +154,7 @@ export class ListaModulosComponent {
             })
             this.setupDataSource();
             this.dataGrid.instance.refresh();
-            // this.obtenerListaModulos();
+            // this.obtenerlistaRoles();
           },
           (error) => {
             Swal.fire({
@@ -180,7 +180,8 @@ export class ListaModulosComponent {
 
   setupDataSource() {
     this.loading = true;
-    this.listaModulos = new CustomStore({
+
+    this.listaRoles = new CustomStore({
       key: 'id',
       load: async (loadOptions: any) => {
         const take = this.pageSize;
@@ -189,7 +190,7 @@ export class ListaModulosComponent {
 
         try {
           const resp: any = await lastValueFrom(
-            this.moduloService.obtenerModuloData(page, take)
+            this.rolService.obtenerRolesData(page, take)
           );
           this.loading = false;
 
@@ -200,12 +201,11 @@ export class ListaModulosComponent {
           const paginaActual =
             Number(resp?.paginated?.page) ?? page;
           const totalPaginas =
-            Number(resp?.paginated?.total) 
+            Number(resp?.paginated?.total)
             ?? Math.max(1, Math.ceil(totalRegistros / take));
 
           const dataTransformada = rows.map((item: any) => ({
             ...item,
-            estatusTexto: item.estatus === 1 ? 'Activo' : 'Inactivo'
           }));
 
           this.totalRegistros = totalRegistros;
@@ -230,7 +230,7 @@ export class ListaModulosComponent {
     if (e.fullName === "searchPanel.text") {
       this.filtroActivo = e.value || '';
       if (!this.filtroActivo) {
-        this.dataGrid.instance.option('dataSource', this.listaModulos);
+        this.dataGrid.instance.option('dataSource', this.listaRoles);
         return;
       }
       const search = this.filtroActivo.toString().toLowerCase();

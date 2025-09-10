@@ -11,8 +11,12 @@ export class UsuariosService {
   constructor(private http: HttpClient) { }
 
   obtenerUsuarios(): Observable<any> {
-    return this.http.get<any>(`${environment.API_SECURITY}/usuarios/page/1/5`);
+    return this.http.get<any>(`${environment.API_SECURITY}/usuarios/list`);
   }
+
+  obtenerUsuariosData(page: number, pageSize: number): Observable<any> {
+		return this.http.get(`${environment.API_SECURITY}/usuarios/page/${page}/${pageSize}`);
+	}
 
   agregarUsuario(data: FormData) {
     return this.http.post(environment.API_SECURITY + '/usuarios', data);
@@ -28,6 +32,15 @@ export class UsuariosService {
 
   actualizarUsuario(idUsuario: number, saveForm: any): Observable<any> {
     return this.http.put(`${environment.API_SECURITY}/usuarios/` + idUsuario, saveForm);
+  }
+
+  private apiUrl = `${environment.API_SECURITY}/usuarios`;
+  updateEstatus(id: number, estatus: number): Observable<string> {
+    const url = `${this.apiUrl}/estatus/${id}`;
+    const body = { estatus };
+    return this.http.patch(url, body, { responseType: 'text' }).pipe(
+      catchError(error => throwError(() => error))
+    );
   }
   
 }

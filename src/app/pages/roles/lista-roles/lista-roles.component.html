@@ -1,26 +1,21 @@
-<!-- <div id="loading" class="loading-overlay" *ngIf="isLoading">
-    <div class="loading-spinner"></div>
-</div> -->
-
 <div [@fadeInUp] class="container-fluid">
-
     <div class="card">
         <div class="card-body">
             <div class="u-banner">
                 <div class="u-banner__icon">
                     <div class="u-icon">
-                        <i class="fas fa-lock"></i>
+                        <i class="fas fa-key"></i>
                     </div>
                 </div>
                 <div class="u-banner__body">
-                    <h2 class="u-banner__title">Gestión de Permisos</h2>
+                    <h2 class="u-banner__title">Gestión de Roles</h2>
                     <p class="u-banner__subtitle">
-                        Consulta, busca y navega entre tus permisos registrados
+                        Consulta, busca y navega entre tus roles registrados
                     </p>
-                    <div>
-                        <button class="u-btn u-btn--primary" (click)="agregarPermiso()">
+                    <div *appHasPermission="'100'">
+                        <button class="u-btn u-btn--primary" (click)="agregarRol()">
                             <i class="fas fa-plus"></i>
-                            <span>Agregar Permiso</span>
+                            <span>Agregar Rol</span>
                         </button>
                     </div>
                 </div>
@@ -28,37 +23,30 @@
             <div class="row mt-4">
                 <div class="col-lg-12">
                     <div class="table-responsive mb-4 col-12 col-lg-12">
-                        <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
-                            [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
-                            [rowAlternationEnabled]="'true'" [dataSource]="listaPermisos" [keyExpr]="'Id'"
-                            [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
-                            [pager]="{ 
+                        <dx-data-grid id="gridContainer" [columnHidingEnabled]="true" [showBorders]="true"
+                            [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
+                            [dataSource]="listaRoles" [keyExpr]="'Id'" [remoteOperations]="{ paging: true }"
+                            [width]="'100%'" [paging]="{ pageSize: pageSize }" [pager]="{ 
                                 showPageSizeSelector: true, 
                                 allowedPageSizes: [50], 
                                 showInfo: true,
                                 infoText: 'Página {0} de {1}', 
                                 visible: true 
                             }" (onPageIndexChanged)=" onPageIndexChanged($event)" (onOptionChanged)="onGridOptionChanged($event)">
-                            <dxo-search-panel [visible]="true" [width]="200"
-                                placeholder="Buscar..."></dxo-search-panel>
-                            <dxo-toolbar>
-                                <dxi-item name="groupPanel" location="before"></dxi-item>
-                                <dxi-item name="exportButton" location="after"
-                                    [options]="{ text: 'Exportar Grid', icon: 'export' }" [showText]="'always'">
-                                </dxi-item>
-                                <dxi-item name="searchPanel" location="after"></dxi-item>
-                            </dxo-toolbar>
+                            <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
+                            <!-- <dxo-paging [pageSize]="20"></dxo-paging> -->
+                            <!-- <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20, 50, 100, 200]"
+                                [showInfo]="true"></dxo-pager> -->
                             <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
                             <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
-                            <dxi-column caption="Acciones" cellTemplate="acciones" alignment="center" [width]="150"></dxi-column>
-                            <dxo-grouping #expand [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column dataField="nombre" caption="Nombre" alignment="center" dataType="string"[allowSearch]="true"></dxi-column>
-                            <dxi-column dataField="descripcion" caption="Descripción" alignment="center" dataType="string" [allowSearch]="true"></dxi-column>
-                            <dxi-column dataField="idModulo2.nombre" caption="Módulo" alignment="center" dataType="string" [allowSearch]="true">
-                                <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
-                            </dxi-column>
+                            <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
+                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center"
+                                [width]="180"></dxi-column>
+                            <dxi-column dataField="id" caption="ID" alignment="center" [width]="120"></dxi-column>
+                            <dxi-column dataField="nombre" caption="Nombre" alignment="center"></dxi-column>
+                            <dxi-column dataField="descripcion" caption="Descripción" alignment="center"></dxi-column>
                             <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
                                     <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
@@ -69,10 +57,13 @@
                                     </span>
                                 </div>
                             </dxi-column>
-                            <div *dxTemplate="let row of 'acciones'" class="d-flex gap-3 justify-content-center">
+                            <dxo-export [enabled]="false" [allowExportSelectedData]="true"
+                                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
+                            </dxo-export>
+                            <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
                                 <div>
                                     <button valueExpr="id" id="actualizarButton" class="btnAcciones"
-                                        (click)="actualizarPermiso(row.data.id)">
+                                        (click)="actualizarRol(row.data.id)">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </div>
@@ -87,9 +78,6 @@
                                     </button>
                                 </div>
                             </div>
-                            <dxo-export [enabled]="false" [allowExportSelectedData]="false"
-                                [texts]="{ exportAll: 'Exportar todos los datos a Excel' }">
-                            </dxo-export>
                         </dx-data-grid>
                     </div>
                 </div>

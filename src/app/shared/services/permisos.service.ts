@@ -9,12 +9,14 @@ import { environment } from '../../../environments/environment';
 export class PermisosService {
 
   constructor(private http: HttpClient) { }
-  private apiUrl = `${environment.API_SECURITY}/api/permisos`;
 
   obtenerPermisos(page: number, pageSize: number): Observable<any> {
 		return this.http.get(`${environment.API_SECURITY}/permisos/page/${page}/${pageSize}`);
 	}
 
+  obtenerPermisosAgrupados(){
+    return this.http.get(`${environment.API_SECURITY}/permisos/permisosAgrupados`);
+  }
 
   agregarPermiso(data: FormData) {
     return this.http.post(environment.API_SECURITY + '/permisos', data);
@@ -32,13 +34,13 @@ export class PermisosService {
     return this.http.put(`${environment.API_SECURITY}/permisos/` + idPermiso, saveForm);
   }
 
-  updateEstatus(id: number): Observable<string> {
-        const url = `${this.apiUrl}/${id}`;
-        return this.http.patch(url, {}, { responseType: 'text' }).pipe(
-            catchError(error => {
-              return throwError(error);
-            })
+  private apiUrl = `${environment.API_SECURITY}/permisos`;
+  updateEstatus(id: number, estatus: number): Observable<string> {
+    const url = `${this.apiUrl}/${id}/estatus`;
+    const body = { estatus };
+    return this.http.patch(url, body, { responseType: 'text' }).pipe(
+      catchError(error => throwError(() => error))
     );
-    }
+  }
   
 }

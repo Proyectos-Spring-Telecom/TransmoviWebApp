@@ -31,18 +31,24 @@ export const MENU: MenuItem[] = [
     label: 'Administración',
     icon: 'uil-store-alt',
     subItems: [
-      {
-        id: 15,
-        label: 'Permisos',
-        icon: 'uil-clipboard-notes',
-        link: '/permisos',
-      },
-      {
-        id: 16,
-        label: 'Módulos',
-        icon: 'uil-apps',
-        link: '/modulos',
-      },
+        {
+          id: 16,
+          label: 'Módulos',
+          icon: 'uil-apps',
+          link: '/modulos',
+        },
+        {
+            id: 15,
+            label: 'Permisos',
+            icon: 'uil-clipboard-notes',
+            link: '/permisos',
+        },
+        {
+            id: 15,
+            label: 'Roles',
+            icon: 'uil-clipboard-notes',
+            link: '/roles',
+        },
     ],
   },
     {
