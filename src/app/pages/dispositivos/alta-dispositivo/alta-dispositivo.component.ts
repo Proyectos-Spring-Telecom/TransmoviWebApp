@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
+import { ClientesService } from 'src/app/shared/services/clientes.service';
 import { DispositivosService } from 'src/app/shared/services/dispositivos.service';
 import Swal from 'sweetalert2';
 
@@ -17,6 +18,7 @@ export class AltaDispositivoComponent implements OnInit {
   public dispositivoForm: FormGroup;
   public idDispositivo: number;
   public title = 'Agregar Dispositivo';
+  public listaClientes: any;
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
 
@@ -25,11 +27,13 @@ export class AltaDispositivoComponent implements OnInit {
     private fb: FormBuilder, 
     private dispoService: DispositivosService,
     private activatedRouted: ActivatedRoute,
+    private clieService: ClientesService,
   ) {
 
   }
 
   ngOnInit(): void {
+    this.obtenerClientes()
     this.initForm()
     this.activatedRouted.params.subscribe(
       (params) => {
@@ -43,27 +47,44 @@ export class AltaDispositivoComponent implements OnInit {
 
   }
 
-  obtenerDispositivoID() {
-    this.dispoService.obtenerDispositivo(this.idDispositivo).subscribe(
-      (response: any) => {
-        this.dispositivoForm.patchValue({
-          NumeroSerie: response.dispositivo.NumeroSerie,
-          Marca: response.dispositivo.Marca,
-          Modelo: response.dispositivo.Modelo,
-          Estatus: response.dispositivo.Estatus,
-        });
-      }
-    );
-  }
+obtenerClientes() {
+  this.clieService.obtenerClientes().subscribe((response) => {
+    this.listaClientes = (response.data || []).map((c: any) => ({
+      ...c,
+      id: Number(c?.id ?? c?.Id ?? c?.ID) // asegura número
+    }));
+  });
+}
 
-  initForm() {
-    this.dispositivoForm = this.fb.group({
-      NumeroSerie: ['', Validators.required],
-      Marca: ['', Validators.required],
-      Modelo: ['', Validators.required],
-      Estatus: [1, Validators.required],
+obtenerDispositivoID() {
+  this.dispoService.obtenerDispositivo(this.idDispositivo).subscribe((response: any) => {
+    const d = response?.dispositivo ?? response?.data ?? response ?? {};
+
+    // toma idCliente/estatus sin importar la variante de nombre y castea a number
+    const idCli = d?.idCliente ?? d?.idcliente ?? d?.IdCliente ?? d?.IDCliente;
+    const est   = d?.estatus    ?? d?.Estatus;
+
+    this.dispositivoForm.patchValue({
+      // OJO: aquí estaba mal escrito como "nu0meroSerie"
+      numeroSerie: d?.numeroSerie ?? d?.NumeroSerie ?? '',
+      marca: d?.marca ?? d?.Marca ?? '',
+      modelo: d?.modelo ?? d?.Modelo ?? '',
+      estatus: (est != null ? Number(est) : 1),
+      idCliente: (idCli != null ? Number(idCli) : null),
     });
-  }
+  });
+}
+
+initForm() {
+  this.dispositivoForm = this.fb.group({
+    numeroSerie: ['', Validators.required],
+    marca: ['', Validators.required],
+    modelo: ['', Validators.required],
+    idCliente: [null, Validators.required], // el control ya espera number
+    estatus: [1, Validators.required],
+  });
+}
+
 
   submit() {
     this.submitButton = 'Cargando...';
@@ -83,10 +104,10 @@ export class AltaDispositivoComponent implements OnInit {
       this.loading = false;
       const etiquetas: any =
       {
-        NumeroSerie: 'Número de Serie',
-        Marca: 'Marca',
-        Modelo: 'Modelo',
-        Estatus: 'Estatus',
+        numeroSerie: 'Número de Serie',
+        marca: 'Marca',
+        modelo: 'Modelo',
+        idCliente: 'Cliente',
       };
 
       const camposFaltantes: string[] = [];
@@ -161,10 +182,10 @@ export class AltaDispositivoComponent implements OnInit {
       this.loading = false;
       const etiquetas: any =
       {
-        NumeroSerie: 'Número de Serie',
-        Marca: 'Marca',
-        Modelo: 'Modelo',
-        Estatus: 'Estatus',
+        numeroSerie: 'Número de Serie',
+        marca: 'Marca',
+        modelo: 'Modelo',
+        idCliente: 'Cliente',
       };
 
       const camposFaltantes: string[] = [];

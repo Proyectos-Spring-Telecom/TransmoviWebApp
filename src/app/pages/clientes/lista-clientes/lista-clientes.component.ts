@@ -204,7 +204,7 @@ export class ListaClientesComponent implements OnInit {
         this.cliService.updateEstatus(rowData.id, 1).subscribe(
           (response) => {
             Swal.fire({
-              title: '¡Confirmación realizada!',
+              title: '¡Confirmación Realizada!',
               html: `El cliente ha sido activado.`,
               icon: 'success',
               background: '#002136',
@@ -247,7 +247,7 @@ export class ListaClientesComponent implements OnInit {
         this.cliService.updateEstatus(rowData.id, 0).subscribe(
           (response) => {
             Swal.fire({
-              title: '¡Confirmación realizada!',
+              title: '¡Confirmación Realizada!',
               html: `El cliente ha sido desactivado.`,
               icon: 'success',
               background: '#002136',

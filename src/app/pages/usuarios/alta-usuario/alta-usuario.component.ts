@@ -348,128 +348,122 @@ export class AltaUsuarioComponent implements OnInit {
 
 
   actualizar() {
-    if (this.loading) return;
+  if (this.loading) return;
 
-    this.submitButton = 'Cargando...';
-    this.loading = true;
+  this.submitButton = 'Cargando...';
+  this.loading = true;
 
-    if (!this.inputContrasena) {
-      const passCtrl = this.usuarioForm.get('passwordHash');
-      const confirmCtrl = this.usuarioForm.get('confirmPassword');
-      passCtrl?.clearValidators();
-      passCtrl?.updateValueAndValidity({ emitEvent: false });
-      confirmCtrl?.clearValidators();
-      confirmCtrl?.updateValueAndValidity({ emitEvent: false });
+  if (!this.inputContrasena) {
+    const passCtrl = this.usuarioForm.get('passwordHash');
+    const confirmCtrl = this.usuarioForm.get('confirmPassword');
+    passCtrl?.clearValidators();
+    passCtrl?.updateValueAndValidity({ emitEvent: false });
+    confirmCtrl?.clearValidators();
+    confirmCtrl?.updateValueAndValidity({ emitEvent: false });
+  }
+
+  const etiquetas: Record<string, string> = {
+    userName: 'Correo electrónico',
+    passwordHash: 'Contraseña',
+    confirmPassword: 'Confirmar contraseña',
+    telefono: 'Teléfono',
+    nombre: 'Nombre',
+    apellidoPaterno: 'Apellido Paterno',
+    apellidoMaterno: 'Apellido Materno',
+    idRol: 'Rol',
+    estatus: 'Estatus',
+    idCliente: 'Cliente',
+    permisosIds: 'Permisos'
+  };
+
+  const camposFaltantes: string[] = [];
+  Object.keys(this.usuarioForm.controls).forEach((key) => {
+    if (!this.inputContrasena && (key === 'passwordHash' || key === 'confirmPassword')) return;
+    const control = this.usuarioForm.get(key);
+    if (control?.errors?.['required']) {
+      camposFaltantes.push(etiquetas[key] || key);
     }
+  });
 
-    const etiquetas: Record<string, string> = {
-      userName: 'Correo electrónico',
-      passwordHash: 'Contraseña',
-      confirmPassword: 'Confirmar contraseña',
-      telefono: 'Teléfono',
-      nombre: 'Nombre',
-      apellidoPaterno: 'Apellido Paterno',
-      apellidoMaterno: 'Apellido Materno',
-      idRol: 'Rol',
-      estatus: 'Estatus',
-      idCliente: 'Cliente',
-      permisosIds: 'Permisos'
-    };
+  const listaMensajes: string[] = [...camposFaltantes];
+  if (this.inputContrasena && this.usuarioForm.hasError('passwordMismatch')) {
+    listaMensajes.push('Las contraseñas no coinciden');
+  }
 
-    const camposFaltantes: string[] = [];
-    Object.keys(this.usuarioForm.controls).forEach((key) => {
-      if (!this.inputContrasena && (key === 'passwordHash' || key === 'confirmPassword')) return;
-
-      const control = this.usuarioForm.get(key);
-      if (control?.errors?.['required']) {
-        camposFaltantes.push(etiquetas[key] || key);
-      }
-    });
-
-    const listaMensajes: string[] = [...camposFaltantes];
-
-    if (this.inputContrasena && this.usuarioForm.hasError('passwordMismatch')) {
-      listaMensajes.push('Las contraseñas no coinciden');
-    }
-
-    if (this.usuarioForm.invalid || listaMensajes.length > 0) {
-      this.submitButton = 'Actualizar';
-      this.loading = false;
-
-      Swal.fire({
-        title: '¡Faltan campos obligatorios!',
-        background: '#22252f',
-        html: `
+  if (this.usuarioForm.invalid || listaMensajes.length > 0) {
+    this.submitButton = 'Actualizar';
+    this.loading = false;
+    Swal.fire({
+      title: '¡Faltan campos obligatorios!',
+      background: '#22252f',
+      html: `
         <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
           Los siguientes <strong>campos</strong> requieren atención:
         </p>
         <div style="max-height: 350px; overflow-y: auto;">
-          ${listaMensajes
-            .map(
-              (msg, idx) => `
-              <div style="padding:8px 12px;border-left:4px solid #d9534f;
-                          background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
-                <strong style="color:#b02a37;">${idx + 1}. ${msg}</strong>
-              </div>`
-            )
-            .join('')}
-        </div>
-      `,
-        icon: 'error',
-        confirmButtonText: 'Entendido',
-        customClass: { popup: 'swal2-padding swal2-border' },
-      });
-      return;
-    }
-
-    const {
-      confirmPassword,
-      passwordHash,
-      idRol,
-      idCliente,
-      permisosIds,
-      ...rest
-    } = this.usuarioForm.value;
-
-    const payload: any = {
-      ...rest,
-      idRol: Number(idRol),
-      idCliente: Number(idCliente),
-      permisosIds: (permisosIds || []).map((x: any) => Number(x)),
-    };
-
-    if (this.inputContrasena && passwordHash) {
-      payload.passwordHash = passwordHash;
-    }
-
-    this.usuaService.actualizarUsuario(this.idUsuario, payload).subscribe({
-      next: () => {
-        this.submitButton = 'Actualizar';
-        this.loading = false;
-        Swal.fire({
-          title: '¡Operación Exitosa!',
-          background: '#22252f',
-          text: `Los datos del usuario se actualizaron correctamente.`,
-          icon: 'success',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Confirmar',
-        });
-        this.regresar();
-      },
-      error: () => {
-        this.submitButton = 'Actualizar';
-        this.loading = false;
-        Swal.fire({
-          title: '¡Ops!',
-          background: '#22252f',
-          text: `Ocurrió un error al actualizar el usuario.`,
-          icon: 'error',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Confirmar',
-        });
-      },
+          ${listaMensajes.map((msg, idx) => `
+            <div style="padding:8px 12px;border-left:4px solid #d9534f;background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
+              <strong style="color:#b02a37;">${idx + 1}. ${msg}</strong>
+            </div>`).join('')}
+        </div>`,
+      icon: 'error',
+      confirmButtonText: 'Entendido',
+      customClass: { popup: 'swal2-padding swal2-border' },
     });
+    return;
   }
+
+  // ⬇️ IMPORTANTE: EXCLUIR userName
+  const {
+    userName,          // <- excluido del payload
+    confirmPassword,
+    passwordHash,
+    idRol,
+    idCliente,
+    permisosIds,
+    ...rest
+  } = this.usuarioForm.value;
+
+  const payload: any = {
+    ...rest, // ya no contiene userName
+    idRol: Number(idRol),
+    idCliente: Number(idCliente),
+    permisosIds: (permisosIds || []).map((x: any) => Number(x)),
+  };
+
+  if (this.inputContrasena && passwordHash) {
+    payload.passwordHash = passwordHash;
+  }
+
+  this.usuaService.actualizarUsuario(this.idUsuario, payload).subscribe({
+    next: () => {
+      this.submitButton = 'Actualizar';
+      this.loading = false;
+      Swal.fire({
+        title: '¡Operación Exitosa!',
+        background: '#22252f',
+        text: `Los datos del usuario se actualizaron correctamente.`,
+        icon: 'success',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Confirmar',
+      });
+      this.regresar();
+    },
+    error: () => {
+      this.submitButton = 'Actualizar';
+      this.loading = false;
+      Swal.fire({
+        title: '¡Ops!',
+        background: '#22252f',
+        text: `Ocurrió un error al actualizar el usuario.`,
+        icon: 'error',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Confirmar',
+      });
+    },
+  });
+}
+
 
 
   regresar() {

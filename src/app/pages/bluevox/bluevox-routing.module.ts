@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ListaBluevoxComponent } from './lista-bluevox/lista-bluevox.component';
 import { RegistrarComponent } from './registrar/registrar.component';
+import { DispositivoBluevoxComponent } from './dispositivo-bluevox/dispositivo-bluevox.component';
 
 const routes: Routes = [
   {
@@ -11,6 +12,10 @@ const routes: Routes = [
   {
       path: 'registrar',
       component: RegistrarComponent
+  },
+  {
+      path: 'dispositivo-bluevox',
+      component: DispositivoBluevoxComponent
   },
 ];
 

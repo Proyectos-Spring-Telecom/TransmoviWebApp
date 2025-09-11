@@ -35,7 +35,7 @@ const routes: Routes = [
   { path: 'usuarios', loadChildren: () => import('./usuarios/usuarios.module').then(m => m.UsuariosModule)},
   { path: 'permisos', loadChildren: () => import('./permisos/permisos.module').then(m => m.PermisosModule)},
   { path: 'modulos', loadChildren: () => import('./modulos/modulos.module').then(m => m.ModulosModule)},
-  { path: 'roles', loadChildren: () => import('./roles/roles.module').then(m => m.RolesModule)}
+  { path: 'roles', loadChildren: () => import('./roles/roles.module').then(m => m.RolesModule)},
 ];
 
 @NgModule({

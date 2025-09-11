@@ -5,33 +5,43 @@
                 <i class="fas fa-user-plus"></i>
             </div>
             <div class="header-text">
-                <h5>{{title}}</h5>
-                <span>Completa la información para registrar un nuevo operador.</span>
+                <h5>{{ title }}</h5>
+                <span>Completa la información para registrar un nuevo dispositivo.</span>
             </div>
         </div>
+
         <div class="card-body">
             <form [formGroup]="dispositivoForm" class="cliente-form">
-                <h6 class="section-title">Datos del Equipo</h6>
+                <h6 class="section-title">Datos Generales</h6>
                 <div class="row mt-3">
                     <div class="col-md-4">
                         <label>Número de Serie</label>
-                        <input type="text" class="form-control" formControlName="NumeroSerie"
+                        <input type="text" class="form-control" formControlName="numeroSerie"
                             placeholder="Ej: 41f170e5dafc640e">
                     </div>
                     <div class="col-md-4">
                         <label>Marca</label>
-                        <input type="text" class="form-control" formControlName="Marca"
+                        <input type="text" class="form-control" formControlName="marca"
                             placeholder="Ej: Zebra">
                     </div>
                     <div class="col-md-4">
                         <label>Módelo</label>
-                        <input type="text" class="form-control" formControlName="Modelo"
+                        <input type="text" class="form-control" formControlName="modelo"
                             placeholder="Ej: ZQ520">
+                    </div>
+                    <div class="col-md-4 mt-3">
+                        <label>Cliente</label>
+                        <select class="form-control" formControlName="idCliente">
+                            <option [ngValue]="null" disabled>Seleccione un cliente</option>
+                            <option *ngFor="let cliente of listaClientes" [ngValue]="cliente.id">
+                                {{ cliente.nombre }} {{ cliente.apellidoPaterno }} {{ cliente.apellidoMaterno }}
+                            </option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-actions mt-4">
-                    <button type="submit" class="btn btn-success" (click)="submit()">{{submitButton}}</button>
-                    <button type="button" class="btn btn-danger" (click)="regresar()">Cancelar</button>
+                    <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
+                    <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
                 </div>
             </form>
         </div>

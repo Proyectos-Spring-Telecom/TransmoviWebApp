@@ -59,6 +59,13 @@ export const MENU: MenuItem[] = [
         // permiso: Permiso.VerDispositivos
     },
     {
+        id: 2,
+        label: 'Bluevox',
+        icon: 'uil-document-layout-left',
+        link: '/bluevox/dispositivo-bluevox',
+        // permiso: Permiso.VerDispositivos
+    },
+    {
         id: 10,
         label: 'Bitácora de Viajes',
         icon: 'uil-bag-alt',

@@ -215,7 +215,7 @@ export class ListaUsuariosComponent implements OnInit {
         this.usuService.updateEstatus(rowData.id, 1).subscribe(
           (response) => {
             Swal.fire({
-              title: '¡Confirmación realizada!',
+              title: '¡Confirmación Realizada!',
               html: `El usuario ha sido activado.`,
               icon: 'success',
               background: '#002136',
@@ -258,7 +258,7 @@ export class ListaUsuariosComponent implements OnInit {
         this.usuService.updateEstatus(rowData.id, 0).subscribe(
           (response) => {
             Swal.fire({
-              title: '¡Confirmación realizada!',
+              title: '¡Confirmación Realizada!',
               html: `El usuario ha sido desactivado.`,
               icon: 'success',
               background: '#002136',

@@ -4,16 +4,17 @@ import { DxDataGridComponent } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
+import { DispositivoBluevoxService } from 'src/app/shared/services/dispositivobluevox.service';
 import { DispositivosService } from 'src/app/shared/services/dispositivos.service';
 import Swal from 'sweetalert2';
 
 @Component({
-  selector: 'app-lista-dispositivos',
-  templateUrl: './lista-dispositivos.component.html',
-  styleUrls: ['./lista-dispositivos.component.scss'],
+  selector: 'app-dispositivo-bluevox',
+  templateUrl: './dispositivo-bluevox.component.html',
+  styleUrl: './dispositivo-bluevox.component.scss',
   animations: [fadeInUpAnimation]
 })
-export class ListaDispositivosComponent implements OnInit {
+export class DispositivoBluevoxComponent implements OnInit {
   
   isLoading: boolean = false;
   listaDispositivos: any;
@@ -34,7 +35,7 @@ export class ListaDispositivosComponent implements OnInit {
     public paginaActualData: any[] = [];
     public filtroActivo: string = '';
 
-  constructor(private disService:DispositivosService, private route: Router) {
+  constructor(private disBlueService:DispositivoBluevoxService, private route: Router) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
   }
@@ -53,7 +54,7 @@ obtenerDispositivos() {
 
       try {
         const response: any = await lastValueFrom(
-          this.disService.obtenerDispositivosData(page, take)
+          this.disBlueService.obtenerDispositivosBlueData(page, take)
         );
 
         this.loading = false;
@@ -137,46 +138,6 @@ obtenerDispositivos() {
       this.route.navigateByUrl( '/dispositivos/editar-dispositivo/' + idDispositivo);
     };
   
-    eliminarDispositivo(dispositivo: any) {
-      Swal.fire({
-        title: '¡Eliminar Dispositivo!',
-        background: '#002136',
-        html: `¿Está seguro que desea eliminar el dispositivo: <br> ${dispositivo.Marca + ' ' + dispositivo.Modelo}?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Confirmar',
-        cancelButtonText: 'Cancelar',
-      }).then((result) => {
-        if (result.value) {
-          this.disService.eliminarDispositivo(dispositivo.Id).subscribe(
-            (response) => {
-              Swal.fire({
-                title: '¡Eliminado!',
-                background: '#002136',
-                html: `El dispositivo ha sido eliminado de forma exitosa.`,
-                icon: 'success',
-                showCancelButton: false,
-                confirmButtonColor: '#3085d6',
-                confirmButtonText: 'Confirmar',
-              })
-              this.obtenerDispositivos();
-            },
-            (error) => {
-              Swal.fire({
-                title: '¡Ops!',
-                background: '#002136',
-                html: `Error al intentar eliminar el dispositivo.`,
-                icon: 'error',
-                showCancelButton: false,
-              })
-            }
-          );
-        }
-      });
-    }
-
     activar(rowData: any) {
         Swal.fire({
           title: '¡Activar!',
@@ -190,7 +151,7 @@ obtenerDispositivos() {
           background: '#002136',
         }).then((result) => {
           if (result.value) {
-            this.disService.updateEstatus(rowData.id, 1).subscribe(
+            this.disBlueService.updateEstatus(rowData.id, 1).subscribe(
               (response) => {
                 Swal.fire({
                   title: '¡Confirmación Realizada!',
@@ -233,7 +194,7 @@ obtenerDispositivos() {
           background: '#002136',
         }).then((result) => {
           if (result.value) {
-            this.disService.updateEstatus(rowData.id, 0).subscribe(
+            this.disBlueService.updateEstatus(rowData.id, 0).subscribe(
               (response) => {
                 Swal.fire({
                   title: '¡Confirmación Realizada!',

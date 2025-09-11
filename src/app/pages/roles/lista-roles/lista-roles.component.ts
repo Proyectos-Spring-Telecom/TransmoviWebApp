@@ -102,7 +102,7 @@ export class ListaRolesComponent implements OnInit {
         this.rolService.updateEstatus(rowData.id, 1).subscribe(
           (response) => {
             Swal.fire({
-              title: '¡Confirmación realizada!',
+              title: '¡Confirmación Realizada!',
               html: `El rol ha sido activado.`,
               icon: 'success',
               background: '#002136',
@@ -145,7 +145,7 @@ export class ListaRolesComponent implements OnInit {
         this.rolService.updateEstatus(rowData.id, 0).subscribe(
           (response) => {
             Swal.fire({
-              title: '¡Confirmación realizada!',
+              title: '¡Confirmación Realizada!',
               html: `El rol ha sido desactivado.`,
               icon: 'success',
               background: '#002136',
