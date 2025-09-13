@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { TransaccionesService } from 'src/app/shared/services/transacciones.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { DxDataGridComponent } from 'devextreme-angular';
+import CustomStore from 'devextreme/data/custom_store';
+import { lastValueFrom } from 'rxjs';
+import { Router } from '@angular/router';
 
 declare var google: any;
 
@@ -13,7 +17,7 @@ declare var google: any;
 })
 export class ListaTransaccionesComponent implements OnInit {
 
-  listaTransacciones: any[] = [];
+  listaTransacciones: any;
   isLoading: boolean = false;
   public selectedTransactionId: number | null = null;
   public latSelect: string | null = null;
@@ -28,8 +32,21 @@ export class ListaTransaccionesComponent implements OnInit {
   public mensajeAgrupar: string = "Arrastre un encabezado de columna aquí para agrupar por esa columna"
   public loading: boolean = false;
   public loadingMessage: string = 'Cargando...';
+  public paginaActual: number = 1;
+  public totalRegistros: number = 0;
+  public pageSize: number = 20;
+  public totalPaginas: number = 0;
+  public data: string;
+  public paginaActualData: any[] = [];
+  public filtroActivo: string = '';
+  public showMap: boolean = false;
+  @ViewChild(DxDataGridComponent, { static: false }) dataGrid: DxDataGridComponent;
 
-  constructor(private tranService: TransaccionesService, private modalService: NgbModal) {
+  constructor(
+    private tranService: TransaccionesService,
+    private modalService: NgbModal,
+    private route: Router
+  ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
   }
@@ -40,39 +57,98 @@ export class ListaTransaccionesComponent implements OnInit {
 
   obtenerTransacciones() {
     this.loading = true;
-    this.tranService.obtenerTransacciones().subscribe(
-      (res: any) => {
-        setTimeout(()=> {
+    this.listaTransacciones = new CustomStore({
+      key: 'id',
+      load: async (loadOptions: any) => {
+        const skip = Number(loadOptions?.skip) || 0;
+        const take = Number(loadOptions?.take) || this.pageSize;
+        const page = Math.floor(skip / take) + 1;
+
+        try {
+          const response: any = await lastValueFrom(
+            this.tranService.obtenerTransaccionesData(page, take)
+          );
           this.loading = false;
-        },2000)
-        this.listaTransacciones = res.transacciones;
-      },
-      (error) => {
-        console.error('Error al obtener transacciones:', error);
-        this.loading = false;
+          const totalRegistros = Number(response?.paginated?.total) || 0;
+          const paginaActual = Number(response?.paginated?.page) || page;
+          const totalPaginas = take > 0 ? Math.ceil(totalRegistros / take) : 0;
+
+          this.totalRegistros = totalRegistros;
+          this.paginaActual = paginaActual;
+          this.totalPaginas = totalPaginas;
+
+          const dataTransformada = (Array.isArray(response?.data) ? response.data : [])
+            .map((item: any) => {
+              const idNum = Number(item?.id ?? item?.Id ?? item?.ID);
+              return {
+                ...item,
+                id: Number.isFinite(idNum) ? idNum : 0,
+              };
+            })
+            .sort((a: any, b: any) => b.id - a.id);
+
+          this.paginaActualData = dataTransformada;
+
+          return {
+            data: dataTransformada,
+            totalCount: totalRegistros
+          };
+
+        } catch (error) {
+          this.loading = false;
+          console.error('Error en la solicitud de datos:', error);
+          return { data: [], totalCount: 0 };
+        }
       }
-    );
+    });
   }
 
+  onGridOptionChanged(e: any) {
+    if (e.fullName === "searchPanel.text") {
+      this.filtroActivo = e.value || '';
+      if (!this.filtroActivo) {
+        this.dataGrid.instance.option('dataSource', this.listaTransacciones);
+        return;
+      }
+      const search = this.filtroActivo.toLowerCase();
+      const dataFiltrada = this.paginaActualData.filter((item: any) =>
+        (item.nombre && item.nombre.toLowerCase().includes(search)) ||
+        (item.descripcion && item.descripcion.toLowerCase().includes(search)) ||
+        (item.modulo?.nombre && item.modulo.nombre.toLowerCase().includes(search))
+      );
+      this.dataGrid.instance.option('dataSource', dataFiltrada);
+    }
+  }
+
+  onPageIndexChanged(e: any) {
+    const pageIndex = e.component.pageIndex();
+    this.paginaActual = pageIndex + 1;
+    e.component.refresh();
+  }
   showInfo(id: any): void {
     console.log('Mostrar información de la transacción con ID:', id);
   }
 
-  centerModal(centerDataModal: any, id: number, Latitud: string, Longitud: string, FechaHora: string, Monto: number, TipoTransaccion: any) {
+  centerModal(centerDataModal: any, id: number, latitud: string, longitud: string, fechaHora: string, monto: number, tipoTransaccion: any) {
     this.selectedTransactionId = id;
-    this.latSelect = Latitud;
-    this.lngSelect = Longitud;
-    this.selectedTransactionDate = FechaHora;
-    this.selectedTransactionAmount = Monto;
-    this.selectedTipoTransaccion = TipoTransaccion;
-    this.modalService.open(centerDataModal, { 
+    this.latSelect = latitud;
+    this.lngSelect = longitud;
+    this.selectedTransactionDate = fechaHora;
+    this.selectedTransactionAmount = monto;
+    this.selectedTipoTransaccion = tipoTransaccion;
+    if (this.latSelect == null || this.latSelect == '') {
+      this.showMap = true;
+    } else {
+      this.showMap = false;
+    }
+    this.modalService.open(centerDataModal, {
       centered: true, windowClass: 'modal-holder',
-      backdrop: 'static', // ❗ evita cerrar al hacer clic fuera
+      backdrop: 'static',
       keyboard: false,
     });
 
     setTimeout(() => {
-      this.initializeMap(Latitud, Longitud);
+      this.initializeMap(latitud, longitud);
     }, 500);
   }
 
@@ -94,5 +170,9 @@ export class ListaTransaccionesComponent implements OnInit {
 
   cerrarModal(modal: any) {
     modal.close('Modal cerrado por nuevo método');
+  }
+
+  agregarTransaccion() {
+    this.route.navigateByUrl('/transacciones/agregar-transaccion')
   }
 }

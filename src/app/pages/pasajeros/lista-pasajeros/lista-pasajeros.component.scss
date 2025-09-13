@@ -25,13 +25,6 @@
   margin-right: 8px;
 }
 
-.card {
-  margin-bottom: 1.25rem;
-  box-shadow: var(--bs-box-shadow);
-  border: none;
-  background-color: #002136;
-}
-
 .titulo {
   font-size: 24px;
   font-weight: bold;
@@ -98,7 +91,6 @@ div:where(.swal2-container) .swal2-html-container {
   background-size: 280% auto;
   background-color: #0a66c2;
   border: none;
-  border-radius: var(--radii);
 }
 
 ::ng-deep .dx-searchbox .dx-texteditor-input:hover {
@@ -179,4 +171,11 @@ div:where(.swal2-container) .swal2-html-container {
   cursor: not-allowed;
   background: rgba(0, 0, 0, .08);
   color: rgba(0, 0, 0, .3);
+}
+
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  border: none;
+  background-color: #002136;
 }

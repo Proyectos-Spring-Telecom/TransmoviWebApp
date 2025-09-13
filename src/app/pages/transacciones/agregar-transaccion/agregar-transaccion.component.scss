@@ -1,55 +1,3 @@
-$u-bg: #0b2633;
-$u-card: #0f3a43;
-$u-card-2: #0f544f;
-$u-text: #eaf6f8;
-$u-muted: #a7c6cc;
-$u-accent: #4ade80;
-$u-primary: #3b82f6;
-$u-primary-2: #0a66c2;
-$u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
-
-.card-header-custom {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 1rem 1.2rem;
-  background:
-    radial-gradient(1000px 200px at 0% 0%, rgba(255, 255, 255, .06), transparent 40%),
-    linear-gradient(135deg, $u-card, $u-card-2);
-  color: #fff;
-
-  .icon-wrapper {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    display: grid;
-    place-items: center;
-    background: linear-gradient(180deg, rgba(74, 222, 128, .15), rgba(74, 222, 128, .06));
-    border: 1px solid rgba(74, 222, 128, .3);
-    box-shadow: inset 0 0 0 2px rgba(74, 222, 128, .06);
-
-    i {
-      font-size: 18px;
-      color: $u-accent;
-    }
-  }
-
-  .header-text {
-    h5 {
-      margin: 0;
-      font-weight: 700;
-      font-size: 1.2rem;
-      line-height: 1.2;
-    }
-
-    span {
-      margin: 0 0 .5rem 0;
-      color: $u-muted;
-      font-size: 0.85rem;
-    }
-  }
-}
-
 .section-title {
   font-weight: 700;
   font-size: 1.1rem;
@@ -149,17 +97,17 @@ label {
   border-radius: 12px;
   padding: 30px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255,255,255,0.05);
   cursor: pointer;
   transition: all 0.3s ease;
 
-  .modal-header {
+  .modal-header{
     background-color: #00836d;
   }
 
   &:hover {
     border-color: #005748;
-    background: rgba(37, 117, 252, 0.05);
+    background: rgba(37,117,252,0.05);
   }
 
   .hidden-file-input {
@@ -218,45 +166,45 @@ label {
 }
 
 ::ng-deep .swal2-container .swal2-title {
-  font-size: 24px;
-  font-weight: 200;
-  color: #ffffff;
+    font-size: 24px;
+    font-weight: 200;
+    color: #ffffff;
 }
 
 .swal2-container .swal2-title {
-  font-size: 24px;
-  font-weight: 500;
-  color: #ffffff;
+    font-size: 24px;
+    font-weight: 500;
+    color: #ffffff;
 }
 
 ::ng-deep div:where(.swal2-container) .swal2-html-container {
-  z-index: 1;
-  justify-content: center;
-  margin: 1em 1.6em .3em;
-  padding: 0;
-  overflow: auto;
-  color: #c8c8c8;
-  font-size: 1.125em;
-  font-weight: normal;
-  line-height: normal;
-  text-align: center;
-  word-wrap: break-word;
-  word-break: break-word;
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 
 div:where(.swal2-container) .swal2-html-container {
-  z-index: 1;
-  justify-content: center;
-  margin: 1em 1.6em .3em;
-  padding: 0;
-  overflow: auto;
-  color: #c8c8c8;
-  font-size: 1.125em;
-  font-weight: normal;
-  line-height: normal;
-  text-align: center;
-  word-wrap: break-word;
-  word-break: break-word;
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 
 .card {

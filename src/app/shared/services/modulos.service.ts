@@ -11,7 +11,7 @@ export class ModulosService {
   constructor(private http: HttpClient) { }
 
   obtenerModuloData(page: number, pageSize: number): Observable<any> {
-    return this.http.get(`${environment.API_SECURITY}/modulos/page/${page}/${pageSize}`);
+    return this.http.get(`${environment.API_SECURITY}/modulos/${page}/${pageSize}`);
   }
 
   obtenerModulos(): Observable<any> {

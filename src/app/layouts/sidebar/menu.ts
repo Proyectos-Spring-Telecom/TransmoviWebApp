@@ -4,8 +4,8 @@ import { MenuItem } from './menu.model';
 export const MENU: MenuItem[] = [
     {
         id: 1,
-         label: 'Trabajo',
-         isTitle: true
+        label: 'Trabajo',
+        isTitle: true
     },
     {
         id: 12,
@@ -15,10 +15,42 @@ export const MENU: MenuItem[] = [
         // permiso: Permiso.ConsultarAdministracion
     },
     {
+        id: 20,
+        label: 'Administración',
+        icon: 'uil-store-alt',
+        subItems: [
+            {
+                id: 16,
+                label: 'Módulos',
+                icon: 'uil-apps',
+                link: '/modulos',
+            },
+            {
+                id: 15,
+                label: 'Permisos',
+                icon: 'uil-clipboard-notes',
+                link: '/permisos',
+            },
+            {
+                id: 8,
+                label: 'Bitácora',
+                icon: 'uil-list-ul',
+                link: '/bitacora/lista-bitacora',
+                // permiso: Permiso.VerBitacora
+            },
+        ],
+    },
+    {
         id: 15, //Continua el id 16
         label: 'Usuarios',
         icon: 'uil-user',
         link: '/usuarios',
+    },
+    {
+        id: 15,
+        label: 'Roles',
+        icon: 'uil-clipboard-notes',
+        link: '/roles',
     },
     {
         id: 14,
@@ -26,31 +58,6 @@ export const MENU: MenuItem[] = [
         icon: 'uil-users-alt',
         link: '/clientes',
     },
-    {
-    id: 20,
-    label: 'Administración',
-    icon: 'uil-store-alt',
-    subItems: [
-        {
-          id: 16,
-          label: 'Módulos',
-          icon: 'uil-apps',
-          link: '/modulos',
-        },
-        {
-            id: 15,
-            label: 'Permisos',
-            icon: 'uil-clipboard-notes',
-            link: '/permisos',
-        },
-        {
-            id: 15,
-            label: 'Roles',
-            icon: 'uil-clipboard-notes',
-            link: '/roles',
-        },
-    ],
-  },
     {
         id: 2,
         label: 'Dispositivos',
@@ -64,12 +71,6 @@ export const MENU: MenuItem[] = [
         icon: 'uil-document-layout-left',
         link: '/bluevox/dispositivo-bluevox',
         // permiso: Permiso.VerDispositivos
-    },
-    {
-        id: 10,
-        label: 'Bitácora de Viajes',
-        icon: 'uil-bag-alt',
-        link: '/bluevox/lista-bluevox',
     },
     {
         id: 3,
@@ -93,6 +94,13 @@ export const MENU: MenuItem[] = [
         // permiso: Permiso.VerMonederos
     },
     {
+        id: 7,
+        label: 'Transacciones',
+        icon: 'uil-refresh',
+        link: '/transacciones',
+        // permiso: Permiso.VerTransacciones
+    },
+    {
         id: 6,
         label: 'Pasajeros',
         icon: 'uil-user-circle',
@@ -100,10 +108,24 @@ export const MENU: MenuItem[] = [
         // permiso: Permiso.VerPasajeros
     },
     {
-        id: 9,
-        label: 'Rutas',
+        id: 15,
+        label: 'Gestión de Viajes',
         icon: 'uil-arrows-right-down',
-        link: '/rutas/lista-rutas',
+        subItems: [
+            {
+                id: 9,
+                label: 'Regiones',
+            },
+            {
+                id: 9,
+                label: 'Rutas',
+                link: '/rutas/lista-rutas',
+            },
+            {
+                id: 9,
+                label: 'Derroteros',
+            }
+        ]
     },
     {
         id: 11,
@@ -112,21 +134,13 @@ export const MENU: MenuItem[] = [
         link: '/monitoreo',
     },
     {
-        id: 7,
-        label: 'Transacciones',
-        icon: 'uil-refresh',
-        link: '/transacciones/lista-transacciones',
-        // permiso: Permiso.VerTransacciones
+        id: 10,
+        label: 'Bitácora de Viajes',
+        icon: 'uil-bag-alt',
+        link: '/bluevox/lista-bluevox',
     },
     {
-        id: 8,
-        label: 'Bitácora',
-        icon: 'uil-list-ul',
-        link: '/bitacora/lista-bitacora',
-        // permiso: Permiso.VerBitacora
-    },
-    {
-        id: 13, 
+        id: 13,
         label: 'Perfil',
         icon: 'uil-user-circle',
         link: '/contacts/profile',

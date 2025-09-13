@@ -11,7 +11,7 @@ export class PermisosService {
   constructor(private http: HttpClient) { }
 
   obtenerPermisos(page: number, pageSize: number): Observable<any> {
-		return this.http.get(`${environment.API_SECURITY}/permisos/page/${page}/${pageSize}`);
+		return this.http.get(`${environment.API_SECURITY}/permisos/${page}/${pageSize}`);
 	}
 
   obtenerPermisosAgrupados(){

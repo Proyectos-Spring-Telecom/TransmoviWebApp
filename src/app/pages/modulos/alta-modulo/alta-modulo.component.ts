@@ -48,9 +48,9 @@ export class AltaModuloComponent implements OnInit {
     this.moduService.obtenerModulo(this.idModulo).subscribe(
       (response: any) => {
         this.moduloForm.patchValue({
-          nombre: response.nombre,
-          descripcion: response.descripcion,
-          idModulo: response.idModulo,
+          nombre: response.data.nombre,
+          descripcion: response.data.descripcion,
+          idModulo: response.data.idModulo,
         });
       }
     );

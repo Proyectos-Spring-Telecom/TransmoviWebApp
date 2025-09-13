@@ -48,6 +48,10 @@
                             </dxi-column> -->
                             <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="150"></dxi-column>
                             <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center"></dxi-column>
+                            <dxi-column dataField="telefono" caption="Teléfono" alignment="center"></dxi-column>
+                            <dxi-column dataField="rfc" caption="RFC" alignment="center"></dxi-column>
+                            <dxi-column dataField="correo" caption="Correo" alignment="center"></dxi-column>
+                            <dxi-column dataField="tipoPersona" caption="Tipo Persona" alignment="center"></dxi-column>
                             <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
                                     <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
@@ -58,10 +62,6 @@
                                     </span>
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="telefono" caption="Teléfono" alignment="center"></dxi-column>
-                            <dxi-column dataField="rfc" caption="RFC" alignment="center"></dxi-column>
-                            <dxi-column dataField="correo" caption="Correo" alignment="center"></dxi-column>
-                            <dxi-column dataField="tipoPersona" caption="Tipo Persona" alignment="center"></dxi-column>
                             <dxi-column dataField="nombreEncargado" caption="Nombre Encargado" alignment="center"></dxi-column>
                             <dxi-column dataField="telefonoEncargado" caption="Teléfono Encargado" alignment="center"></dxi-column>
                             <dxi-column dataField="correoEncargado" caption="Email Encargado" alignment="center"></dxi-column>

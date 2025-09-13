@@ -1,56 +1,79 @@
-<!-- <div id="loading" class="loading-overlay" *ngIf="isLoading">
-    <div class="loading-spinner"></div>
-</div> -->
-
 <div [@fadeInUp] class="container-fluid">
-
   <div class="card">
     <div class="card-body">
-      <div class="header-dispositivos">
-        <div style="display: grid; justify-content: center; align-items: center;">
-          <i class="fas fa-info"></i>
-          <span class="titulo">Gestión de Transacciones</span>
+      <div class="u-banner">
+        <div class="u-banner__icon">
+          <div class="u-icon">
+            <i class="fas fa-money"></i>
+          </div>
         </div>
-        <div class="subtitulo">Consulta, busca y navega entre tus transacciones registrados</div>
+        <div class="u-banner__body">
+          <h2 class="u-banner__title">Gestión de Transacciones</h2>
+          <p class="u-banner__subtitle">
+            Consulta, busca y navega entre tus transacciones registrados
+          </p>
+          <div>
+            <button class="u-btn u-btn--primary" (click)="agregarTransaccion()">
+              <i class="fas fa-plus"></i>
+              <span>Agregar Transacción</span>
+            </button>
+          </div>
+        </div>
       </div>
-
-
       <div class="row mt-4">
         <div class="col-lg-12">
           <div class="table-responsive mb-4 col-12 col-lg-12">
-            <dx-data-grid id="gridContainer" [columnHidingEnabled]="true" [showBorders]="true" [showColumnLines]="true"
-              [showRowLines]="true" [rowAlternationEnabled]="true" [dataSource]="listaTransacciones" [keyExpr]="'Id'"
-              [width]="'100%'">
+            <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true" [showBorders]="'true'"
+              [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="'true'"
+              [dataSource]="listaTransacciones" [keyExpr]="'Id'" [width]="'100%'" [remoteOperations]="{ paging: true }"
+              [paging]="{ pageSize: pageSize }" [pager]="{ 
+                  showPageSizeSelector: true, 
+                  allowedPageSizes: [50], 
+                  showInfo: true,
+                  infoText: 'Página {0} de {1}', 
+                  visible: true 
+              }" (onPageIndexChanged)=" onPageIndexChanged($event)" (onOptionChanged)="onGridOptionChanged($event)">
               <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
-              <dxo-paging [pageSize]="20"></dxo-paging>
-              <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20, 50, 100, 200]"
-                [showInfo]="true"></dxo-pager>
+              <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
               <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
               <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
               <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
               <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-
               <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="200"></dxi-column>
-              <dxi-column dataField="Id" caption="ID" alignment="center"></dxi-column>
-              <dxi-column dataField="TipoTransaccion" caption="Tipo Transacción" alignment="center"></dxi-column>
-              <dxi-column dataField="FechaHora" caption="Fecha" alignment="center" cellTemplate="fecActi">
+              <dxi-column dataField="tipoTransaccion" caption="Tipo Transacción" alignment="center"
+                cellTemplate="tplTipo">
+                <div *dxTemplate="let a of 'tplTipo'">
+                  <span [ngClass]="{
+                      'badge-recarga': (a.data.tipoTransaccion || '').toUpperCase() === 'RECARGA',
+                      'badge-debito': (a.data.tipoTransaccion || '').toUpperCase() === 'DEBITO'
+                    }">
+                    {{ a.data.tipoTransaccion }}
+                  </span>
+                </div>
+              </dxi-column>
+
+              <dxi-column dataField="fechaHora" caption="Fecha" alignment="center" cellTemplate="fecActi">
                 <div *dxTemplate="let a of 'fecActi'">
-                  {{ a.data.FechaHora | date: 'dd/MM/yyyy' : '+0000' }}
+                  {{ a.data.fechaHora | date: 'dd/MM/yyyy' : '+0000' }}
                 </div>
               </dxi-column>
               <dxo-summary>
-                <dxi-total-item column="Monto" summaryType="sum" displayFormat="Total: {0}" valueFormat="currency">
+                <dxi-total-item column="monto" summaryType="sum" displayFormat="Total: ${0}">
                 </dxi-total-item>
               </dxo-summary>
-              <dxi-column dataField="Monto" caption="Monto" alignment="center" cellTemplate="sald">
+              <dxi-column dataField="monto" caption="Monto" alignment="center" cellTemplate="sald">
                 <div *dxTemplate="let f of 'sald' ">
-                  {{f.data.Monto | currency: '$'}}
+                  {{f.data.monto | currency: '$'}}
                 </div>
               </dxi-column>
+              <dxi-column dataField="numeroSerieMonedero" caption="N° Serie de Monedero"
+                alignment="center"></dxi-column>
+              <dxi-column dataField="numeroSerieDispositivo" caption="N° Serie Dispositivo"
+                alignment="center"></dxi-column>
               <div *dxTemplate="let transaccion of 'Acciones'" class="d-flex gap-3 justify-content-center">
                 <div>
                   <button type="button"
-                    (click)="centerModal(centerDataModal, transaccion.data.Id, transaccion.data.Latitud, transaccion.data.Longitud, transaccion.data.FechaHora, transaccion.data.Monto, transaccion.data.TipoTransaccion)"
+                    (click)="centerModal(centerDataModal, transaccion.data.id, transaccion.data.latitud, transaccion.data.longitud, transaccion.data.fechaHora, transaccion.data.monto, transaccion.data.tipoTransaccion)"
                     class="btn btn-md btn-rounded waves-effect waves-light"
                     style="background-color: #0a66c2; color: white;">
                     <i class="fa fa-map-pin"></i> Ver Ubicación
@@ -71,36 +94,42 @@
 
 <div class="col-lg-6">
   <ng-template #centerDataModal let-modal>
-    <div class="modal-content p-0">
-      <!-- <div class="modal-header border-bottom-0">
-          <h5 class="modal-title mx-auto">Detalles de la operación</h5>
-        </div> -->
+    <div class="modal-content p-0" style="background-color: #002b47;">
       <div class="modal-body">
         <div class="card mb-3 shadow-sm">
-          <div class="card-header bg text-white">
-            <i class="fa fa-money"></i> Transacción ID: {{ selectedTransactionId }}
+          <div class="card-header bg text-white d-flex justify-content-between align-items-center"
+            [ngClass]="(selectedTipoTransaccion || '').toUpperCase() === 'RECARGA' ? 'tx-h--recarga' : 'tx-h--debito'">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa fa-money"></i>
+              <span>Transacción ID: {{ selectedTransactionId }}</span>
+            </div>
+            <span class="tx-badge"
+              [ngClass]="(selectedTipoTransaccion || '').toUpperCase() === 'RECARGA' ? 'tx-badge--recarga' : 'tx-badge--debito'">
+              <i class="fa"
+                [ngClass]="(selectedTipoTransaccion || '').toUpperCase() === 'RECARGA' ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+              <span class="tx-text">{{ (selectedTipoTransaccion || '').toLowerCase() | titlecase }}</span>
+            </span>
           </div>
           <div class="card-body d-flex flex-column justify-content-center align-items-center text-white">
             <div class="d-flex justify-content-between w-100 text-white">
               <p><strong>Fecha:</strong> {{ selectedTransactionDate | date: 'dd-MM-yyyy HH:mm a' }}</p>
-              <p><strong>Tipo Transacción:</strong> {{ selectedTipoTransaccion }}</p>
+              <p><strong>Monto:</strong> {{ selectedTransactionAmount | currency }}</p>
             </div>
-            <div class="mt-1 text-center"><strong>Monto:</strong> {{ selectedTransactionAmount | currency }}</div>
+            <p><span *ngIf="showMap" class="textPrimary">Sin ubicaciones</span></p>
           </div>
         </div>
-        <div class="map-container" style="height: 300px; border-radius: 10px; overflow: hidden;">
+        <div *ngIf="!showMap" class="map-container" style="height: 300px; border-radius: 10px; overflow: hidden;">
           <div id="map" class="w-100 h-100"></div>
         </div>
       </div>
       <div class="modal-footer border-top-0">
-        <button type="button" class="btn btn-danger w-100" (click)="modal.close()">
-          <i class="fa fa-times"></i>&nbsp;Cancelar
+        <button type="button" class="btn btn-md w-100 btn-rounded waves-effect waves-light"
+          style="background-color: #0a66c2; color: white;" (click)="modal.close()">
+          <i class="fa fa-times"></i>&nbsp;Cerrar
         </button>
       </div>
     </div>
-
   </ng-template>
-
 </div>
 
 <dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"

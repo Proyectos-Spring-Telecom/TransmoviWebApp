@@ -5,19 +5,40 @@
 <div [@fadeInUp] class="container-fluid">
     <div class="card">
         <div class="card-body">
-            <div class="header-dispositivos">
-                <div style="display: grid; justify-content: center; align-items: center;">
-                    <i class="fas fa-money"></i>
-                    <span class="titulo">Gestión de Monedores</span>
+            <div class="u-banner">
+                <div class="u-banner__icon">
+                    <div class="u-icon">
+                        <i class="fas fa-archive"></i>
+                    </div>
                 </div>
-                <div class="subtitulo">Consulta, agrega, modifica, busca y navega entre tus monederos registrados</div>
+                <div class="u-banner__body">
+                    <h2 class="u-banner__title">Gestión de Monederos</h2>
+                    <p class="u-banner__subtitle">
+                        Consulta, busca y navega entre tus monederos registrados
+                    </p>
+                    <div>
+                        <button class="u-btn u-btn--primary" (click)="agregarMonederos()">
+                            <i class="fas fa-plus"></i>
+                            <span>Agregar Monederos</span>
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="row mt-4">
                 <div class="col-lg-12">
                     <div class="table-responsive mb-4 col-12 col-lg-12">
-                        <dx-data-grid id="gridContainer" [columnHidingEnabled]="true" [showBorders]="true"
-                            [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
-                            [dataSource]="listaMonederos" [keyExpr]="'Id'" [width]="'100%'">
+                        <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
+                            [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
+                            [rowAlternationEnabled]="'true'" [dataSource]="listaMonederos" [keyExpr]="'Id'"
+                            [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
+                            [pager]="{ 
+                                showPageSizeSelector: true, 
+                                allowedPageSizes: [50], 
+                                showInfo: true,
+                                infoText: 'Página {0} de {1}', 
+                                visible: true 
+                            }" (onPageIndexChanged)=" onPageIndexChanged($event)"
+                            (onOptionChanged)="onGridOptionChanged($event)">
                             <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
                             <dxo-paging [pageSize]="20"></dxo-paging>
                             <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20, 50, 100, 200]" [showInfo]="true"></dxo-pager>
@@ -26,27 +47,26 @@
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
                             <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="150"></dxi-column>
-                            <dxi-column dataField="Id" caption="ID" alignment="center"></dxi-column>
-                            <dxi-column dataField="NumeroSerie" caption="NumeroSerie" alignment="center"></dxi-column>
-                            <dxi-column dataField="FechaActivacion" caption="Fecha Activación" alignment="center" cellTemplate="fecActi">
+                            <dxi-column dataField="numeroSerie" caption="NumeroSerie" alignment="center"></dxi-column>
+                            <dxi-column dataField="fechaActivacion" caption="Fecha Activación" alignment="center" cellTemplate="fecActi">
                                 <div *dxTemplate="let a of 'fecActi'">
-                                    {{ a.data.FechaActivacion | date: 'dd/MM/yyyy' : '+0000' }}
+                                    {{ a.data.fechaActivacion | date: 'dd/MM/yyyy' : '+0000' }}
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="Saldo" caption="Saldo" alignment="center" cellTemplate="sald">
+                            <dxi-column dataField="saldo" caption="Saldo" alignment="center" cellTemplate="sald">
                                 <div *dxTemplate="let f of 'sald' ">
-                                    {{f.data.Saldo | currency: '$'}}
+                                    {{f.data.saldo | currency: '$'}}
                                 </div>
                             </dxi-column>
                             <dxo-summary>
-                                <dxi-total-item column="Saldo" summaryType="sum" displayFormat="Total: {0}"
+                                <dxi-total-item column="saldo" summaryType="sum" displayFormat="Total: {0}"
                                     valueFormat="currency">
                                 </dxi-total-item>
                             </dxo-summary>
                             <div *dxTemplate="let monedero of 'Acciones'" class="d-flex gap-3 justify-content-center">
                                 <div>
                                     <button
-                                        (click)="centerModalRecarga(centerDataModalRecarga, monedero.data.Id, monedero.data.NumeroSerie, monedero.data.Saldo)"
+                                        (click)="centerModalRecarga(centerDataModalRecarga, monedero.data.id, monedero.data.numeroSerie, monedero.data.saldo, monedero.data.idCliente, monedero.data.idPasajero)"
                                         class="btn btn-success btn-md btn-rounded waves-effect waves-light"
                                         type="button" placement="top" role="button">
                                         <i class="fa fa-plus"></i>
@@ -54,7 +74,7 @@
                                 </div>
                                 <div>
                                     <button
-                                        (click)="centerModalDebito(centerDataModalDebito, monedero.data.Id, monedero.data.NumeroSerie, monedero.data.Saldo)"
+                                        (click)="centerModalDebito(centerDataModalDebito, monedero.data.id, monedero.data.numeroSerie, monedero.data.saldo, monedero.data.idCliente, monedero.data.idPasajero)"
                                         class="btn btn-danger btn-md btn-rounded waves-effect waves-light" type="button"
                                         placement="top" role="button">
                                         <i class="fa fa-minus"></i>
@@ -76,7 +96,7 @@
 <div class="col-lg-6">
     <ng-template #centerDataModalRecarga let-modal>
         <form [formGroup]="recargaForm">
-            <div class="modal-content p-3">
+            <div class="modal-content p-3" style="background-color: #002b47;">
                 <div class="card mb-3 shadow-sm">
                     <div class="card-header bg text-white">
                         <i class="fa fa-money"></i> Realizar Recarga: {{ selectedTransactionId }}
@@ -89,9 +109,9 @@
                     </div>
                 </div>
                 <div class="card mb-3 mt-0">
-                    <div class="card-body" style="background-color: #54565a;">
+                    <div class="card-body" style="background-color: #002136;">
                         <label style="color: white;"><i class="fa fa-money"></i> Monto</label>
-                        <input formControlName="Monto" class="form-control" type="number"
+                        <input formControlName="monto" class="form-control" type="number"
                             placeholder="Ingrese un monto" />
                     </div>
                 </div>
@@ -100,7 +120,7 @@
                         <div class="col-12 col-md-6">
                             <button type="button" class="btn btn-success w-100" (click)="crearTransaccionRecarga()"
                                 [disabled]="recargaForm.invalid || loading">
-                                <i class="fa fa-check" *ngIf="!loading"></i>&nbsp;{{submitButton}}
+                                <i class="fa fa-check" *ngIf="!loading"></i>&nbsp;{{submitButton}}fawdfa
                             </button>
                         </div>
                         <div class="col-12 col-md-6">
@@ -121,7 +141,7 @@
 <div class="col-lg-6">
     <ng-template #centerDataModalDebito let-modal>
         <form [formGroup]="debitoForm">
-            <div class="modal-content p-3">
+            <div class="modal-content p-3" style="background-color: #002b47;">
                 <div class="card mb-3 shadow-sm">
                     <div class="card-header bg text-white">
                         <i class="fa fa-money"></i> Realizar Débito: {{ selectedTransactionId }}
@@ -134,7 +154,7 @@
                     </div>
                 </div>
                 <div class="card mb-3 mt-0">
-                    <div class="card-body" style="background-color: #54565a;">
+                    <div class="card-body" style="background-color: #002136;">
                         <label style="color: white;"><i class="fa fa-money"></i> Monto</label>
                         <input formControlName="Monto" class="form-control" type="number"
                             placeholder="Ingrese un monto" />

@@ -27,7 +27,7 @@ export class DispositivoBluevoxComponent implements OnInit {
   public loadingMessage: string = 'Cargando...';
   public paginaActual: number = 1;
     public totalRegistros: number = 0;
-    public pageSize: number = 20;
+    public pageSize: number = 2;
     public totalPaginas: number = 0;
     @ViewChild(DxDataGridComponent, { static: false }) dataGrid: DxDataGridComponent;
     public autoExpandAllGroups: boolean = true;
@@ -131,11 +131,11 @@ obtenerDispositivos() {
   }
 
   agregarDispositivo(){
-    this.route.navigateByUrl('/dispositivos/agregar-dispositivo')
+    this.route.navigateByUrl('/bluevox/agregar-bluevox')
   }
 
-  actualizarDispositivo(idDispositivo: number) {
-      this.route.navigateByUrl( '/dispositivos/editar-dispositivo/' + idDispositivo);
+  actualizarDispositivo(idBluevox: number) {
+      this.route.navigateByUrl( '/bluevox/editar-bluevox/' + idBluevox);
     };
   
     activar(rowData: any) {

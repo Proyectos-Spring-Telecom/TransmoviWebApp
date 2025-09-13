@@ -63,51 +63,66 @@ export class ListaPermisosComponent implements OnInit {
     return this.permissionsService.getPermission(permission) !== undefined;
   }
 
-  setupDataSource() {
-    this.loading = true;
-    this.listaPermisos = new CustomStore({
-      key: "id",
-      load: async (loadOptions: any) => {
-        const skipValue = Number(loadOptions?.skip) || 0;
-        const takeValue = Number(loadOptions?.take) || this.pageSize;
-        const page = Math.floor(skipValue / takeValue) + 1;
+setupDataSource() {
+  this.loading = true;
 
-        try {
-          const response: any = await lastValueFrom(
-            this.permService.obtenerPermisos(page, takeValue)
-          );
+  this.listaPermisos = new CustomStore({
+    key: 'id',
+    load: async (loadOptions: any) => {
+      const take = Number(loadOptions?.take) || this.pageSize || 10;
+      const skip = Number(loadOptions?.skip) || 0;
+      const page = Math.floor(skip / take) + 1;
 
-          this.loading = false;
+      try {
+        const resp: any = await lastValueFrom(
+          this.permService.obtenerPermisos(page, take)
+        );
 
-          const totalPaginas = Number(response?.paginated?.total) || 0;
-          const totalRegistros = Number(response?.paginated?.limit) || 0;
-          const paginaActual = Number(response?.paginated?.page) || page;
+        this.loading = false;
 
-          this.totalRegistros = totalRegistros;
-          this.paginaActual = paginaActual;
-          this.totalPaginas = totalPaginas;
+        // Filas
+        let rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
 
-          const dataTransformada = (Array.isArray(response?.data) ? response.data : []).map((item: any) => {
-            return {
-              ...item,
-              estatusTexto: Number(item?.estatus) === 1 ? 'Activo' : 'Inactivo'
-            };
-          });
+        // Meta de paginación real del backend
+        const meta = resp?.paginated || {};
+        const totalRegistros =
+          toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
+        const paginaActual =
+          toNum(meta.page) ?? toNum(resp?.page) ?? page;
+        const totalPaginas =
+          toNum(meta.lastPage) ?? toNum(resp?.pages) ??
+          Math.max(1, Math.ceil(totalRegistros / take));
 
-          this.paginaActualData = dataTransformada;
+        const dataTransformada = rows.map((item: any) => ({
+          ...item,
+          estatusTexto:
+            Number(item?.estatus) === 1 ? 'Activo' :
+            Number(item?.estatus) === 0 ? 'Inactivo' : null
+        }));
 
-          return {
-            data: dataTransformada,
-            totalCount: totalRegistros
-          };
-        } catch (error) {
-          this.loading = false;
-          console.error('Error en la solicitud de datos:', error);
-          return { data: [], totalCount: 0 };
-        }
+        // Estado del componente (si lo usas en tu UI)
+        this.totalRegistros = totalRegistros;
+        this.paginaActual = paginaActual;
+        this.totalPaginas = totalPaginas;
+        this.paginaActualData = dataTransformada;
+
+        return {
+          data: dataTransformada,
+          totalCount: totalRegistros // <- necesario para paginar bien en DevExtreme
+        };
+      } catch (error) {
+        this.loading = false;
+        console.error('Error en la solicitud de datos:', error);
+        return { data: [], totalCount: 0 };
       }
-    });
+    }
+  });
+
+  function toNum(v: any): number | null {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
   }
+}
 
 
   onGridOptionChanged(e: any) {

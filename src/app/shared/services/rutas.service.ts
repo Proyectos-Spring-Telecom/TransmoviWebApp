@@ -11,23 +11,23 @@ export class RutasService {
   constructor(private http: HttpClient) { }
 
   obtenerRutas(): Observable<any> {
-    return this.http.get<any>(`${environment.API_SECURITY}/ruta/rutas`);
+    return this.http.get<any>(`https://transmovi.mx/api/ruta/rutas`);
   }
 
   detallarRuta(saveForm: any): Observable<any> {
-    return this.http.post(`${environment.API_SECURITY}/ruta/rutas/detallar`, saveForm);
+    return this.http.post(`https://transmovi.mx/api/ruta/rutas/detallar`, saveForm);
   }
 
   guardarRutas(saveForm: any): Observable<any> {
-    return this.http.post(`${environment.API_SECURITY}/ruta/rutas/guardar`, saveForm);
+    return this.http.post(`https://transmovi.mx/api/ruta/rutas/guardar`, saveForm);
   }
 
   configurarTarifa(saveForm: any): Observable<any> {
-    return this.http.post(`${environment.API_SECURITY}/ruta/tarifas/configurar`, saveForm);
+    return this.http.post(`https://transmovi.mx/api/ruta/tarifas/configurar`, saveForm);
   }
 
   obtenerRuta(idRuta: any): Observable<any> {
-		return this.http.get<any>(environment.API_SECURITY + '/ruta/rutas/' + idRuta);
+		return this.http.get<any>('https://transmovi.mx/api/ruta/rutas/' + idRuta);
 	}
   
 }

@@ -87,7 +87,6 @@ export class ListaUsuariosComponent implements OnInit {
           idStr.includes(search)
         );
       });
-
       this.dataGrid.instance.option('dataSource', dataFiltrada);
     }
   }
@@ -100,16 +99,13 @@ export class ListaUsuariosComponent implements OnInit {
         const skipValue = Number(loadOptions?.skip) || 0;
         const takeValue = Number(loadOptions?.take) || this.pageSize;
         const page = Math.floor(skipValue / takeValue) + 1;
-
         try {
           const response: any = await lastValueFrom(
             this.usuService.obtenerUsuariosData(page, takeValue)
           );
-
           this.loading = false;
-
-          const totalPaginas = Number(response?.paginated?.total) || 0;
-          const totalRegistros = Number(response?.paginated?.limit) || 0;
+          const totalPaginas = Number(response?.paginated?.limit) || 0;
+          const totalRegistros = Number(response?.paginated?.total) || 0;
           const paginaActual = Number(response?.paginated?.page) || page;
 
           this.totalRegistros = totalRegistros;
@@ -131,19 +127,14 @@ export class ListaUsuariosComponent implements OnInit {
               NombreCompleto: [nombre, paterno, materno].filter(Boolean).join(' ')
             };
           });
-
-
           dataTransformada.sort((a, b) => b.id - a.id);
-
           this.paginaActualData = dataTransformada;
-
           return {
             data: dataTransformada,
             totalCount: totalRegistros
           };
         } catch (error) {
           this.loading = false;
-          console.error('Error en la solicitud de datos:', error);
           return { data: [], totalCount: 0 };
         }
       }

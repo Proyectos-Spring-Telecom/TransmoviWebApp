@@ -6,10 +6,11 @@ import { ListaTransaccionesComponent } from './lista-transacciones/lista-transac
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModalModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { DxDataGridModule, DxLoadPanelModule } from 'devextreme-angular';
+import { AgregarTransaccionComponent } from './agregar-transaccion/agregar-transaccion.component';
 
 
 @NgModule({
-  declarations: [ListaTransaccionesComponent],
+  declarations: [ListaTransaccionesComponent, AgregarTransaccionComponent],
   imports: [
     CommonModule,
     TransaccionesRoutingModule,

@@ -59,15 +59,15 @@ export class AltaPermisoComponent implements OnInit {
   obtenerPermiso() {
     this.permiService.obtenerPermiso(this.idPermiso).subscribe((response: any) => {
       const idModuloNum =
-        response?.idModulo != null
-          ? Number(response.idModulo)
-          : response?.idModulo2?.id != null
-            ? Number(response.idModulo2.id)
+        response.data?.idModulo != null
+          ? Number(response.data.idModulo)
+          : response.data?.idModulo2?.id != null
+            ? Number(response.data.idModulo2.id)
             : null;
 
       this.permisoForm.patchValue({
-        nombre: response.nombre,
-        descripcion: response.descripcion,
+        nombre: response.data.nombre,
+        descripcion: response.data.descripcion,
         idModulo: idModuloNum,
       });
     });

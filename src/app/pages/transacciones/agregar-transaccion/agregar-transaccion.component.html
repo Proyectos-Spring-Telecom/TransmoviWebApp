@@ -1,0 +1,61 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-header-custom">
+            <div class="icon-wrapper">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="header-text">
+                <h5>{{ title }}</h5>
+                <span>Completa la información para realizar una transacción.</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <form [formGroup]="transaccionForm" class="cliente-form">
+                <h6 class="section-title">Datos Generales</h6>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <label>Transacción</label>
+                        <select class="form-control" formControlName="tipoTransaccion">
+                            <option [ngValue]="null" disabled>-- Seleccione --</option>
+                            <option value="RECARGA">Recarga</option>
+                            <option value="DEBITO">Débito</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Monto</label>
+                        <input type="text" class="form-control" formControlName="monto" placeholder="Ej 100.00"
+                            inputmode="decimal" (keydown)="moneyKeydown($event)" (input)="moneyInput($event)"
+                            (paste)="moneyPaste($event)" (blur)="moneyBlur($event)" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Fecha de Regristro</label>
+                        <input type="datetime-local" class="form-control" formControlName="fechaHora"
+                            placeholder="Ej: 08/09/2025 02:12 p.m.">
+                    </div>
+                    <div class="col-md-4 mt-3">
+                        <label>N° de Monedero</label>
+                        <select class="form-control" formControlName="numeroSerieMonedero">
+                            <option [ngValue]="null" disabled>-- Seleccione un monedero --</option>
+                            <option *ngFor="let d of listaMonederos" [value]="d.numeroSerie || d.numeroserie">
+                                {{ (d.numeroSerie || d.numeroserie) }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mt-3">
+                        <label>N° de Serie de Dispositivo</label>
+                        <select class="form-control" formControlName="numeroSerieDispositivo">
+                            <option [ngValue]="null" disabled>-- Seleccione --</option>
+                            <option *ngFor="let d of listaDispositivos" [value]="d.numeroSerie || d.numeroserie">
+                                {{ (d.numeroSerie || d.numeroserie) }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions mt-4">
+                    <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
+                    <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

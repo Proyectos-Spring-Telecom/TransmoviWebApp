@@ -11,7 +11,7 @@ export class ClientesService {
   constructor(private http: HttpClient) { }
 
   obtenerClientesData(page: number, pageSize: number): Observable<any> {
-		return this.http.get(`${environment.API_SECURITY}/clientes/page/${page}/${pageSize}`);
+		return this.http.get(`${environment.API_SECURITY}/clientes/${page}/${pageSize}`);
 	}
 
   obtenerClientes(): Observable<any> {

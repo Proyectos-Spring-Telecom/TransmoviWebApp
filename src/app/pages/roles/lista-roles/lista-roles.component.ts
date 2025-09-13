@@ -178,53 +178,62 @@ export class ListaRolesComponent implements OnInit {
     e.component.refresh();
   }
 
-  setupDataSource() {
-    this.loading = true;
+setupDataSource() {
+  this.loading = true;
 
-    this.listaRoles = new CustomStore({
-      key: 'id',
-      load: async (loadOptions: any) => {
-        const take = this.pageSize;
-        const skip = loadOptions?.skip ?? 0;
-        const page = Math.floor(skip / take) + 1;
+  this.listaRoles = new CustomStore({
+    key: 'id',
+    load: async (loadOptions: any) => {
+      const take = Number(loadOptions?.take) || this.pageSize || 10;
+      const skip = Number(loadOptions?.skip) || 0;
+      const page = Math.floor(skip / take) + 1;
 
-        try {
-          const resp: any = await lastValueFrom(
-            this.rolService.obtenerRolesData(page, take)
-          );
-          this.loading = false;
+      try {
+        const resp: any = await lastValueFrom(
+          this.rolService.obtenerRolesData(page, take)
+        );
+        this.loading = false;
 
-          const rows = Array.isArray(resp?.data) ? resp.data : [];
+        // Filas
+        let rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
 
-          const totalRegistros =
-            Number(resp?.paginated?.limit) ?? rows.length;
-          const paginaActual =
-            Number(resp?.paginated?.page) ?? page;
-          const totalPaginas =
-            Number(resp?.paginated?.total)
-            ?? Math.max(1, Math.ceil(totalRegistros / take));
+        // Meta de paginación del backend
+        const meta = resp?.paginated || {};
+        const totalRegistros =
+          toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
+        const paginaActual =
+          toNum(meta.page) ?? toNum(resp?.page) ?? page;
+        const totalPaginas =
+          toNum(meta.lastPage) ?? toNum(resp?.pages) ??
+          Math.max(1, Math.ceil(totalRegistros / take));
 
-          const dataTransformada = rows.map((item: any) => ({
-            ...item,
-          }));
+        const dataTransformada = rows.map((item: any) => ({
+          ...item
+        }));
 
-          this.totalRegistros = totalRegistros;
-          this.paginaActual = paginaActual;
-          this.totalPaginas = totalPaginas;
-          this.paginaActualData = dataTransformada;
+        // Estado para tu UI
+        this.totalRegistros = totalRegistros;
+        this.paginaActual = paginaActual;
+        this.totalPaginas = totalPaginas;
+        this.paginaActualData = dataTransformada;
 
-          return {
-            data: dataTransformada,
-            totalCount: totalRegistros
-          };
-        } catch (err) {
-          this.loading = false;
-          console.error('Error en la solicitud de datos:', err);
-          return { data: [], totalCount: 0 };
-        }
+        return {
+          data: dataTransformada,
+          totalCount: totalRegistros
+        };
+      } catch (err) {
+        this.loading = false;
+        console.error('Error en la solicitud de datos:', err);
+        return { data: [], totalCount: 0 };
       }
-    });
+    }
+  });
+
+  function toNum(v: any): number | null {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
   }
+}
 
   onGridOptionChanged(e: any) {
     if (e.fullName === "searchPanel.text") {

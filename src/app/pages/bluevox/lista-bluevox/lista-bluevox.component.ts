@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { DxDataGridComponent, DxDateBoxComponent } from 'devextreme-angular';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
-import { BlueVoxService } from 'src/app/shared/services/bluevox.service';
+import { BlueVoxService } from 'src/app/shared/services/bitacora-conteo.service';
 import Swal from 'sweetalert2';
 
 @Component({

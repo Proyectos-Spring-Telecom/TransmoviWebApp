@@ -472,10 +472,9 @@ div:where(.swal2-container) .swal2-html-container {
   font-weight: 800;
 }
 
-/* BODY de la card con scroll vertical */
 .mp-cb {
   padding: .85rem .9rem 1rem;
-  max-height: 305px;              /* tu límite */
+  max-height: 320px;              /* tu límite */
   overflow-y: auto;               /* <-- HABILITA SCROLL */
   overflow-x: hidden;             /* evita scroll horizontal */
   -webkit-overflow-scrolling: touch; /* momentum en iOS */

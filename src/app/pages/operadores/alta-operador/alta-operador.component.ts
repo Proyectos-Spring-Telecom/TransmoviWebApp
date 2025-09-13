@@ -221,7 +221,7 @@ export class AltaOperadorComponent implements OnInit {
         }
       });
     }
-    this.operService.actualizaridOperador(this.idOperador, this.operadorForm.value).subscribe(
+    this.operService.actualizarOperador(this.idOperador, this.operadorForm.value).subscribe(
       (response) => {
         this.submitButton = 'Actualizar';
         this.loading = false;

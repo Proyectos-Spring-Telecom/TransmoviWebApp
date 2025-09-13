@@ -15,7 +15,7 @@ export class UsuariosService {
   }
 
   obtenerUsuariosData(page: number, pageSize: number): Observable<any> {
-		return this.http.get(`${environment.API_SECURITY}/usuarios/page/${page}/${pageSize}`);
+		return this.http.get(`${environment.API_SECURITY}/usuarios/${page}/${pageSize}`);
 	}
 
   agregarUsuario(data: FormData) {
@@ -32,6 +32,10 @@ export class UsuariosService {
 
   actualizarUsuario(idUsuario: number, saveForm: any): Observable<any> {
     return this.http.put(`${environment.API_SECURITY}/usuarios/` + idUsuario, saveForm);
+  }
+  
+  uploadFile(data: FormData): Observable<any> {
+    return this.http.post<any>(`${environment.API_SECURITY}/s3/upload`, data);
   }
 
   private apiUrl = `${environment.API_SECURITY}/usuarios`;

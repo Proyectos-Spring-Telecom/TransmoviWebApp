@@ -36,7 +36,7 @@
             "styles": [
               "node_modules/ngx-toastr/toastr.css",
               "node_modules/devextreme/dist/css/dx.common.css",
-              "node_modules/devextreme/dist/css/dx.fluent.saas.dark.css",
+              "node_modules/devextreme/dist/css/dx.fluent.saas.dark.compact.css",
               "node_modules/chartist/dist/index.css",
               "node_modules/ngx-owl-carousel-o/lib/styles/prebuilt-themes/owl.carousel.min.css",
               "node_modules/ngx-owl-carousel-o/lib/styles/prebuilt-themes/owl.theme.default.min.css",
@@ -119,7 +119,7 @@
               "node_modules/devextreme/dist/css/dx.dark.css",
               "node_modules/ngx-toastr/toastr.css",
               "node_modules/devextreme/dist/css/dx.common.css",
-              "node_modules/devextreme/dist/css/dx.fluent.saas.dark.css",
+              "node_modules/devextreme/dist/css/dx.fluent.saas.dark.compact.css",
               "src/styles.scss"
             ],
             "scripts": [

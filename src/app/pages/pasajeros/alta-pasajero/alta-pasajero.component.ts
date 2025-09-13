@@ -15,240 +15,257 @@ import Swal from 'sweetalert2';
 export class AltaPasajeroComponent implements OnInit {
 
   public submitButton: string = 'Guardar';
-    public loading: boolean = false;
-    public pasajeroForm: FormGroup;
-    public idPasajero: number;
-    public title = 'Agregar Pasajero';
-    selectedFileName: string = '';
-    previewUrl: string | ArrayBuffer | null = null;
-  
-    constructor(
-      private fb: FormBuilder,
-      private modalService: NgbModal,
-      private pasajService: PasajerosService,
-      private activatedRouted: ActivatedRoute,
-      private route: Router
-    ) { }
-  
-    ngOnInit(): void {
-      this.initForm()
-      this.activatedRouted.params.subscribe(
-        (params) => {
-          this.idPasajero = params['idPasajero'];
-          if (this.idPasajero) {
-            this.title = 'Actualizar Pasajero';
-            this.obtenerPasajeroID();
-          }
+  public loading: boolean = false;
+  public pasajeroForm: FormGroup;
+  public idPasajero: number;
+  public title = 'Agregar Pasajero';
+  public showCorreo: boolean = true;
+  selectedFileName: string = '';
+  previewUrl: string | ArrayBuffer | null = null;
+
+  constructor(
+    private fb: FormBuilder,
+    private modalService: NgbModal,
+    private pasajService: PasajerosService,
+    private activatedRouted: ActivatedRoute,
+    private route: Router
+  ) { }
+
+  ngOnInit(): void {
+    this.initForm()
+    this.activatedRouted.params.subscribe(
+      (params) => {
+        this.idPasajero = params['idPasajero'];
+        if (this.idPasajero) {
+          this.title = 'Actualizar Pasajero';
+          this.obtenerPasajeroID();
+          this.showCorreo = false;
         }
-      )
-    }
-  
-    obtenerPasajeroID() {
-      this.pasajService.obtenerPasajero(this.idPasajero).subscribe(
-        (response: any) => {
-          const fecha = response.pasajero.FechaNacimiento
-            ? response.pasajero.FechaNacimiento.split('T')[0]
-            : '';
-          this.pasajeroForm.patchValue({
-            Estatus: response.pasajero.Estatus,
-            Nombre: response.pasajero.Nombre,
-            ApellidoPaterno: response.pasajero.ApellidoPaterno,
-            ApellidoMaterno: response.pasajero.ApellidoMaterno,
-            Telefono: response.pasajero.Telefono,
-            Correo: response.pasajero.Correo,
-            FechaNacimiento: fecha,
-          });
-        }
-      );
-    }
-  
-    allowOnlyNumbers(event: KeyboardEvent): void {
-      const charCode = event.keyCode ? event.keyCode : event.which;
-      if (charCode < 48 || charCode > 57) {
-        event.preventDefault();
       }
+    )
+  }
+
+  obtenerPasajeroID() {
+    this.pasajService.obtenerPasajero(this.idPasajero).subscribe(
+      (response: any) => {
+        const fecha = response.data.fechaNacimiento
+          ? response.data.fechaNacimiento.split('T')[0]
+          : '';
+        this.pasajeroForm.patchValue({
+          estatus: response.data.estatus,
+          nombre: response.data.nombre,
+          apellidoPaterno: response.data.apellidoPaterno,
+          apellidoMaterno: response.data.apellidoMaterno,
+          telefono: response.data.telefono,
+          correo: response.data.correo,
+          fechaNacimiento: fecha,
+        });
+      }
+    );
+  }
+
+  allowOnlyNumbers(event: KeyboardEvent): void {
+    const charCode = event.keyCode ? event.keyCode : event.which;
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
     }
-  
-    initForm() {
-      this.pasajeroForm = this.fb.group({
-        Nombre: ['', Validators.required],
-        ApellidoPaterno: ['', Validators.required],
-        ApellidoMaterno: ['', Validators.required],
-        FechaNacimiento: ['', Validators.required],
-        Correo: ['', [Validators.required, Validators.email]],
-        Telefono: ['', Validators.required],
-        Estatus: [1, Validators.required],
+  }
+
+  initForm() {
+    this.pasajeroForm = this.fb.group({
+      nombre: ['', Validators.required],
+      apellidoPaterno: ['', Validators.required],
+      apellidoMaterno: ['', Validators.required],
+      fechaNacimiento: ['', Validators.required],
+      correo: ['', [Validators.required, Validators.email]],
+      telefono: ['', Validators.required],
+      estatus: [1, Validators.required],
+    });
+  }
+
+  submit() {
+    if (this.idPasajero) {
+      this.actualizar();
+    } else {
+      this.agregar();
+    }
+  }
+
+agregar() {
+    this.submitButton = 'Cargando...';
+    this.loading = true;
+    if (this.pasajeroForm.invalid) {
+      this.submitButton = 'Guardar';
+      this.loading = false;
+      const etiquetas: any =
+      {
+        numeroSerie: 'Número de Serie',
+        marca: 'Marca',
+        modelo: 'Modelo',
+        idCliente: 'Cliente',
+      };
+
+      const camposFaltantes: string[] = [];
+      Object.keys(this.pasajeroForm.controls).forEach(key => {
+        const control = this.pasajeroForm.get(key);
+        if (control?.invalid && control.errors?.['required']) {
+          camposFaltantes.push(etiquetas[key] || key);
+        }
+      });
+
+      const lista = camposFaltantes.map((campo, index) => `
+          <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
+                      background: #caa8a8; text-align: center; margin-bottom: 8px;
+                      border-radius: 4px;">
+            <strong style="color: #b02a37;">${index + 1}. ${campo}</strong>
+          </div>
+        `).join('');
+
+      Swal.fire({
+        title: '¡Faltan campos obligatorios!',
+        background: '#002136',
+        html: `
+            <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
+              Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
+              Por favor complétalos antes de continuar:
+            </p>
+            <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
+          `,
+        icon: 'error',
+        confirmButtonText: 'Entendido',
+        customClass: {
+          popup: 'swal2-padding swal2-border'
+        }
+      });
+      return;
+    }
+    this.pasajeroForm.removeControl('id');
+    this.pasajService.agregarPasajero(this.pasajeroForm.value).subscribe(
+      (response) => {
+        this.submitButton = 'Guardar';
+        this.loading = false;
+        Swal.fire({
+          title: '¡Operación Exitosa!',
+          background: '#002136',
+          text: `Se agregó un nuevo dispositivo de manera exitosa.`,
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+        this.regresar();
+      },
+      (error) => {
+        this.submitButton = 'Guardar';
+        this.loading = false;
+        Swal.fire({
+          title: '¡Ops!',
+          background: '#002136',
+          text: `Ocurrió un error al agregar el dispositivo.`,
+          icon: 'error',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+      }
+    );
+  }
+
+actualizar() {
+  if (this.loading) return;                 // sigue sirviendo contra doble submit
+
+  this.submitButton = 'Cargando...';
+  this.loading = true;
+
+  if (this.pasajeroForm.invalid) {
+    this.submitButton = 'Actualizar';
+    this.loading = false;
+
+    const etiquetas: Record<string, string> = {
+      nombre: 'Nombre',
+      apellidoPaterno: 'Apellido Paterno',
+      apellidoMaterno: 'Apellido Materno',
+      fechaNacimiento: 'Fecha de Nacimiento',
+      telefono: 'Teléfono',
+      estatus: 'Estatus',
+      correo: 'Correo Electrónico',
+    };
+
+    const camposFaltantes: string[] = [];
+    Object.keys(this.pasajeroForm.controls).forEach((key) => {
+      const control = this.pasajeroForm.get(key);
+      if (control?.errors?.['required']) {
+        camposFaltantes.push(etiquetas[key] || key);
+      }
+    });
+
+    const lista = camposFaltantes.map((campo, index) => `
+      <div style="padding:8px 12px;border-left:4px solid #d9534f;background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
+        <strong style="color:#b02a37;">${index + 1}. ${campo}</strong>
+      </div>
+    `).join('');
+
+    Swal.fire({
+      title: '¡Faltan campos obligatorios del pasajero!',
+      background: '#002136',
+      html: `
+        <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
+          Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
+          Por favor complétalos antes de continuar:
+        </p>
+        <div style="max-height:350px;overflow-y:auto;">${lista}</div>
+      `,
+      icon: 'error',
+      confirmButtonText: 'Entendido',
+      customClass: { popup: 'swal2-padding swal2-border' }
+    });
+
+    return;
+  }
+
+  // Excluir "correo" SIEMPRE del payload
+  const { correo, ...payload } = this.pasajeroForm.value;
+
+  // Normalizar fechaNacimiento a YYYY-MM-DD
+  if (payload.fechaNacimiento instanceof Date) {
+    const y = payload.fechaNacimiento.getFullYear();
+    const m = String(payload.fechaNacimiento.getMonth() + 1).padStart(2, '0');
+    const d = String(payload.fechaNacimiento.getDate()).padStart(2, '0');
+    payload.fechaNacimiento = `${y}-${m}-${d}`;
+  } else if (typeof payload.fechaNacimiento === 'string' && payload.fechaNacimiento.includes('T')) {
+    payload.fechaNacimiento = payload.fechaNacimiento.split('T')[0];
+  }
+
+  this.pasajService.actualizarPasajero(this.idPasajero, payload).subscribe(
+    () => {
+      this.submitButton = 'Actualizar';
+      this.loading = false;
+      Swal.fire({
+        title: '¡Operación Exitosa!',
+        background: '#002136',
+        text: 'Los datos del pasajero se actualizaron correctamente.',
+        icon: 'success',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Confirmar',
+      });
+      this.regresar();
+    },
+    () => {
+      this.submitButton = 'Actualizar';
+      this.loading = false;
+      Swal.fire({
+        title: '¡Ops!',
+        background: '#002136',
+        text: 'Ocurrió un error al actualizar el pasajero.',
+        icon: 'error',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Confirmar',
       });
     }
-  
-    submit() {
-      this.submitButton = 'Cargando...';
-      this.loading = true;
-      if (this.idPasajero) {
-        this.actualizar();
-      } else {
-        this.agregar();
-      }
-    }
-  
-    agregar() {
-      this.submitButton = 'Cargando...';
-      this.loading = true;
-      if (this.pasajeroForm.invalid) {
-        this.submitButton = 'Guardar';
-        this.loading = false;
-        const etiquetas: any = {
-          Nombre: 'Nombre',
-          ApellidoPaterno: ' Apellido Paterno',
-          ApellidoMaterno: 'Apellido Materno',
-          FechaNacimiento: 'Fecha de Nacimiento',
-          Correo: 'Correo Electrónico',
-          Telefono: 'Teléfono',
-        };
-  
-        const camposFaltantes: string[] = [];
-        Object.keys(this.pasajeroForm.controls).forEach(key => {
-          const control = this.pasajeroForm.get(key);
-          if (control?.invalid && control.errors?.['required']) {
-            camposFaltantes.push(etiquetas[key] || key);
-          }
-        });
-  
-        const lista = camposFaltantes.map((campo, index) => `
-          <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
-                      background: #caa8a8; text-align: center; margin-bottom: 8px;
-                      border-radius: 4px;">
-            <strong style="color: #b02a37;">${index + 1}. ${campo}</strong>
-          </div>
-        `).join('');
-  
-        Swal.fire({
-          title: '¡Faltan campos obligatorios!',
-          background: '#22252f',
-          html: `
-            <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
-              Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
-              Por favor complétalos antes de continuar:
-            </p>
-            <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
-          `,
-          icon: 'error',
-          confirmButtonText: 'Entendido',
-          customClass: {
-            popup: 'swal2-padding swal2-border'
-          }
-        });
-        return;
-      }
-      this.pasajeroForm.removeControl('id');
-      this.pasajService.agregarPasajero(this.pasajeroForm.value).subscribe(
-        (response) => {
-          this.submitButton = 'Guardar';
-          this.loading = false;
-          Swal.fire({
-            title: '¡Operación Exitosa!',
-            background: '#22252f',
-            text: `Se agregó un nuevo pasajero de manera exitosa.`,
-            icon: 'success',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Confirmar',
-          });
-          this.regresar();
-        },
-        (error) => {
-          this.submitButton = 'Guardar';
-          this.loading = false;
-          Swal.fire({
-            title: '¡Ops!',
-            background: '#22252f',
-            text: `Ocurrió un error al agregar el pasajero.`,
-            icon: 'error',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Confirmar',
-          });
-        }
-      );
-    }
-  
-    actualizar() {
-      this.submitButton = 'Cargando...';
-      this.loading = true;
-      if (this.pasajeroForm.invalid) {
-        this.submitButton = 'Guardar';
-        this.loading = false;
-        const etiquetas: any = {
-          Nombre: 'Nombre',
-          ApellidoPaterno: ' Apellido Paterno',
-          ApellidoMaterno: 'Apellido Materno',
-          FechaNacimiento: 'Fecha de Nacimiento',
-          Correo: 'Correo Electrónico',
-          Telefono: 'Teléfono',
-        };
-  
-        const camposFaltantes: string[] = [];
-        Object.keys(this.pasajeroForm.controls).forEach(key => {
-          const control = this.pasajeroForm.get(key);
-          if (control?.invalid && control.errors?.['required']) {
-            camposFaltantes.push(etiquetas[key] || key);
-          }
-        });
-  
-        const lista = camposFaltantes.map((campo, index) => `
-          <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
-                      background: #caa8a8; text-align: center; margin-bottom: 8px;
-                      border-radius: 4px;">
-            <strong style="color: #b02a37;">${index + 1}. ${campo}</strong>
-          </div>
-        `).join('');
-  
-        Swal.fire({
-          title: '¡Faltan campos obligatorios!',
-          background: '#22252f',
-          html: `
-            <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
-              Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
-              Por favor complétalos antes de continuar:
-            </p>
-            <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
-          `,
-          icon: 'error',
-          confirmButtonText: 'Entendido',
-          customClass: {
-            popup: 'swal2-padding swal2-border'
-          }
-        });
-      }
-      this.pasajService.actualizarPasajero(this.idPasajero, this.pasajeroForm.value).subscribe(
-        (response) => {
-          this.submitButton = 'Actualizar';
-          this.loading = false;
-          Swal.fire({
-            title: '¡Operación Exitosa!',
-            background: '#22252f',
-            text: `Los datos del pasajero se actualizaron correctamente.`,
-            icon: 'success',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Confirmar',
-          });
-          this.regresar();
-        },
-        (error) => {
-          this.submitButton = 'Actualizar';
-          this.loading = false;
-          Swal.fire({
-            title: '¡Ops!',
-            background: '#22252f',
-            text: `Ocurrió un error al actualizar el pasajero.`,
-            icon: 'error',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Confirmar',
-          });
-        }
-      );
-    }
-  
-    regresar() {
-      this.route.navigateByUrl('/pasajeros')
-    }
+  );
+}
+
+
+  regresar() {
+    this.route.navigateByUrl('/pasajeros')
+  }
 
 }

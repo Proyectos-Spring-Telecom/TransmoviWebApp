@@ -179,52 +179,74 @@ export class ListaModulosComponent {
   }
 
   setupDataSource() {
-    this.loading = true;
-    this.listaModulos = new CustomStore({
-      key: 'id',
-      load: async (loadOptions: any) => {
-        const take = this.pageSize;
-        const skip = loadOptions?.skip ?? 0;
-        const page = Math.floor(skip / take) + 1;
+  this.loading = true;
 
-        try {
-          const resp: any = await lastValueFrom(
-            this.moduloService.obtenerModuloData(page, take)
-          );
-          this.loading = false;
+  this.listaModulos = new CustomStore({
+    key: 'id',
+    load: async (loadOptions: any) => {
+      // DevExtreme manda estos valores cuando usas remote paging
+      const take = Number(loadOptions?.take) || this.pageSize || 10;
+      const skip = Number(loadOptions?.skip) || 0;
+      const page = Math.floor(skip / take) + 1;
 
-          const rows = Array.isArray(resp?.data) ? resp.data : [];
+      try {
+        const resp: any = await lastValueFrom(
+          this.moduloService.obtenerModuloData(page, take)
+        );
 
-          const totalRegistros =
-            Number(resp?.paginated?.limit) ?? rows.length;
-          const paginaActual =
-            Number(resp?.paginated?.page) ?? page;
-          const totalPaginas =
-            Number(resp?.paginated?.total) 
-            ?? Math.max(1, Math.ceil(totalRegistros / take));
+        this.loading = false;
 
-          const dataTransformada = rows.map((item: any) => ({
-            ...item,
-            estatusTexto: item.estatus === 1 ? 'Activo' : 'Inactivo'
-          }));
+        const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
 
-          this.totalRegistros = totalRegistros;
-          this.paginaActual = paginaActual;
-          this.totalPaginas = totalPaginas;
-          this.paginaActualData = dataTransformada;
+        // ---- Manejo robusto de la meta de paginación ----
+        const meta = resp?.paginated || {};
+        const totalRegistros =
+          toNum(meta.total) ??
+          toNum(resp?.total) ??
+          rows.length;
 
-          return {
-            data: dataTransformada,
-            totalCount: totalRegistros
-          };
-        } catch (err) {
-          this.loading = false;
-          console.error('Error en la solicitud de datos:', err);
-          return { data: [], totalCount: 0 };
-        }
+        const paginaActual =
+          toNum(meta.page) ??
+          toNum(resp?.page) ??
+          page;
+
+        const totalPaginas =
+          toNum(meta.lastPage) ??
+          toNum(resp?.pages) ??
+          Math.max(1, Math.ceil(totalRegistros / take));
+        // --------------------------------------------------
+
+        const dataTransformada = rows.map((item: any) => ({
+          ...item,
+          estatusTexto:
+            item?.estatus === 1 ? 'Activo' :
+            item?.estatus === 0 ? 'Inactivo' : null
+        }));
+
+        // Si llevas estos contadores en el componente:
+        this.totalRegistros = totalRegistros;
+        this.paginaActual = paginaActual;
+        this.totalPaginas = totalPaginas;
+        this.paginaActualData = dataTransformada;
+
+        return {
+          data: dataTransformada,
+          totalCount: totalRegistros // <- IMPORTANTE para que el grid pagine bien
+        };
+      } catch (err) {
+        this.loading = false;
+        console.error('Error en la solicitud de datos:', err);
+        return { data: [], totalCount: 0 };
       }
-    });
+    }
+  });
+
+  function toNum(v: any): number | null {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
   }
+}
+
 
   onGridOptionChanged(e: any) {
     if (e.fullName === "searchPanel.text") {

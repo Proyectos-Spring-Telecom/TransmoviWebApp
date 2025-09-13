@@ -42,11 +42,8 @@
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center"
-                                [width]="180"></dxi-column>
-                            <dxi-column dataField="id" caption="ID" alignment="center" [width]="120"></dxi-column>
+                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="180"></dxi-column>
                             <dxi-column dataField="nombre" caption="Nombre" alignment="center"></dxi-column>
-                            <dxi-column dataField="descripcion" caption="Descripción" alignment="center"></dxi-column>
                             <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
                                     <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
