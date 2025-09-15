@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { DxDataGridComponent } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
@@ -37,7 +38,8 @@ export class ListaOperadoresComponent implements OnInit {
 
   constructor(
     private opService: OperadoresService,
-    private route: Router
+    private route: Router,
+    private sanitizer: DomSanitizer
   ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
@@ -69,24 +71,24 @@ export class ListaOperadoresComponent implements OnInit {
 
           const totalRegistros = Number(response?.paginated?.total) || 0;
           const paginaActual = Number(response?.paginated?.page) || page;
-          // Si "limit" es pageSize, usa "take" para calcular total de páginas
-          const totalPaginas = take > 0 ? Math.ceil(totalRegistros / take) : 0;
+          const totalPaginas = Number(response?.paginated?.limit) ||
+            (take > 0 ? Math.ceil(totalRegistros / take) : 0);
 
           this.totalRegistros = totalRegistros;
           this.paginaActual = paginaActual;
           this.totalPaginas = totalPaginas;
 
-          const dataTransformada = (Array.isArray(response?.data) ? response.data : [])
-            .map((item: any) => {
-              // ⬇️ Forzamos id a number, contemplando variantes de nombre
-              const idNum = Number(item?.id ?? item?.Id ?? item?.ID);
-              return {
-                ...item,
-                id: Number.isFinite(idNum) ? idNum : 0, // asegura número válido
-              };
-            })
-            // ⬇️ Ahora sí ordena de mayor a menor por id numérico
-            .sort((a: any, b: any) => b.id - a.id);
+          const dataTransformada = (Array.isArray(response?.data) ? response.data : []).map((item: any) => {
+
+
+            return {
+              ...item,
+              id: Number(item?.id),
+              tipoPersona: item?.tipoPersona == 1 ? 'Físico' : item?.tipoPersona == 2 ? 'Moral' : 'Desconocido',
+              idRol: item?.idRol != null ? Number(item.idRol) : null,
+              idCliente: item?.idCliente != null ? Number(item.idCliente) : null,
+            };
+          }).sort((a: any, b: any) => Number(b.id) - Number(a.id));
 
           this.paginaActualData = dataTransformada;
 
@@ -102,6 +104,36 @@ export class ListaOperadoresComponent implements OnInit {
         }
       }
     });
+  }
+
+  onPageIndexChanged(e: any) {
+    const pageIndex = e.component.pageIndex();
+    this.paginaActual = pageIndex + 1;
+    e.component.refresh();
+  }
+
+  onGridOptionChanged(e: any) {
+    if (e.fullName === "searchPanel.text") {
+      this.filtroActivo = e.value || '';
+      if (!this.filtroActivo) {
+        this.dataGrid.instance.option('dataSource', this.listaOperadores);
+        return;
+      }
+      const search = this.filtroActivo.toString().toLowerCase();
+      const dataFiltrada = this.paginaActualData.filter((item: any) => {
+        const idStr = item.id ? item.id.toString().toLowerCase() : '';
+        const nombreStr = item.nombre ? item.nombre.toString().toLowerCase() : '';
+        const descripcionStr = item.descripcion ? item.descripcion.toString().toLowerCase() : '';
+        const moduloStr = item.estatusTexto ? item.estatusTexto.toString().toLowerCase() : '';
+        return (
+          nombreStr.includes(search) ||
+          descripcionStr.includes(search) ||
+          moduloStr.includes(search) ||
+          idStr.includes(search)
+        );
+      });
+      this.dataGrid.instance.option('dataSource', dataFiltrada);
+    }
   }
 
   actualizarOperador(idOperador: number) {
@@ -146,5 +178,198 @@ export class ListaOperadoresComponent implements OnInit {
         );
       }
     });
+  }
+
+  activar(rowData: any) {
+    Swal.fire({
+      title: '¡Activar!',
+      html: `¿Está seguro que desea activar el operador: <br> <strong>${rowData.idUsuario2.nombre} ${rowData.idUsuario2.apellidoPaterno}</strong>?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar',
+      background: '#002136',
+    }).then((result) => {
+      if (result.value) {
+        this.opService.updateEstatus(rowData.id, 1).subscribe(
+          (response) => {
+            Swal.fire({
+              title: '¡Confirmación Realizada!',
+              html: `El operador ha sido activado.`,
+              icon: 'success',
+              background: '#002136',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'Confirmar',
+            })
+
+            this.obtenerOperadores();
+            this.dataGrid.instance.refresh();
+            // this.obtenerListaModulos();
+          },
+          (error) => {
+            Swal.fire({
+              title: '¡Ops!',
+              html: `${error}`,
+              icon: 'error',
+              background: '#002136',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'Confirmar',
+            })
+          }
+        );
+      }
+    });
+  }
+
+  desactivar(rowData: any) {
+    Swal.fire({
+      title: '¡Desactivar!',
+      html: `¿Está seguro que desea desactivar el operador: <br> <strong>${rowData.idUsuario2.nombre} ${rowData.idUsuario2.apellidoPaterno}</strong></strong>?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar',
+      background: '#002136',
+    }).then((result) => {
+      if (result.value) {
+        this.opService.updateEstatus(rowData.id, 0).subscribe(
+          (response) => {
+            Swal.fire({
+              title: '¡Confirmación Realizada!',
+              html: `El operador ha sido desactivado.`,
+              icon: 'success',
+              background: '#002136',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'Confirmar',
+            })
+            this.obtenerOperadores();
+            this.dataGrid.instance.refresh();
+            // this.obtenerListaModulos();
+          },
+          (error) => {
+            Swal.fire({
+              title: '¡Ops!',
+              html: `${error}`,
+              icon: 'error',
+              background: '#002136',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'Confirmar',
+            })
+          }
+        );
+      }
+    });
+    // console.log('Desactivar:', rowData);
+  }
+
+
+  pdfPopupVisible = false;
+  pdfTitle = 'Documento';
+  pdfPopupWidth = 500;
+
+  pdfUrlSafe: SafeResourceUrl | null = null;
+  pdfRawUrl: string | null = null;
+
+  pdfLoading = false;
+  pdfLoaded = false;
+  pdfError = false;
+  pdfErrorMsg = '';
+
+  async previsualizar(url?: string, titulo?: string, _row?: any) {
+    this.pdfTitle = titulo || 'Documento';
+    this.pdfRawUrl = (url || '').trim() || null;
+    this.pdfUrlSafe = null;
+    this.pdfLoading = true;
+    this.pdfLoaded = false;
+    this.pdfError = false;
+    this.pdfErrorMsg = '';
+    this.pdfPopupVisible = true;
+    this.pdfPopupWidth = Math.min(Math.floor(window.innerWidth * 0.95), 900);
+
+    if (!this.pdfRawUrl) {
+      this.pdfError = true;
+      this.pdfLoading = false;
+      this.pdfErrorMsg = 'Este registro no tiene un PDF asignado.';
+      return;
+    }
+
+    // Probar disponibilidad antes de embeber (HEAD)
+    try {
+      const head = await fetch(this.pdfRawUrl, { method: 'HEAD', mode: 'cors' });
+      if (!head.ok) {
+        this.pdfError = true;
+        this.pdfErrorMsg = `No se pudo acceder al archivo (HTTP ${head.status}).`;
+        this.pdfLoading = false;
+        return;
+      }
+      const ct = head.headers.get('content-type') || '';
+      if (!ct.toLowerCase().includes('pdf')) {
+        this.pdfError = true;
+        this.pdfErrorMsg = 'El recurso no es un archivo PDF.';
+        this.pdfLoading = false;
+        return;
+      }
+    } catch (e) {
+      // Si CORS u otro bloqueo, mostramos mensaje pero dejamos habilitadas las acciones
+      this.pdfError = true;
+      this.pdfErrorMsg = 'El navegador bloqueó la previsualización (CORS). Intenta Abrir o Descargar.';
+      this.pdfLoading = false;
+      return;
+    }
+
+    // Si pasó la verificación, embeber
+    const viewerParams = '#toolbar=0&navpanes=0';
+    const finalUrl = this.pdfRawUrl.includes('#') ? this.pdfRawUrl : this.pdfRawUrl + viewerParams;
+    this.pdfUrlSafe = this.sanitizer.bypassSecurityTrustResourceUrl(finalUrl);
+
+    // Timeout de seguridad: si el iframe no termina de cargar, mostrar mensaje
+    setTimeout(() => {
+      if (!this.pdfLoaded && !this.pdfError) {
+        this.pdfError = true;
+        this.pdfLoading = false;
+        this.pdfErrorMsg = 'El visor tardó demasiado en cargar.';
+      }
+    }, 4000);
+  }
+
+  onPdfLoaded() {
+    this.pdfLoaded = true;
+    this.pdfLoading = false;
+  }
+
+  abrirEnNuevaPestana() {
+    if (this.pdfRawUrl) window.open(this.pdfRawUrl, '_blank');
+  }
+
+  async descargarPdfForzada() {
+    if (!this.pdfRawUrl) return;
+    try {
+      const resp = await fetch(this.pdfRawUrl, { mode: 'cors' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const base = (this.pdfTitle || 'documento')
+        .toLowerCase().replace(/\s+/g, '_').replace(/[^\w\-]+/g, '');
+      a.href = url;
+      a.download = base.endsWith('.pdf') ? base : base + '.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      // Fallback sin CORS: navegar con Content-Disposition forzado
+      try {
+        const u = new URL(this.pdfRawUrl!);
+        u.searchParams.set('response-content-disposition', `attachment; filename="${(this.pdfTitle || 'documento').replace(/\s+/g, '_')}.pdf"`);
+        window.open(u.toString(), '_self');
+      } catch {
+        window.open(this.pdfRawUrl!, '_blank');
+      }
+    }
   }
 }

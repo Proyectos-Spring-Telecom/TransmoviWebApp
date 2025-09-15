@@ -18,6 +18,10 @@ export class UsuariosService {
 		return this.http.get(`${environment.API_SECURITY}/usuarios/${page}/${pageSize}`);
 	}
 
+  obtenerUsuariosRolOperador(): Observable <any>{
+    return this.http.get<any>(`${environment.API_SECURITY}/usuarios/list/rol/operador`)
+  }
+
   agregarUsuario(data: FormData) {
     return this.http.post(environment.API_SECURITY + '/usuarios', data);
   }

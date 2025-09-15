@@ -35,7 +35,7 @@
                     <div class="col-md-4 mt-3">
                         <label>N° de Monedero</label>
                         <select class="form-control" formControlName="numeroSerieMonedero">
-                            <option [ngValue]="null" disabled>-- Seleccione un monedero --</option>
+                            <option [ngValue]="null" disabled>Seleccione un monedero</option>
                             <option *ngFor="let d of listaMonederos" [value]="d.numeroSerie || d.numeroserie">
                                 {{ (d.numeroSerie || d.numeroserie) }}
                             </option>
@@ -44,11 +44,15 @@
                     <div class="col-md-4 mt-3">
                         <label>N° de Serie de Dispositivo</label>
                         <select class="form-control" formControlName="numeroSerieDispositivo">
-                            <option [ngValue]="null" disabled>-- Seleccione --</option>
+                            <option [ngValue]="null" disabled>Seleccione un dispositivo</option>
                             <option *ngFor="let d of listaDispositivos" [value]="d.numeroSerie || d.numeroserie">
                                 {{ (d.numeroSerie || d.numeroserie) }}
                             </option>
                         </select>
+                    </div>
+                    <h6 class="section-title mt-5">Seleccione una ubicación para la transacción</h6>
+                    <div class="col-md-6 mt-1">
+                        <div id="map"></div>
                     </div>
                 </div>
                 <div class="form-actions mt-4">

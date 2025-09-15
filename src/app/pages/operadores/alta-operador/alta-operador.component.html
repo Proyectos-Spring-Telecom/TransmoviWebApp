@@ -2,7 +2,7 @@
     <div class="card">
         <div class="card-header-custom">
             <div class="icon-wrapper">
-                <i class="fas fa-user-plus"></i>
+                <i class="fas fa-plus"></i>
             </div>
             <div class="header-text">
                 <h5>{{title}}</h5>
@@ -14,126 +14,133 @@
                 <h6 class="section-title">Datos Generales</h6>
                 <div class="row mt-3">
                     <div class="col-md-4">
-                        <label>Nombre</label>
-                        <input type="text" class="form-control" formControlName="Nombre" placeholder="Ej: Alonso">
+                        <label>N° de Licencia</label>
+                        <input type="text" class="form-control" formControlName="numeroLicencia"
+                            placeholder="Ej: Alonso">
                     </div>
                     <div class="col-md-4">
-                        <label>Apellido Paterno</label>
-                        <input type="text" class="form-control" formControlName="ApellidoPaterno"
-                            placeholder="Ej: Rodríguez">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Apellido Materno</label>
-                        <input type="text" class="form-control" formControlName="ApellidoMaterno"
-                            placeholder="Ej: Santos">
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-3">
-                        <label>Número Licencia</label>
-                        <input type="email" class="form-control" formControlName="NumeroLicencia"
-                            placeholder="Ej: XZ92K7LM5QP4A8SD">
-                    </div>
-                    <div class="col-md-3">
                         <label>Fecha Nacimiento</label>
-                        <input type="date" class="form-control" formControlName="FechaNacimiento"
+                        <input type="date" class="form-control" formControlName="fechaNacimiento"
                             placeholder="Ej: 12/05/1999">
                     </div>
-                    <div class="col-md-3">
-                        <label>Teléfono</label>
-                        <input class="form-control" formControlName="Telefono" placeholder="Ej: 5555555555"
-                            maxlength="10" (keypress)="allowOnlyNumbers($event)">
+                    <div class="col-md-4">
+                        <label>Usuario</label>
+                        <select class="form-control" formControlName="idUsuario" [disabled]="showUsuario"
+                            [ngClass]="{ 'disabled': showUsuario }">
+                            <option [ngValue]="null">Seleccione un usuario</option>
+                            <option *ngFor="let c of listaUsuarios" [ngValue]="c.id">
+                                {{ c.nombre }} {{ c.apellidoPaterno }}
+                            </option>
+                        </select>
                     </div>
-                    <div class="col-md-3">
-                        <label>Correo</label>
-                        <input type="email" class="form-control" formControlName="Correo"
-                            placeholder="Ej: contacto@ejemplo.com">
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <!-- INE -->
-                            <div class="tc-upload">
-                                <label>INE</label>
 
-                                <!-- PREVIEW -->
-                                <div class="tc-preview" *ngIf="inePreviewUrl; else ineTile">
-                                    <img [src]="inePreviewUrl" alt="INE" />
-                                    <div class="tc-actions">
-                                        <button type="button" class="btn-change"
-                                            (click)="openIneFilePicker()">Cambiar</button>
-                                        <button type="button" class="btn-remove" (click)="clearIneImage($event)">
-                                            <i class="fas fa-times"></i>
-                                        </button>
+                </div>
+                <h6 class="section-title mt-5">Archivos</h6>
+                <div class="row">
+                    <div class="col-12 col-sm-6 col-lg-4">
+                        <div class="tc-upload">
+                            <label>Identificación</label>
+                            <div class="tc-preview" *ngIf="identificacionPreviewUrl; else identificacionTile">
+                                <img [src]="identificacionPreviewUrl" alt="Identificación" />
+                                <div class="file-name" *ngIf="identificacionFileName">{{ identificacionFileName }}
+                                </div>
+                                <div class="tc-actions">
+                                    <button type="button" class="btn-change"
+                                        (click)="openIdentFilePicker()">Cambiar</button>
+                                    <button type="button" class="btn-remove" (click)="clearIdentFile($event)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <ng-template #identificacionTile>
+                                <div class="tc-tile" (click)="openIdentFilePicker()"
+                                    (dragover)="onIdentDragOver($event)" (dragleave)="onIdentDragLeave($event)"
+                                    (drop)="onIdentDrop($event)" [class.dragging]="identificacionDragging">
+                                    <div class="circle"><i class="fas fa-id-card"></i></div>
+                                    <div class="meta">
+                                        <div class="title">Arrastra o haz clic</div>
+                                        <div class="hint">PDF · máx 3 MB</div>
+                                        <div class="file-name" *ngIf="identificacionFileName">{{
+                                            identificacionFileName }}</div>
                                     </div>
                                 </div>
-
-                                <!-- TILE -->
-                                <ng-template #ineTile>
-                                    <div class="tc-tile" (click)="openIneFilePicker()"
-                                        (dragover)="onIneDragOver($event)" (dragleave)="onIneDragLeave($event)"
-                                        (drop)="onIneDrop($event)" [class.dragging]="ineDragging">
-
-                                        <div class="circle">
-                                            <i class="fas fa-id-card"></i>
-                                        </div>
-                                        <div class="meta">
-                                            <div class="title">Arrastra o haz clic</div>
-                                            <div class="hint">JPG/PNG/PDF/DOC/XLS · máx 3 MB</div>
-                                        </div>
-                                    </div>
-                                </ng-template>
-
-                                <input type="file" #ineFileInput
-                                    accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx" hidden
-                                    (change)="onIneFileSelected($event)">
-                            </div>
+                            </ng-template>
+                            <input type="file" #identFileInput accept=".pdf" hidden
+                                (change)="onIdentFileSelected($event)">
                         </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-4">
+                        <div class="tc-upload">
+                            <label>Comprobante de Domicilio</label>
 
-                        <div class="col-md-6">
-                            <!-- LICENCIA -->
-                            <div class="tc-upload">
-                                <label>Licencia</label>
+                            <div class="tc-preview" *ngIf="comprobantePreviewUrl; else comprobanteTile">
+                                <img [src]="comprobantePreviewUrl" alt="Comprobante de Domicilio" />
+                                <div class="file-name" *ngIf="comprobanteFileName">{{ comprobanteFileName }}</div>
+                                <div class="tc-actions">
+                                    <button type="button" class="btn-change"
+                                        (click)="openComprobanteFilePicker()">Cambiar</button>
+                                    <button type="button" class="btn-remove" (click)="clearComprobanteFile($event)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
 
-                                <!-- PREVIEW -->
-                                <div class="tc-preview" *ngIf="licenciaPreviewUrl; else licenciaTile">
-                                    <img [src]="licenciaPreviewUrl" alt="Licencia" />
-                                    <div class="tc-actions">
-                                        <button type="button" class="btn-change"
-                                            (click)="openLicenciaFilePicker()">Cambiar</button>
-                                        <button type="button" class="btn-remove" (click)="clearLicenciaImage($event)">
-                                            <i class="fas fa-times"></i>
-                                        </button>
+                            <ng-template #comprobanteTile>
+                                <div class="tc-tile" (click)="openComprobanteFilePicker()"
+                                    (dragover)="onComprobanteDragOver($event)"
+                                    (dragleave)="onComprobanteDragLeave($event)" (drop)="onComprobanteDrop($event)"
+                                    [class.dragging]="comprobanteDragging">
+                                    <div class="circle"><i class="fas fa-home"></i></div>
+                                    <div class="meta">
+                                        <div class="title">Arrastra o haz clic</div>
+                                        <div class="hint">PDF · máx 3 MB</div>
+                                        <div class="file-name" *ngIf="comprobanteFileName">{{ comprobanteFileName }}
+                                        </div>
                                     </div>
                                 </div>
+                            </ng-template>
 
-                                <!-- TILE -->
-                                <ng-template #licenciaTile>
-                                    <div class="tc-tile" (click)="openLicenciaFilePicker()"
-                                        (dragover)="onLicenciaDragOver($event)"
-                                        (dragleave)="onLicenciaDragLeave($event)" (drop)="onLicenciaDrop($event)"
-                                        [class.dragging]="licenciaDragging">
-
-                                        <div class="circle">
-                                            <i class="fas fa-address-card"></i>
-                                        </div>
-                                        <div class="meta">
-                                            <div class="title">Arrastra o haz clic</div>
-                                            <div class="hint">JPG/PNG/PDF/DOC/XLS · máx 3 MB</div>
-                                        </div>
-                                    </div>
-                                </ng-template>
-
-                                <input type="file" #licenciaFileInput
-                                    accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx" hidden
-                                    (change)="onLicenciaFileSelected($event)">
-                            </div>
+                            <input type="file" #comprobanteFileInput accept=".pdf" hidden
+                                (change)="onComprobanteFileSelected($event)">
                         </div>
-
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-4">
+                        <div class="tc-upload">
+                            <label>Antecedentes No Penales</label>
+                            <div class="tc-preview" *ngIf="antecedentesPreviewUrl; else antecedentesTile">
+                                <img [src]="antecedentesPreviewUrl" alt="Antecedentes No Penales" />
+                                <div class="file-name" *ngIf="antecedentesFileName">{{ antecedentesFileName }}</div>
+                                <div class="tc-actions">
+                                    <button type="button" class="btn-change"
+                                        (click)="openAntecedentesFilePicker()">Cambiar</button>
+                                    <button type="button" class="btn-remove" (click)="clearAntecedentesFile($event)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <ng-template #antecedentesTile>
+                                <div class="tc-tile" (click)="openAntecedentesFilePicker()"
+                                    (dragover)="onAntecedentesDragOver($event)"
+                                    (dragleave)="onAntecedentesDragLeave($event)" (drop)="onAntecedentesDrop($event)"
+                                    [class.dragging]="antecedentesDragging">
+                                    <div class="circle"><i class="fas fa-star"></i></div>
+                                    <div class="meta">
+                                        <div class="title">Arrastra o haz clic</div>
+                                        <div class="hint">PDF · máx 3 MB</div>
+                                        <div class="file-name" *ngIf="antecedentesFileName">{{ antecedentesFileName
+                                            }}</div>
+                                    </div>
+                                </div>
+                            </ng-template>
+                            <input type="file" #antecedentesFileInput accept=".pdf" hidden
+                                (change)="onAntecedentesFileSelected($event)">
+                        </div>
                     </div>
                 </div>
-                <div class="form-actions mt-4">
-                    <button type="submit" class="btn btn-success" (click)="submit()">{{submitButton}}</button>
-                    <button type="button" class="btn btn-danger" (click)="regresar()">Cancelar</button>
+
+                <div class="form-actions mt-2">
+                    <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
+                    <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
                 </div>
             </form>
         </div>

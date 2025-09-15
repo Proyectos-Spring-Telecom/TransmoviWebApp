@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, NgZone, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -10,13 +10,15 @@ import { PermisosService } from 'src/app/shared/services/permisos.service';
 import { TransaccionesService } from 'src/app/shared/services/transacciones.service';
 import Swal from 'sweetalert2';
 
+declare const google: any;
+
 @Component({
   selector: 'app-agregar-transaccion',
   templateUrl: './agregar-transaccion.component.html',
   styleUrl: './agregar-transaccion.component.scss',
   animations: [fadeInUpAnimation],
 })
-export class AgregarTransaccionComponent implements OnInit {
+export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
   public submitButton: string = 'Guardar';
   public loading: boolean = false;
   public listaModulos: any;
@@ -33,7 +35,8 @@ export class AgregarTransaccionComponent implements OnInit {
     private route: Router,
     private transaccionService: TransaccionesService,
     private dispService: DispositivosService,
-    private moneService: MonederosServices
+    private moneService: MonederosServices,
+    private zone: NgZone
   ) { }
 
   ngOnInit(): void {
@@ -67,11 +70,10 @@ export class AgregarTransaccionComponent implements OnInit {
     return new Date(localStr).toISOString().replace(/\.\d{3}Z$/, 'Z');
   }
 
-
   submit() {
     this.submitButton = 'Cargando...';
     this.loading = true;
-    console.log(this.transaccionForm.value)
+    // console.log(this.transaccionForm.value)
     this.agregar();
   }
 
@@ -88,10 +90,8 @@ export class AgregarTransaccionComponent implements OnInit {
   }
 
   agregar() {
-
     this.submitButton = 'Cargando...';
     this.loading = true;
-
     const etiquetas: Record<string, string> = {
       tipoTransaccion: 'Tipo de Transacción',
       monto: 'Monto',
@@ -99,7 +99,6 @@ export class AgregarTransaccionComponent implements OnInit {
       numeroSerieMonedero: 'N° de Serie de Monedero',
       numeroSerieDispositivo: 'N° de Serie de Dispositivo'
     };
-
     if (this.transaccionForm.invalid) {
       this.submitButton = 'Guardar';
       this.loading = false;
@@ -121,7 +120,7 @@ export class AgregarTransaccionComponent implements OnInit {
 
       Swal.fire({
         title: '¡Faltan campos obligatorios!',
-        background: '#22252f',
+        background: '#002136',
         html: `
         <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
           Los siguientes <strong>campos</strong> están vacíos.<br>
@@ -135,39 +134,31 @@ export class AgregarTransaccionComponent implements OnInit {
       });
       return;
     }
-
-    // Helper: 'YYYY-MM-DDTHH:mm' (local) -> ISO Z sin milisegundos
     const toIsoZulu = (localStr: string | null): string | null => {
       if (!localStr) return null;
       return new Date(localStr).toISOString().replace(/\.\d{3}Z$/, 'Z');
     };
-
     const raw = this.transaccionForm.value;
-
     const payload = {
       ...raw,
-      tipoTransaccion: (raw?.tipoTransaccion || '').toString().toUpperCase() || null, // 'RECARGA' | 'DEBITO'
+      tipoTransaccion: (raw?.tipoTransaccion || '').toString().toUpperCase() || null,
       monto: ((): number | null => {
         if (raw?.monto === '' || raw?.monto == null) return null;
         const n = Number(parseFloat(String(raw.monto).toString().replace(',', '.')).toFixed(2));
         return isNaN(n) ? null : n;
       })(),
-      fechaHora: toIsoZulu(raw?.fechaHora || null), // -> '2025-09-10T12:30:00Z'
+      fechaHora: toIsoZulu(raw?.fechaHora || null),
     };
-
-    // Quita 'id' solo si existe en el form (evita errores)
     if (this.transaccionForm.contains('id')) {
       this.transaccionForm.removeControl('id');
     }
-
-    // ⬇️ Reemplaza por tu servicio real de transacciones
     this.transaccionService.agregarTransaccion(payload).subscribe(
       () => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
           title: '¡Operación Exitosa!',
-          background: '#22252f',
+          background: '#002136',
           text: 'Se agregó una nueva transacción de manera exitosa.',
           icon: 'success',
           confirmButtonColor: '#3085d6',
@@ -180,7 +171,7 @@ export class AgregarTransaccionComponent implements OnInit {
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
-          background: '#22252f',
+          background: '#002136',
           text: 'Ocurrió un error al agregar la transacción.',
           icon: 'error',
           confirmButtonColor: '#3085d6',
@@ -189,7 +180,6 @@ export class AgregarTransaccionComponent implements OnInit {
       }
     );
   }
-
 
   moneyKeydown(e: KeyboardEvent) {
     const allowed = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'];
@@ -202,14 +192,11 @@ export class AgregarTransaccionComponent implements OnInit {
       if (value.includes('.')) e.preventDefault();
       return;
     }
-
-    // Solo dígitos
     if (!/^\d$/.test(e.key)) {
       e.preventDefault();
       return;
     }
 
-    // Simular el valor resultante para validar 2 decimales
     const selStart = input.selectionStart ?? value.length;
     const selEnd = input.selectionEnd ?? value.length;
     const newValue = value.slice(0, selStart) + e.key + value.slice(selEnd);
@@ -220,33 +207,7 @@ export class AgregarTransaccionComponent implements OnInit {
   moneyInput(e: Event) {
     const input = e.target as HTMLInputElement;
     let v = (input.value || '').replace(',', '.');
-
-    // Mantener solo dígitos y un punto
     v = v.replace(/[^0-9.]/g, '');
-
-    // Si hay más de un punto, conservar solo el primero
-    const firstDot = v.indexOf('.');
-    if (firstDot !== -1) {
-      const before = v.slice(0, firstDot + 1);
-      const after = v.slice(firstDot + 1).replace(/\./g, ''); // quitar puntos extra
-      v = before + after;
-    }
-
-    // Limitar a 2 decimales
-    const parts = v.split('.');
-    if (parts[1]) v = parts[0] + '.' + parts[1].slice(0, 2);
-
-    input.value = v;
-    // Sin disparar validaciones múltiples
-    this.transaccionForm.get('monto')?.setValue(v, { emitEvent: false });
-  }
-
-  moneyPaste(e: ClipboardEvent) {
-    e.preventDefault();
-    const input = e.target as HTMLInputElement;
-    const text = (e.clipboardData?.getData('text') || '').replace(',', '.');
-
-    let v = text.replace(/[^0-9.]/g, '');
     const firstDot = v.indexOf('.');
     if (firstDot !== -1) {
       const before = v.slice(0, firstDot + 1);
@@ -260,34 +221,113 @@ export class AgregarTransaccionComponent implements OnInit {
     this.transaccionForm.get('monto')?.setValue(v, { emitEvent: false });
   }
 
+  moneyPaste(e: ClipboardEvent) {
+    e.preventDefault();
+    const input = e.target as HTMLInputElement;
+    const text = (e.clipboardData?.getData('text') || '').replace(',', '.');
+    let v = text.replace(/[^0-9.]/g, '');
+    const firstDot = v.indexOf('.');
+    if (firstDot !== -1) {
+      const before = v.slice(0, firstDot + 1);
+      const after = v.slice(firstDot + 1).replace(/\./g, '');
+      v = before + after;
+    }
+    const parts = v.split('.');
+    if (parts[1]) v = parts[0] + '.' + parts[1].slice(0, 2);
+    input.value = v;
+    this.transaccionForm.get('monto')?.setValue(v, { emitEvent: false });
+  }
+
   moneyBlur(e: FocusEvent) {
     const input = e.target as HTMLInputElement;
     let v = input.value;
 
     if (!v) return;
-
-    // Normalizar a 2 decimales (si hay punto), o agregar .00 si es entero
     if (/^\d+$/.test(v)) {
       v = v + '.00';
     } else if (/^\d+\.\d$/.test(v)) {
       v = v + '0';
     } else if (/^\d+\.\d{2}$/.test(v)) {
-      // ok
     } else {
-      // Re-sanitizar por si acaso
       v = v.replace(',', '.').replace(/[^0-9.]/g, '');
       const parts = v.split('.');
       v = parts[0] + (parts[1] ? '.' + parts[1].slice(0, 2) : '.00');
       if (/^\d+$/.test(v)) v = v + '.00';
       if (/^\d+\.\d$/.test(v)) v = v + '0';
     }
-
     input.value = v;
     this.transaccionForm.get('monto')?.setValue(v, { emitEvent: false });
   }
 
-
   regresar() {
     this.route.navigateByUrl('/transacciones');
+  }
+
+  lat: number | null = null;
+  lng: number | null = null;
+
+   private map!: any;
+  private marker!: any; // referencia al marker
+  async ngAfterViewInit(): Promise<void> {
+    await this.loadGoogleMaps('TU_API_KEY_AQUI');
+    this.initMap();
+  }
+
+  private initMap(): void {
+    const center = { lat: 19.4326, lng: -99.1332 }; // CDMX
+    const el = document.getElementById('map') as HTMLElement;
+
+    this.map = new google.maps.Map(el, { center, zoom: 6 });
+
+    this.map.addListener('click', (e: any) => {
+      this.zone.run(() => {
+        this.lat = e.latLng.lat();
+        this.lng = e.latLng.lng();
+        this.placeMarker(e.latLng);
+      });
+    });
+  }
+
+  private placeMarker(location: any): void {
+  if (this.marker) {
+    this.marker.setPosition(location);
+  } else {
+    this.marker = new google.maps.Marker({
+      position: location,
+      map: this.map,
+      title: `Lat: ${location.lat()}, Lng: ${location.lng()}`,
+      icon: {
+        url: 'assets/images/marker.png', // tu archivo
+        scaledSize: new google.maps.Size(50, 40), // tamaño del ícono
+        origin: new google.maps.Point(0, 0),
+        anchor: new google.maps.Point(20, 40) // punto de anclaje (abajo al centro)
+      }
+    });
+  }
+
+  this.map.panTo(location);
+}
+
+
+  private loadGoogleMaps(apiKey: string): Promise<void> {
+    const w = window as any;
+    if (w.google && w.google.maps) return Promise.resolve();
+
+    return new Promise((resolve, reject) => {
+      const scriptId = 'gmaps-sdk';
+      if (document.getElementById(scriptId)) {
+        (document.getElementById(scriptId) as HTMLScriptElement).addEventListener('load', () => resolve());
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.id = scriptId;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('No se pudo cargar Google Maps'));
+      document.head.appendChild(script);
+    });
   }
 }

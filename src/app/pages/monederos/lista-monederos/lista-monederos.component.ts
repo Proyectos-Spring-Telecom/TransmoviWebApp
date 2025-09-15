@@ -232,7 +232,7 @@ export class ListaMonederosComponent implements OnInit {
     const formValue = this.recargaForm.value;
     if (!formValue?.numeroSerieMonedero) {
       Swal.fire({
-        background: '#22252f',
+        background: '#002136',
         title: '¡Error!',
         text: 'No se detectó el número de serie del monedero.',
         icon: 'error',
@@ -244,7 +244,7 @@ export class ListaMonederosComponent implements OnInit {
 
     if (formValue?.Monto <= 0) {
       Swal.fire({
-        background: '#22252f',
+        background: '#002136',
         title: '¡Error!',
         text: 'El monto no puede ser 0 o vacío.',
         icon: 'error',
@@ -269,7 +269,7 @@ export class ListaMonederosComponent implements OnInit {
             icon: 'success',
             confirmButtonColor: '#3085d6',
             confirmButtonText: 'Confirmar',
-            background: '#22252f',
+            background: '#002136',
           });
         } else {
           console.log('Respuesta inesperada:', response);
@@ -284,58 +284,53 @@ export class ListaMonederosComponent implements OnInit {
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
-          background: '#22252f',
+          background: '#002136',
         });
       }
     );
   }
 
   crearTransaccionDebito() {
-    const formValue = this.debitoForm.value;
-    if (formValue.Monto <= 0) {
-      Swal.fire({
-        title: '¡Error!',
-        text: 'El monto no puede ser 0 o vacío.',
-        icon: 'error',
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'Aceptar',
-        background: '#22252f',
-      });
-      return;
-    }
-    this.loading = true;
-    this.submitButton = 'Cargando...';
-    this.moneService.actualizarMonederoForm(formValue).subscribe(
-      (response: any) => {
-        this.loading = false;
-        this.submitButton = 'Guardar';
-        this.ngOnInit();
-        if (response) {
-          this.cerrarModalDebito();
-          Swal.fire({
-            title: '¡Operación Exitosa!',
-            text: 'Se realizó el débito de manera correcta.',
-            icon: 'success',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Confirmar',
-            background: '#22252f',
-          });
-        } else {
-          console.log('Respuesta inesperada:', response);
-        }
-      },
-      (error: string) => {
-        this.loading = false;
-        this.submitButton = 'Guardar';
-        Swal.fire({
-          title: '¡Ops!',
-          text: error,
-          icon: 'error',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Confirmar',
-          background: '#22252f',
-        });
-      }
-    );
+  const serie = (this.selectedSerie ?? '').toString().trim();
+  const fechaActual = new Date().toISOString();
+  this.debitoForm.patchValue({
+    IdMonedero: this.selectedTransactionId,
+    numeroSerieMonedero: serie,
+    fechaHora: fechaActual,
+    tipoTransaccion: 'DEBITO'
+  });
+
+  const formValue = this.debitoForm.value;
+
+  if (!formValue?.numeroSerieMonedero) {
+    Swal.fire({ background: '#002136', title: '¡Error!', text: 'No se detectó el número de serie del monedero.', icon: 'error', confirmButtonColor: '#d33', confirmButtonText: 'Aceptar' });
+    return;
   }
+  if (Number(formValue?.Monto) <= 0) {
+    Swal.fire({ background: '#002136', title: '¡Error!', text: 'El monto no puede ser 0 o vacío.', icon: 'error', confirmButtonColor: '#d33', confirmButtonText: 'Aceptar' });
+    return;
+  }
+
+  this.loading = true;
+  this.submitButton = 'Cargando...';
+  this.moneService.agregarTransacciones(formValue).subscribe(
+    (response: any) => {
+      this.loading = false;
+      this.submitButton = 'Guardar';
+      this.ngOnInit();
+      if (response) {
+        this.cerrarModalDebito();
+        Swal.fire({ title: '¡Operación Exitosa!', text: 'Se realizó el débito de manera correcta.', icon: 'success', confirmButtonColor: '#3085d6', confirmButtonText: 'Confirmar', background: '#002136', });
+      } else {
+        console.log('Respuesta inesperada:', response);
+      }
+    },
+    (error: string) => {
+      this.loading = false;
+      this.submitButton = 'Guardar';
+      Swal.fire({ title: '¡Ops!', text: error, icon: 'error', confirmButtonColor: '#3085d6', confirmButtonText: 'Confirmar', background: '#002136', });
+    }
+  );
+}
+
 }

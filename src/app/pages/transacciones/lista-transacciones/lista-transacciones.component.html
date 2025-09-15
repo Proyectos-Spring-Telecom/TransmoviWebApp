@@ -40,30 +40,33 @@
               <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
               <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
               <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="200"></dxi-column>
-              <dxi-column dataField="tipoTransaccion" caption="Tipo Transacción" alignment="center"
-                cellTemplate="tplTipo">
-                <div *dxTemplate="let a of 'tplTipo'">
-                  <span [ngClass]="{
-                      'badge-recarga': (a.data.tipoTransaccion || '').toUpperCase() === 'RECARGA',
-                      'badge-debito': (a.data.tipoTransaccion || '').toUpperCase() === 'DEBITO'
-                    }">
-                    {{ a.data.tipoTransaccion }}
-                  </span>
-                </div>
-              </dxi-column>
-
               <dxi-column dataField="fechaHora" caption="Fecha" alignment="center" cellTemplate="fecActi">
                 <div *dxTemplate="let a of 'fecActi'">
-                  {{ a.data.fechaHora | date: 'dd/MM/yyyy' : '+0000' }}
+                  {{ a.data.fechaHora | date:'dd/MM/yyyy HH:mm' : '+0000' }}
                 </div>
               </dxi-column>
               <dxo-summary>
-                <dxi-total-item column="monto" summaryType="sum" displayFormat="Total: ${0}">
-                </dxi-total-item>
-              </dxo-summary>
+  <dxi-total-item 
+      column="monto"
+      summaryType="sum"
+      valueFormat="#,##0.00"
+      displayFormat="Total: ${0}">
+  </dxi-total-item>
+</dxo-summary>
+
               <dxi-column dataField="monto" caption="Monto" alignment="center" cellTemplate="sald">
                 <div *dxTemplate="let f of 'sald' ">
                   {{f.data.monto | currency: '$'}}
+                </div>
+              </dxi-column>
+              <dxi-column dataField="tipoTransaccion" caption="Tipo Transacción" alignment="center" cellTemplate="est">
+                <div *dxTemplate="let f of 'est'">
+                  <span *ngIf="f.data.tipoTransaccion === 'RECARGA' " class="estatus estatus-activo">
+                    Recarga
+                  </span>
+                  <span *ngIf="f.data.tipoTransaccion === 'DEBITO' " class="estatus estatus-inactivo">
+                    Débito
+                  </span>
                 </div>
               </dxi-column>
               <dxi-column dataField="numeroSerieMonedero" caption="N° Serie de Monedero"

@@ -1,54 +1,126 @@
-<!-- <div id="loading" class="loading-overlay" *ngIf="isLoading">
-    <div class="loading-spinner"></div>
-</div> -->
-
 <div [@fadeInUp] class="container-fluid">
     <div class="card">
         <div class="card-body">
-            <div class="header-dispositivos">
-                <div style="display: grid; justify-content: center; align-items: center;">
-                    <i class="fas fa-users"></i>
-                    <span class="titulo">Gestión de Operadores</span>
+            <div class="u-banner">
+                <div class="u-banner__icon">
+                    <div class="u-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
                 </div>
-                <div class="subtitulo">Consulta, busca y navega entre tus operadores registrados</div>
-                <button class="button-18" role="button" (click)="agregarOperador()">Agregar Operador</button>
+                <div class="u-banner__body">
+                    <h2 class="u-banner__title">Gestión de Operadores</h2>
+                    <p class="u-banner__subtitle">
+                        Consulta, busca y navega entre tus operadores registrados
+                    </p>
+                    <div>
+                        <button class="u-btn u-btn--primary" (click)="agregarOperador()">
+                            <i class="fas fa-plus"></i>
+                            <span>Agregar Operadores</span>
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="row mt-4">
                 <div class="col-lg-12">
                     <div class="table-responsive mb-4 col-12 col-lg-12">
-                        <dx-data-grid id="gridContainer" [columnHidingEnabled]="true" [showBorders]="true"
-                            [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
-                            [dataSource]="listaOperadores" [keyExpr]="'Id'" [width]="'100%'">
+                        <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
+                            [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
+                            [rowAlternationEnabled]="'true'" [dataSource]="listaOperadores" [keyExpr]="'Id'"
+                            [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
+                            [pager]="{ 
+                                showPageSizeSelector: true, 
+                                allowedPageSizes: [50], 
+                                showInfo: true,
+                                infoText: 'Página {0} de {1}', 
+                                visible: true 
+                            }" (onPageIndexChanged)=" onPageIndexChanged($event)"
+                            (onOptionChanged)="onGridOptionChanged($event)">
                             <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
-                            <dxo-paging [pageSize]="20"></dxo-paging>
-                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20, 50, 100, 200]" [showInfo]="true"></dxo-pager>
+                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]"
+                                [showInfo]="true"></dxo-pager>
                             <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="150"></dxi-column>
-                            <dxi-column dataField="Nombre" caption="Nombre" cellTemplate="nomb" alignment="center">
+                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center"
+                                [width]="150"></dxi-column>
+                            <dxi-column caption="Identificación" [width]="150" alignment="center" [allowSorting]="false"
+                                [allowFiltering]="false" cellTemplate="ident">
+                            </dxi-column>
+                            <div *dxTemplate="let f of 'ident'">
+                                <button type="button" class="btn btn-primary btn-sm" style="border-radius: 100px;"
+                                    (click)="previsualizar(f?.data?.identificacion, 'Identificación', f?.data)">
+                                    <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
+                                </button>
+                            </div>
+                            <dxi-column caption="Comprobante" [width]="150" alignment="center" [allowSorting]="false"
+                                [allowFiltering]="false" cellTemplate="comp">
+                            </dxi-column>
+                            <div *dxTemplate="let f of 'comp'">
+                                <button type="button" class="btn btn-success btn-sm" style="border-radius: 100px;"
+                                    (click)="previsualizar(f?.data?.comprobanteDomicilio, 'Comprobante de Domicilio', f?.data)">
+                                    <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
+                                </button>
+                            </div>
+                            <dxi-column caption="Antecedentes" [width]="150" alignment="center" [allowSorting]="false"
+                                [allowFiltering]="false" cellTemplate="penales">
+                            </dxi-column>
+                            <div *dxTemplate="let f of 'penales'">
+                                <button type="button" class="btn btn-warning btn-sm" style="border-radius: 100px;"
+                                    (click)="previsualizar(f?.data?.antecedentesNoPenales || f?.data?.antecedentesPenales, 'Antecedentes No Penales', f?.data)">
+                                    <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
+                                </button>
+                            </div>
+                            <dxi-column dataField="idUsuario2" caption="Nombre" cellTemplate="nomb" alignment="center">
                                 <div *dxTemplate="let r of 'nomb'">
-                                    {{ r.data.Nombre + ' ' + r.data.ApellidoPaterno + ' ' + r.data.ApellidoMaterno }}
+                                    {{ r.data.idUsuario2.nombre + ' ' + r.data.idUsuario2.apellidoPaterno + ' ' +
+                                    r.data.idUsuario2.apellidoMaterno }}
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="NumeroLicencia" caption="Número Licencia" alignment="center"></dxi-column>
-                            <dxi-column dataField="Correo" caption="Correo Electrónico" alignment="center"></dxi-column>
-                            <dxi-column dataField="Telefono" caption="Teléfono" alignment="center"></dxi-column>
-                            <dxi-column dataField="FechaNacimiento" type="date" caption="Fecha de Nacimiento" alignment="center"></dxi-column>
-                            <dxo-export [enabled]="false" [allowExportSelectedData]="true"
-                                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
+                            <dxi-column dataField="numeroLicencia" caption="Número Licencia"
+                                alignment="center"></dxi-column>
+                            <dxi-column dataField="correo" caption="Correo Electrónico" alignment="center"
+                                cellTemplate="correoElec">
+                                <div *dxTemplate="let f of 'correoElec'">
+                                    {{f.data.idUsuario2.userName}}
+                                </div>
+                            </dxi-column>
+                            <dxi-column dataField="telefono" caption="Teléfono" alignment="center"
+                                cellTemplate="fechNacimi">
+                                <div *dxTemplate="let fr of 'fechNacimi'">
+                                    {{fr.data.idUsuario2.telefono}}
+                                </div>
+                            </dxi-column>
+                            <dxi-column dataField="fechaNacimiento" type="date" caption="Fecha de Nacimiento"
+                                alignment="center"></dxi-column>
+                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est">
+                                <div *dxTemplate="let f of 'est'">
+                                    <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
+                                        Activo
+                                    </span>
+                                    <span *ngIf="f.data.estatus !== 1" class="estatus estatus-inactivo">
+                                        Inactivo
+                                    </span>
+                                </div>
+                            </dxi-column>
+                            <dxo-export [enabled]="false" [allowExportSelectedData]="true" [texts]="{ exportAll: 'Exportar todos los datos a Excel', 
+                                exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
                             </dxo-export>
                             <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
                                 <div>
                                     <button valueExpr="id" id="actualizarButton" class="btnAcciones"
-                                        (click)="actualizarOperador(row.data.Id)">
+                                        (click)="actualizarOperador(row.data.id)">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </div>
                                 <div>
-                                    <button id="deleteButton" class="btnAcciones" (click)="eliminarOperador(row.data)">
-                                        <i class="fa fa-trash"></i>
+                                    <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones"
+                                        (click)="activar(row.data)">
+                                        <i class="fa fa-arrow-up"></i>
+                                    </button>
+                                    <button *ngIf="row.data.estatus === 1" id="deleteButton" class="btnAcciones"
+                                        (click)="desactivar(row.data)">
+                                        <i class="fa fa-arrow-down"></i>
                                     </button>
                                 </div>
                             </div>
@@ -61,5 +133,45 @@
 </div>
 
 <dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
-  [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
+    [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
 </dx-load-panel>
+
+<dx-popup
+  [visible]="pdfPopupVisible"
+  [showTitle]="true"
+  [title]="pdfTitle"
+  [dragEnabled]="true"
+  [closeOnOutsideClick]="false"
+  [width]="pdfPopupWidth"
+  [height]="'auto'"
+  [showCloseButton]="true"
+  (onHiding)="pdfPopupVisible = false">
+
+  <div class="pdf-viewer">
+    <div class="pdf-loader" *ngIf="pdfLoading && !pdfError">
+      Cargando documento…
+    </div>
+    <ng-container *ngIf="!pdfError; else pdfErrorTpl">
+      <div class="pdf-frame" [class.is-loading]="pdfLoading">
+        <iframe class="pdf-iframe"
+                [src]="pdfUrlSafe"
+                (load)="onPdfLoaded()">
+        </iframe>
+      </div>
+      <div class="pdf-actions">
+        <button type="button" class="abrirArchivo" (click)="abrirEnNuevaPestana()">
+          <i class="fa fa-external-link"></i>&nbsp;&nbsp;Abrir
+        </button>
+        <button type="button" class="descargarArchivo" (click)="descargarPdfForzada()">
+          <i class="fa fa-download"></i>&nbsp;&nbsp;Descargar
+        </button>
+      </div>
+    </ng-container>
+    <ng-template #pdfErrorTpl>
+      <div class="pdf-error-card">
+        <h4>📄 No pudimos previsualizar el PDF</h4>
+        <p>{{ pdfErrorMsg || 'El archivo no está disponible, el tipo de contenido no es PDF o fue bloqueado por el navegador (CORS).' }}</p>
+      </div>
+    </ng-template>
+  </div>
+</dx-popup>

@@ -37,24 +37,6 @@
             <input type="text" class="form-control" formControlName="numeroEconomico" placeholder="Ej: VEH001">
           </div>
           <div class="col-md-4 mt-3">
-            <label>Operador</label>
-            <select class="form-control">
-              <option value="">Seleccione un operador</option>
-              <option *ngFor="let op of listaOperadores" [value]="op.Id">
-                {{ op.Nombre + ' ' + op.ApellidoPaterno + ' ' + op.ApellidoMaterno }}
-              </option>
-            </select>
-          </div>
-          <div class="col-md-4 mt-3">
-            <label>Dispositivo</label>
-            <select class="form-control">
-              <option value="">Seleccione un dispositivo</option>
-              <option *ngFor="let disp of listaDispositivos" [value]="disp.Id">
-                {{ disp.Marca + ' - ' + disp.Modelo }}
-              </option>
-            </select>
-          </div>
-          <div class="col-md-4 mt-3">
             <label>Cliente</label>
             <select class="form-control" formControlName="idCliente">
               <option [ngValue]="null">Seleccione un cliente</option>
@@ -66,7 +48,6 @@
 
           <h6 class="section-title mt-5">Archivos</h6>
           <div class="row">
-            <!-- FOTOGRAFÍA (solo imágenes) -->
             <div class="col-md-4">
               <div class="tc-upload">
                 <label>Fotografía</label>
@@ -93,8 +74,6 @@
                   (change)="onFotoFileSelected($event)">
               </div>
             </div>
-
-            <!-- TARJETA DE CIRCULACIÓN (PDF) -->
             <div class="col-md-4">
               <div class="tc-upload">
                 <label>Tarjeta de Circulación</label>
@@ -122,8 +101,6 @@
                 <input type="file" #tcFileInput accept=".pdf" hidden (change)="onTcFileSelected($event)">
               </div>
             </div>
-
-            <!-- PÓLIZA DE SEGURO (PDF) -->
             <div class="col-md-4">
               <div class="tc-upload">
                 <label>Póliza de Seguro</label>
@@ -152,8 +129,6 @@
                 <input type="file" #polizaFileInput accept=".pdf" hidden (change)="onPolizaFileSelected($event)">
               </div>
             </div>
-
-            <!-- PERMISO / CONCESIÓN (PDF) -->
             <div class="col-md-4">
               <div class="tc-upload">
                 <label>Permiso / Concesión</label>
@@ -182,8 +157,6 @@
                 <input type="file" #permisoFileInput accept=".pdf" hidden (change)="onPermisoFileSelected($event)">
               </div>
             </div>
-
-            <!-- INSPECCIÓN MECÁNICA (PDF) -->
             <div class="col-md-4">
               <div class="tc-upload">
                 <label>Inspección Mecánica</label>
@@ -213,9 +186,7 @@
                   (change)="onInspeccionFileSelected($event)">
               </div>
             </div>
-
           </div>
-
         </div>
         <div class="form-actions mt-4">
           <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>

@@ -213,3 +213,14 @@ div:where(.swal2-container) .swal2-html-container {
   border: none;
   background-color: #002136;
 }
+
+#map {
+  height: 250px;
+  width: 100%;
+  border-radius: 10px;
+}
+#coords {
+  margin-top: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}

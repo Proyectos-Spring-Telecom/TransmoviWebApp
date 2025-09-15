@@ -252,3 +252,15 @@ div:where(.swal2-container) .swal2-html-container {
     word-break: break-word;
 }
 
+.tc-upload .file-name {
+  margin-top: 4px;
+  font-size: .85rem;
+  color: #9fc3ff; // opcional; usa el que tengas en tema
+  word-break: break-all; // por si nombres largos
+}
+select.disabled {
+  background-color: #343845; // gris clarito
+  cursor: not-allowed;
+  opacity: 0.8;
+  border: 1px solid #2f395a;
+}
