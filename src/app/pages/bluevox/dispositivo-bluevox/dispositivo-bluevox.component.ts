@@ -27,7 +27,7 @@ export class DispositivoBluevoxComponent implements OnInit {
   public loadingMessage: string = 'Cargando...';
   public paginaActual: number = 1;
     public totalRegistros: number = 0;
-    public pageSize: number = 2;
+    public pageSize: number = 20;
     public totalPaginas: number = 0;
     @ViewChild(DxDataGridComponent, { static: false }) dataGrid: DxDataGridComponent;
     public autoExpandAllGroups: boolean = true;

@@ -6,20 +6,31 @@
 
     <div class="card">
         <div class="card-body">
-            <div class="header-dispositivos">
-                <div style="display: grid; justify-content: center; align-items: center;">
-                    <i class="fas fa-car"></i>
-                    <span class="titulo">Gestión de Vehículos</span>
+            <div class="u-banner">
+                <div class="u-banner__icon">
+                    <div class="u-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
                 </div>
-                <div class="subtitulo">Consulta, busca y navega entre tus vehículos registrados</div>
-                <button class="button-18" role="button" (click)="agregarVehiculo()">Agregar Vehículo</button>
+                <div class="u-banner__body">
+                    <h2 class="u-banner__title">Gestión de Vehículos</h2>
+                    <p class="u-banner__subtitle">
+                        Consulta, busca y navega entre tus vehículos registrados
+                    </p>
+                    <div>
+                        <button class="u-btn u-btn--primary" (click)="agregarVehiculo()">
+                            <i class="fas fa-plus"></i>
+                            <span>Agregar Vehículo</span>
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="row mt-4">
                 <div class="col-lg-12">
                     <div class="table-responsive mb-4 col-12 col-lg-12">
                         <dx-data-grid id="gridContainer" [columnHidingEnabled]="true" [showBorders]="true"
                             [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
-                            [dataSource]="listaVehiculos" [keyExpr]="'Id'" [width]="'100%'">
+                            [dataSource]="listaVehiculos" [keyExpr]="'id'" [width]="'100%'">
                             <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
                             <dxo-paging [pageSize]="20"></dxo-paging>
                             <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20, 50, 100, 200]" [showInfo]="true"></dxo-pager>
@@ -28,31 +39,47 @@
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
                             <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="180"></dxi-column>
-                            <dxi-column dataField="Id" caption="ID" alignment="center"></dxi-column>
-                            <dxi-column dataField="Marca" caption="Marca" alignment="center"></dxi-column>
-                            <dxi-column dataField="Modelo" caption="Modelo" alignment="center"></dxi-column>
-                            <dxi-column dataField="Ano" caption="Año" alignment="center"></dxi-column>
-                            <dxi-column dataField="Placa" caption="Placa" alignment="center"></dxi-column>
+                            <dxi-column dataField="foto" caption="Imagen" cellTemplate="imagen" [width]="200"
+                                alignment="center">
+                                <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+                            </dxi-column>
+                            <dxi-column dataField="marca" caption="Marca" alignment="center"></dxi-column>
+                            <dxi-column dataField="modelo" caption="Modelo" alignment="center"></dxi-column>
+                            <dxi-column dataField="ano" caption="Año" alignment="center"></dxi-column>
+                            <dxi-column dataField="placa" caption="Placa" alignment="center"></dxi-column>
+                            <dxi-column dataField="placa" caption="Placa" alignment="center"></dxi-column>
+                            <dxi-column dataField="numeroEconomico" caption="N° Económico" alignment="center"></dxi-column>
+                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est">
+                                <div *dxTemplate="let f of 'est'">
+                                    <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
+                                        Activo
+                                    </span>
+                                    <span *ngIf="f.data.estatus !== 1" class="estatus estatus-inactivo">
+                                        Inactivo
+                                    </span>
+                                </div>
+                            </dxi-column>
+                            <div *dxTemplate="let data of 'imagen'" style="text-align: center;">
+                                <img *ngIf="data.value" style="max-width: 100px;" [src]="data.value" />
+                                <img *ngIf="data.value == null" style="max-width: 100px;"
+                                    src="https://izzimoviles.s3.us-east-1.amazonaws.com/Imagenes/user.jpeg" />
+                            </div>
                             <dxo-export [enabled]="false" [allowExportSelectedData]="true"
                                 [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
                             </dxo-export>
                             <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
                                 <div>
                                     <button valueExpr="id" id="actualizarButton" class="btnAcciones"
-                                        (click)="actualizarVehiculo(row.data.Id)">
+                                        (click)="actualizarVehiculo(row.data.id)">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </div>
                                 <div>
-                                    <button id="deleteButton" class="btnAcciones" (click)="eliminarVehiculo(row.data)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </div>
-                                <div>
-                                    <button *ngIf="row.data.Estatus === 0" id="pinButton" class="btnAcciones" (click)="activar(row.data)">
+                                    <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones"
+                                        (click)="activar(row.data)">
                                         <i class="fa fa-arrow-up"></i>
                                     </button>
-                                    <button *ngIf="row.data.Estatus === 1" id="deleteButton" class="btnAcciones"
+                                    <button *ngIf="row.data.estatus === 1" id="deleteButton" class="btnAcciones"
                                         (click)="desactivar(row.data)">
                                         <i class="fa fa-arrow-down"></i>
                                     </button>

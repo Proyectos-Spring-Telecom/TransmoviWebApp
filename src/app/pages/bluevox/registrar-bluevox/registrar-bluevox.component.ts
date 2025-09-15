@@ -11,7 +11,7 @@ import Swal from 'sweetalert2';
   selector: 'app-registrar-bluevox',
   templateUrl: './registrar-bluevox.component.html',
   styleUrl: './registrar-bluevox.component.scss',
-  animations: [fadeInUpAnimation]
+  animations: [fadeInUpAnimation],
 })
 export class RegistrarBluevoxComponent implements OnInit {
   public submitButton: string = 'Guardar';
@@ -24,68 +24,65 @@ export class RegistrarBluevoxComponent implements OnInit {
   previewUrl: string | ArrayBuffer | null = null;
 
   constructor(
-    private route: Router, 
-    private fb: FormBuilder, 
+    private route: Router,
+    private fb: FormBuilder,
     private dispoBlueService: DispositivoBluevoxService,
     private activatedRouted: ActivatedRoute,
-    private clieService: ClientesService,
-  ) {
-
-  }
+    private clieService: ClientesService
+  ) {}
 
   ngOnInit(): void {
-    this.obtenerClientes()
-    this.initForm()
-    this.activatedRouted.params.subscribe(
-      (params) => {
-        this.idDispositivo = params['idBluevox'];
-        if (this.idDispositivo) {
-          this.title = 'Actualizar Bluevox';
-          this.obtenerDispositivoID();
-        }
+    this.obtenerClientes();
+    this.initForm();
+    this.activatedRouted.params.subscribe((params) => {
+      this.idDispositivo = params['idBluevox'];
+      if (this.idDispositivo) {
+        this.title = 'Actualizar Bluevox';
+        this.obtenerDispositivoID();
       }
-    )
-
+    });
   }
 
-obtenerClientes() {
-  this.clieService.obtenerClientes().subscribe((response) => {
-    this.listaClientes = (response.data || []).map((c: any) => ({
-      ...c,
-      id: Number(c?.id ?? c?.Id ?? c?.ID) // asegura número
-    }));
-  });
-}
-
-obtenerDispositivoID() {
-  this.dispoBlueService.obtenerDispositivoBlue(this.idDispositivo).subscribe((response: any) => {
-    const d = response?.dispositivo ?? response?.data ?? response ?? {};
-
-    // toma idCliente/estatus sin importar la variante de nombre y castea a number
-    const idCli = d?.idCliente ?? d?.idcliente ?? d?.IdCliente ?? d?.IDCliente;
-    const est   = d?.estatus    ?? d?.Estatus;
-
-    this.dispositivoForm.patchValue({
-      // OJO: aquí estaba mal escrito como "nu0meroSerie"
-      numeroSerie: d?.numeroSerie ?? d?.NumeroSerie ?? '',
-      marca: d?.marca ?? d?.Marca ?? '',
-      modelo: d?.modelo ?? d?.Modelo ?? '',
-      estatus: (est != null ? Number(est) : 1),
-      idCliente: (idCli != null ? Number(idCli) : null),
+  obtenerClientes() {
+    this.clieService.obtenerClientes().subscribe((response) => {
+      this.listaClientes = (response.data || []).map((c: any) => ({
+        ...c,
+        id: Number(c?.id ?? c?.Id ?? c?.ID), // asegura número
+      }));
     });
-  });
-}
+  }
 
-initForm() {
-  this.dispositivoForm = this.fb.group({
-    numeroSerie: ['', Validators.required],
-    marca: ['', Validators.required],
-    modelo: ['', Validators.required],
-    idCliente: [null, Validators.required], // el control ya espera number
-    estatus: [1, Validators.required],
-  });
-}
+  obtenerDispositivoID() {
+    this.dispoBlueService
+      .obtenerDispositivoBlue(this.idDispositivo)
+      .subscribe((response: any) => {
+        const d = response?.dispositivo ?? response?.data ?? response ?? {};
 
+        // toma idCliente/estatus sin importar la variante de nombre y castea a number
+        const idCli =
+          d?.idCliente ?? d?.idcliente ?? d?.IdCliente ?? d?.IDCliente;
+        const est = d?.estatus ?? d?.Estatus;
+
+        this.dispositivoForm.patchValue({
+          // OJO: aquí estaba mal escrito como "nu0meroSerie"
+          numeroSerie: d?.numeroSerie ?? d?.NumeroSerie ?? '',
+          marca: d?.marca ?? d?.Marca ?? '',
+          modelo: d?.modelo ?? d?.Modelo ?? '',
+          estatus: est != null ? Number(est) : 1,
+          idCliente: idCli != null ? Number(idCli) : null,
+        });
+      });
+  }
+
+  initForm() {
+    this.dispositivoForm = this.fb.group({
+      numeroSerie: ['', Validators.required],
+      marca: ['', Validators.required],
+      modelo: ['', Validators.required],
+      idCliente: [null, Validators.required], // el control ya espera number
+      estatus: [1, Validators.required],
+    });
+  }
 
   submit() {
     this.submitButton = 'Cargando...';
@@ -103,8 +100,7 @@ initForm() {
     if (this.dispositivoForm.invalid) {
       this.submitButton = 'Guardar';
       this.loading = false;
-      const etiquetas: any =
-      {
+      const etiquetas: any = {
         numeroSerie: 'Número de Serie',
         marca: 'Marca',
         modelo: 'Modelo',
@@ -112,20 +108,24 @@ initForm() {
       };
 
       const camposFaltantes: string[] = [];
-      Object.keys(this.dispositivoForm.controls).forEach(key => {
+      Object.keys(this.dispositivoForm.controls).forEach((key) => {
         const control = this.dispositivoForm.get(key);
         if (control?.invalid && control.errors?.['required']) {
           camposFaltantes.push(etiquetas[key] || key);
         }
       });
 
-      const lista = camposFaltantes.map((campo, index) => `
+      const lista = camposFaltantes
+        .map(
+          (campo, index) => `
           <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
                       background: #caa8a8; text-align: center; margin-bottom: 8px;
                       border-radius: 4px;">
             <strong style="color: #b02a37;">${index + 1}. ${campo}</strong>
           </div>
-        `).join('');
+        `
+        )
+        .join('');
 
       Swal.fire({
         title: '¡Faltan campos obligatorios!',
@@ -140,49 +140,52 @@ initForm() {
         icon: 'error',
         confirmButtonText: 'Entendido',
         customClass: {
-          popup: 'swal2-padding swal2-border'
-        }
+          popup: 'swal2-padding swal2-border',
+        },
       });
       return;
     }
     this.dispositivoForm.removeControl('id');
-    this.dispoBlueService.agregarDispositivoBlue(this.dispositivoForm.value).subscribe(
-      (response) => {
-        this.submitButton = 'Guardar';
-        this.loading = false;
-        Swal.fire({
-          title: '¡Operación Exitosa!',
-          background: '#22252f',
-          text: `Se agregó un nuevo dispositivo de manera exitosa.`,
-          icon: 'success',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Confirmar',
-        });
-        this.regresar();
-      },
-      (error) => {
-        this.submitButton = 'Guardar';
-        this.loading = false;
-        Swal.fire({
-          title: '¡Ops!',
-          background: '#22252f',
-          text: `Ocurrió un error al agregar el dispositivo.`,
-          icon: 'error',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Confirmar',
-        });
-      }
-    );
+    this.dispoBlueService
+      .agregarDispositivoBlue(this.dispositivoForm.value)
+      .subscribe(
+        (response) => {
+          this.submitButton = 'Guardar';
+          this.loading = false;
+          Swal.fire({
+            title: '¡Operación Exitosa!',
+            background: '#22252f',
+            text: `Se agregó un nuevo dispositivo de manera exitosa.`,
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Confirmar',
+          });
+          this.regresar();
+        },
+        (error) => {
+          this.submitButton = 'Guardar';
+          this.loading = false;
+          Swal.fire({
+            title: '¡Ops!',
+            background: '#22252f',
+            text: `Ocurrió un error al agregar el dispositivo.`,
+            icon: 'error',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Confirmar',
+          });
+        }
+      );
   }
 
   actualizar() {
     this.submitButton = 'Cargando...';
     this.loading = true;
+
     if (this.dispositivoForm.invalid) {
       this.submitButton = 'Guardar';
       this.loading = false;
-      const etiquetas: any =
-      {
+
+      const etiquetas: any = {
         numeroSerie: 'Número de Serie',
         marca: 'Marca',
         modelo: 'Modelo',
@@ -190,69 +193,76 @@ initForm() {
       };
 
       const camposFaltantes: string[] = [];
-      Object.keys(this.dispositivoForm.controls).forEach(key => {
+      Object.keys(this.dispositivoForm.controls).forEach((key) => {
         const control = this.dispositivoForm.get(key);
         if (control?.invalid && control.errors?.['required']) {
           camposFaltantes.push(etiquetas[key] || key);
         }
       });
 
-      const lista = camposFaltantes.map((campo, index) => `
-          <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
-                      background: #caa8a8; text-align: center; margin-bottom: 8px;
-                      border-radius: 4px;">
-            <strong style="color: #b02a37;">${index + 1}. ${campo}</strong>
-          </div>
-        `).join('');
+      const lista = camposFaltantes
+        .map(
+          (campo, index) => `
+        <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
+                    background: #caa8a8; text-align: center; margin-bottom: 8px;
+                    border-radius: 4px;">
+          <strong style="color: #b02a37;">${index + 1}. ${campo}</strong>
+        </div>
+      `
+        )
+        .join('');
 
       Swal.fire({
         title: '¡Faltan campos obligatorios!',
         background: '#22252f',
         html: `
-            <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
-              Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
-              Por favor complétalos antes de continuar:
-            </p>
-            <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
-          `,
+          <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
+            Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
+            Por favor complétalos antes de continuar:
+          </p>
+          <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
+        `,
         icon: 'error',
         confirmButtonText: 'Entendido',
-        customClass: {
-          popup: 'swal2-padding swal2-border'
-        }
+        customClass: { popup: 'swal2-padding swal2-border' },
       });
+
+      return;
     }
-    this.dispoBlueService.actualizarDispositivoBlue(this.idDispositivo, this.dispositivoForm.value).subscribe(
-      (response) => {
-        this.submitButton = 'Actualizar';
-        this.loading = false;
-        Swal.fire({
-          title: '¡Operación Exitosa!',
-          background: '#22252f',
-          text: `Los datos del dispositivo se actualizaron correctamente.`,
-          icon: 'success',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Confirmar',
-        });
-        this.regresar();
-      },
-      (error) => {
-        this.submitButton = 'Actualizar';
-        this.loading = false;
-        Swal.fire({
-          title: '¡Ops!',
-          background: '#22252f',
-          text: `Ocurrió un error al actualizar el dispositivo.`,
-          icon: 'error',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Confirmar',
-        });
-      }
-    );
+    const { estatus, ...payload } = this.dispositivoForm.getRawValue();
+
+    this.dispoBlueService
+      .actualizarDispositivoBlue(this.idDispositivo, payload)
+      .subscribe(
+        (response) => {
+          this.submitButton = 'Actualizar';
+          this.loading = false;
+          Swal.fire({
+            title: '¡Operación Exitosa!',
+            background: '#22252f',
+            text: `Los datos del dispositivo se actualizaron correctamente.`,
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Confirmar',
+          });
+          this.regresar();
+        },
+        (error) => {
+          this.submitButton = 'Actualizar';
+          this.loading = false;
+          Swal.fire({
+            title: '¡Ops!',
+            background: '#22252f',
+            text: `Ocurrió un error al actualizar el dispositivo.`,
+            icon: 'error',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Confirmar',
+          });
+        }
+      );
   }
 
   regresar() {
     this.route.navigateByUrl('/bluevox/dispositivo-bluevox');
   }
-
 }

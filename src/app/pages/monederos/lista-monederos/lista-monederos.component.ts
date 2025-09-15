@@ -21,8 +21,7 @@ export class ListaMonederosComponent implements OnInit {
   public showFilterRow: boolean;
   public showHeaderFilter: boolean;
   public loadingVisible: boolean = false;
-  public mensajeAgrupar: string =
-    'Arrastre un encabezado de columna aquí para agrupar por esa columna';
+  public mensajeAgrupar: string ='Arrastre un encabezado de columna aquí para agrupar por esa columna';
   public submitButton: string = 'Aceptar';
   public recargaForm: FormGroup;
   public debitoForm: FormGroup;
@@ -79,27 +78,24 @@ export class ListaMonederosComponent implements OnInit {
     });
   }
 
+  agregarMonedero(){
+    this.route.navigateByUrl('/monederos/agregar-monedero')
+  }
+
   obtenerMonederos() {
     this.loading = true;
-
     this.listaMonederos = new CustomStore({
       key: 'id',
       load: async (loadOptions: any) => {
-        // DevExtreme manda estos valores cuando usas remote paging
         const take = Number(loadOptions?.take) || this.pageSize || 10;
         const skip = Number(loadOptions?.skip) || 0;
         const page = Math.floor(skip / take) + 1;
-
         try {
           const resp: any = await lastValueFrom(
             this.moneService.obtenerMonederosData(page, take)
           );
-
           this.loading = false;
-
           const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
-
-          // ---- Manejo robusto de la meta de paginación ----
           const meta = resp?.paginated || {};
           const totalRegistros =
             toNum(meta.total) ??
@@ -110,29 +106,23 @@ export class ListaMonederosComponent implements OnInit {
             toNum(meta.page) ??
             toNum(resp?.page) ??
             page;
-
           const totalPaginas =
             toNum(meta.lastPage) ??
             toNum(resp?.pages) ??
             Math.max(1, Math.ceil(totalRegistros / take));
-          // --------------------------------------------------
-
           const dataTransformada = rows.map((item: any) => ({
             ...item,
             estatusTexto:
               item?.estatus === 1 ? 'Activo' :
                 item?.estatus === 0 ? 'Inactivo' : null
           }));
-
-          // Si llevas estos contadores en el componente:
           this.totalRegistros = totalRegistros;
           this.paginaActual = paginaActual;
           this.totalPaginas = totalPaginas;
           this.paginaActualData = dataTransformada;
-
           return {
             data: dataTransformada,
-            totalCount: totalRegistros // <- IMPORTANTE para que el grid pagine bien
+            totalCount: totalRegistros
           };
         } catch (err) {
           this.loading = false;
@@ -177,6 +167,7 @@ export class ListaMonederosComponent implements OnInit {
       this.dataGrid.instance.option('dataSource', dataFiltrada);
     }
   }
+
   cerrarModalRecarga() {
     if (this.modalRef) {
       this.modalRef.close();
@@ -189,10 +180,6 @@ export class ListaMonederosComponent implements OnInit {
       this.modalRef.close();
       this.modalRef = null;
     }
-  }
-
-  agregarMonederos() {
-    this.route.navigateByUrl('/agregarMonedero')
   }
 
   centerModalRecarga(
@@ -236,21 +223,13 @@ export class ListaMonederosComponent implements OnInit {
   }
 
   crearTransaccionRecarga() {
-    // 1) Inyectar la serie desde el botón
     const serie = (this.selectedSerie ?? '').toString().trim();
-
-    // 2) Obtener la fecha/hora actual en formato ISO con Z
     const fechaActual = new Date().toISOString();
-
-    // 3) Actualizar el form
     this.recargaForm.patchValue({
       numeroSerieMonedero: serie,
       fechaHora: fechaActual
     });
-
     const formValue = this.recargaForm.value;
-
-    // 4) Validaciones
     if (!formValue?.numeroSerieMonedero) {
       Swal.fire({
         background: '#22252f',
@@ -275,16 +254,13 @@ export class ListaMonederosComponent implements OnInit {
       return;
     }
 
-    // 5) Enviar al servicio
     this.loading = true;
     this.submitButton = 'Cargando...';
-
     this.moneService.agregarTransacciones(formValue).subscribe(
       (response: any) => {
         this.loading = false;
         this.submitButton = 'Guardar';
         this.ngOnInit();
-
         if (response) {
           this.cerrarModalRecarga();
           Swal.fire({
@@ -314,7 +290,6 @@ export class ListaMonederosComponent implements OnInit {
     );
   }
 
-
   crearTransaccionDebito() {
     const formValue = this.debitoForm.value;
     if (formValue.Monto <= 0) {
@@ -328,11 +303,9 @@ export class ListaMonederosComponent implements OnInit {
       });
       return;
     }
-
     this.loading = true;
     this.submitButton = 'Cargando...';
-
-    this.moneService.actualizarMonedero(formValue).subscribe(
+    this.moneService.actualizarMonederoForm(formValue).subscribe(
       (response: any) => {
         this.loading = false;
         this.submitButton = 'Guardar';

@@ -90,7 +90,7 @@ export const MENU: MenuItem[] = [
         id: 5,
         label: 'Monederos',
         icon: 'uil-moneybag-alt',
-        link: '/monederos/lista-monederos',
+        link: '/monederos',
         // permiso: Permiso.VerMonederos
     },
     {

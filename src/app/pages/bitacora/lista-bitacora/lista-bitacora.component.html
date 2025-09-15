@@ -1,44 +1,51 @@
-<!-- <div id="loading" class="loading-overlay" *ngIf="isLoading">
-    <div class="loading-spinner"></div>
-</div> -->
-
 <div [@fadeInUp] class="container-fluid">
-
     <div class="card">
         <div class="card-body">
-            <div class="header-dispositivos">
-                <div style="display: grid; justify-content: center; align-items: center;">
-                    <i class="fas fa-list"></i>
-                    <span class="titulo">Gestión de Bitácora</span>
+            <div class="u-banner">
+                <div class="u-banner__icon">
+                    <div class="u-icon">
+                        <i class="fa fa-list-ol"></i>
+                    </div>
                 </div>
-                <div class="subtitulo">Consulta, busca y navega entre los movimientos registrados.</div>
+                <div class="u-banner__body">
+                    <h2 class="u-banner__title">Gestión de Bítacora</h2>
+                    <p class="u-banner__subtitle">
+                        Consulta, busca y navega entre tus usuarios registrados
+                    </p>
+                </div>
             </div>
-
-
             <div class="row mt-4">
                 <div class="col-lg-12">
                     <div class="table-responsive mb-4 col-12 col-lg-12">
-                        <dx-data-grid id="gridContainer" [columnHidingEnabled]="true" [showBorders]="true" [showColumnLines]="true" [showRowLines]="true"
-                            [rowAlternationEnabled]="true" [dataSource]="bitacoraList" [keyExpr]="'Id'" [width]="'100%'">
+                        <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
+                            [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
+                            [rowAlternationEnabled]="'true'" [dataSource]="bitacoraList" [keyExpr]="'id'"
+                            [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
+                            [pager]="{ 
+                                showPageSizeSelector: true, 
+                                allowedPageSizes: [50], 
+                                showInfo: true,
+                                infoText: 'Página {0} de {1}', 
+                                visible: true 
+                            }" (onPageIndexChanged)=" onPageIndexChanged($event)"
+                            (onOptionChanged)="onGridOptionChanged($event)">
                             <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
-                            <dxo-paging [pageSize]="20"></dxo-paging>
-                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20, 50, 100, 200]" [showInfo]="true"></dxo-pager>
+                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
                             <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column dataField="Id" caption="ID" alignment="center" [width]="150"></dxi-column>
-                            <dxi-column dataField="Modulo" caption="Módulo" alignment="center" [width]="200"></dxi-column>
-                            <dxi-column dataField="Accion" caption="Acción" alignment="center" [width]="250"></dxi-column>
-                            <dxi-column dataField="Query" caption="Usuario" alignment="center" [width]="250" cellTemplate="data">
+                            <dxi-column dataField="modulo" caption="Módulo" alignment="center" [width]="200"></dxi-column>
+                            <dxi-column dataField="accion" caption="Acción" alignment="center" [width]="250"></dxi-column>
+                            <dxi-column dataField="query" caption="Usuario" alignment="center" [width]="250" cellTemplate="data">
                                 <div *dxTemplate="let a of 'data' ">
-                                    {{getUserFromQuery(a.data.Query)}}
+                                    {{getUserFromQuery(a.data.query)}}
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="Descripcion" caption="Descripción" alignment="center"></dxi-column>
-                            <dxi-column dataField="Fecha" caption="Fecha" alignment="center" [width]="250" cellTemplate="fech">
+                            <dxi-column dataField="descripcion" caption="Descripción" alignment="center"></dxi-column>
+                            <dxi-column dataField="fechaCreacion" caption="Fecha" alignment="center" [width]="250" cellTemplate="fech">
                                 <div *dxTemplate="let i of 'fech' ">
-                                    {{i.data.Fecha | date: 'dd/MM/yyyy HH:mm:ss a' : '+0000'}}
+                                    {{i.data.fechaCreacion | date: 'dd/MM/yyyy HH:mm:ss a' : '+0000'}}
                                 </div>
                             </dxi-column>
                             <dxo-export [enabled]="false" [allowExportSelectedData]="true"

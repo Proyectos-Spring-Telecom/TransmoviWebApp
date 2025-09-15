@@ -54,19 +54,16 @@ export class AgregarTransaccionComponent implements OnInit {
     });
   }
 
-  // Muestra en el input (de ISO-Z a 'YYYY-MM-DDTHH:mm' local)
   toDatetimeLocal(isoZ: string | null): string {
     if (!isoZ) return '';
-    const d = new Date(isoZ);                           // UTC -> Date
+    const d = new Date(isoZ);
     const off = d.getTimezoneOffset();
-    const local = new Date(d.getTime() - off * 60000);  // ajustar a zona local
-    return local.toISOString().slice(0, 16);            // 'YYYY-MM-DDTHH:mm'
+    const local = new Date(d.getTime() - off * 60000);
+    return local.toISOString().slice(0, 16);
   }
 
-  // Envía al servicio (de 'YYYY-MM-DDTHH:mm' local a ISO-Z sin ms)
   toIsoZulu(localStr: string | null): string | null {
     if (!localStr) return null;
-    // interpreta el string como hora local y lo convierte a UTC con 'Z'
     return new Date(localStr).toISOString().replace(/\.\d{3}Z$/, 'Z');
   }
 

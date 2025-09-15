@@ -10,8 +10,12 @@ export class BitacoraService {
 
   constructor(private http: HttpClient) { }
 
+  obtenerBitacoraData(page: number, pageSize: number): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/bitacora/${page}/${pageSize}`);
+  }
+
   obtenerBitacora(): Observable<any> {
-    return this.http.get<any>(`${environment.API_SECURITY}/bitacora`);
+    return this.http.get(`${environment.API_SECURITY}/bitacora/list`);
   }
   
 }

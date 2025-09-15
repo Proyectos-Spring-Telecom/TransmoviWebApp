@@ -9,10 +9,13 @@ import { environment } from '../../../environments/environment';
 export class VehiculosService {
 
   constructor(private http: HttpClient) { }
-  private apiUrl = `${environment.API_SECURITY}/api/vehiculos`;
+
+  obtenerVehiculosData(page: number, pageSize: number): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/vehiculos/${page}/${pageSize}`);
+  }
 
   obtenerVehiculos(): Observable<any> {
-    return this.http.get<any>(`${environment.API_SECURITY}/vehiculos`);
+    return this.http.get(`${environment.API_SECURITY}/vehiculos/list`);
   }
 
   agregarVehiculo(data: FormData) {
@@ -20,24 +23,23 @@ export class VehiculosService {
   }
 
   eliminarVehiculo(idVehiculo: Number) {
-		return this.http.delete(environment.API_SECURITY + '/vehiculos/' + idVehiculo);
-	}
+    return this.http.delete(environment.API_SECURITY + '/vehiculos/' + idVehiculo);
+  }
 
   obtenerVehiculo(idVehiculo: number): Observable<any> {
-		return this.http.get<any>(environment.API_SECURITY + '/vehiculos/' + idVehiculo);
-	}
+    return this.http.get<any>(environment.API_SECURITY + '/vehiculos/' + idVehiculo);
+  }
 
   actualizarVehiculo(idVehiculo: number, saveForm: any): Observable<any> {
     return this.http.put(`${environment.API_SECURITY}/vehiculos/` + idVehiculo, saveForm);
   }
 
-  updateEstatus(id: number): Observable<string> {
-		const url = `${this.apiUrl}/${id}`;
-		return this.http.patch(url, {}, { responseType: 'text' }).pipe(
-			catchError(error => {
-			  return throwError(error);
-			})
+  private apiUrl = `${environment.API_SECURITY}/vehiculos`;
+  updateEstatus(id: number, estatus: number): Observable<string> {
+    const url = `${this.apiUrl}/estatus/${id}`;
+    const body = { estatus };
+    return this.http.patch(url, body, { responseType: 'text' }).pipe(
+      catchError(error => throwError(() => error))
     );
-	}
-  
+  }
 }

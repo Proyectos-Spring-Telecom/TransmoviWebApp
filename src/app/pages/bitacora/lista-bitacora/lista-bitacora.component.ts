@@ -1,4 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { DxDataGridComponent } from 'devextreme-angular';
+import CustomStore from 'devextreme/data/custom_store';
+import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { BitacoraService } from 'src/app/shared/services/bitacora.service';
 
@@ -9,17 +12,10 @@ import { BitacoraService } from 'src/app/shared/services/bitacora.service';
   animations: [fadeInUpAnimation],
 })
 export class ListaBitacoraComponent implements OnInit {
-  public bitacoraList: any[] = [];
-  public filteredBitacora: any[] = [];
-  public paginatedBitacora: any[] = [];
+  public bitacoraList: any;
   public searchTerm: string = '';
   public startDate: string = '';
   public endDate: string = '';
-  public pageSizeOptions: number[] = [10, 20, 50, 100];
-  public pageSize: number = 10;
-  public currentPage: number = 0;
-  public totalRecords: number = 0;
-  public totalPages: number = 0;
   public isLoading: boolean = false;
   public grid: boolean = true;
   public showHeaderFilter: boolean;
@@ -29,6 +25,16 @@ export class ListaBitacoraComponent implements OnInit {
     'Arrastre un encabezado de columna aquí para agrupar por esa columna';
   public loading: boolean = false;
   public loadingMessage: string = 'Cargando...';
+  public paginaActual: number = 1;
+  public totalRegistros: number = 0;
+  public pageSize: number = 20;
+  public totalPaginas: number = 0;
+  @ViewChild(DxDataGridComponent, { static: false })
+  dataGrid: DxDataGridComponent;
+  public autoExpandAllGroups: boolean = true;
+  isGrouped: boolean = false;
+  public paginaActualData: any[] = [];
+  public filtroActivo: string = '';
 
   constructor(private bitacoraService: BitacoraService) {
     this.showFilterRow = true;
@@ -39,24 +45,93 @@ export class ListaBitacoraComponent implements OnInit {
     this.obtenerBitacora();
   }
 
-  obtenerBitacora(): void {
+  obtenerBitacora() {
     this.loading = true;
-    this.bitacoraService.obtenerBitacora().subscribe(
-      (res: any) => {
-        this.bitacoraList = res.bitacora.sort((a: any, b: any) => {
-          const fechaA = new Date(a.Fecha).getTime();
-          const fechaB = new Date(b.Fecha).getTime();
-          return fechaB - fechaA;
-        });
-        setTimeout(()=> {
+    this.bitacoraList = new CustomStore({
+      key: 'id',
+      load: async (loadOptions: any) => {
+        const take = Number(loadOptions?.take) || this.pageSize || 10;
+        const skip = Number(loadOptions?.skip) || 0;
+        const page = Math.floor(skip / take) + 1;
+        try {
+          const resp: any = await lastValueFrom(
+            this.bitacoraService.obtenerBitacoraData(page, take)
+          );
           this.loading = false;
-        },2000)
+          const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
+          const meta = resp?.paginated || {};
+          const totalRegistros =
+            toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
+          const paginaActual = toNum(meta.page) ?? toNum(resp?.page) ?? page;
+          const totalPaginas =
+            toNum(meta.lastPage) ??
+            toNum(resp?.pages) ??
+            Math.max(1, Math.ceil(totalRegistros / take));
+          const dataTransformada = rows.map((item: any) => ({
+            ...item,
+            estatusTexto:
+              item?.estatus === 1
+                ? 'Activo'
+                : item?.estatus === 0
+                ? 'Inactivo'
+                : null,
+          }));
+          this.totalRegistros = totalRegistros;
+          this.paginaActual = paginaActual;
+          this.totalPaginas = totalPaginas;
+          this.paginaActualData = dataTransformada;
+          return {
+            data: dataTransformada,
+            totalCount: totalRegistros,
+          };
+        } catch (err) {
+          this.loading = false;
+          console.error('Error en la solicitud de datos:', err);
+          return { data: [], totalCount: 0 };
+        }
       },
-      (error) => {
-        console.error('Error al obtener bitácora:', error);
-        this.loading = false;
+    });
+
+    function toNum(v: any): number | null {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    }
+  }
+
+  onPageIndexChanged(e: any) {
+    const pageIndex = e.component.pageIndex();
+    this.paginaActual = pageIndex + 1;
+    e.component.refresh();
+  }
+
+  onGridOptionChanged(e: any) {
+    if (e.fullName === 'searchPanel.text') {
+      this.filtroActivo = e.value || '';
+      if (!this.filtroActivo) {
+        this.dataGrid.instance.option('dataSource', this.bitacoraList);
+        return;
       }
-    );
+      const search = this.filtroActivo.toString().toLowerCase();
+      const dataFiltrada = this.paginaActualData.filter((item: any) => {
+        const idStr = item.id ? item.id.toString().toLowerCase() : '';
+        const nombreStr = item.nombre
+          ? item.nombre.toString().toLowerCase()
+          : '';
+        const descripcionStr = item.descripcion
+          ? item.descripcion.toString().toLowerCase()
+          : '';
+        const moduloStr = item.estatusTexto
+          ? item.estatusTexto.toString().toLowerCase()
+          : '';
+        return (
+          nombreStr.includes(search) ||
+          descripcionStr.includes(search) ||
+          moduloStr.includes(search) ||
+          idStr.includes(search)
+        );
+      });
+      this.dataGrid.instance.option('dataSource', dataFiltrada);
+    }
   }
 
   getUserFromQuery(query: string): string {

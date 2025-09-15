@@ -34,7 +34,11 @@ export class MonederosServices {
     return this.http.get<any>(environment.API_SECURITY + '/monederos/' + idMonedero);
   }
 
-  actualizarMonedero(saveForm: any): Observable<any> {
+  actualizarMonedero(idMonedero: number, saveForm: any): Observable<any> {
+    return this.http.put(`${environment.API_SECURITY}/monederos/${idMonedero}`, saveForm);
+  }
+
+  actualizarMonederoForm(saveForm: any): Observable<any> {
     return this.http.put(`${environment.API_SECURITY}/monederos/`, saveForm);
   }
 

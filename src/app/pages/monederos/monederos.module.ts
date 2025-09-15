@@ -6,10 +6,11 @@ import { ListaMonederosComponent } from './lista-monederos/lista-monederos.compo
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModalModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { DxDataGridModule, DxLoadPanelModule } from 'devextreme-angular';
+import { AgregarMonederoComponent } from './agregar-monedero/agregar-monedero.component';
 
 
 @NgModule({
-  declarations: [ListaMonederosComponent],
+  declarations: [ListaMonederosComponent, AgregarMonederoComponent],
   imports: [
     CommonModule,
     MonederosRoutingModule,

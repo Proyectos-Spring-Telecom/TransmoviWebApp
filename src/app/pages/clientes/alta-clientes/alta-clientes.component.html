@@ -95,7 +95,7 @@
                         </div>
                     </div>
                 </div>
-                <h6 class="section-title mt-2">Dirección</h6>
+                <h6 class="section-title mt-4">Dirección</h6>
                 <div class="row">
                     <div class="col-md-4">
                         <label>Estado</label>
@@ -163,11 +163,12 @@
                 </div>
                 <h6 class="section-title mt-5">Archivos</h6>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-12 col-sm-6 col-lg-4 col-xxl-4">
                         <div class="tc-upload">
                             <label>Constancia de Situación Fiscal</label>
                             <div class="tc-preview" *ngIf="csfPreviewUrl; else csfTile">
                                 <img [src]="csfPreviewUrl" alt="Constancia" />
+                                <div class="file-name" *ngIf="csfFileName">{{ csfFileName }}</div> <!-- NOMBRE -->
                                 <div class="tc-actions">
                                     <button type="button" class="btn-change"
                                         (click)="openCsfFilePicker()">Cambiar</button>
@@ -183,22 +184,22 @@
                                     <div class="circle"><i class="fas fa-file-invoice"></i></div>
                                     <div class="meta">
                                         <div class="title">Arrastra o haz clic para subir la constancia</div>
-                                        <div class="hint">PDF/DOC/XLS o imagen · máx 3 MB</div>
+                                        <div class="hint">PDF</div>
+                                        <div class="file-name" *ngIf="csfFileName">{{ csfFileName }}</div>
                                     </div>
                                 </div>
                             </ng-template>
-                            <input type="file" #csfFileInput accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
-                                hidden (change)="onCsfFileSelected($event)">
+                            <input type="file" #csfFileInput accept=".pdf"hidden (change)="onCsfFileSelected($event)">
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-12 col-sm-6 col-lg-4 col-xxl-4">
                         <div class="tc-upload">
                             <label>Comprobante de Domicilio</label>
                             <div class="tc-preview" *ngIf="compDomPreviewUrl; else compDomTile">
                                 <img [src]="compDomPreviewUrl" alt="Comprobante de Domicilio" />
+                                <div class="file-name" *ngIf="compDomFileName">{{ compDomFileName }}</div>
                                 <div class="tc-actions">
-                                    <button type="button" class="btn-change"
-                                        (click)="openCompDomFilePicker()">Cambiar</button>
+                                    <button type="button" class="btn-change"(click)="openCompDomFilePicker()">Cambiar</button>
                                     <button type="button" class="btn-remove" (click)="clearCompDomFile($event)">
                                         <i class="fas fa-times"></i>
                                     </button>
@@ -211,23 +212,22 @@
                                     <div class="circle"><i class="fas fa-home"></i></div>
                                     <div class="meta">
                                         <div class="title">Arrastra o haz clic para subir el comprobante</div>
-                                        <div class="hint">PDF/DOC/XLS o imagen · máx 3 MB</div>
+                                        <div class="hint">PDF</div>
+                                        <div class="file-name" *ngIf="compDomFileName">{{ compDomFileName }}</div>
                                     </div>
                                 </div>
                             </ng-template>
-                            <input type="file" #compDomFileInput
-                                accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx" hidden
-                                (change)="onCompDomFileSelected($event)">
+                            <input type="file" #compDomFileInput accept=".pdf" hidden (change)="onCompDomFileSelected($event)">
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-12 col-sm-6 col-lg-4 col-xxl-4">
                         <div class="tc-upload">
                             <label>Acta Constitutiva</label>
                             <div class="tc-preview" *ngIf="actaPreviewUrl; else actaTile">
                                 <img [src]="actaPreviewUrl" alt="Acta Constitutiva" />
+                                <div class="file-name" *ngIf="actaFileName">{{ actaFileName }}</div>
                                 <div class="tc-actions">
-                                    <button type="button" class="btn-change"
-                                        (click)="openActaFilePicker()">Cambiar</button>
+                                    <button type="button" class="btn-change" (click)="openActaFilePicker()">Cambiar</button>
                                     <button type="button" class="btn-remove" (click)="clearActaFile($event)">
                                         <i class="fas fa-times"></i>
                                     </button>
@@ -240,12 +240,12 @@
                                     <div class="circle"><i class="fas fa-file-contract"></i></div>
                                     <div class="meta">
                                         <div class="title">Arrastra o haz clic para subir el acta</div>
-                                        <div class="hint">PDF/DOC/XLS o imagen · máx 3 MB</div>
+                                        <div class="hint">PDF</div>
+                                        <div class="file-name" *ngIf="actaFileName">{{ actaFileName }}</div>
                                     </div>
                                 </div>
                             </ng-template>
-                            <input type="file" #actaFileInput accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
-                                hidden (change)="onActaFileSelected($event)">
+                            <input type="file" #actaFileInput accept=".pdf" hidden (change)="onActaFileSelected($event)">
                         </div>
                     </div>
                 </div>

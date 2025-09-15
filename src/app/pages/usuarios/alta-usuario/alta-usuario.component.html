@@ -9,40 +9,33 @@
         <span>Completa la información para registrar un nuevo usuario.</span>
       </div>
     </div>
-
     <div class="card-body">
       <form [formGroup]="usuarioForm" class="cliente-form" (ngSubmit)="submit()">
         <h6 class="section-title">Datos Generales</h6>
-
         <div class="row">
           <div class="col-md-4 mt-1">
             <label>Nombre</label>
             <input type="text" class="form-control" formControlName="nombre"
               placeholder="Ej: Comercializadora Ejemplo" />
           </div>
-
           <div class="col-md-4 mt-1">
             <label>Apellido Paterno</label>
             <input type="text" class="form-control" formControlName="apellidoPaterno" placeholder="Ej: Rodríguez" />
           </div>
-
           <div class="col-md-4 mt-1">
             <label>Apellido Materno</label>
             <input type="text" class="form-control" formControlName="apellidoMaterno" placeholder="Ej: Santos" />
           </div>
-
           <div class="col-md-4 mt-3">
             <label>Teléfono</label>
             <input maxlength="10" (keypress)="allowOnlyNumbers($event)" class="form-control" formControlName="telefono"
               placeholder="Ej: 5555555555" />
           </div>
-
           <div class="col-md-4 mt-3" *ngIf="inputContrasena">
             <label>Correo</label>
             <input type="email" class="form-control" formControlName="userName"
               placeholder="Ej: contacto@ejemplo.com" />
           </div>
-
           <div class="col-md-4 mt-3">
             <label>Rol</label>
             <select class="form-control" formControlName="idRol">
@@ -60,9 +53,7 @@
                 {{ (c.nombre || '') + ' ' + (c.apellidoPaterno || '') }}
               </option>
             </select>
-
           </div>
-
           <div class="col-md-4 mt-3" *ngIf="inputContrasena">
             <label id="pws1">Contraseña</label>
             <div class="password-wrapper">
@@ -76,10 +67,8 @@
                 <i class="fa fa-eye-slash"></i>
               </span>
             </div>
-
             <span *ngIf="usuarioForm.get('passwordHash')?.errors?.required && usuarioForm.get('passwordHash')?.touched"
               class="text-danger">Campo requerido</span>
-
             <div class="mt-3 password-requirements">
               <p class="mb-0">
                 <i class="fa fa-check-circle" [ngClass]="{ checked: minCaracteres && maxCaracteres }"
@@ -100,7 +89,6 @@
               </p>
             </div>
           </div>
-
           <div class="col-md-4 mt-3" *ngIf="inputContrasena">
             <label id="pws2">Confirmar Contraseña</label>
             <div class="password-wrapper">
@@ -113,7 +101,6 @@
                 <i class="fa fa-eye-slash"></i>
               </span>
             </div>
-
             <span *ngIf="usuarioForm.hasError('passwordMismatch') && usuarioForm.get('confirmPassword')?.touched"
               class="text-danger">Las contraseñas no coinciden</span>
           </div>
@@ -144,13 +131,11 @@
             </div>
           </div>
         </div>
-
         <div class="mp">
           <div class="mp-head">
             <h6 class="section-title">Permisos</h6>
             <div class="mp-sub">Asigna las acciones y accesos disponibles para el usuario.</div>
           </div>
-
           <div class="mp-grid">
             <div class="mp-card" *ngFor="let modulo of listaModulos; trackBy: trackModulo">
               <div class="mp-ch">
@@ -165,7 +150,6 @@
                 </div>
                 <div class="mp-badge">{{ modulo?.permisos?.length || 0 }}</div>
               </div>
-
               <div class="mp-cb" *ngIf="modulo?.permisos?.length; else noPerms">
                 <div class="perm-list">
                   <div class="perm-row" *ngFor="let permiso of modulo.permisos; trackBy: trackPermiso">
@@ -174,26 +158,22 @@
                       <div class="perm-desc" [title]="permiso?.descripcion || ''">{{ permiso?.descripcion || '—' }}
                       </div>
                     </div>
-
                     <div class="perm-switch">
                       <label class="sw">
                         <input type="checkbox" [checked]="isPermisoAsignado(permiso?.id)"
                           (change)="onToggle(permiso, $any($event.target).checked)" />
-
                         <span class="sl"></span>
                       </label>
                     </div>
                   </div>
                 </div>
               </div>
-
               <ng-template #noPerms>
                 <div class="mp-empty">Este módulo no tiene permisos</div>
               </ng-template>
             </div>
           </div>
         </div>
-
         <div class="form-actions mt-5">
           <button type="submit" class="submit">{{ submitButton }}</button>
           <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
