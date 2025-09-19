@@ -27,6 +27,7 @@ export class TopbarComponent implements OnInit {
   flagvalue: any;
   countryName: any;
   valueset;
+  public showNombre: any;
 
   constructor(@Inject(DOCUMENT) private document: any,
     private router: Router,
@@ -34,7 +35,10 @@ export class TopbarComponent implements OnInit {
     private authFackservice: AuthfakeauthenticationService,
     public languageService: LanguageService,
     public translate: TranslateService,
+    private users: AuthenticationService,
     public _cookiesService: CookieService) {
+      const user = this.users.getUser();
+      this.showNombre = user.nombre + ' ' + user.apellidoPaterno; 
   }
 
   listLang = [

@@ -126,7 +126,7 @@ export class ListaPasajerosComponent implements OnInit {
   eliminarPasajero(pasajero: any) {
     Swal.fire({
       title: '¡Eliminar Pasajero!',
-      background: '#22252f',
+      background: '#002136',
       html: `¿Está seguro que desea eliminar el pasajero: <br> ${pasajero.Nombre + ' ' + pasajero.ApellidoPaterno + ' ' + pasajero.ApellidoMaterno}?`,
       icon: 'warning',
       showCancelButton: true,
@@ -140,7 +140,7 @@ export class ListaPasajerosComponent implements OnInit {
           (response) => {
             Swal.fire({
               title: '¡Eliminado!',
-              background: '#22252f',
+              background: '#002136',
               html: `El pasajero ha sido eliminado de forma exitosa.`,
               icon: 'success',
               showCancelButton: false,
@@ -152,7 +152,7 @@ export class ListaPasajerosComponent implements OnInit {
           (error) => {
             Swal.fire({
               title: '¡Ops!',
-              background: '#22252f',
+              background: '#002136',
               html: `Error al intentar eliminar el pasajero.`,
               icon: 'error',
               showCancelButton: false,

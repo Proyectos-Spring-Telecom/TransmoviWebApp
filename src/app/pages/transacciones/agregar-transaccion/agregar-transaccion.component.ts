@@ -134,10 +134,17 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
       });
       return;
     }
+
     const toIsoZulu = (localStr: string | null): string | null => {
       if (!localStr) return null;
       return new Date(localStr).toISOString().replace(/\.\d{3}Z$/, 'Z');
     };
+    const toNumber6 = (v: any): number | null => {
+      if (v === null || v === undefined || v === '') return null;
+      const n = Number(v);
+      return Number.isFinite(n) ? Number(n.toFixed(6)) : null;
+    };
+
     const raw = this.transaccionForm.value;
     const payload = {
       ...raw,
@@ -148,12 +155,16 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
         return isNaN(n) ? null : n;
       })(),
       fechaHora: toIsoZulu(raw?.fechaHora || null),
+      latitud: toNumber6(raw?.latitud),
+      longitud: toNumber6(raw?.longitud),
     };
+
     if (this.transaccionForm.contains('id')) {
       this.transaccionForm.removeControl('id');
     }
+
     this.transaccionService.agregarTransaccion(payload).subscribe(
-      () => {
+      (response: any) => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
@@ -166,16 +177,17 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
         });
         this.regresar();
       },
-      () => {
+      (error: string) => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
-          title: '¡Ops!',
+          title: `¡Ops!`,
           background: '#002136',
-          text: 'Ocurrió un error al agregar la transacción.',
+          text: `${error}`,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
+          allowOutsideClick: false
         });
       }
     );
@@ -265,49 +277,76 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
 
   lat: number | null = null;
   lng: number | null = null;
+  private map!: any;
+  private marker!: any;
+  private infoWindow!: any;
+  private geocoder!: any;
 
-   private map!: any;
-  private marker!: any; // referencia al marker
   async ngAfterViewInit(): Promise<void> {
     await this.loadGoogleMaps('TU_API_KEY_AQUI');
     this.initMap();
   }
 
   private initMap(): void {
-    const center = { lat: 19.4326, lng: -99.1332 }; // CDMX
+    const center = { lat: 19.2840, lng: -99.6550 };
     const el = document.getElementById('map') as HTMLElement;
-
-    this.map = new google.maps.Map(el, { center, zoom: 6 });
-
+    this.map = new google.maps.Map(el, { center, zoom: 14 });
+    this.geocoder = new google.maps.Geocoder();
+    this.infoWindow = new google.maps.InfoWindow();
     this.map.addListener('click', (e: any) => {
       this.zone.run(() => {
-        this.lat = e.latLng.lat();
-        this.lng = e.latLng.lng();
+        const lat = e.latLng.lat();
+        const lng = e.latLng.lng();
+        this.lat = lat;
+        this.lng = lng;
+        this.transaccionForm.patchValue({ latitud: lat, longitud: lng });
         this.placeMarker(e.latLng);
+        this.openInfoAt(e.latLng);
       });
     });
   }
 
-  private placeMarker(location: any): void {
-  if (this.marker) {
-    this.marker.setPosition(location);
-  } else {
-    this.marker = new google.maps.Marker({
-      position: location,
-      map: this.map,
-      title: `Lat: ${location.lat()}, Lng: ${location.lng()}`,
-      icon: {
-        url: 'assets/images/marker.png', // tu archivo
-        scaledSize: new google.maps.Size(50, 40), // tamaño del ícono
-        origin: new google.maps.Point(0, 0),
-        anchor: new google.maps.Point(20, 40) // punto de anclaje (abajo al centro)
-      }
+  private openInfoAt(latLng: any): void {
+    this.geocoder.geocode({ location: latLng }, (results: any, status: string) => {
+      let address =
+        status === 'OK' && results && results[0]?.formatted_address
+          ? results[0].formatted_address
+          : `Lat: ${latLng.lat().toFixed(6)}, Lng: ${latLng.lng().toFixed(6)}`;
+
+      const html = `
+      <div style="font-family: 'Segoe UI', sans-serif; border-radius: 12px; max-width: 250px; word-wrap: break-word; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; line-height: 1.2;">
+        <strong style="font-size: 16px; color: #002136">Punto de Destino</strong>
+        <div style="font-size: 14px; color: #4a4a4a;">${address}</div>
+      </div>
+    `;
+      this.infoWindow.setContent(html);
+      this.infoWindow.open(this.map, this.marker);
     });
   }
 
-  this.map.panTo(location);
-}
+  private placeMarker(location: any): void {
+    if (this.marker) {
+      this.marker.setPosition(location);
+    } else {
+      this.marker = new google.maps.Marker({
+        position: location,
+        map: this.map,
+        icon: {
+          url: 'assets/images/marker.png',
+          scaledSize: new google.maps.Size(50, 40),
+          origin: new google.maps.Point(0, 0),
+          anchor: new google.maps.Point(20, 40)
+        }
+      });
+    }
+    this.map.panTo(location);
+  }
 
+  private toNumber6(v: any): number | null {
+    if (v === null || v === undefined || v === '') return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? Number(n.toFixed(6)) : null;
+  }
 
   private loadGoogleMaps(apiKey: string): Promise<void> {
     const w = window as any;
@@ -319,7 +358,6 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
         (document.getElementById(scriptId) as HTMLScriptElement).addEventListener('load', () => resolve());
         return;
       }
-
       const script = document.createElement('script');
       script.id = scriptId;
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;

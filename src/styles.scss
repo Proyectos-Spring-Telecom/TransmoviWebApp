@@ -42,25 +42,31 @@
 }
 
 #actualizarButton {
-  background-color: transparent;
+  background-color: #f39834;
   text-align: center;
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 5px;
   border-radius: 15%;
   border: 1px solid #f39834;
-  color: #f39834;
+  color: #fff;
+  width: 30px;
+  height: 30px;
 }
 
 #deleteButton {
-  background-color: transparent;
+  background-color: #fb434a;
   text-align: center;
   display: flex;
   align-items: center;
   padding: 5px;
   border-radius: 15%;
   border: 1px solid #fb434a;
-  color: #fb434a;
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  justify-content: center;
 }
 
 ::ng-deep .swal2-container .swal2-title {
@@ -266,11 +272,17 @@ body[data-bs-theme=dark] {
 }
 
 #pinButton {
-  background-color: transparent;
+  background-color: #28a745;
   text-align: center;
+  display: flex;
+  align-items: center;
+  padding: 5px;
   border-radius: 15%;
   border: 1px solid #28a745;
-  color: #28a745;
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  justify-content: center;
 }
 
 .submit {
@@ -278,7 +290,7 @@ body[data-bs-theme=dark] {
   align-items: center;
   background-color: #34c38f;
   border: 0;
-  border-radius: 100px;
+  border-radius: 5px;
   box-sizing: border-box;
   color: #ffffff;
   cursor: pointer;
@@ -386,7 +398,7 @@ body[data-bs-theme=dark] {
   align-items: center;
   background-color: #f46a6a;
   border: 0;
-  border-radius: 100px;
+  border-radius: 5px;
   box-sizing: border-box;
   color: #ffffff;
   cursor: pointer;
@@ -500,7 +512,7 @@ $u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
   align-items: center;
   gap: .4rem;
   padding: var(--pad-y) var(--pad-x);
-  border-radius: 20px;
+  border-radius: 5px;
   border: 1px solid transparent;
   font-weight: 600;
   font-size: 0.85rem;

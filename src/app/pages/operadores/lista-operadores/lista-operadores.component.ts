@@ -143,7 +143,7 @@ export class ListaOperadoresComponent implements OnInit {
   eliminarOperador(operador: any) {
     Swal.fire({
       title: '¡Eliminar Operador!',
-      background: '#22252f',
+      background: '#002136',
       html: `¿Está seguro que desea eliminar el operador: <br> ${operador.Nombre + ' ' + operador.ApellidoPaterno + ' ' + operador.ApellidoMaterno}?`,
       icon: 'warning',
       showCancelButton: true,
@@ -157,7 +157,7 @@ export class ListaOperadoresComponent implements OnInit {
           (response) => {
             Swal.fire({
               title: '¡Eliminado!',
-              background: '#22252f',
+              background: '#002136',
               html: `El operador ha sido eliminado de forma exitosa.`,
               icon: 'success',
               showCancelButton: false,
@@ -169,7 +169,7 @@ export class ListaOperadoresComponent implements OnInit {
           (error) => {
             Swal.fire({
               title: '¡Ops!',
-              background: '#22252f',
+              background: '#002136',
               html: `Error al intentar eliminar el operador.`,
               icon: 'error',
               showCancelButton: false,

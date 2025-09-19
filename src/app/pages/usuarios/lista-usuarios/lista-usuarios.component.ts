@@ -153,7 +153,7 @@ export class ListaUsuariosComponent implements OnInit {
   eliminarUsuario(usuario: any) {
     Swal.fire({
       title: '¡Eliminar Usuario!',
-      background: '#22252f',
+      background: '#002136',
       html: `¿Está seguro que desea eliminar el usuario: <br> ${usuario.NombreCompleto}?`,
       icon: 'warning',
       showCancelButton: true,
@@ -167,7 +167,7 @@ export class ListaUsuariosComponent implements OnInit {
           (response) => {
             Swal.fire({
               title: '¡Eliminado!',
-              background: '#22252f',
+              background: '#002136',
               html: `El usuario ha sido eliminado de forma exitosa.`,
               icon: 'success',
               showCancelButton: false,
@@ -179,7 +179,7 @@ export class ListaUsuariosComponent implements OnInit {
           (error) => {
             Swal.fire({
               title: '¡Ops!',
-              background: '#22252f',
+              background: '#002136',
               html: `Error al intentar eliminar el usuario.`,
               icon: 'error',
               showCancelButton: false,

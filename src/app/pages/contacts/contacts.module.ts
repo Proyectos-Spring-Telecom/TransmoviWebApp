@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -21,7 +21,8 @@ import { SimplebarAngularModule } from 'simplebar-angular';
   declarations: [UsergridComponent, UserlistComponent, ProfileComponent],
   imports: [
     CommonModule,
-    FormsModule,
+    FormsModule,           // ← para [(ngModel)]
+    ReactiveFormsModule, 
     ContactsRoutingModule,
     // WidgetModule,
     UIModule,

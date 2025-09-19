@@ -63,66 +63,60 @@ export class ListaPermisosComponent implements OnInit {
     return this.permissionsService.getPermission(permission) !== undefined;
   }
 
-setupDataSource() {
-  this.loading = true;
+  setupDataSource() {
+    this.loading = true;
 
-  this.listaPermisos = new CustomStore({
-    key: 'id',
-    load: async (loadOptions: any) => {
-      const take = Number(loadOptions?.take) || this.pageSize || 10;
-      const skip = Number(loadOptions?.skip) || 0;
-      const page = Math.floor(skip / take) + 1;
+    this.listaPermisos = new CustomStore({
+      key: 'id',
+      load: async (loadOptions: any) => {
+        const take = Number(loadOptions?.take) || this.pageSize || 10;
+        const skip = Number(loadOptions?.skip) || 0;
+        const page = Math.floor(skip / take) + 1;
 
-      try {
-        const resp: any = await lastValueFrom(
-          this.permService.obtenerPermisos(page, take)
-        );
+        try {
+          const resp: any = await lastValueFrom(
+            this.permService.obtenerPermisos(page, take)
+          );
+          this.loading = false;
+          let rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
+          const meta = resp?.paginated || {};
+          const totalRegistros =
+            toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
+          const paginaActual =
+            toNum(meta.page) ?? toNum(resp?.page) ?? page;
+          const totalPaginas =
+            toNum(meta.lastPage) ?? toNum(resp?.pages) ??
+            Math.max(1, Math.ceil(totalRegistros / take));
 
-        this.loading = false;
+          const dataTransformada = rows.map((item: any) => ({
+            ...item,
+            estatusTexto:
+              Number(item?.estatus) === 1 ? 'Activo' :
+                Number(item?.estatus) === 0 ? 'Inactivo' : null
+          }));
 
-        // Filas
-        let rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
+          this.totalRegistros = totalRegistros;
+          this.paginaActual = paginaActual;
+          this.totalPaginas = totalPaginas;
+          this.paginaActualData = dataTransformada;
 
-        // Meta de paginación real del backend
-        const meta = resp?.paginated || {};
-        const totalRegistros =
-          toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
-        const paginaActual =
-          toNum(meta.page) ?? toNum(resp?.page) ?? page;
-        const totalPaginas =
-          toNum(meta.lastPage) ?? toNum(resp?.pages) ??
-          Math.max(1, Math.ceil(totalRegistros / take));
-
-        const dataTransformada = rows.map((item: any) => ({
-          ...item,
-          estatusTexto:
-            Number(item?.estatus) === 1 ? 'Activo' :
-            Number(item?.estatus) === 0 ? 'Inactivo' : null
-        }));
-
-        // Estado del componente (si lo usas en tu UI)
-        this.totalRegistros = totalRegistros;
-        this.paginaActual = paginaActual;
-        this.totalPaginas = totalPaginas;
-        this.paginaActualData = dataTransformada;
-
-        return {
-          data: dataTransformada,
-          totalCount: totalRegistros // <- necesario para paginar bien en DevExtreme
-        };
-      } catch (error) {
-        this.loading = false;
-        console.error('Error en la solicitud de datos:', error);
-        return { data: [], totalCount: 0 };
+          return {
+            data: dataTransformada,
+            totalCount: totalRegistros
+          };
+        } catch (error) {
+          this.loading = false;
+          console.error('Error en la solicitud de datos:', error);
+          return { data: [], totalCount: 0 };
+        }
       }
-    }
-  });
+    });
 
-  function toNum(v: any): number | null {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : null;
+    function toNum(v: any): number | null {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    }
   }
-}
 
 
   onGridOptionChanged(e: any) {
@@ -163,7 +157,7 @@ setupDataSource() {
   eliminarPermiso(permiso: any) {
     Swal.fire({
       title: '¡Eliminar Permiso!',
-      background: '#22252f',
+      background: '#002136',
       html: `¿Está seguro que desea eliminar el permiso: <br> ${permiso.Marca + ' ' + permiso.Modelo}?`,
       icon: 'warning',
       showCancelButton: true,
@@ -177,7 +171,7 @@ setupDataSource() {
           (response) => {
             Swal.fire({
               title: '¡Eliminado!',
-              background: '#22252f',
+              background: '#002136',
               html: `El permiso ha sido eliminado de forma exitosa.`,
               icon: 'success',
               showCancelButton: false,
@@ -189,7 +183,7 @@ setupDataSource() {
           (error) => {
             Swal.fire({
               title: '¡Ops!',
-              background: '#22252f',
+              background: '#002136',
               html: `Error al intentar eliminar el permiso.`,
               icon: 'error',
               showCancelButton: false,
@@ -283,6 +277,5 @@ setupDataSource() {
         );
       }
     });
-    // console.log('Desactivar:', rowData);
   }
 }

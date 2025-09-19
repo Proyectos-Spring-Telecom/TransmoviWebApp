@@ -126,7 +126,7 @@ export class AltaPermisoComponent implements OnInit {
 
       Swal.fire({
         title: '¡Faltan campos obligatorios!',
-        background: '#22252f',
+        background: '#002136',
         html: `
           <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
             Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
@@ -153,7 +153,7 @@ export class AltaPermisoComponent implements OnInit {
         this.loading = false;
         Swal.fire({
           title: '¡Operación Exitosa!',
-          background: '#22252f',
+          background: '#002136',
           text: `Se agregó un nuevo permiso de manera exitosa.`,
           icon: 'success',
           confirmButtonColor: '#3085d6',
@@ -166,7 +166,7 @@ export class AltaPermisoComponent implements OnInit {
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
-          background: '#22252f',
+          background: '#002136',
           text: `Ocurrió un error al agregar el permiso.`,
           icon: 'error',
           confirmButtonColor: '#3085d6',
@@ -210,7 +210,7 @@ export class AltaPermisoComponent implements OnInit {
 
       Swal.fire({
         title: '¡Faltan campos obligatorios!',
-        background: '#22252f',
+        background: '#002136',
         html: `
           <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
             Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
@@ -237,7 +237,7 @@ export class AltaPermisoComponent implements OnInit {
           this.loading = false;
           Swal.fire({
             title: '¡Operación Exitosa!',
-            background: '#22252f',
+            background: '#002136',
             text: `Los datos del permiso se actualizaron correctamente.`,
             icon: 'success',
             confirmButtonColor: '#3085d6',
@@ -250,7 +250,7 @@ export class AltaPermisoComponent implements OnInit {
           this.loading = false;
           Swal.fire({
             title: '¡Ops!',
-            background: '#22252f',
+            background: '#002136',
             text: `Ocurrió un error al actualizar el permiso.`,
             icon: 'error',
             confirmButtonColor: '#3085d6',

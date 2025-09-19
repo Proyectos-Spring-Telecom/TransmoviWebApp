@@ -6,9 +6,14 @@ export class User {
     apellidoPaterno?: string;
     apellidoMaterno?: string;
     nombreCompleto?: string;
+    telefono: any;
     permisos: any[];
     email:string;
     idCliente?:any;
     imagenPerfil: string;
     user: any;
+    rol: any;
+    userName: any;
+    fotoPerfil: any;
+
 }

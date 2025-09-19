@@ -1,100 +1,130 @@
 .total-registros-label {
-    font-size: 16px; 
-    font-weight: bold; 
-    color: #f7fb06; 
-    padding: 8px 15px; 
-    border-radius: 5px; 
-    background-color: #515237; 
-    display: inline-block; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-  }
-  
-  .data {
-    min-width: 1000px;
-  }
-  .header-dispositivos {
-    text-align: center;
-    background-color: #00836d;
-    padding: 20px;
-  }
-  
-  .header-dispositivos i {
-    font-size: 30px;
-    color: #09fa3a;
-    vertical-align: middle;
-    margin-right: 8px;
-  }
-  
-  .titulo {
+  font-size: 16px; 
+  font-weight: bold; 
+  color: #f7fb06; 
+  padding: 8px 15px; 
+  border-radius: 5px; 
+  background-color: #515237; 
+  display: inline-block; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+.data {
+  min-width: 1000px;
+}
+.header-dispositivos {
+  text-align: center;
+  background-color: #00836d;
+  padding: 20px;
+}
+
+.header-dispositivos i {
+  font-size: 30px;
+  color: #09fa3a;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.titulo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.subtitulo {
+  font-size: 14px;
+  color: #fff;
+  margin-top: 5px;
+}
+
+::ng-deep .swal2-container .swal2-title {
     font-size: 24px;
-    font-weight: bold;
-    color: #fff;
-  }
-  
-  .subtitulo {
-    font-size: 14px;
-    color: #fff;
-    margin-top: 5px;
-  }
-  
-  
-  
-  
-  ::ng-deep .dx-searchbox .dx-texteditor-input {
-    --radii: 2.0em;
-    cursor: pointer;
-    min-height: 38px;
-    font-size: var(--size, 14px);
+    font-weight: 200;
+    color: #ffffff;
+}
+
+.swal2-container .swal2-title {
+    font-size: 24px;
     font-weight: 500;
-    transition: 0.8s;
-    background-size: 280% auto;
-    background-color: #0a66c2;
-    border: none;
-    border-radius: var(--radii);
-  }
-  
-  ::ng-deep .dx-searchbox .dx-texteditor-input:hover {
-    background-position: right top;
-  }
-  
-  ::ng-deep .dx-searchbox .dx-texteditor-input:is(:focus, :focus-visible, :active) {
-    outline: none;
-    box-shadow:
-        0 0 0 0px var(--btn-bg-color),
-        0 0 0 0px var(--btn-bg-2);
-  }
-  
-  @media (prefers-reduced-motion: reduce) {
-    .dx-searchbox .dx-texteditor-input {
-        transition: linear;
-    }
-  }
-  
-  ::ng-deep .dx-icon-clear:before {
-    color: white;
-  }
-  
-  ::ng-deep .dx-icon-search:before {
-    color: white !important;
-  }
-  
-  ::ng-deep .dx-searchbox .dx-placeholder::before,
-  .dx-searchbox .dx-texteditor-input,
-  .dx-searchbox.dx-editor-underlined .dx-texteditor-buttons-container+.dx-texteditor-input-container .dx-texteditor-input,
-  .dx-searchbox.dx-editor-underlined .dx-texteditor-input {
-    padding-inline-start: 34px;
-    color: white;
-  }
+    color: #ffffff;
+}
 
-  .map-container {
-    border-radius: 15px;
-    height: 650px;
-    flex: 1; /* Se adapta al contenedor */
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    background-color: #e9ecef;
-  }
+::ng-deep div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
+}
 
+div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+
+
+::ng-deep .dx-searchbox .dx-texteditor-input {
+  --radii: 2.0em;
+  cursor: pointer;
+  min-height: 38px;
+  font-size: var(--size, 14px);
+  font-weight: 500;
+  transition: 0.8s;
+  background-size: 280% auto;
+  background-color: #0a66c2;
+  border: none;
+}
+
+::ng-deep .dx-searchbox .dx-texteditor-input:hover {
+  background-position: right top;
+}
+
+::ng-deep .dx-searchbox .dx-texteditor-input:is(:focus, :focus-visible, :active) {
+  outline: none;
+  box-shadow:
+      0 0 0 0px var(--btn-bg-color),
+      0 0 0 0px var(--btn-bg-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dx-searchbox .dx-texteditor-input {
+      transition: linear;
+  }
+}
+
+::ng-deep .dx-icon-clear:before {
+  color: white;
+}
+
+::ng-deep .dx-icon-search:before {
+  color: white !important;
+}
+
+::ng-deep .dx-searchbox .dx-placeholder::before,
+.dx-searchbox .dx-texteditor-input,
+.dx-searchbox.dx-editor-underlined .dx-texteditor-buttons-container+.dx-texteditor-input-container .dx-texteditor-input,
+.dx-searchbox.dx-editor-underlined .dx-texteditor-input {
+  padding-inline-start: 34px;
+  color: white;
+}
 
 .button-18 {
   margin-top: 1%;

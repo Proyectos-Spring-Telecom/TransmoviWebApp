@@ -48,7 +48,8 @@
                                 [allowFiltering]="false" cellTemplate="ident">
                             </dxi-column>
                             <div *dxTemplate="let f of 'ident'">
-                                <button type="button" class="btn btn-primary btn-sm" style="border-radius: 100px;"
+                                <button type="button" class="btn btn-primary btn-sm"
+                                    style="border-radius: 5px;"
                                     (click)="previsualizar(f?.data?.identificacion, 'Identificación', f?.data)">
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
@@ -57,7 +58,8 @@
                                 [allowFiltering]="false" cellTemplate="comp">
                             </dxi-column>
                             <div *dxTemplate="let f of 'comp'">
-                                <button type="button" class="btn btn-success btn-sm" style="border-radius: 100px;"
+                                <button type="button" class="btn btn-success btn-sm"
+                                    style="border-radius: 5px;"
                                     (click)="previsualizar(f?.data?.comprobanteDomicilio, 'Comprobante de Domicilio', f?.data)">
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
@@ -66,7 +68,8 @@
                                 [allowFiltering]="false" cellTemplate="penales">
                             </dxi-column>
                             <div *dxTemplate="let f of 'penales'">
-                                <button type="button" class="btn btn-warning btn-sm" style="border-radius: 100px;"
+                                <button type="button" class="btn btn-warning btn-sm"
+                                    style="border-radius: 5px;"
                                     (click)="previsualizar(f?.data?.antecedentesNoPenales || f?.data?.antecedentesPenales, 'Antecedentes No Penales', f?.data)">
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
@@ -91,7 +94,7 @@
                                     {{fr.data.idUsuario2.telefono}}
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="fechaNacimiento" type="date" caption="Fecha de Nacimiento"
+                            <dxi-column dataField="fechaNacimiento" [width]="150" type="date" caption="Fecha de Nacimiento"
                                 alignment="center"></dxi-column>
                             <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
@@ -136,42 +139,37 @@
     [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
 </dx-load-panel>
 
-<dx-popup
-  [visible]="pdfPopupVisible"
-  [showTitle]="true"
-  [title]="pdfTitle"
-  [dragEnabled]="true"
-  [closeOnOutsideClick]="false"
-  [width]="pdfPopupWidth"
-  [height]="'auto'"
-  [showCloseButton]="true"
-  (onHiding)="pdfPopupVisible = false">
-
-  <div class="pdf-viewer">
-    <div class="pdf-loader" *ngIf="pdfLoading && !pdfError">
-      Cargando documento…
+<dx-popup [visible]="pdfPopupVisible" [showTitle]="true" title="Documentación" [dragEnabled]="true"
+    [closeOnOutsideClick]="false" [width]="pdfPopupWidth" [height]="'auto'" [showCloseButton]="true"
+    (onHiding)="pdfPopupVisible = false">
+    <div class="pdf-viewer">
+        <div class="pdf-loader" *ngIf="pdfLoading && !pdfError">
+            Cargando documento…
+        </div>
+        <span class="dc-document" *ngIf="!pdfError">
+            {{pdfTitle}}
+            <br>
+        </span>
+        <ng-container *ngIf="!pdfError; else pdfErrorTpl">
+            <br>
+            <div class="pdf-frame" [class.is-loading]="pdfLoading">
+                <iframe class="pdf-iframe" [src]="pdfUrlSafe" (load)="onPdfLoaded()">
+                </iframe>
+            </div>
+            <div class="pdf-actions">
+                <button type="button" class="abrirArchivo" (click)="abrirEnNuevaPestana()">
+                    <i class="fa fa-plus"></i>&nbsp;&nbsp;Abrir
+                </button>
+                <button type="button" class="descargarArchivo" (click)="descargarPdfForzada()">
+                    <i class="fa fa-download"></i>&nbsp;&nbsp;Descargar
+                </button>
+            </div>
+        </ng-container>
+        <ng-template #pdfErrorTpl>
+            <div class="pdf-error-card">
+                <h4>📄 No pudimos previsualizar el PDF</h4>
+                <p>{{ pdfErrorMsg || 'El archivo no está disponible, el tipo de contenido no es PDF o fue bloqueado por el navegador (CORS).' }}</p>
+            </div>
+        </ng-template>
     </div>
-    <ng-container *ngIf="!pdfError; else pdfErrorTpl">
-      <div class="pdf-frame" [class.is-loading]="pdfLoading">
-        <iframe class="pdf-iframe"
-                [src]="pdfUrlSafe"
-                (load)="onPdfLoaded()">
-        </iframe>
-      </div>
-      <div class="pdf-actions">
-        <button type="button" class="abrirArchivo" (click)="abrirEnNuevaPestana()">
-          <i class="fa fa-external-link"></i>&nbsp;&nbsp;Abrir
-        </button>
-        <button type="button" class="descargarArchivo" (click)="descargarPdfForzada()">
-          <i class="fa fa-download"></i>&nbsp;&nbsp;Descargar
-        </button>
-      </div>
-    </ng-container>
-    <ng-template #pdfErrorTpl>
-      <div class="pdf-error-card">
-        <h4>📄 No pudimos previsualizar el PDF</h4>
-        <p>{{ pdfErrorMsg || 'El archivo no está disponible, el tipo de contenido no es PDF o fue bloqueado por el navegador (CORS).' }}</p>
-      </div>
-    </ng-template>
-  </div>
 </dx-popup>

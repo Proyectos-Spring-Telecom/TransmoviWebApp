@@ -215,12 +215,68 @@ div:where(.swal2-container) .swal2-html-container {
 }
 
 #map {
-  height: 250px;
   width: 100%;
-  border-radius: 10px;
-}
-#coords {
-  margin-top: 10px;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
+  height: clamp(320px, 48vh, 520px);
+  border-radius: 14px;
+  border: 1px solid #2f395a;
+  background: #343845;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  }
+
+  /* Borde de enfoque (teclado / interacción) */
+  &:focus,
+  &:focus-within {
+    outline: none;
+    box-shadow:
+      0 0 0 2px rgba(0, 131, 109, 0.18),
+      0 10px 26px rgba(0, 0, 0, 0.28);
+  }
+
+  /* Fundo sutil superior para legibilidad de controles */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 72px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), transparent);
+    z-index: 1;
+  }
+
+  /* Afinar controles nativos de Google Maps sin tocar globales */
+  .gm-style .gmnoprint,
+  .gm-style .gm-control-active {
+    border-radius: 10px !important;
+    overflow: hidden;
+  }
+
+  .gm-style .gm-control-active,
+  .gm-style .gm-bundled-control .gm-svpc,
+  .gm-style .gm-fullscreen-control {
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+  }
+
+  /* Margen interno para que los controles no peguen al borde redondeado */
+  .gm-style > div:nth-child(1) {
+    margin: 8px !important;
+  }
+
+  /* Cuadro de búsqueda (si usas Autocomplete) y botones: redondeo coherente */
+  .gm-style .gm-style-mtc,
+  .gm-style .gm-svpc,
+  .gm-style .gm-control-active,
+  .gm-style .gm-fullscreen-control {
+    border-radius: 10px !important;
+  }
+
+  /* Etiquetas emergentes del mapa con leve redondeo */
+  .gm-style .gm-style-iw-c {
+    border-radius: 10px !important;
+  }
 }

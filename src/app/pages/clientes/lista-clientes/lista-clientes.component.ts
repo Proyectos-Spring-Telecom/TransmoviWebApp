@@ -151,7 +151,7 @@ export class ListaClientesComponent implements OnInit {
   eliminarCliente(cliente: any) {
     Swal.fire({
       title: '¡Eliminar Cliente!',
-      background: '#22252f',
+      background: '#002136',
       html: `¿Está seguro que desea eliminar el cliente: <br> ${cliente.NombreCompleto}?`,
       icon: 'warning',
       showCancelButton: true,
@@ -165,7 +165,7 @@ export class ListaClientesComponent implements OnInit {
           (response) => {
             Swal.fire({
               title: '¡Eliminado!',
-              background: '#22252f',
+              background: '#002136',
               html: `El cliente ha sido eliminado de forma exitosa.`,
               icon: 'success',
               showCancelButton: false,
@@ -177,7 +177,7 @@ export class ListaClientesComponent implements OnInit {
           (error) => {
             Swal.fire({
               title: '¡Ops!',
-              background: '#22252f',
+              background: '#002136',
               html: `Error al intentar eliminar el cliente.`,
               icon: 'error',
               showCancelButton: false,

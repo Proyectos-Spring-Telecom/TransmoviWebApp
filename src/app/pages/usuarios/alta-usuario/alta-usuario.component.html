@@ -13,30 +13,30 @@
       <form [formGroup]="usuarioForm" class="cliente-form" (ngSubmit)="submit()">
         <h6 class="section-title">Datos Generales</h6>
         <div class="row">
-          <div class="col-md-4 mt-1">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-1">
             <label>Nombre</label>
             <input type="text" class="form-control" formControlName="nombre"
               placeholder="Ej: Comercializadora Ejemplo" />
           </div>
-          <div class="col-md-4 mt-1">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-1">
             <label>Apellido Paterno</label>
             <input type="text" class="form-control" formControlName="apellidoPaterno" placeholder="Ej: Rodríguez" />
           </div>
-          <div class="col-md-4 mt-1">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-1">
             <label>Apellido Materno</label>
             <input type="text" class="form-control" formControlName="apellidoMaterno" placeholder="Ej: Santos" />
           </div>
-          <div class="col-md-4 mt-3">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Teléfono</label>
             <input maxlength="10" (keypress)="allowOnlyNumbers($event)" class="form-control" formControlName="telefono"
               placeholder="Ej: 5555555555" />
           </div>
-          <div class="col-md-4 mt-3" *ngIf="inputContrasena">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3" *ngIf="inputContrasena">
             <label>Correo</label>
             <input type="email" class="form-control" formControlName="userName"
               placeholder="Ej: contacto@ejemplo.com" />
           </div>
-          <div class="col-md-4 mt-3">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Rol</label>
             <select class="form-control" formControlName="idRol">
               <option [ngValue]="null" disabled>Seleccione un rol</option>
@@ -45,16 +45,16 @@
               </option>
             </select>
           </div>
-          <div class="col-md-4 mt-3">
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
             <label>Cliente</label>
             <select class="form-control" formControlName="idCliente">
-              <option [ngValue]="null" disabled>-- Seleccione un cliente --</option>
+              <option [ngValue]="null" disabled>Seleccione un cliente</option>
               <option *ngFor="let c of listaClientes" [ngValue]="c.id">
                 {{ (c.nombre || '') + ' ' + (c.apellidoPaterno || '') }}
               </option>
             </select>
           </div>
-          <div class="col-md-4 mt-3" *ngIf="inputContrasena">
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3" *ngIf="inputContrasena">
             <label id="pws1">Contraseña</label>
             <div class="password-wrapper">
               <input (keyup)="onPasswordInput($event)" [type]="type" autocomplete="new-password" class="form-control"
@@ -89,7 +89,7 @@
               </p>
             </div>
           </div>
-          <div class="col-md-4 mt-3" *ngIf="inputContrasena">
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3" *ngIf="inputContrasena">
             <label id="pws2">Confirmar Contraseña</label>
             <div class="password-wrapper">
               <input [type]="typeConfirm" class="form-control" placeholder="******" formControlName="confirmPassword"
@@ -104,7 +104,7 @@
             <span *ngIf="usuarioForm.hasError('passwordMismatch') && usuarioForm.get('confirmPassword')?.touched"
               class="text-danger">Las contraseñas no coinciden</span>
           </div>
-          <div class="col-md-4 mt-3">
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
             <div class="tc-upload">
               <label>Logotipo</label>
               <div class="tc-preview" *ngIf="logoPreviewUrl; else logoTile">

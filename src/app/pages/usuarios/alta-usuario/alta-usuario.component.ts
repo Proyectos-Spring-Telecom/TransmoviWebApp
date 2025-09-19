@@ -412,7 +412,7 @@ export class AltaUsuarioComponent implements OnInit {
 
       Swal.fire({
         title: '¡Faltan campos obligatorios!',
-        background: '#22252f',
+        background: '#002136',
         html: `
         <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
           Los siguientes <strong>campos</strong> requieren atención:
@@ -446,7 +446,7 @@ export class AltaUsuarioComponent implements OnInit {
         this.loading = false;
         Swal.fire({
           title: '¡Operación Exitosa!',
-          background: '#22252f',
+          background: '#002136',
           text: `Se agregó un nuevo usuario de manera exitosa.`,
           icon: 'success',
           confirmButtonColor: '#3085d6',
@@ -459,7 +459,7 @@ export class AltaUsuarioComponent implements OnInit {
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
-          background: '#22252f',
+          background: '#002136',
           text: `Ocurrió un error al agregar el usuario.`,
           icon: 'error',
           confirmButtonColor: '#3085d6',
@@ -515,7 +515,7 @@ export class AltaUsuarioComponent implements OnInit {
       this.loading = false;
       Swal.fire({
         title: '¡Faltan campos obligatorios!',
-        background: '#22252f',
+        background: '#002136',
         html: `
         <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
           Los siguientes <strong>campos</strong> requieren atención:
@@ -566,7 +566,7 @@ export class AltaUsuarioComponent implements OnInit {
         this.loading = false;
         Swal.fire({
           title: '¡Operación Exitosa!',
-          background: '#22252f',
+          background: '#002136',
           text: `Los datos del usuario se actualizaron correctamente.`,
           icon: 'success',
           confirmButtonColor: '#3085d6',
@@ -579,7 +579,7 @@ export class AltaUsuarioComponent implements OnInit {
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
-          background: '#22252f',
+          background: '#002136',
           text: `Ocurrió un error al actualizar el usuario.`,
           icon: 'error',
           confirmButtonColor: '#3085d6',
@@ -600,7 +600,7 @@ export class AltaUsuarioComponent implements OnInit {
     `;
     Swal.fire({
       title: '¡Faltan permisos!',
-      background: '#22252f',
+      background: '#002136',
       html,
       icon: 'warning',
       confirmButtonText: 'De acuerdo',

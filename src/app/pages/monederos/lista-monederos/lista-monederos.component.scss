@@ -247,3 +247,16 @@ background:
   border: none;
   background-color: #002136;
 }
+
+.btn.btn-danger:disabled,
+.btn.btn-danger[disabled],
+.btn.btn-danger.disabled {
+  background-color: #b7b7b7 !important;
+  border-color: #b7b7b7 !important;
+  cursor: not-allowed !important;
+  pointer-events: auto !important;
+}
+
+.btn.btn-danger:disabled * {
+  pointer-events: none;
+}

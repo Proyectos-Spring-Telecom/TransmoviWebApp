@@ -4,6 +4,7 @@ import CustomStore from 'devextreme/data/custom_store';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { BitacoraService } from 'src/app/shared/services/bitacora.service';
+import { UsuariosService } from 'src/app/shared/services/usuario.service';
 
 @Component({
   selector: 'app-lista-bitacora',
@@ -21,28 +22,39 @@ export class ListaBitacoraComponent implements OnInit {
   public showHeaderFilter: boolean;
   public showFilterRow: boolean;
   public loadingVisible: boolean = false;
-  public mensajeAgrupar: string =
-    'Arrastre un encabezado de columna aquí para agrupar por esa columna';
+  public mensajeAgrupar: string = 'Arrastre un encabezado de columna aquí para agrupar por esa columna';
   public loading: boolean = false;
   public loadingMessage: string = 'Cargando...';
   public paginaActual: number = 1;
   public totalRegistros: number = 0;
   public pageSize: number = 20;
   public totalPaginas: number = 0;
-  @ViewChild(DxDataGridComponent, { static: false })
-  dataGrid: DxDataGridComponent;
   public autoExpandAllGroups: boolean = true;
-  isGrouped: boolean = false;
   public paginaActualData: any[] = [];
   public filtroActivo: string = '';
+  public listaUsuarios: any;
+  public mapaUsuarios: any;
+  @ViewChild(DxDataGridComponent, { static: false })
+  dataGrid: DxDataGridComponent;
+  isGrouped: boolean = false;
 
-  constructor(private bitacoraService: BitacoraService) {
+  constructor(private bitacoraService: BitacoraService, private usuService: UsuariosService) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
   }
 
   ngOnInit(): void {
     this.obtenerBitacora();
+    this.obtenerUsuarios()
+  }
+
+  obtenerUsuarios() {
+    this.usuService.obtenerUsuarios().subscribe((response) => {
+      this.listaUsuarios = response.data;
+      this.mapaUsuarios = new Map(
+        (this.listaUsuarios || []).map((u: any) => [String(u.id), u])
+      );
+    });
   }
 
   obtenerBitacora() {
@@ -53,6 +65,7 @@ export class ListaBitacoraComponent implements OnInit {
         const take = Number(loadOptions?.take) || this.pageSize || 10;
         const skip = Number(loadOptions?.skip) || 0;
         const page = Math.floor(skip / take) + 1;
+
         try {
           const resp: any = await lastValueFrom(
             this.bitacoraService.obtenerBitacoraData(page, take)
@@ -60,26 +73,34 @@ export class ListaBitacoraComponent implements OnInit {
           this.loading = false;
           const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
           const meta = resp?.paginated || {};
-          const totalRegistros =
-            toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
+          const totalRegistros = toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
           const paginaActual = toNum(meta.page) ?? toNum(resp?.page) ?? page;
-          const totalPaginas =
-            toNum(meta.lastPage) ??
-            toNum(resp?.pages) ??
-            Math.max(1, Math.ceil(totalRegistros / take));
-          const dataTransformada = rows.map((item: any) => ({
-            ...item,
-            estatusTexto:
-              item?.estatus === 1
-                ? 'Activo'
-                : item?.estatus === 0
-                ? 'Inactivo'
-                : null,
-          }));
+          const totalPaginas = toNum(meta.lastPage) ?? toNum(resp?.pages) ?? Math.max(1, Math.ceil(totalRegistros / take));
+          const dataTransformada = rows.map((item: any) => {
+            const uid = String(item?.idUsuario ?? '');
+            const u = this.mapaUsuarios?.get(uid) ?? (this.listaUsuarios || []).find((x: any) => String(x?.id) === uid);
+            let accionTexto: string | null = null;
+            if (item?.accion === 'CREATE') accionTexto = 'Crear';
+            else if (item?.accion === 'UPDATE') accionTexto = 'Actualizar';
+            else if (item?.accion === 'DELETE') accionTexto = 'Eliminar';
+            const nombreCompleto = u
+              ? `${u.nombre ?? ''} ${u.apellidoPaterno ?? ''}`.trim()
+              : 'Desconocido';
+
+            return {
+              ...item,
+              estatusTexto:
+                item?.estatus === 1 ? 'Activo' :
+                  item?.estatus === 0 ? 'Inactivo' : null,
+              usuarioNombre: nombreCompleto,
+              accionTexto
+            };
+          });
           this.totalRegistros = totalRegistros;
           this.paginaActual = paginaActual;
           this.totalPaginas = totalPaginas;
           this.paginaActualData = dataTransformada;
+
           return {
             data: dataTransformada,
             totalCount: totalRegistros,

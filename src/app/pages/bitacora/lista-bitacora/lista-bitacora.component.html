@@ -36,12 +36,8 @@
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
                             <dxi-column dataField="modulo" caption="Módulo" alignment="center" [width]="200"></dxi-column>
-                            <dxi-column dataField="accion" caption="Acción" alignment="center" [width]="250"></dxi-column>
-                            <dxi-column dataField="query" caption="Usuario" alignment="center" [width]="250" cellTemplate="data">
-                                <div *dxTemplate="let a of 'data' ">
-                                    {{getUserFromQuery(a.data.query)}}
-                                </div>
-                            </dxi-column>
+                            <dxi-column dataField="accionTexto" caption="Acción" alignment="center" [width]="250"></dxi-column>
+                            <dxi-column dataField="usuarioNombre" caption="Usuario" alignment="center" [width]="250"></dxi-column>
                             <dxi-column dataField="descripcion" caption="Descripción" alignment="center"></dxi-column>
                             <dxi-column dataField="fechaCreacion" caption="Fecha" alignment="center" [width]="250" cellTemplate="fech">
                                 <div *dxTemplate="let i of 'fech' ">
@@ -49,7 +45,7 @@
                                 </div>
                             </dxi-column>
                             <dxo-export [enabled]="false" [allowExportSelectedData]="true"
-                            [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
+                                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
                             </dxo-export>
                         </dx-data-grid>
                     </div>

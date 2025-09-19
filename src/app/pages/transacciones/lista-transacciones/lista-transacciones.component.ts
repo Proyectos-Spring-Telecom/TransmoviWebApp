@@ -52,56 +52,74 @@ export class ListaTransaccionesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.obtenerTransacciones();
+    this.setupDataSource();
   }
 
-  obtenerTransacciones() {
-    this.loading = true;
-    this.listaTransacciones = new CustomStore({
-      key: 'id',
-      load: async (loadOptions: any) => {
-        const skip = Number(loadOptions?.skip) || 0;
-        const take = Number(loadOptions?.take) || this.pageSize;
-        const page = Math.floor(skip / take) + 1;
+  setupDataSource() {
+  this.loading = true;
 
-        try {
-          const response: any = await lastValueFrom(
-            this.tranService.obtenerTransaccionesData(page, take)
-          );
-          this.loading = false;
-          const totalRegistros = Number(response?.paginated?.total) || 0;
-          const paginaActual = Number(response?.paginated?.page) || page;
-          const totalPaginas = take > 0 ? Math.ceil(totalRegistros / take) : 0;
+  this.listaTransacciones = new CustomStore({
+    key: 'id',
+    load: async (loadOptions: any) => {
+      const take = Number(loadOptions?.take) || this.pageSize || 10;
+      const skip = Number(loadOptions?.skip) || 0;
+      const page = Math.floor(skip / take) + 1;
 
-          this.totalRegistros = totalRegistros;
-          this.paginaActual = paginaActual;
-          this.totalPaginas = totalPaginas;
+      try {
+        const resp: any = await lastValueFrom(
+          this.tranService.obtenerTransaccionesData(page, take)
+        );
+        this.loading = false;
 
-          const dataTransformada = (Array.isArray(response?.data) ? response.data : [])
-            .map((item: any) => {
-              const idNum = Number(item?.id ?? item?.Id ?? item?.ID);
-              return {
-                ...item,
-                id: Number.isFinite(idNum) ? idNum : 0,
-              };
-            })
-            .sort((a: any, b: any) => b.id - a.id);
+        const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
+        const meta = resp?.paginated ?? {};
+        const totalRegistros = toNum(meta.total) ?? rows.length;
+        const paginaActual = toNum(meta.page) ?? page;
+        const totalPaginas =
+          toNum(meta.lastPage) ?? Math.max(1, Math.ceil(totalRegistros / take));
 
-          this.paginaActualData = dataTransformada;
+        const dataTransformada = rows.map((x: any) => ({
+          id: x?.id ?? null,
+          tipoTransaccion: x?.tipoTransaccion ?? null,
+          monto: toMoney(x?.monto),
+          latitud: x?.latitud ?? null,
+          longitud: x?.longitud ?? null,
+          fechaHora: x?.fechaHora ?? null,
+          fhRegistro: x?.fhRegistro ?? null,
+          numeroSerieMonedero: x?.numeroSerieMonedero ?? null,
+          numeroSerieDispositivo: x?.numeroSerieDispositivo ?? null
+        }));
 
-          return {
-            data: dataTransformada,
-            totalCount: totalRegistros
-          };
+        this.totalRegistros = totalRegistros;
+        this.paginaActual = paginaActual;
+        this.totalPaginas = totalPaginas;
+        this.paginaActualData = dataTransformada;
 
-        } catch (error) {
-          this.loading = false;
-          console.error('Error en la solicitud de datos:', error);
-          return { data: [], totalCount: 0 };
-        }
+        return {
+          data: dataTransformada,
+          totalCount: totalRegistros
+        };
+      } catch (error) {
+        this.loading = false;
+        console.error('[TRANSACCIONES] Error:', error);
+        return { data: [], totalCount: 0 };
       }
-    });
+    }
+  });
+
+  function toNum(v: any): number | null {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
   }
+
+  function toMoney(v: any): number | null {
+    if (v === null || v === undefined) return null;
+    const s = String(v).replace(',', '.').replace(/[^0-9.-]/g, '');
+    const n = Number(s);
+    return Number.isFinite(n) ? Number(n.toFixed(2)) : null;
+  }
+}
+
 
   onGridOptionChanged(e: any) {
     if (e.fullName === "searchPanel.text") {

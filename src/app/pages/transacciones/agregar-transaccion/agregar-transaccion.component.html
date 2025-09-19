@@ -2,7 +2,7 @@
     <div class="card">
         <div class="card-header-custom">
             <div class="icon-wrapper">
-                <i class="fas fa-user-plus"></i>
+                <i class="fas fa-plus"></i>
             </div>
             <div class="header-text">
                 <h5>{{ title }}</h5>
@@ -16,7 +16,7 @@
                     <div class="col-md-4">
                         <label>Transacción</label>
                         <select class="form-control" formControlName="tipoTransaccion">
-                            <option [ngValue]="null" disabled>-- Seleccione --</option>
+                            <option [ngValue]="null" disabled>Seleccione un tipo de transacción</option>
                             <option value="RECARGA">Recarga</option>
                             <option value="DEBITO">Débito</option>
                         </select>
@@ -50,10 +50,10 @@
                             </option>
                         </select>
                     </div>
-                    <h6 class="section-title mt-5">Seleccione una ubicación para la transacción</h6>
-                    <div class="col-md-6 mt-1">
-                        <div id="map"></div>
-                    </div>
+                </div>
+                <h6 class="section-title mt-5">Seleccione una ubicación para la transacción</h6>
+                <div class="col-md-12 mt-1">
+                    <div id="map"></div>
                 </div>
                 <div class="form-actions mt-4">
                     <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
