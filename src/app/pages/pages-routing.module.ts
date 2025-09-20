@@ -36,6 +36,7 @@ const routes: Routes = [
   { path: 'permisos', loadChildren: () => import('./permisos/permisos.module').then(m => m.PermisosModule)},
   { path: 'modulos', loadChildren: () => import('./modulos/modulos.module').then(m => m.ModulosModule)},
   { path: 'roles', loadChildren: () => import('./roles/roles.module').then(m => m.RolesModule)},
+  { path: 'punto-venta', loadChildren: () => import('./punto-venta/punto-venta.module').then(m => m.PuntoVentaModule)},
 ];
 
 @NgModule({

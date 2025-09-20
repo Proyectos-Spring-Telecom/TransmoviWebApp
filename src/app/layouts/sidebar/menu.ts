@@ -87,18 +87,31 @@ export const MENU: MenuItem[] = [
         // permiso: Permiso.VerOperadores
     },
     {
-        id: 5,
-        label: 'Monederos',
-        icon: 'uil-moneybag-alt',
-        link: '/monederos',
-        // permiso: Permiso.VerMonederos
-    },
-    {
-        id: 7,
-        label: 'Transacciones',
+        id: 20,
+        label: 'Centro de Pagos',
         icon: 'uil-refresh',
-        link: '/transacciones',
-        // permiso: Permiso.VerTransacciones
+        subItems: [
+            {
+                id: 16,
+                label: 'Punto de Venta',
+                icon: 'uil-apps',
+                link: '/punto-venta',
+            },
+            {
+                id: 5,
+                label: 'Monederos',
+                icon: 'uil-moneybag-alt',
+                link: '/monederos',
+                // permiso: Permiso.VerMonederos
+            },
+            {
+                id: 7,
+                label: 'Transacciones',
+                icon: 'uil-refresh',
+                link: '/transacciones',
+                // permiso: Permiso.VerTransacciones
+            },
+        ],
     },
     {
         id: 6,

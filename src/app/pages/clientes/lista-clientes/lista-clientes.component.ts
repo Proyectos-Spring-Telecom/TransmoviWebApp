@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { DxDataGridComponent } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
@@ -34,7 +35,7 @@ export class ListaClientesComponent implements OnInit {
   public paginaActualData: any[] = [];
   public filtroActivo: string = '';
 
-  constructor(private cliService: ClientesService, private route: Router) {
+  constructor(private cliService: ClientesService, private route: Router, private sanitizer: DomSanitizer) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
   }
@@ -274,4 +275,97 @@ export class ListaClientesComponent implements OnInit {
     // console.log('Desactivar:', rowData);
   }
 
+  pdfPopupVisible = false;
+    pdfTitle = 'Documento';
+    pdfPopupWidth = 500;
+    pdfUrlSafe: SafeResourceUrl | null = null;
+    pdfRawUrl: string | null = null;
+    pdfLoading = false;
+    pdfLoaded = false;
+    pdfError = false;
+    pdfErrorMsg = '';
+    async previsualizar(url?: string, titulo?: string, _row?: any) {
+      this.pdfTitle = titulo || 'Documento';
+      this.pdfRawUrl = (url || '').trim() || null;
+      this.pdfUrlSafe = null;
+      this.pdfLoading = true;
+      this.pdfLoaded = false;
+      this.pdfError = false;
+      this.pdfErrorMsg = '';
+      this.pdfPopupVisible = true;
+      this.pdfPopupWidth = Math.min(Math.floor(window.innerWidth * 0.95), 900);
+      if (!this.pdfRawUrl) {
+        this.pdfError = true;
+        this.pdfLoading = false;
+        this.pdfErrorMsg = 'Este registro no tiene un PDF asignado.';
+        return;
+      }
+      try {
+        const head = await fetch(this.pdfRawUrl, { method: 'HEAD', mode: 'cors' });
+        if (!head.ok) {
+          this.pdfError = true;
+          this.pdfErrorMsg = `No se pudo acceder al archivo (HTTP ${head.status}).`;
+          this.pdfLoading = false;
+          return;
+        }
+        const ct = head.headers.get('content-type') || '';
+        if (!ct.toLowerCase().includes('pdf')) {
+          this.pdfError = true;
+          this.pdfErrorMsg = 'El recurso no es un archivo PDF.';
+          this.pdfLoading = false;
+          return;
+        }
+      } catch (e) {
+        this.pdfError = true;
+        this.pdfErrorMsg = 'El navegador bloqueó la previsualización (CORS). Intenta Abrir o Descargar.';
+        this.pdfLoading = false;
+        return;
+      }
+      const viewerParams = '#toolbar=0&navpanes=0';
+      const finalUrl = this.pdfRawUrl.includes('#') ? this.pdfRawUrl : this.pdfRawUrl + viewerParams;
+      this.pdfUrlSafe = this.sanitizer.bypassSecurityTrustResourceUrl(finalUrl);
+      setTimeout(() => {
+        if (!this.pdfLoaded && !this.pdfError) {
+          this.pdfError = true;
+          this.pdfLoading = false;
+          this.pdfErrorMsg = 'El visor tardó demasiado en cargar.';
+        }
+      }, 4000);
+    }
+  
+    onPdfLoaded() {
+      this.pdfLoaded = true;
+      this.pdfLoading = false;
+    }
+  
+    abrirEnNuevaPestana() {
+      if (this.pdfRawUrl) window.open(this.pdfRawUrl, '_blank');
+    }
+  
+    async descargarPdfForzada() {
+      if (!this.pdfRawUrl) return;
+      try {
+        const resp = await fetch(this.pdfRawUrl, { mode: 'cors' });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const base = (this.pdfTitle || 'documento')
+          .toLowerCase().replace(/\s+/g, '_').replace(/[^\w\-]+/g, '');
+        a.href = url;
+        a.download = base.endsWith('.pdf') ? base : base + '.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      } catch {
+        try {
+          const u = new URL(this.pdfRawUrl!);
+          u.searchParams.set('response-content-disposition', `attachment; filename="${(this.pdfTitle || 'documento').replace(/\s+/g, '_')}.pdf"`);
+          window.open(u.toString(), '_self');
+        } catch {
+          window.open(this.pdfRawUrl!, '_blank');
+        }
+      }
+    }
 }

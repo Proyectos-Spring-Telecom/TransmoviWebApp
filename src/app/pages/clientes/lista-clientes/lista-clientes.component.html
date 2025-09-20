@@ -47,6 +47,44 @@
                                 </ng-template>
                             </dxi-column> -->
                             <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="150"></dxi-column>
+                            <dxi-column dataField="logotipo" caption="Imagen" cellTemplate="imagen" [width]="200" alignment="center">
+                                <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+                            </dxi-column>
+                            <div *dxTemplate="let data of 'imagen'" style="text-align: center;">
+                                <img *ngIf="data.value" style="max-width: 100px;" [src]="data.value" />
+                                <img *ngIf="data.value == null" style="max-width: 100px;"
+                                    src="https://izzimoviles.s3.us-east-1.amazonaws.com/Imagenes/user.jpeg" />
+                            </div>
+                            <dxi-column caption="Acta Constitutiva" [width]="150" alignment="center" [allowSorting]="false"
+                                [allowFiltering]="false" cellTemplate="actConts">
+                            </dxi-column>
+                            <div *dxTemplate="let f of 'actConts'">
+                                <button type="button" class="btn btn-primary btn-sm"
+                                    style="border-radius: 5px;"
+                                    (click)="previsualizar(f?.data?.actaConstitutiva, 'Acta Constitutiva', f?.data)">
+                                    <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
+                                </button>
+                            </div>
+                            <dxi-column caption="Comprobante de Domicilio" [width]="150" alignment="center" [allowSorting]="false"
+                                [allowFiltering]="false" cellTemplate="poliz">
+                            </dxi-column>
+                            <div *dxTemplate="let f of 'poliz'">
+                                <button type="button" class="btn btn-success btn-sm"
+                                    style="border-radius: 5px;"
+                                    (click)="previsualizar(f?.data?.comprobanteDomicilio, 'Comprobante de Domicilio', f?.data)">
+                                    <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
+                                </button>
+                            </div>
+                            <dxi-column caption="Constancia Situación Fiscal" [width]="150" alignment="center"
+                                [allowSorting]="false" [allowFiltering]="false" cellTemplate="concesip">
+                            </dxi-column>
+                            <div *dxTemplate="let f of 'concesip'">
+                                <button type="button" class="btn btn-warning btn-sm"
+                                    style="border-radius: 5px;"
+                                    (click)="previsualizar(f?.data?.constanciaSituacionFiscal, 'Constancia Situación Fiscal', f?.data)">
+                                    <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
+                                </button>
+                            </div>
                             <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center"></dxi-column>
                             <dxi-column dataField="telefono" caption="Teléfono" alignment="center"></dxi-column>
                             <dxi-column dataField="rfc" caption="RFC" alignment="center"></dxi-column>
@@ -98,3 +136,38 @@
 <dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
     [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
 </dx-load-panel>
+
+<dx-popup [visible]="pdfPopupVisible" [showTitle]="true" title="Documentación" [dragEnabled]="true"
+    [closeOnOutsideClick]="false" [width]="pdfPopupWidth" [height]="'auto'" [showCloseButton]="true"
+    (onHiding)="pdfPopupVisible = false">
+    <div class="pdf-viewer">
+        <div class="pdf-loader" *ngIf="pdfLoading && !pdfError">
+            Cargando documento…
+        </div>
+        <span class="dc-document" *ngIf="!pdfError">
+            {{pdfTitle}}
+            <br>
+        </span>
+        <ng-container *ngIf="!pdfError; else pdfErrorTpl">
+            <br>
+            <div class="pdf-frame" [class.is-loading]="pdfLoading">
+                <iframe class="pdf-iframe" [src]="pdfUrlSafe" (load)="onPdfLoaded()">
+                </iframe>
+            </div>
+            <div class="pdf-actions">
+                <button type="button" class="abrirArchivo" (click)="abrirEnNuevaPestana()">
+                    <i class="fa fa-plus"></i>&nbsp;&nbsp;Abrir
+                </button>
+                <button type="button" class="descargarArchivo" (click)="descargarPdfForzada()">
+                    <i class="fa fa-download"></i>&nbsp;&nbsp;Descargar
+                </button>
+            </div>
+        </ng-container>
+        <ng-template #pdfErrorTpl>
+            <div class="pdf-error-card">
+                <h4>📄 No pudimos previsualizar el PDF</h4>
+                <p>{{ pdfErrorMsg || 'El archivo no está disponible, el tipo de contenido no es PDF o fue bloqueado por el navegador (CORS).' }}</p>
+            </div>
+        </ng-template>
+    </div>
+</dx-popup>

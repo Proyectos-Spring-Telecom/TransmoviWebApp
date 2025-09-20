@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ClientesRoutingModule } from './clientes-routing.module';
 import { ListaClientesComponent } from './lista-clientes/lista-clientes.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DxDataGridModule, DxLoadPanelModule } from 'devextreme-angular';
+import { DxDataGridModule, DxLoadPanelModule, DxPopupModule } from 'devextreme-angular';
 import { AltaClientesComponent } from './alta-clientes/alta-clientes.component';
 
 
@@ -16,7 +16,8 @@ import { AltaClientesComponent } from './alta-clientes/alta-clientes.component';
     FormsModule,
     ReactiveFormsModule,
     DxDataGridModule,
-    DxLoadPanelModule
+    DxLoadPanelModule,
+    DxPopupModule
   ]
 })
 export class ClientesModule { }

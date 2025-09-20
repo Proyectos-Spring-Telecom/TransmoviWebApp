@@ -36,6 +36,23 @@ export class LoginComponent implements OnInit {
   public loading: boolean = false
   public passwordType: string = "password"
 
+  hide = true;
+
+   togglePassword(): void {
+    this.hide = !this.hide;
+  }
+form!: FormGroup;
+  submit(): void {
+    if (this.form.invalid || this.loading) return;
+    this.loading = true;
+
+    // Simula llamada al backend (reemplaza por tu servicio real)
+    setTimeout(() => {
+      this.loading = false;
+      // Aquí puedes navegar o guardar token, etc.
+      console.log('LOGIN OK', this.form.value);
+    }, 1200);
+  }
 
   // set the currenr year
   year: number = new Date().getFullYear();
