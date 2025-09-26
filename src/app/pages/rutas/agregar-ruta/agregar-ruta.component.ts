@@ -1,8 +1,12 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, TemplateRef, ViewChild, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Router } from '@angular/router';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { finalize } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { RegionesService } from 'src/app/shared/services/regiones.service';
+import { RutasService } from 'src/app/shared/services/rutas.service';
+import Swal from 'sweetalert2';
 
 declare global {
   interface Window { google: any; }
@@ -17,74 +21,79 @@ declare const google: any;
 })
 export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  // ====== UI / Template bindings ======
+  @ViewChild('exlargeModal', { static: false }) exlargeModal!: TemplateRef<any>;
+
   title = 'Agregar Ruta';
   rutaForm!: FormGroup;
   listaRegiones: any;
+  public submitButton: string = 'Guardar';
+  public loading: boolean = false;
+  // Estado UI
+  puntosCompletos = false;
 
-  // ====== Google Maps ======
+  // Google Maps
   private map!: google.maps.Map;
   private clickListener?: google.maps.MapsEventListener;
   private geocoder!: google.maps.Geocoder;
-
-  // Marcadores / InfoWindows
   private markerInicio?: google.maps.Marker;
   private markerFin?: google.maps.Marker;
   private infoInicio?: google.maps.InfoWindow;
   private infoFin?: google.maps.InfoWindow;
-
-  // Coordenadas seleccionadas
   private coordInicio?: google.maps.LatLngLiteral;
   private coordFin?: google.maps.LatLngLiteral;
-
-  // Direcciones legibles (texto “gris” de Google Maps)
   private direccionInicio?: string;
   private direccionFin?: string;
 
-  // Centro: Toluca
   private readonly centroToluca: google.maps.LatLngLiteral = { lat: 19.2879, lng: -99.6468 };
 
-  constructor(private fb: FormBuilder, private modalService: NgbModal, private regiService: RegionesService) { }
+  constructor(
+    private fb: FormBuilder,
+    private modalService: NgbModal,
+    private regiService: RegionesService,
+    private rutService: RutasService,
+    private ngZone: NgZone,
+    private route: Router,
+  ) { }
 
   /**
-   * Open extra large modal
-   * @param exlargeModal extra large modal data
+   * Open extra large modal (si lo quieres usar directo)
    */
   extraLarge(exlargeModal: any) {
-    this.modalService.open(exlargeModal, { size: 'xl',windowClass:'modal-holder', centered: true });
+    this.modalService.open(exlargeModal, { size: 'xl', windowClass: 'modal-holder', centered: true });
   }
 
-  // ================== Ciclo de vida ==================
   ngOnInit(): void {
     this.rutaForm = this.fb.group({
-      nombreFinal: ['', [Validators.required, Validators.maxLength(200)]],
+      nombre: ['', [Validators.required, Validators.maxLength(200)]],
       idRegion: [null, Validators.required],
       estatus: [1, Validators.required],
     });
 
-    this.obtenerRegiones()
+    this.obtenerRegiones();
   }
 
-  obtenerRegiones(){
+  obtenerRegiones(): void {
     this.regiService.obtenerRegiones().subscribe((response) => {
-      this.listaRegiones = response.data
-    })
+      this.listaRegiones = response?.data ?? [];
+    });
   }
-
 
   async ngAfterViewInit(): Promise<void> {
-    const API_KEY = 'TU_API_KEY_AQUI'; // o de environment
-    await this.loadGoogleMaps(API_KEY);
-    this.initMap();
-    this.initGeocoder();
-    this.attachClickHandler();
+    const API_KEY = 'TU_API_KEY_AQUI';
+    try {
+      await this.loadGoogleMaps(API_KEY);
+      this.initMap();
+      this.initGeocoder();
+      this.attachClickHandler();
+    } catch (err) {
+      console.error('No se pudo inicializar Google Maps:', err);
+    }
   }
 
   ngOnDestroy(): void {
     this.clickListener?.remove();
   }
 
-  // ================== Carga e init ==================
   private loadGoogleMaps(apiKey: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (window.google?.maps) return resolve();
@@ -120,35 +129,35 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private attachClickHandler(): void {
-    // Click #1: INICIO, Click #2: DESTINO (y LOG del body), Click #3: reinicia
     this.clickListener = this.map.addListener('click', async (e: google.maps.MapMouseEvent) => {
       if (!e.latLng) return;
-
       const coord: google.maps.LatLngLiteral = { lat: e.latLng.lat(), lng: e.latLng.lng() };
 
       try {
         if (!this.coordInicio) {
-          await this.setInicio(coord); // <-- esperamos geocoding
+          await this.setInicio(coord);
+          this.ngZone.run(() => { this.puntosCompletos = !!(this.coordInicio && this.coordFin); });
           return;
         }
 
         if (!this.coordFin) {
-          await this.setFin(coord);    // <-- esperamos geocoding
-          this.previsualizarBody();    // ya tenemos dirección FIN garantizada
+          await this.setFin(coord);
+          this.ngZone.run(() => { this.puntosCompletos = !!(this.coordInicio && this.coordFin); });
           this.fitToBoth();
+          this.previsualizarBody();
           return;
         }
 
-        // Si ya había 2 puntos, reiniciamos y comenzamos de nuevo con INICIO
         this.resetSelecciones();
         await this.setInicio(coord);
+        this.ngZone.run(() => { this.puntosCompletos = !!(this.coordInicio && this.coordFin); });
+
       } catch (err) {
         console.warn('Error al procesar click en el mapa:', err);
       }
     });
   }
 
-  // ================== Marcadores / Tooltips ==================
   private async setInicio(coord: google.maps.LatLngLiteral): Promise<void> {
     this.coordInicio = coord;
 
@@ -160,10 +169,10 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
       map: this.map,
       title: 'Inicio',
       icon: {
-        url: 'assets/images/markerGreen.png', // <-- tu imagen
-        scaledSize: new google.maps.Size(40, 40), // tamaño ajustable
-        anchor: new google.maps.Point(20, 40)    // centro en la punta
-      }
+        url: 'assets/images/markerGreen.png',
+        scaledSize: new google.maps.Size(40, 40),
+        anchor: new google.maps.Point(20, 40),
+      },
     });
 
     try {
@@ -188,10 +197,10 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
       map: this.map,
       title: 'Destino',
       icon: {
-        url: 'assets/images/markerRed.png', // <-- tu imagen
+        url: 'assets/images/markerRed.png',
         scaledSize: new google.maps.Size(40, 40),
-        anchor: new google.maps.Point(20, 40)
-      }
+        anchor: new google.maps.Point(20, 40),
+      },
     });
 
     try {
@@ -205,39 +214,51 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-
   private resetSelecciones(): void {
     this.coordInicio = undefined;
     this.coordFin = undefined;
-
     this.markerInicio?.setMap(null);
     this.markerFin?.setMap(null);
     this.markerInicio = undefined;
     this.markerFin = undefined;
-
     this.infoInicio?.close();
     this.infoFin?.close();
     this.infoInicio = undefined;
     this.infoFin = undefined;
-
     this.direccionInicio = undefined;
     this.direccionFin = undefined;
+
+    this.ngZone.run(() => { this.puntosCompletos = false; });
   }
+
 
   private fitToBoth(): void {
     if (!this.coordInicio || !this.coordFin) return;
+
     const bounds = new google.maps.LatLngBounds();
     bounds.extend(this.coordInicio);
     bounds.extend(this.coordFin);
-    this.map.fitBounds(bounds, 30);
+
+    const PADDING = 160;
+    this.map.fitBounds(bounds, PADDING);
+
+    google.maps.event.addListenerOnce(this.map, 'idle', () => {
+      const z = this.map.getZoom();
+      if (typeof z === 'number') {
+        this.map.setZoom(Math.max(z - 1, 3));
+      }
+    });
   }
 
-  // ================== Geocoder & Tooltip ==================
   private reverseGeocode(coord: google.maps.LatLngLiteral): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.geocoder.geocode({ location: coord }, (results: any, status: string) => {
-        if (status === 'OK' && results && results[0]) {
-          resolve(results[0].formatted_address); // texto “gris”
+      this.geocoder.geocode({ location: coord }, (results: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus) => {
+        if (status === 'OK' && results && results.length) {
+          try {
+            resolve(this.pickBestFormattedAddress(results));
+          } catch {
+            resolve(results[0].formatted_address);
+          }
         } else {
           reject(status);
         }
@@ -245,7 +266,18 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  private pickBestFormattedAddress(results: google.maps.GeocoderResult[]): string {
+    if (!results?.length) return 'Dirección no disponible';
+    const prefer = ['street_address', 'route', 'premise', 'subpremise', 'neighborhood'];
+    for (const t of prefer) {
+      const hit = results.find(r => r.types?.includes(t) && r.formatted_address);
+      if (hit?.formatted_address) return hit.formatted_address;
+    }
+    return results[0].formatted_address ?? 'Dirección no disponible';
+  }
+
   private buildTooltipHTML(titulo: string, direccion: string, color: string): string {
+    const safeDir = this.escapeHTML(direccion);
     return `
       <div style="
         font-family: 'Segoe UI', sans-serif;
@@ -257,14 +289,13 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
         line-height: 1.2;
       ">
         <div style="font-size: 14px; color: #4a4a4a; padding: 6px 10px;">
-          <strong style="color: ${color};">${titulo}</strong><br>
-          <b>${this.escapeHTML(direccion)}</b>
+          <strong style="color: ${color};">${this.escapeHTML(titulo)}</strong><br>
+          <b>${safeDir}</b>
         </div>
       </div>
     `;
   }
 
-  // Evitar inyección en la dirección
   private escapeHTML(text: any): any {
     return text
       .replaceAll('&', '&amp;')
@@ -274,15 +305,13 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
       .replaceAll("'", '&#39;');
   }
 
-  // ================== Body (console preview) ==================
   private buildFeatureCollectionPoint(coord: google.maps.LatLngLiteral) {
-    // GeoJSON requiere [lng, lat]
     return {
       type: 'FeatureCollection',
       features: [
         {
           type: 'Feature',
-          properties: {}, // si quieres, luego agregamos { nombre: ... }
+          properties: {},
           geometry: {
             type: 'Point',
             coordinates: [coord.lng, coord.lat]
@@ -295,31 +324,106 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
   private previsualizarBody(): void {
     if (!this.coordInicio || !this.coordFin) return;
 
-    const idRegion = this.rutaForm?.get('idPadre')?.value ?? null;
-    const nombreRuta = this.rutaForm?.get('nombreFinal')?.value ?? 'Ruta sin nombre';
-
     const body = {
-      nombre: nombreRuta,                                 // nombre de la RUTA (form)
+      nombre: (this.rutaForm?.get('nombre')?.value || 'Ruta sin nombre').toString().trim(),
       puntoInicio: this.buildFeatureCollectionPoint(this.coordInicio),
-      nombreInicio: this.direccionInicio ?? 'Punto Inicio', // dirección legible de INICIO
+      nombreInicio: this.direccionInicio ?? 'Punto Inicio',
       puntoFin: this.buildFeatureCollectionPoint(this.coordFin),
-      nombreFinal: this.direccionFin ?? 'Punto Fin',        // dirección legible de FIN (¡ya espera geocoder!)
-      estatus: 1,
-      idRegion: idRegion
+      nombreFinal: this.direccionFin ?? 'Punto Fin',
+      estatus: this.rutaForm?.get('estatus')?.value ?? 1,
+      idRegion: this.rutaForm?.get('idRegion')?.value ?? null
     };
 
-    console.group('%cBody listo para enviar', 'color:#0a7; font-weight:bold;');
+    console.group('%cBody listo para enviar (preview)', 'color:#0a7; font-weight:bold;');
     console.log('Objeto:', body);
     console.log('JSON:', JSON.stringify(body, null, 2));
     console.groupEnd();
   }
 
-   /**
-   * Open Large modal
-   * @param largeDataModal large modal data
-   */
-  largeModal(largeDataModal: any) {
-    this.modalService.open(largeDataModal, { size: 'lg',windowClass:'modal-holder', centered: true, backdrop: 'static',
-      keyboard: false, });
+  abrirModal(): void {
+    if (!this.coordInicio || !this.coordFin) {
+      console.warn('Selecciona los dos puntos antes de continuar');
+      return;
+    }
+    this.modalService.open(this.exlargeModal, { size: 'xl', windowClass: 'modal-holder', centered: true });
+  }
+
+  cerrarModal(): void {
+    this.modalService.dismissAll();
+  }
+
+  submit(): void {
+    if (this.rutaForm.invalid) {
+      this.rutaForm.markAllAsTouched();
+      return;
+    }
+    if (!this.coordInicio || !this.coordFin) {
+      console.warn('Faltan puntos en el mapa');
+      return;
+    }
+
+    this.submitButton = 'Guardando...';
+    this.loading = true;
+
+    const body = {
+      nombre: (this.rutaForm.get('nombre')?.value || 'Ruta sin nombre').toString().trim(),
+      puntoInicio: this.buildFeatureCollectionPoint(this.coordInicio),
+      nombreInicio: this.direccionInicio ?? 'Punto Inicio',
+      puntoFin: this.buildFeatureCollectionPoint(this.coordFin),
+      nombreFinal: this.direccionFin ?? 'Punto Fin',
+      estatus: Number(this.rutaForm.get('estatus')?.value ?? 1),
+      idRegion: Number(this.rutaForm.get('idRegion')?.value ?? 0),
+    };
+
+    console.group('%cJSON FINAL PARA ENVIAR', 'color:#0a7; font-weight:bold;');
+    console.log('Objeto:', body);
+    console.log('JSON:', JSON.stringify(body, null, 2));
+    console.groupEnd();
+
+    this.rutService.agregarRuta(body)
+      .pipe(finalize(() => {
+        this.submitButton = 'Guardar';
+        this.loading = false;
+      }))
+      .subscribe({
+        next: (response) => {
+          this.regresar()
+          Swal.fire({
+            title: '¡Operación Exitosa!',
+            background: '#002136',
+            text: 'Se agregó una nueva ruta de manera exitosa.',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Confirmar',
+          });
+          this.modalService.dismissAll();
+          // (opcional) limpia selección y form:
+          // this.resetSelecciones();
+          // this.rutaForm.reset({ nombre: '', idRegion: null, estatus: 1 });
+        },
+        error: (error) => {
+          console.error('Error al agregar ruta:', error);
+          Swal.fire({
+            title: '¡Ops!',
+            background: '#002136',
+            text: 'Ocurrió un error al agregar la ruta.',
+            icon: 'error',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Confirmar',
+          });
+        }
+      });
+  }
+
+  regresar() {
+    this.route.navigateByUrl('/rutas')
+  }
+
+  get hayAlgoSeleccionado(): boolean {
+    return !!(this.coordInicio || this.coordFin);
+  }
+
+  limpiarMapa(): void {
+    this.resetSelecciones();
   }
 }

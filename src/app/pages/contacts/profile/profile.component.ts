@@ -31,7 +31,7 @@ export interface UserMini {
 /**
  * Contacts-profile component
  */
-export class ProfileComponent  {
+export class ProfileComponent {
   @Input() user: UserMini = {
     nombre: 'Jane Cooper',
     usuario: '@janecooper',
@@ -44,25 +44,58 @@ export class ProfileComponent  {
     joinedAt: new Date('2023-07-18'),
     stats: { posts: 124, seguidores: 3482, siguiendo: 198, reputacion: 97 },
     skills: ['Angular', 'DevExtreme', 'RxJS', 'UX Writing'],
-    tags: ['Confiable', 'Productividad', 'KPI-driven']
+    tags: ['Activo',]
   };
   public showNombre: any;
+  public showApellidoPaterno: any;
+  public showApellidoMaterno: any;
   public showTelefono: any;
   public showCorreo: any;
   public showRol: any;
   public showRolDescripcion: any;
   public showImage: any;
+  public showRolExtraDescripcion: any
 
   constructor(private fb: FormBuilder, private users: AuthenticationService) {
     const user = this.users.getUser();
-    this.showNombre = user.nombre + ' ' + user.apellidoPaterno; 
+
+    const sanitize = (value: any): string => {
+  return (value && value !== 'null') ? value : '';
+};
+
+this.showNombre = sanitize(user.nombre);
+this.showApellidoPaterno = sanitize(user.apellidoPaterno);
+this.showApellidoMaterno = sanitize(user.apellidoMaterno);
+
+    
     this.showTelefono = user.telefono;
     this.showCorreo = user.userName;
     this.showRol = user.rol.nombre;
-    this.showRolDescripcion = user.rol.descripcion;
-    this.showImage = user.fotoPerfil
-
+    this.showRolDescripcion = user.rol.descripcion; // 🔴 se queda como está
+    this.showRolExtraDescripcion = this.getDescripcionRol(user.rol.nombre); // 🔵 nueva propiedad
+    this.showImage = user.fotoPerfil;
   }
+
+  /**
+   * Descripción personalizada según el rol.
+   */
+private getDescripcionRol(rol: string): string {
+  switch (rol?.toUpperCase()) {
+    case 'SA':
+      return 'Acceso total al sistema, puede gestionar usuarios, configuraciones, operaciones y seguridad sin restricciones.';
+    case 'Administrador':
+      return 'Responsable de la gestión general, incluyendo altas y bajas de recursos, configuración básica y soporte a operadores.';
+    case 'Operador':
+      return 'Enfocado únicamente en sus propias rutas y actividades asignadas. No tiene acceso a información de otros usuarios ni a configuraciones críticas.';
+    case 'Reportes':
+      return 'Encargado de la generación, análisis y consulta de reportes operativos y administrativos, con acceso especializado a datos históricos y métricas.';
+    case 'Pasajeros':
+      return 'Acceso limitado a la información relacionada con sus viajes, historial de rutas y notificaciones relevantes.';
+    default:
+      return 'Rol sin descripción extra definida.';
+  }
+}
+
 
   passwordForm: FormGroup = this.fb.group(
     {

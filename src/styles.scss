@@ -321,6 +321,42 @@ body[data-bs-theme=dark] {
   transition: 0.3s ease-in-out all;
 }
 
+.warning {
+  margin-top: 1%;
+  align-items: center;
+  background-color: #f1b44c;
+  border: 0;
+  border-radius: 5px;
+  box-sizing: border-box;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  justify-content: center;
+  line-height: 20px;
+  width: 20%;
+  height: 40%;
+  min-width: 0px;
+  overflow: hidden;
+  padding: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+  touch-action: manipulation;
+  transition: background-color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, box-shadow 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+}
+
+.warning:hover {
+  background-color: #c98a1c;
+  color: white;
+  transition: 0.3s ease-in-out all;
+}
+
 .abrirArchivo {
   margin-top: 1%;
   align-items: center;

@@ -51,12 +51,21 @@ $u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
   }
 }
 
-.section-title {
+.Descripcion {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 20px 0 16px;
+  color: rgb(219, 219, 219);
+  border-left: 4px solid #00836d;
+  padding-left: 8px;
+}
+
+.section-titles {
   font-weight: 700;
   font-size: 1.1rem;
-  margin: 20px 0 16px;
+  margin: 10px 0 16px;
   color: white;
-  border-left: 4px solid #00836d;
+  border-left: 4px solid #3f9b8b;
   padding-left: 8px;
 }
 

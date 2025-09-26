@@ -6,15 +6,20 @@
     </div>
 
     <div class="neo-identity">
-      <h1 class="neo-name">{{ user.nombre }}</h1>
+      <h1 class="neo-name">
+        <span *ngIf="showNombre">{{ showNombre }}</span>
+        <span *ngIf="showApellidoPaterno"> {{ showApellidoPaterno }}</span>
+        <span *ngIf="showApellidoMaterno"> {{ showApellidoMaterno }}</span>
+      </h1>
       <div class="neo-sub">
-        <span *ngIf="user.usuario">{{ user.usuario }}</span>
+        <span *ngIf="user.usuario">{{ showRol }}</span>
         <span *ngIf="user.usuario"> · </span>
-        <span class="neo-role">{{ user.rol }}</span>
+        <span class="neo-role">{{ showRolDescripcion }}</span>
       </div>
-      <p class="neo-bio" *ngIf="user.bio">{{ user.bio }}</p>
+      <p class="neo-bio" *ngIf="user.bio">{{ showRolExtraDescripcion }}</p>
 
       <div class="neo-tags" *ngIf="user.tags?.length">
+        Estatus:
         <span class="neo-tag" *ngFor="let t of user.tags; trackBy: trackByIndex">{{ t }}</span>
       </div>
     </div>
@@ -29,17 +34,17 @@
       <dl class="neo-dl">
         <div class="neo-item">
           <dt><i class="fa fa-envelope"></i> Correo</dt>
-          <dd><a [href]="'mailto:' + user.email">{{ user.email }}</a></dd>
+          <dd><a [href]="'mailto:' + user.email">{{ showCorreo }}</a></dd>
         </div>
 
         <div class="neo-item" *ngIf="user.telefono">
           <dt><i class="fa fa-phone"></i> Teléfono</dt>
-          <dd><a [href]="'tel:' + user.telefono">{{ user.telefono }}</a></dd>
+          <dd><a [href]="'tel:' + user.telefono">{{ showTelefono }}</a></dd>
         </div>
 
         <div class="neo-item" *ngIf="user.ubicacion">
-          <dt><i class="fa fa-map-marker"></i> Ubicación</dt>
-          <dd>{{ user.ubicacion }}</dd>
+          <dt><i class="fa fa-map-marker"></i> Rol</dt>
+          <dd>{{ showRol }}</dd>
         </div>
 
         <div class="neo-item" *ngIf="user.joinedAt">
@@ -47,21 +52,17 @@
           <dd>{{ user.joinedAt | date:'dd/MM/yyyy' }}</dd>
         </div>
 
-        <div class="neo-item" *ngIf="user.skills?.length">
-          <dt><i class="fa fa-star"></i> Habilidades</dt>
-          <dd class="neo-chips">
-            <span class="chip" *ngFor="let s of user.skills; trackBy: trackByIndex">{{ s }}</span>
-          </dd>
+        <div class="neo-item" *ngIf="user.joinedAt">
+          <dt><i class="fa fa-calendar"></i> Último login</dt>
+          <dd>{{ user.joinedAt | date:'dd/MM/yyyy' }}</dd>
         </div>
       </dl>
     </article>
 
-    <!-- Panel Cambiar contraseña (stepper) -->
     <article class="neo-panel security">
       <h2><i class="fa fa-lock"></i> Cambiar contraseña</h2>
 
       <form class="neo-form" [formGroup]="passwordForm" (ngSubmit)="onSubmitPassword()" novalidate>
-        <!-- Paso 1 -->
         <div class="fg">
           <div class="step">1</div>
           <label for="cp">Contraseña actual</label>
@@ -107,11 +108,11 @@
         </div>
 
         <div class="actions">
-          <button class="btn ghost" type="button" (click)="onResetPassword()" [disabled]="loading">
-            <i class="fa fa-undo"></i> Limpiar
-          </button>
           <button class="btn primary" type="submit" [disabled]="passwordForm.invalid || loading">
             <i class="fa fa-save"></i> Guardar cambios
+          </button>
+          <button class="btn ghost" type="button" (click)="onResetPassword()" [disabled]="loading">
+            <i class="fa fa-undo"></i> Limpiar
           </button>
         </div>
       </form>

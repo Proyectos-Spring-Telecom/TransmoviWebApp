@@ -39,9 +39,11 @@ export class RutasService {
     return this.http.get(`${environment.API_SECURITY}/rutas/list`);
   }
 
-  agregarRuta(data: FormData) {
-    return this.http.post(environment.API_SECURITY + '/rutas', data);
-  }
+  // rutas.service.ts
+agregarRuta(payload: any) {
+  return this.http.post(`${environment.API_SECURITY}/rutas`, payload);
+}
+
 
   eliminarRuta(idRuta: number) {
     return this.http.delete(environment.API_SECURITY + '/rutas/' + idRuta);

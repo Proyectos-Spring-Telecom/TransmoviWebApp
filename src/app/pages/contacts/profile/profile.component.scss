@@ -10,12 +10,10 @@
 
   color: var(--ink);
   display:block;
-  background:
-    radial-gradient(800px 400px at 10% -10%, #0b2a33 0%, transparent 60%),
-    var(--bg);
+  background: #002136
 }
 
-.neo-wrap{ padding: 28px; display: grid; gap: 20px; background-color: #002136; }
+.neo-wrap{ padding: 28px; display: grid; gap: 20px; }
 
 /* ===== HEADER NEUMÓRFICO ===== */
 .neo-header{
@@ -23,7 +21,7 @@
   grid-template-columns: 140px 1fr;
   align-items: center;
   border-radius: 20px;
-  background: linear-gradient(180deg, #0f2431, #0b1f2a);
+  background: #002136;
   border: 1px solid var(--stroke);
   box-shadow:
     8px 8px 18px rgba(0,0,0,.45),
@@ -37,7 +35,7 @@
 .neo-avatar{
   width: 120px; height: 120px; border-radius: 50%;
   background: #0d1f2a;
-  border: 6px solid rgba(255,255,255,.06);
+  border: 6px solid #00836d;
   box-shadow:
    inset 10px 10px 20px rgba(0,0,0,.35),
    inset -10px -10px 20px rgba(255,255,255,.02),
@@ -47,16 +45,16 @@
 .neo-avatar img{ width:100%; height:100%; object-fit: cover; display:block; }
 
 .neo-identity .neo-name{ margin: 0 0 2px; font-size: 28px; letter-spacing:.2px; }
-.neo-identity .neo-sub{ color: var(--muted); }
+.neo-identity .neo-sub{ color: var(--muted); margin-top: 5px; }
 .neo-identity .neo-role{ color: var(--brand-2); font-weight: 600; }
 .neo-identity .neo-bio{ margin: 8px 0 10px; color: #cfe0ee; }
 
-.neo-tags{ display:flex; flex-wrap: wrap; gap: 8px; }
+.neo-tags{ display:flex; justify-content: left; align-items: center;  flex-wrap: wrap; gap: 8px; color: white; }
 @media (max-width: 800px){ .neo-tags{ justify-content:center; } }
 .neo-tag{
   padding: 6px 10px; border-radius: 999px; font-size: 12px;
   border: 1px solid var(--stroke);
-  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  background: #00836d;
 }
 
 .neo-stats{
@@ -87,19 +85,19 @@
 
 .neo-panel{
   border-radius: 20px;
-  background: linear-gradient(180deg, var(--card), var(--card-2));
+  background: #002136;
   border:1px solid var(--stroke);
   box-shadow:
     8px 8px 18px rgba(0,0,0,.45),
     -6px -6px 16px rgba(255,255,255,.02);
-  padding: 16px 18px;
+  padding: 30px;
 }
 .neo-panel h2{
   margin: 0 0 12px; font-size: 16px; letter-spacing: .3px; display:flex; gap:8px; align-items:center;
 }
 
 /* ===== INFO como definition list ===== */
-.neo-dl{ margin:0; display:grid; gap: 10px; }
+.neo-dl{ margin:0; display:grid; gap: 18px; }
 .neo-item{
   display:grid; grid-template-columns: 180px 1fr; gap: 12px;
   padding: 12px; border-radius: 14px;
@@ -126,7 +124,7 @@
 .fg .step{
   position:absolute; left: 8px; top: 2px;
   width: 28px; height: 28px; border-radius: 50%;
-  background: linear-gradient(120deg, var(--brand), var(--brand-2));
+  background: #00836d;
   color: #eaffff; font-weight: 700; display:grid; place-items:center;
   box-shadow: 0 6px 14px rgba(0,0,0,.35);
 }
@@ -162,12 +160,12 @@
 .err{ color: #ffb4b4; font-size: 12px; margin-top: 4px; }
 
 .actions{
-  display:flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 6px;
+  display:flex; gap: 10px; justify-content: start; flex-wrap: wrap; margin-top: 10px;
 }
 .btn{
   --bg: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
   display:inline-flex; align-items:center; gap:8px;
-  padding:10px 14px; border-radius:14px; border:1px solid var(--stroke);
+  padding:10px 14px; border-radius:5px; border:1px solid var(--stroke);
   background: var(--bg); color: var(--ink);
   box-shadow:
     6px 6px 14px rgba(0,0,0,.4),
@@ -176,9 +174,9 @@
   cursor:pointer;
 }
 .btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.35); }
-.btn.ghost{ background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); }
+.btn.ghost{ background: #f46a6a; }
 .btn.primary{
-  background: linear-gradient(120deg, var(--brand), var(--brand-2));
+  background: #34c38f;
   border-color: transparent;
 }
 .btn[disabled]{ opacity:.6; cursor:not-allowed; }

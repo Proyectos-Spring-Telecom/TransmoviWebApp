@@ -5,7 +5,7 @@ import { AgregarRutaComponent } from './agregar-ruta/agregar-ruta.component';
 
 const routes: Routes = [
   {
-      path: 'lista-rutas',
+      path: '',
       component: ListaRutasComponent
   },
   {

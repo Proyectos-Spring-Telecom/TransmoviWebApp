@@ -65,10 +65,9 @@
               <dxi-column dataField="numeroSerieDispositivo" caption="N° Serie Dispositivo" alignment="center"></dxi-column>
               <div *dxTemplate="let transaccion of 'Acciones'" class="d-flex gap-3 justify-content-center">
                 <div>
-                  <button type="button"
-                    (click)="centerModal(centerDataModal, transaccion.data.id, transaccion.data.latitud, transaccion.data.longitud, transaccion.data.fechaHora, transaccion.data.monto, transaccion.data.tipoTransaccion)"
-                    class="btn btn-primary btn-sm text-white" style="border-radius: 5px;">
-                    <i class="fa fa-map-pin"></i> Ver Ubicación
+                  <button type="button" class="btn btn-secondary"
+                    (click)="centerModal(centerDataModal, transaccion.data.id, transaccion.data.latitud, transaccion.data.longitud, transaccion.data.fechaHora, transaccion.data.monto, transaccion.data.tipoTransaccion)" style="border-radius: 5px;">
+                    <i class="uil uil-map-pin ml-2"></i> Ubicar
                   </button>
                 </div>
               </div>
@@ -114,9 +113,9 @@
           <div id="map" class="w-100 h-100"></div>
         </div>
       </div>
-      <div class="modal-footer border-top-0">
-        <button type="button" class="btn btn-md w-100 waves-effect waves-light"
-          style="background-color: #0a66c2; color: white; border-radius: 5px;" (click)="modal.close()">
+      <div class="modal-footer border-top-0 d-flex align-items-center justify-content-center">
+        <button type="button" class="btn btn-md w-50 waves-effect waves-light"
+          style="background-color:#f46a6a; color:#fff; border-radius:5px;" (click)="modal.close()">
           <i class="fa fa-times"></i>&nbsp;Cerrar
         </button>
       </div>

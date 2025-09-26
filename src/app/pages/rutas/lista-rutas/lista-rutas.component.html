@@ -27,43 +27,57 @@
               [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="'true'" [dataSource]="listaRutas"
               [keyExpr]="'Id'" [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
               [pager]="{ 
-                                showPageSizeSelector: true, 
-                                allowedPageSizes: [50], 
-                                showInfo: true,
-                                infoText: 'Página {0} de {1}', 
-                                visible: true 
-                            }" (onPageIndexChanged)=" onPageIndexChanged($event)"
+                  showPageSizeSelector: true, 
+                  allowedPageSizes: [50], 
+                  showInfo: true,
+                  infoText: 'Página {0} de {1}', 
+                  visible: true 
+              }" (onPageIndexChanged)=" onPageIndexChanged($event)"
               (onOptionChanged)="onGridOptionChanged($event)">
               <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
-              <dxo-paging [pageSize]="20"></dxo-paging>
               <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
               <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
               <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
               <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-              <dxi-column caption="Acciones" cellTemplate="acciones" alignment="center"></dxi-column>
-              <dxi-column dataField="nombre" caption="Nombre" alignment="center"></dxi-column>
-              <dxi-column dataField="nombreInicio" caption="Punto Inicio" alignment="center"></dxi-column>
-              <dxi-column dataField="nombreFinal" caption="Punto Fin" alignment="center"></dxi-column>
-              <dxi-column dataField="fechaCreacion" caption="Fecha Creación" alignment="center"
-                cellTemplate="regFechaCreacion">
+              <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
+              <dxi-column caption="Acciones" cellTemplate="acciones" [width]="160" alignment="center"></dxi-column>
+              <dxi-column dataField="nombre" caption="Nombre" alignment="center" [width]="250"></dxi-column>
+              <dxi-column dataField="nombreInicio" caption="Punto Inicio" [width]="300" alignment="center" cellTemplate="cell">
+                <div *dxTemplate="let data of 'cell'">
+                  <div style="white-space: pre-wrap; word-break: break-word; text-align: center;">
+                    {{ data.value }}
+                  </div>
+                  <div *ngIf="data.value == null" style="display: flex; align-items: center; justify-content: center;">
+                    Sin registro
+                  </div>
+                </div>
+              </dxi-column>
+              <dxi-column dataField="nombreFinal" caption="Punto Fin" [width]="300" alignment="center" cellTemplate="agw">
+                <div *dxTemplate="let data of 'agw'">
+                  <div style="white-space: pre-wrap; word-break: break-word; text-align: center;">
+                    {{ data.value }}
+                  </div>
+                  <div *ngIf="data.value == null" style="display: flex; align-items: center; justify-content: center;">
+                    Sin registro
+                  </div>
+                </div>
+              </dxi-column>
+              <dxi-column dataField="fechaCreacion" caption="Fecha Creación" [width]="200" alignment="center"  cellTemplate="regFechaCreacion">
                 <div *dxTemplate="let s of 'regFechaCreacion' ">
                   {{s.data.fechaCreacion | date:'dd/MM/yyyy HH:mm' : '+0000'}}
                 </div>
               </dxi-column>
-              <dxi-column dataField="idRegion2.nombre" caption="Nombre Región" alignment="center"></dxi-column>
+              <dxi-column dataField="idRegion2.nombre" caption="Nombre Región" [width]="200" alignment="center"></dxi-column>
               <dxi-column dataField="idRegion2.descripcion" caption="Descripción" alignment="center"></dxi-column>
               <dxo-export [enabled]="false" [allowExportSelectedData]="true"
                 [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
               </dxo-export>
               <div *dxTemplate="let d of 'acciones'" class="d-flex gap-0 justify-content-center">
                 <div>
-                  <button type="button"
-                    (click)="centerModal(exlargeModal, d.data.id, null, null, undefined, undefined, undefined, d.data)"
-                    class="btn btn-primary btn-sm text-white" style="border-radius: 5px;">
-                    <i class="fa fa-map-pin"></i> Ver Ubicación
+                  <button type="button" class="btn btn-secondary"
+                    (click)="centerModal(exlargeModal, d.data.id, null, null, undefined, undefined, undefined, d.data)">
+                    <i class="uil uil-map-pin ml-2"></i> Ubicar
                   </button>
-
-
                 </div>
               </div>
             </dx-data-grid>
@@ -83,23 +97,23 @@
     <div class="modal-content p-0" style="background-color:#002b47;">
       <div class="modal-body">
         <div class="card mb-3 shadow-sm">
-          <div class="card-header ruta-header d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-2">
-              <i class="fa fa-map-signs"></i>
-              <span class="fw-bold">{{ selectedRutaNombre }}</span>
+          <div class="custom-card-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+              <div class="icon-circle">
+                <i class="fa fa-map-signs"></i>
+              </div>
+              <span class="ruta-titulo">Trayecto: {{ selectedRutaNombre }}</span>
             </div>
+            <div class="header-deco"></div>
           </div>
         </div>
-
         <div *ngIf="showMap" class="map-container" style="border-radius:10px; overflow:hidden;">
           <div class="w-100" [style.height.px]="300" [id]="'map-' + selectedTransactionId"></div>
         </div>
       </div>
-
       <div class="modal-footer border-top-0 d-flex align-items-center justify-content-center">
-        <button type="button" class="btn btn-md w-50 waves-effect waves-light"
-                style="background-color:#0a66c2; color:#fff; border-radius:5px;"
-                (click)="modal.close()">
+        <button type="button" class="btn btn-md w-25 waves-effect waves-light"
+          style="background-color:#f46a6a; color:#fff; border-radius:5px;" (click)="modal.close()">
           <i class="fa fa-times"></i>&nbsp;Cerrar
         </button>
       </div>

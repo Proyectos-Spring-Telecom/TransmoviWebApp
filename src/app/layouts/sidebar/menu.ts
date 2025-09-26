@@ -53,7 +53,6 @@ export const MENU: MenuItem[] = [
         label: 'Roles',
         icon: 'uil-clipboard-notes',
         link: '/roles',
-        permiso: Permiso.Listado_Roles
     },
     {
         id: 14,
@@ -143,7 +142,7 @@ export const MENU: MenuItem[] = [
             {
                 id: 9,
                 label: 'Rutas',
-                link: '/rutas/lista-rutas',
+                link: '/rutas',
                 permiso: Permiso.Listado_Rutas,
             },
             {

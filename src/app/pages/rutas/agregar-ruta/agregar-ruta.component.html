@@ -2,25 +2,31 @@
   <div class="card">
     <div class="card-header-custom">
       <div class="icon-wrapper">
-        <i class="fas fa-user-plus"></i>
+        <i class="fas fa-plus"></i>
       </div>
       <div class="header-text">
-        <h5>{{ 'hola' }}</h5>
-        <span>Completa la información para registrar un nuevo usuario.</span>
+        <h5>{{ 'Agregar Ruta' }}</h5>
+        <span>Traza el recorrido de tu vehículo, marca Inicio y Destino.</span>
       </div>
     </div>
     <div class="card-body">
       <form [formGroup]="rutaForm" class="cliente-form">
-        <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
-          data-bs-target=".bs-example-modal-lg" (click)="extraLarge(exlargeModal)">Large modal</button>
-        <h6 class="section-title mt-3">Seleccione el punto de partida y de llegada en el mapa</h6>
+        <!-- <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
+          data-bs-target=".bs-example-modal-lg" (click)="extraLarge(exlargeModal)">Large modal</button> -->
+        <h6 class="Descripcion mt-3">Elige primero Inicio y luego Fin sobre el mapa. Después, pulsa Continuar, completa Nombre y Región en el modal y confirma el guardado.</h6>
         <div class="col-md-12 mt-1">
           <div id="map"></div>
         </div>
-        <div class="form-actions mt-4">
-          <button type="submit" class="submit">{{'Guardar'}}</button>
-          <button type="button" class="cancel">Cancelar</button>
-        </div>
+        <div class="form-actions mt-4" style="display: flex; align-items: center; justify-content: center;">
+                    <button [@fadeInUp] type="submit" class="submit" *ngIf="puntosCompletos" (click)="abrirModal()">{{submitButton}}</button>
+                    <button type="button"
+         class="warning"
+         *ngIf="hayAlgoSeleccionado"
+         (click)="limpiarMapa()">
+   Limpiar mapa
+ </button>
+                    <button [@fadeInUp] type="button" class="cancel" (click)="regresar()">Cancelar</button>
+                </div>
       </form>
     </div>
   </div>
@@ -40,18 +46,18 @@
       </div>
       <div class="card-body" style="padding: 20px; background-color: #002136;">
         <form [formGroup]="rutaForm" class="cliente-form">
-          <h6 class="section-title">Datos Generales</h6>
+          <h6 class="section-titles">Datos Generales</h6>
           <div class="row">
             <div class="col-md-6">
               <label>Nombre</label>
-              <input type="text" class="form-control" formControlName="nombreFinal"
+              <input type="text" class="form-control" formControlName="nombre"
                 placeholder="Ej: Consultar Administración">
             </div>
             <div class="col-md-6">
               <label>Región</label>
-              <select class="form-control" formControlName="idRegión">
+              <select class="form-control" formControlName="idRegion">
                 <option [ngValue]="null">Seleccione una región</option>
-                <option *ngFor="let c of listaRegiones" [ngValue]="c.id">
+                <option *ngFor="let c of listaRegiones" [ngValue]="c.idRegion">
                   {{ c.idRegion2.nombre }}
                 </option>
               </select>
