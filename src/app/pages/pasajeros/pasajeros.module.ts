@@ -6,6 +6,7 @@ import { ListaPasajerosComponent } from './lista-pasajeros/lista-pasajeros.compo
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DxDataGridModule, DxLoadPanelModule } from 'devextreme-angular';
 import { AltaPasajeroComponent } from './alta-pasajero/alta-pasajero.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 
 @NgModule({
@@ -16,7 +17,8 @@ import { AltaPasajeroComponent } from './alta-pasajero/alta-pasajero.component';
     FormsModule,
     ReactiveFormsModule,
     DxDataGridModule,
-    DxLoadPanelModule
+    DxLoadPanelModule,
+    SharedModule
   ]
 })
 export class PasajerosModule { }

@@ -12,7 +12,7 @@
                     <p class="u-banner__subtitle">
                         Consulta, busca y navega entre tus usuarios registrados
                     </p>
-                    <div>
+                    <div *appHasPermission="'6'">
                         <button class="u-btn u-btn--primary" (click)="agregarUsuario()">
                             <i class="fas fa-plus"></i>
                             <span>Agregar Usuario</span>
@@ -44,7 +44,7 @@
                                     <img [src]="d.data.Logotipo" alt="Logo" width="50">
                                 </ng-template>
                             </dxi-column> -->
-                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="150"></dxi-column>
+                            <dxi-column *appHasPermission="['7', '8']" caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="150"></dxi-column>
                             <dxi-column dataField="FotoPerfil" caption="Imagen" cellTemplate="imagen" [width]="200" alignment="center">
                                 <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
                             </dxi-column>
@@ -68,13 +68,13 @@
                                 </div>
                             </dxi-column>
                             <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
-                                <div>
+                                <div *appHasPermission="'7'">
                                     <button valueExpr="id" id="actualizarButton" class="btnAcciones"
                                         (click)="actualizarUsuario(row.data.Id)">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </div>
-                                <div>
+                                <div *appHasPermission="'8'">
                                     <button *ngIf="row.data.Estatus === 0" id="pinButton" class="btnAcciones"
                                         (click)="activar(row.data)">
                                         <i class="fa fa-arrow-up"></i>

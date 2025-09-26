@@ -12,7 +12,6 @@ export const MENU: MenuItem[] = [
         label: 'Dashboard',
         icon: 'uil-home',
         link: '/',
-        // permiso: Permiso.ConsultarAdministracion
     },
     {
         id: 20,
@@ -24,67 +23,79 @@ export const MENU: MenuItem[] = [
                 label: 'Módulos',
                 icon: 'uil-apps',
                 link: '/modulos',
+                permiso: Permiso.Listado_Modulos
             },
             {
                 id: 15,
                 label: 'Permisos',
                 icon: 'uil-clipboard-notes',
                 link: '/permisos',
+                permiso: Permiso.Listado_Permisos
             },
             {
                 id: 8,
                 label: 'Bitácora',
                 icon: 'uil-list-ul',
                 link: '/bitacora/lista-bitacora',
-                // permiso: Permiso.VerBitacora
+                permiso: Permiso.Listado_Bitacora
             },
         ],
     },
     {
-        id: 15, //Continua el id 16
+        id: 15,
         label: 'Usuarios',
         icon: 'uil-user',
         link: '/usuarios',
+        permiso: Permiso.Listado_Usuarios
     },
     {
         id: 15,
         label: 'Roles',
         icon: 'uil-clipboard-notes',
         link: '/roles',
+        permiso: Permiso.Listado_Roles
     },
     {
         id: 14,
         label: 'Clientes',
         icon: 'uil-users-alt',
         link: '/clientes',
+        permiso: Permiso.Listado_Cliente
     },
     {
         id: 2,
         label: 'Dispositivos',
         icon: 'uil-document-layout-left',
         link: '/dispositivos',
-        // permiso: Permiso.VerDispositivos
+        permiso: Permiso.Listado_Dispositivos
     },
     {
         id: 2,
         label: 'Bluevox',
         icon: 'uil-document-layout-left',
         link: '/bluevox/dispositivo-bluevox',
-        // permiso: Permiso.VerDispositivos
+        permiso: Permiso.Listado_BlueVoxs
     },
     {
         id: 3,
         label: 'Vehículos',
         icon: 'uil-car',
         link: '/vehiculos',
-        // permiso: Permiso.VerVehiculos
+        permiso: Permiso.Listado_Vehiculos
     },
     {
         id: 4,
         label: 'Operadores',
         icon: 'uil-users-alt',
         link: '/operadores',
-        // permiso: Permiso.VerOperadores
+        permiso: Permiso.Listado_Operadores
+    },
+    {
+        id: 4,
+        label: 'Instalaciones',
+        icon: 'uil-plug',
+        link: '/instalaciones',
+        permiso: Permiso.Listado_Instalaciones
     },
     {
         id: 20,
@@ -102,14 +113,12 @@ export const MENU: MenuItem[] = [
                 label: 'Monederos',
                 icon: 'uil-moneybag-alt',
                 link: '/monederos',
-                // permiso: Permiso.VerMonederos
             },
             {
                 id: 7,
                 label: 'Transacciones',
                 icon: 'uil-refresh',
                 link: '/transacciones',
-                // permiso: Permiso.VerTransacciones
             },
         ],
     },
@@ -118,25 +127,29 @@ export const MENU: MenuItem[] = [
         label: 'Pasajeros',
         icon: 'uil-user-circle',
         link: '/pasajeros',
-        // permiso: Permiso.VerPasajeros
+        permiso: Permiso.Listado_Pasajeros
     },
     {
         id: 15,
         label: 'Gestión de Viajes',
         icon: 'uil-arrows-right-down',
+        permiso: Permiso.Listado_Rutas,
         subItems: [
             {
                 id: 9,
                 label: 'Regiones',
+                link: '/regiones'
             },
             {
                 id: 9,
                 label: 'Rutas',
                 link: '/rutas/lista-rutas',
+                permiso: Permiso.Listado_Rutas,
             },
             {
                 id: 9,
                 label: 'Derroteros',
+                link: '/derroteros'
             }
         ]
     },

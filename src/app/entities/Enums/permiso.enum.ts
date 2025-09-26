@@ -1,60 +1,172 @@
 export enum Permiso {
+  /* #region Clientes */
+  Listado_Cliente = "1",
+  Crear_Clientes = "2",
+  Actualizar_Clientes = "3",
+  CambiarEstatus_Cliente = "4",
+  /* #endregion */
 
-    /* #region Administración */
-    ConsultarAdministracion = "6",
-    /* #endregion */
+  /* #region Usuarios */
+  Listado_Usuarios = "5",
+  Crear_Usuarios = "6",
+  Actualizar_Usuarios = "7",
+  CambiarEstatus_Usuarios = "8",
+  /* #endregion */
 
-    /* #region Bitácora */
-    CrearBitacora = "6",
-    VerBitacora = "7",
-    /* #endregion */
+  /* #region Roles */
+  Listado_Roles = "9",
+  Crear_Roles = "10",
+  Actualizar_Roles = "11",
+  CambiarEstatus_Roles = "12",
+  /* #endregion */
 
-    /* #region Dispositivos */
-    CrearDispositivo = "8",
-    VerDispositivos = "9",
-    EditarDispositivo = "10",
-    EliminarDispositivo = "11",
-    /* #endregion */
+  /* #region Permisos */
+  Listado_Permisos = "13",
+  Crear_Permisos = "14",
+  Actualizar_Permisos = "15",
+  CambiarEstatus_Permisos = "16",
+  /* #endregion */
 
-    /* #region Monederos */
-    CrearMonedero = "12",
-    VerMonederos = "13",
-    EditarMonedero = "14",
-    EliminarMonedero = "15",
-    RecargarMonedero = "58",
-    DebitarMonedero = "59",
-    /* #endregion */
+  /* #region Módulos */
+  Listado_Modulos = "17",
+  Crear_Modulos = "18",
+  Actualizar_Modulos = "19",
+  CambiarEstatus_Modulos = "20",
+  /* #endregion */
 
-    /* #region Operadores */
-    CrearOperador = "16",
-    VerOperadores = "17",
-    EditarOperador = "18",
-    EliminarOperador = "19",
-    /* #endregion */
+  /* #region UsuariosPermisos */
+  Listado_UsuariosPermisos = "21",
+  Crear_UsuariosPermisos = "22",
+  Actualizar_UsuariosPermisos = "23",
+  CambiarEstatus_UsuariosPermisos = "24",
+  /* #endregion */
 
-    /* #region Pasajeros */
-    CrearPasajero = "20",
-    VerPasajeros = "21",
-    EditarPasajero = "22",
-    EliminarPasajero = "23",
-    /* #endregion */
+  /* #region UsuariosRegiones */
+  Listado_UsuariosRegiones = "25",
+  Crear_UsuariosRegiones = "26",
+  Actualizar_UsuariosRegiones = "27",
+  CambiarEstatus_UsuariosRegiones = "28",
+  /* #endregion */
 
-    /* #region Transacciones */
-    CrearTransaccion = "24",
-    VerTransacciones = "25",
-    EditarTransaccion = "26",
-    EliminarTransaccion = "27",
-    /* #endregion */
+  /* #region UsuariosInstalaciones */
+  Listado_UsuariosInstalaciones = "29",
+  Crear_UsuariosInstalaciones = "30",
+  Actualizar_UsuariosInstalaciones = "31",
+  CambiarEstatus_UsuariosInstalaciones = "32",
+  /* #endregion */
 
-    /* #region Vehículos */
-    CrearVehiculo = "28",
-    VerVehiculos = "29",
-    EditarVehiculo = "30",
-    EliminarVehiculo = "31",
-    /* #endregion */
+  /* #region Operadores */
+  Listado_Operadores = "33",
+  Crear_Operadores = "34",
+  Actualizar_Operadores = "35",
+  CambiarEstatus_Operadores = "36",
+  /* #endregion */
 
-    AgregarModulo = "99",
-    ConsultarModulos = "29",
-    ActualizarModulo = "30",
-    EliminarModulo = "31",
+  /* #region Vehículos */
+  Listado_Vehiculos = "37",
+  Crear_Vehiculos = "38",
+  Actualizar_Vehiculos = "39",
+  CambiarEstatus_Vehiculos = "40",
+  /* #endregion */
+
+  /* #region Dispositivos */
+  Listado_Dispositivos = "41",
+  Crear_Dispositivos = "42",
+  Actualizar_Dispositivos = "43",
+  CambiarEstatus_Dispositivos = "44",
+  /* #endregion */
+
+  /* #region BlueVoxs */
+  Listado_BlueVoxs = "45",
+  Crear_BlueVoxs = "46",
+  Actualizar_BlueVoxs = "47",
+  CambiarEstatus_BlueVoxs = "48",
+  /* #endregion */
+
+  /* #region Instalaciones (Vehículos en módulo 13) */
+  Listado_Instalaciones = "49",
+  Crear_Instalaciones = "50",
+  Actualizar_Instalaciones = "51",
+  CambiarEstatus_Instalaciones = "52",
+  /* #endregion */
+
+  /* #region Turnos */
+  Listado_Turnos = "53",
+  Crear_Turnos = "54",
+  Actualizar_Turnos = "55",
+  CambiarEstatus_Turnos = "56",
+  /* #endregion */
+
+  /* #region Viajes */
+  Listado_Viajes = "57",
+  Crear_Viajes = "58",
+  Actualizar_Viajes = "59",
+  CambiarEstatus_Viajes = "60",
+  /* #endregion */
+
+  /* #region Regiones */
+  Listado_Regiones = "61",
+  Crear_Regiones = "62",
+  Actualizar_Regiones = "63",
+  CambiarEstatus_Regiones = "64",
+  /* #endregion */
+
+  /* #region Rutas */
+  Listado_Rutas = "65",
+  Crear_Rutas = "66",
+  Actualizar_Rutas = "67",
+  CambiarEstatus_Rutas = "68",
+  /* #endregion */
+
+  /* #region Derroteros */
+  Listado_Derroteros = "69",
+  Crear_Derroteros = "70",
+  Actualizar_Derroteros = "71",
+  CambiarEstatus_Derroteros = "72",
+  /* #endregion */
+
+  /* #region Tarifas */
+  Listado_Tarifas = "73",
+  Crear_Tarifas = "74",
+  Actualizar_Tarifas = "75",
+  CambiarEstatus_Tarifas = "76",
+  /* #endregion */
+
+  /* #region Monederos */
+  Listado_Monederos = "77",
+  Crear_Monederos = "78",
+  Actualizar_Monederos = "79",
+  CambiarEstatus_Monederos = "80",
+  /* #endregion */
+
+  /* #region Pasajeros */
+  Listado_Pasajeros = "81",
+  Crear_Pasajeros = "82",
+  Actualizar_Pasajeros = "83",
+  CambiarEstatus_Pasajeros = "84",
+  /* #endregion */
+
+  /* #region Bitácora */
+  Listado_Bitacora = "85",
+  /* #endregion */
+
+  /* #region ConteoPasajeros */
+  Listado_ConteoPasajeros = "86",
+  Crear_ConteoPasajeros = "87",
+  /* #endregion */
+
+  /* #region Posiciones */
+  Crear_Posiciones = "89",
+  /* #endregion */
+
+  /* #region Transacciones */
+  Listado_Transacciones = "90",
+  Crear_Transacciones = "91",
+  /* #endregion */
+
+  /* #region Extras / Pruebas */
+  Ejemplo = "99",
+  PruebaFront2 = "100",
+  Prueba_Modulos = "101",
+  /* #endregion */
 }

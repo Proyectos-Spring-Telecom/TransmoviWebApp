@@ -56,69 +56,69 @@ export class ListaTransaccionesComponent implements OnInit {
   }
 
   setupDataSource() {
-  this.loading = true;
+    this.loading = true;
 
-  this.listaTransacciones = new CustomStore({
-    key: 'id',
-    load: async (loadOptions: any) => {
-      const take = Number(loadOptions?.take) || this.pageSize || 10;
-      const skip = Number(loadOptions?.skip) || 0;
-      const page = Math.floor(skip / take) + 1;
+    this.listaTransacciones = new CustomStore({
+      key: 'id',
+      load: async (loadOptions: any) => {
+        const take = Number(loadOptions?.take) || this.pageSize || 10;
+        const skip = Number(loadOptions?.skip) || 0;
+        const page = Math.floor(skip / take) + 1;
 
-      try {
-        const resp: any = await lastValueFrom(
-          this.tranService.obtenerTransaccionesData(page, take)
-        );
-        this.loading = false;
+        try {
+          const resp: any = await lastValueFrom(
+            this.tranService.obtenerTransaccionesData(page, take)
+          );
+          this.loading = false;
 
-        const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
-        const meta = resp?.paginated ?? {};
-        const totalRegistros = toNum(meta.total) ?? rows.length;
-        const paginaActual = toNum(meta.page) ?? page;
-        const totalPaginas =
-          toNum(meta.lastPage) ?? Math.max(1, Math.ceil(totalRegistros / take));
+          const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
+          const meta = resp?.paginated ?? {};
+          const totalRegistros = toNum(meta.total) ?? rows.length;
+          const paginaActual = toNum(meta.page) ?? page;
+          const totalPaginas =
+            toNum(meta.lastPage) ?? Math.max(1, Math.ceil(totalRegistros / take));
 
-        const dataTransformada = rows.map((x: any) => ({
-          id: x?.id ?? null,
-          tipoTransaccion: x?.tipoTransaccion ?? null,
-          monto: toMoney(x?.monto),
-          latitud: x?.latitud ?? null,
-          longitud: x?.longitud ?? null,
-          fechaHora: x?.fechaHora ?? null,
-          fhRegistro: x?.fhRegistro ?? null,
-          numeroSerieMonedero: x?.numeroSerieMonedero ?? null,
-          numeroSerieDispositivo: x?.numeroSerieDispositivo ?? null
-        }));
+          const dataTransformada = rows.map((x: any) => ({
+            id: x?.id ?? null,
+            tipoTransaccion: x?.tipoTransaccion ?? null,
+            monto: toMoney(x?.monto),
+            latitud: x?.latitud ?? null,
+            longitud: x?.longitud ?? null,
+            fechaHora: x?.fechaHora ?? null,
+            fhRegistro: x?.fhRegistro ?? null,
+            numeroSerieMonedero: x?.numeroSerieMonedero ?? null,
+            numeroSerieDispositivo: x?.numeroSerieDispositivo ?? null
+          }));
 
-        this.totalRegistros = totalRegistros;
-        this.paginaActual = paginaActual;
-        this.totalPaginas = totalPaginas;
-        this.paginaActualData = dataTransformada;
+          this.totalRegistros = totalRegistros;
+          this.paginaActual = paginaActual;
+          this.totalPaginas = totalPaginas;
+          this.paginaActualData = dataTransformada;
 
-        return {
-          data: dataTransformada,
-          totalCount: totalRegistros
-        };
-      } catch (error) {
-        this.loading = false;
-        console.error('[TRANSACCIONES] Error:', error);
-        return { data: [], totalCount: 0 };
+          return {
+            data: dataTransformada,
+            totalCount: totalRegistros
+          };
+        } catch (error) {
+          this.loading = false;
+          console.error('[TRANSACCIONES] Error:', error);
+          return { data: [], totalCount: 0 };
+        }
       }
+    });
+
+    function toNum(v: any): number | null {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
     }
-  });
 
-  function toNum(v: any): number | null {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : null;
+    function toMoney(v: any): number | null {
+      if (v === null || v === undefined) return null;
+      const s = String(v).replace(',', '.').replace(/[^0-9.-]/g, '');
+      const n = Number(s);
+      return Number.isFinite(n) ? Number(n.toFixed(2)) : null;
+    }
   }
-
-  function toMoney(v: any): number | null {
-    if (v === null || v === undefined) return null;
-    const s = String(v).replace(',', '.').replace(/[^0-9.-]/g, '');
-    const n = Number(s);
-    return Number.isFinite(n) ? Number(n.toFixed(2)) : null;
-  }
-}
 
 
   onGridOptionChanged(e: any) {
@@ -170,20 +170,32 @@ export class ListaTransaccionesComponent implements OnInit {
     }, 500);
   }
 
-  initializeMap(lat: string, lng: string) {
-    const mapElement = document.getElementById('map');
-    if (mapElement) {
-      const location = { lat: parseFloat(lat), lng: parseFloat(lng) };
-      const map = new google.maps.Map(mapElement, {
-        center: location,
-        zoom: 15
-      });
+  private readonly markerIcon: google.maps.Icon = {
+    url: new URL('assets/images/icons8-marker-48.png', document.baseURI).toString(),
+    scaledSize: new google.maps.Size(42, 42),
+    anchor: new google.maps.Point(21, 42),
+  };
 
-      new google.maps.Marker({
-        position: location,
-        map: map
-      });
-    }
+  initializeMap(lat: string, lng: string) {
+    const mapElement = document.getElementById('map') as HTMLElement | null;
+    if (!mapElement) return;
+
+    const position = { lat: Number(lat), lng: Number(lng) };
+
+    const map = new google.maps.Map(mapElement, {
+      center: position,
+      zoom: 15,
+      mapTypeControl: false,
+      streetViewControl: true,
+      fullscreenControl: true,
+    });
+
+    new google.maps.Marker({
+      position,
+      map,
+      icon: this.markerIcon,
+      title: `Ubicación`,
+    });
   }
 
   cerrarModal(modal: any) {

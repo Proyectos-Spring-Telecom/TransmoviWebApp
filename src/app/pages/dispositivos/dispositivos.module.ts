@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ListaDispositivosComponent } from './lista-dispositivos/lista-dispositivos.component';
 import { DxDataGridModule, DxLoadPanelModule } from 'devextreme-angular';
 import { AltaDispositivoComponent } from './alta-dispositivo/alta-dispositivo.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 
 @NgModule({
@@ -16,7 +17,8 @@ import { AltaDispositivoComponent } from './alta-dispositivo/alta-dispositivo.co
     FormsModule,
     ReactiveFormsModule,
     DxDataGridModule,
-    DxLoadPanelModule
+    DxLoadPanelModule,
+    SharedModule,
   ]
 })
 export class DispositivosModule { }

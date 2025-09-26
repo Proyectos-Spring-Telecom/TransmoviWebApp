@@ -1,0 +1,108 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-body">
+            <div class="u-banner">
+                <div class="u-banner__icon">
+                    <div class="u-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                </div>
+                <div class="u-banner__body">
+                    <h2 class="u-banner__title">Gestión de Instalaciones</h2>
+                    <p class="u-banner__subtitle">
+                        Consulta, busca y navega entre tus instalaciones registrados
+                    </p>
+                    <div *appHasPermission="'50'">
+                        <button class="u-btn u-btn--primary" (click)="agregarInstalacion()">
+                            <i class="fas fa-plus"></i>
+                            <span>Agregar Instalaciones</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <div class="table-responsive mb-4 col-12 col-lg-12">
+                        <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
+                            [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
+                            [rowAlternationEnabled]="'true'" [dataSource]="listaInstalaciones" [keyExpr]="'Id'"
+                            [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
+                            [pager]="{ 
+                                showPageSizeSelector: true, 
+                                allowedPageSizes: [50], 
+                                showInfo: true,
+                                infoText: 'Página {0} de {1}', 
+                                visible: true 
+                            }" (onPageIndexChanged)=" onPageIndexChanged($event)"
+                            (onOptionChanged)="onGridOptionChanged($event)">
+                            <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
+                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
+                            <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
+                            <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
+                            <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
+                            <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
+                            <dxi-column *appHasPermission="['51', '52']" caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="180"></dxi-column>
+                            <dxi-column dataField="idInstalacion2.fechaCreacion" caption="Fecha Creación" [width]="160" alignment="center" cellTemplate="fechCreaci">
+                                <div *dxTemplate="let a of 'fechCreaci'">
+                                    {{ a.data.idInstalacion2.fechaCreacion | date:'dd/MM/yyyy HH:mm' : '+0000' }}
+                                </div>
+                            </dxi-column>
+                            <dxi-column dataField="idInstalacion2.fechaActualizacion" caption="Fecha Actualización" [width]="160" alignment="center" cellTemplate="fechActualizacion">
+                                <div *dxTemplate="let a of 'fechActualizacion'">
+                                    {{ a.data.idInstalacion2.fechaActualizacion | date:'dd/MM/yyyy HH:mm' : '+0000' }}
+                                </div>
+                            </dxi-column>
+                            <dxi-column dataField="idInstalacion2.dispositivos.numeroSerie" caption="Dispositivo" alignment="center"></dxi-column>
+                            <dxi-column dataField="idInstalacion2.blueVoxs.numeroSerie" caption="BlueVox" alignment="center"></dxi-column>
+                            <dxi-column dataField="idInstalacion2.vehiculos" caption="Vehículo" alignment="center" cellTemplate="instalVehiculo">
+                                <div *dxTemplate="let t of 'instalVehiculo' ">
+                                    {{'N° de Placa: ' + t.data.idInstalacion2.vehiculos.placa}}
+                                </div>
+                            </dxi-column>
+                            <dxi-column dataField="idInstalacion2.idCliente2" caption="Cliente" alignment="center" cellTemplate="instalClient">
+                                <div *dxTemplate="let i of 'instalClient'">
+                                    {{i.data.idInstalacion2.idCliente2.nombre}} {{i.data.idInstalacion2.idCliente2.apellidoPaterno || ' '}} {{i.data.idInstalacion2.idCliente2.apellidoMaterno || ' '}}
+                                </div>
+                            </dxi-column>
+                            <dxi-column dataField="idInstalacion2.estatus" caption="Estatus" alignment="center" cellTemplate="est">
+                                <div *dxTemplate="let f of 'est'">
+                                    <span *ngIf="f.data.idInstalacion2.estatus === 1" class="estatus estatus-activo">
+                                        Activo
+                                    </span>
+                                    <span *ngIf="f.data.idInstalacion2.estatus !== 1" class="estatus estatus-inactivo">
+                                        Inactivo
+                                    </span>
+                                </div>
+                            </dxi-column>
+                            <dxo-export [enabled]="false" [allowExportSelectedData]="true"
+                                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
+                            </dxo-export>
+                            <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
+                                <div *appHasPermission="'51'">
+                                    <button valueExpr="id" id="actualizarButton" class="btnAcciones"
+                                        (click)="actualizarInstalacion(row.data.idInstalacion)">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                </div>
+                                <div *appHasPermission="'52'">
+                                    <button *ngIf="row.data.idInstalacion2.estatus === 0" id="pinButton" class="btnAcciones"
+                                        (click)="activar(row.data)">
+                                        <i class="fa fa-arrow-up"></i>
+                                    </button>
+                                    <button *ngIf="row.data.idInstalacion2.estatus === 1" id="deleteButton" class="btnAcciones"
+                                        (click)="desactivar(row.data)">
+                                        <i class="fa fa-arrow-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </dx-data-grid>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
+    [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
+</dx-load-panel>

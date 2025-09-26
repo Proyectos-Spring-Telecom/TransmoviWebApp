@@ -3,6 +3,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { DxDataGridComponent } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
+import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { VehiculosService } from 'src/app/shared/services/vehiculos.service';
@@ -35,7 +36,9 @@ export class ListaVehiculosComponent implements OnInit {
   public paginaActualData: any[] = [];
   public filtroActivo: string = '';
 
-  constructor(private vehiService: VehiculosService, private route: Router, private sanitizer: DomSanitizer) {
+  constructor(private vehiService: VehiculosService, 
+    private route: Router, private sanitizer: DomSanitizer,
+    private permissionsService: NgxPermissionsService,) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
   }
@@ -44,27 +47,24 @@ export class ListaVehiculosComponent implements OnInit {
     this.setupDataSource();
   }
 
+  hasPermission(permission: string): boolean {
+    return this.permissionsService.getPermission(permission) !== undefined;
+  }
+
   setupDataSource() {
     this.loading = true;
-
     this.listaVehiculos = new CustomStore({
       key: 'id',
       load: async (loadOptions: any) => {
-        // DevExtreme manda estos valores cuando usas remote paging
         const take = Number(loadOptions?.take) || this.pageSize || 10;
         const skip = Number(loadOptions?.skip) || 0;
         const page = Math.floor(skip / take) + 1;
-
         try {
           const resp: any = await lastValueFrom(
             this.vehiService.obtenerVehiculosData(page, take)
           );
-
           this.loading = false;
-
           const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
-
-          // ---- Manejo robusto de la meta de paginación ----
           const meta = resp?.paginated || {};
           const totalRegistros =
             toNum(meta.total) ??
@@ -80,16 +80,12 @@ export class ListaVehiculosComponent implements OnInit {
             toNum(meta.lastPage) ??
             toNum(resp?.pages) ??
             Math.max(1, Math.ceil(totalRegistros / take));
-          // --------------------------------------------------
-
           const dataTransformada = rows.map((item: any) => ({
             ...item,
             estatusTexto:
               item?.estatus === 1 ? 'Activo' :
                 item?.estatus === 0 ? 'Inactivo' : null
           }));
-
-          // Si llevas estos contadores en el componente:
           this.totalRegistros = totalRegistros;
           this.paginaActual = paginaActual;
           this.totalPaginas = totalPaginas;
@@ -97,7 +93,7 @@ export class ListaVehiculosComponent implements OnInit {
 
           return {
             data: dataTransformada,
-            totalCount: totalRegistros // <- IMPORTANTE para que el grid pagine bien
+            totalCount: totalRegistros
           };
         } catch (err) {
           this.loading = false;
@@ -154,7 +150,6 @@ export class ListaVehiculosComponent implements OnInit {
   actualizarVehiculo(idVehiculo: number) {
     this.route.navigateByUrl('/vehiculos/editar-vehiculo/' + idVehiculo);
   };
-
 
   activar(rowData: any) {
     Swal.fire({

@@ -12,7 +12,7 @@
                     <p class="u-banner__subtitle">
                         Consulta, busca y navega entre tus operadores registrados
                     </p>
-                    <div>
+                    <div *appHasPermission="'34'">
                         <button class="u-btn u-btn--primary" (click)="agregarOperador()">
                             <i class="fas fa-plus"></i>
                             <span>Agregar Operadores</span>
@@ -42,11 +42,8 @@
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center"
-                                [width]="150"></dxi-column>
-                            <dxi-column caption="Identificación" [width]="150" alignment="center" [allowSorting]="false"
-                                [allowFiltering]="false" cellTemplate="ident">
-                            </dxi-column>
+                            <dxi-column *appHasPermission="['35', '36']" caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="150"></dxi-column>
+                            <dxi-column caption="Identificación" [width]="150" alignment="center" [allowSorting]="false" [allowFiltering]="false" cellTemplate="ident"></dxi-column>
                             <div *dxTemplate="let f of 'ident'">
                                 <button type="button" class="btn btn-primary btn-sm"
                                     style="border-radius: 5px;"
@@ -80,10 +77,8 @@
                                     r.data.idUsuario2.apellidoMaterno }}
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="numeroLicencia" caption="Número Licencia"
-                                alignment="center"></dxi-column>
-                            <dxi-column dataField="correo" caption="Correo Electrónico" alignment="center"
-                                cellTemplate="correoElec">
+                            <dxi-column dataField="numeroLicencia" caption="Número Licencia" alignment="center"></dxi-column>
+                            <dxi-column dataField="correo" caption="Correo Electrónico" alignment="center" cellTemplate="correoElec">
                                 <div *dxTemplate="let f of 'correoElec'">
                                     {{f.data.idUsuario2.userName}}
                                 </div>
@@ -110,13 +105,13 @@
                                 exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
                             </dxo-export>
                             <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
-                                <div>
+                                <div *appHasPermission="'35'">
                                     <button valueExpr="id" id="actualizarButton" class="btnAcciones"
                                         (click)="actualizarOperador(row.data.id)">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </div>
-                                <div>
+                                <div *appHasPermission="'36'">
                                     <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones"
                                         (click)="activar(row.data)">
                                         <i class="fa fa-arrow-up"></i>

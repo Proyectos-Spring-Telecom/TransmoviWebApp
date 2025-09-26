@@ -18,6 +18,10 @@ export class VehiculosService {
     return this.http.get(`${environment.API_SECURITY}/vehiculos/list`);
   }
 
+  obtenerVehiculosByCliente(idCliente: any): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/vehiculos/clientes/${idCliente}`);
+  }
+
   agregarVehiculo(data: FormData) {
     return this.http.post(environment.API_SECURITY + '/vehiculos', data);
   }

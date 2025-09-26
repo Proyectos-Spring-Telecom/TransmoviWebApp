@@ -16,10 +16,6 @@ import Swal from 'sweetalert2';
   animations: [fadeInUpAnimation],
 })
 export class ListaModulosComponent {
-  public permisoConsultarModulo: string;
-  public permisoAgregarModulo: string;
-  public permisoActualizarModulo: string;
-  public permisoEliminarModulo: string;
   public mensajeAgrupar: string = 'Arrastre un encabezado de columna aquí para agrupar por esa columna';
   public listaModulos: any;
   public showFilterRow: boolean;
@@ -50,26 +46,12 @@ export class ListaModulosComponent {
   ngOnInit() {
     this.setupDataSource();
     // this.obtenerListaModulos();
-    this.obtenerPermisos();
-  }
-
-  public get Permiso() {
-    return Permiso;
-  }
-
-  obtenerPermisos() {
-    this.permisoAgregarModulo = Permiso.AgregarModulo;
-
-    const permisos = [
-      this.permisoAgregarModulo,
-    ];
-
-    this.permissionsService.loadPermissions(permisos);
   }
 
   hasPermission(permission: string): boolean {
     return this.permissionsService.getPermission(permission) !== undefined;
   }
+  
   obtenerListaModulos() {
     this.loading = true;
     this.moduloService.obtenerModulos().subscribe((response: any[]) => {

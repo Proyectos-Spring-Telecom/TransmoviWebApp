@@ -3,6 +3,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { DxDataGridComponent } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
+import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { OperadoresService } from 'src/app/shared/services/operadores.service';
@@ -39,7 +40,8 @@ export class ListaOperadoresComponent implements OnInit {
   constructor(
     private opService: OperadoresService,
     private route: Router,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private permissionsService: NgxPermissionsService,
   ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
@@ -47,6 +49,10 @@ export class ListaOperadoresComponent implements OnInit {
 
   ngOnInit(): void {
     this.obtenerOperadores();
+  }
+
+  hasPermission(permission: string): boolean {
+    return this.permissionsService.getPermission(permission) !== undefined;
   }
 
   agregarOperador() {

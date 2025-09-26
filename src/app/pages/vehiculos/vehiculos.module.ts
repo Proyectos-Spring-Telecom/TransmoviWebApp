@@ -6,6 +6,7 @@ import { ListaVehiculosComponent } from './lista-vehiculos/lista-vehiculos.compo
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DxDataGridModule, DxLoadPanelModule, DxPopupModule } from 'devextreme-angular';
 import { AltaVehiculoComponent } from './alta-vehiculo/alta-vehiculo.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 
 @NgModule({
@@ -17,7 +18,8 @@ import { AltaVehiculoComponent } from './alta-vehiculo/alta-vehiculo.component';
     ReactiveFormsModule,
     DxDataGridModule,
     DxLoadPanelModule,
-    DxPopupModule
+    DxPopupModule,
+    SharedModule
   ]
 })
 export class VehiculosModule { }

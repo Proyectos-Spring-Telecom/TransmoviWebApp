@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { DxDataGridComponent } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
+import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { PasajerosService } from 'src/app/shared/services/pasajeros.service';
@@ -32,13 +33,20 @@ export class ListaPasajerosComponent implements OnInit {
   public paginaActualData: any[] = [];
   public filtroActivo: string = '';
 
-  constructor(private pasaService: PasajerosService, private route: Router) {
+  constructor(private pasaService: PasajerosService,
+    private route: Router,
+    private permissionsService: NgxPermissionsService,
+  ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
   }
 
   ngOnInit(): void {
     this.obtenerListaPasajeros();
+  }
+
+  hasPermission(permission: string): boolean {
+    return this.permissionsService.getPermission(permission) !== undefined;
   }
 
   obtenerListaPasajeros() {

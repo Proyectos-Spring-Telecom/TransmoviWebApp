@@ -44,19 +44,6 @@ export class ListaPermisosComponent implements OnInit {
   ngOnInit() {
     this.setupDataSource();
     // this.obtenerListaPermisos();
-    this.obtenerPermmisos();
-  }
-
-  public get Permiso() {
-    return Permiso;
-  }
-
-  obtenerPermmisos() {
-    this.permisoAgregarPermiso = Permiso.CrearMonedero;
-    const permisos = [
-      this.permisoAgregarPermiso,
-    ];
-    this.permissionsService.loadPermissions(permisos);
   }
 
   hasPermission(permission: string): boolean {

@@ -1,106 +1,130 @@
 .total-registros-label {
-    font-size: 16px; 
-    font-weight: bold; 
-    color: #f7fb06; 
-    padding: 8px 15px; 
-    border-radius: 5px; 
-    background-color: #515237; 
-    display: inline-block; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-  }
-
-  .card {
-  margin-bottom: 1.25rem;
-  box-shadow: var(--bs-box-shadow);
-  border: none;
-  background-color: #002136;
+  font-size: 16px; 
+  font-weight: bold; 
+  color: #f7fb06; 
+  padding: 8px 15px; 
+  border-radius: 5px; 
+  background-color: #515237; 
+  display: inline-block; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
 }
-  
-  .data {
-    min-width: 1000px;
-  }
-  .header-dispositivos {
-    text-align: center;
-    background-color: #00836d;
-    padding: 20px;
-  }
-  
-  .header-dispositivos i {
-    font-size: 30px;
-    color: #09fa3a;
-    vertical-align: middle;
-    margin-right: 8px;
-  }
-  
-  .titulo {
-    font-size: 24px;
-    font-weight: bold;
-    color: #fff;
-  }
-  
-  .subtitulo {
-    font-size: 14px;
-    color: #fff;
-    margin-top: 5px;
-  }
-  
-  
-  
-  
-  ::ng-deep .dx-searchbox .dx-texteditor-input {
-    --radii: 2.0em;
-    cursor: pointer;
-    min-height: 38px;
-    font-size: var(--size, 14px);
-    font-weight: 500;
-    transition: 0.8s;
-    background-size: 280% auto;
-    background-color: #0a66c2;
-    border: none;
-    border-radius: var(--radii);
-  }
-  
-  ::ng-deep .dx-searchbox .dx-texteditor-input:hover {
-    background-position: right top;
-  }
-  
-  ::ng-deep .dx-searchbox .dx-texteditor-input:is(:focus, :focus-visible, :active) {
-    outline: none;
-    box-shadow:
-        0 0 0 0px var(--btn-bg-color),
-        0 0 0 0px var(--btn-bg-2);
-  }
-  
-  @media (prefers-reduced-motion: reduce) {
-    .dx-searchbox .dx-texteditor-input {
-        transition: linear;
-    }
-  }
-  
-  ::ng-deep .dx-icon-clear:before {
-    color: white;
-  }
-  
-  ::ng-deep .dx-icon-search:before {
-    color: white !important;
-  }
-  
-  ::ng-deep .dx-searchbox .dx-placeholder::before,
-  .dx-searchbox .dx-texteditor-input,
-  .dx-searchbox.dx-editor-underlined .dx-texteditor-buttons-container+.dx-texteditor-input-container .dx-texteditor-input,
-  .dx-searchbox.dx-editor-underlined .dx-texteditor-input {
-    padding-inline-start: 34px;
-    color: white;
-  }
 
-  .map-container {
-    border-radius: 15px;
-    height: 650px;
-    flex: 1;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    background-color: #e9ecef;
+.data {
+  min-width: 1000px;
+}
+.header-dispositivos {
+  text-align: center;
+  background-color: #00836d;
+  padding: 20px;
+}
+
+.header-dispositivos i {
+  font-size: 30px;
+  color: #09fa3a;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.titulo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.subtitulo {
+  font-size: 14px;
+  color: #fff;
+  margin-top: 5px;
+}
+
+::ng-deep .swal2-container .swal2-title {
+    font-size: 24px;
+    font-weight: 200;
+    color: #ffffff;
+}
+
+.swal2-container .swal2-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+::ng-deep div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+
+
+::ng-deep .dx-searchbox .dx-texteditor-input {
+  --radii: 2.0em;
+  cursor: pointer;
+  min-height: 38px;
+  font-size: var(--size, 14px);
+  font-weight: 500;
+  transition: 0.8s;
+  background-size: 280% auto;
+  background-color: #0a66c2;
+  border: none;
+}
+
+::ng-deep .dx-searchbox .dx-texteditor-input:hover {
+  background-position: right top;
+}
+
+::ng-deep .dx-searchbox .dx-texteditor-input:is(:focus, :focus-visible, :active) {
+  outline: none;
+  box-shadow:
+      0 0 0 0px var(--btn-bg-color),
+      0 0 0 0px var(--btn-bg-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dx-searchbox .dx-texteditor-input {
+      transition: linear;
   }
+}
+
+::ng-deep .dx-icon-clear:before {
+  color: white;
+}
+
+::ng-deep .dx-icon-search:before {
+  color: white !important;
+}
+
+::ng-deep .dx-searchbox .dx-placeholder::before,
+.dx-searchbox .dx-texteditor-input,
+.dx-searchbox.dx-editor-underlined .dx-texteditor-buttons-container+.dx-texteditor-input-container .dx-texteditor-input,
+.dx-searchbox.dx-editor-underlined .dx-texteditor-input {
+  padding-inline-start: 34px;
+  color: white;
+}
 
 .button-18 {
   margin-top: 1%;
@@ -147,4 +171,90 @@
   cursor: not-allowed;
   background: rgba(0, 0, 0, .08);
   color: rgba(0, 0, 0, .3);
+}
+
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  border: none;
+  background-color: #002136;
+}
+
+#map {
+  width: 100%;
+  height: 320px; // el que tú quieras
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+
+$u-bg: #0b2633;
+$u-card: #0f3a43;
+$u-card-2: #0f544f;
+$u-text: #eaf6f8;
+$u-muted: #a7c6cc;
+$u-accent: #4ade80;
+$u-primary: #3b82f6;
+$u-primary-2: #0a66c2;
+$u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+.ruta-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: center;
+
+  padding: 1.2rem 1.5rem;
+  border-radius: 14px;
+  color: $u-text;
+  background:
+    radial-gradient(1000px 200px at 0% 0%, rgba(255, 255, 255, .06), transparent 40%),
+    linear-gradient(135deg, $u-card, $u-card-2);
+  box-shadow: $u-shadow;
+  border: 1px solid rgba(255, 255, 255, .06);
+  transition: border-color .25s ease, transform .25s ease;
+
+  .fa {
+    font-size: 1.2rem;
+    color: #fff; // icono destacado en amarillo
+  }
+
+  .fw-bold {
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .btn-close-white {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.2);
+      color: #ffd166;
+    }
+  }
+}
+
+
+/* reduce el padding interno del InfoWindow */
+::ng-deep .gm-style .gm-style-iw-c {
+  padding: 6px 8px !important;
+  border-radius: 12px !important;
+}
+
+/* evita scroll y espacios raros */
+::ng-deep .gm-style .gm-style-iw-d {
+  overflow: visible !important;
+}
+
+/* opcional: afina la “colita” del globo para que no deje hueco */
+::ng-deep .gm-style .gm-style-iw-tc {
+  margin-top: -4px; /* ajusta si lo ves necesario */
 }

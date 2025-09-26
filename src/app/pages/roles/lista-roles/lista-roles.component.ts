@@ -50,26 +50,12 @@ export class ListaRolesComponent implements OnInit {
   ngOnInit() {
     this.setupDataSource();
     // this.obtenerlistaRoles();
-    this.obtenerPermisos();
-  }
-
-  public get Permiso() {
-    return Permiso;
-  }
-
-  obtenerPermisos() {
-    this.permisoAgregarRol = Permiso.AgregarModulo;
-
-    const permisos = [
-      this.permisoAgregarRol,
-    ];
-
-    this.permissionsService.loadPermissions(permisos);
   }
 
   hasPermission(permission: string): boolean {
     return this.permissionsService.getPermission(permission) !== undefined;
   }
+  
   obtenerlistaRoles() {
     this.loading = true;
     this.rolService.obtenerRoles().subscribe((response: any[]) => {

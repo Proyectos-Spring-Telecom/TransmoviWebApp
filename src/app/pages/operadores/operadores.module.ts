@@ -6,6 +6,7 @@ import { ListaOperadoresComponent } from './lista-operadores/lista-operadores.co
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DxDataGridModule, DxLoadPanelModule, DxPopupModule } from 'devextreme-angular';
 import { AltaOperadorComponent } from './alta-operador/alta-operador.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 
 @NgModule({
@@ -17,7 +18,8 @@ import { AltaOperadorComponent } from './alta-operador/alta-operador.component';
     ReactiveFormsModule,
     DxDataGridModule,
     DxLoadPanelModule,
-    DxPopupModule
+    DxPopupModule,
+    SharedModule
   ]
 })
 export class OperadoresModule { }

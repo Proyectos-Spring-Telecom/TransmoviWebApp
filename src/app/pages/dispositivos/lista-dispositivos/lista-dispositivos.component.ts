@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { DxDataGridComponent } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
+import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { DispositivosService } from 'src/app/shared/services/dispositivos.service';
@@ -34,7 +35,8 @@ export class ListaDispositivosComponent implements OnInit {
   public paginaActualData: any[] = [];
   public filtroActivo: string = '';
 
-  constructor(private disService: DispositivosService, private route: Router) {
+  constructor(private disService: DispositivosService,
+    private route: Router, private permissionsService: NgxPermissionsService,) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
   }
@@ -42,6 +44,11 @@ export class ListaDispositivosComponent implements OnInit {
   ngOnInit(): void {
     this.obtenerDispositivos();
   }
+
+  hasPermission(permission: string): boolean {
+    return this.permissionsService.getPermission(permission) !== undefined;
+  }
+
   obtenerDispositivos() {
     this.loading = true;
     this.listaDispositivos = new CustomStore({

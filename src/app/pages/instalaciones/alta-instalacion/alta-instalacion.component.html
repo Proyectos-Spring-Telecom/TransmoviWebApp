@@ -1,0 +1,53 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-header-custom">
+            <div class="icon-wrapper">
+                <i class="fas fa-plus"></i>
+            </div>
+            <div class="header-text">
+                <h5>{{ title }}</h5>
+                <span>Completa la información para registrar una nueva instalación.</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <form [formGroup]="instalacionesForm" class="cliente-form">
+                <h6 class="section-title">Datos Generales</h6>
+                <div class="row">
+                    <div class="col-md-4 mt-1">
+                        <label for="idCliente" class="form-label">Cliente</label>
+                        <select id="idCliente" class="form-select" formControlName="idCliente">
+                            <option value="">Seleccione un cliente</option>
+                            <option *ngFor="let c of listaClientes"  [ngValue]="c.id">{{ c.nombre }} {{c.apellidoPaterno || ' ' }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mt-1">
+                        <label for="idDispositivo" class="form-label">Dispositivo</label>
+                        <select id="idDispositivo" class="form-select" formControlName="idDispositivo">
+                            <option value="">Seleccione un dispositivo</option>
+                            <option *ngFor="let d of listaDipositivos"  [ngValue]="d.id">{{ d.numeroSerie }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mt-1">
+                        <label for="idBlueVox" class="form-label">Bluevox</label>
+                        <select id="idBlueVox" class="form-select" formControlName="idBlueVox">
+                            <option value="">Seleccione un Bluevox</option>
+                            <option *ngFor="let b of listaBlueVox"  [ngValue]="b.id">{{ b.numeroSerie }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mt-1">
+                        <label for="idVehiculo" class="form-label">Vehículo</label>
+                        <select id="idVehiculo" class="form-select" formControlName="idVehiculo">
+                            <option value="">Seleccione un vehículo</option>
+                            <option *ngFor="let v of listaVehiculos"  [ngValue]="v.id">{{ v.placa }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions mt-4">
+                    <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
+                    <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

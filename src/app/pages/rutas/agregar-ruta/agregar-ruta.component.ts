@@ -1,686 +1,325 @@
-import { HttpClient } from '@angular/common/http';
-import {
-  Component,
-  OnInit,
-  NgZone,
-  TemplateRef,
-  ViewChild,
-} from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
-import { RutasService } from 'src/app/shared/services/rutas.service';
-import Swal from 'sweetalert2';
+import { RegionesService } from 'src/app/shared/services/regiones.service';
+
+declare global {
+  interface Window { google: any; }
+}
+declare const google: any;
 
 @Component({
   selector: 'app-agregar-ruta',
   templateUrl: './agregar-ruta.component.html',
-  styleUrl: './agregar-ruta.component.scss',
+  styleUrls: ['./agregar-ruta.component.scss'],
   animations: [fadeInUpAnimation],
 })
-export class AgregarRutaComponent implements OnInit {
-  public guardarRutaNueva: FormGroup;
-  public configRuta: FormGroup;
-  public idRutaEspecifica: any;
-  public title: string = 'Planeación de Rutas';
-  public subtitle: string = 'Define y registra el recorrido que seguirán.';
-  public informacion: any;
-  center = { lat: 19.2866, lng: -99.6557 };
-  zoom = 13;
-  map!: google.maps.Map;
-  polyline!: google.maps.Polyline;
-  path: google.maps.LatLngLiteral[] = [];
-  startMarker!: google.maps.Marker;
-  endMarker!: google.maps.Marker;
+export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  geocoder!: google.maps.Geocoder;
-  customPolyline!: google.maps.Polyline;
-  hasStart = false;
-  mostrarBotonDeshacer = false;
+  // ====== UI / Template bindings ======
+  title = 'Agregar Ruta';
+  rutaForm!: FormGroup;
+  listaRegiones: any;
 
-  public recorridoDeta: any;
-  public distanciak: any;
-  @ViewChild('largeDataModals', { static: false })
-  largeDataModals!: TemplateRef<any>;
-  @ViewChild('largeDataModalsConfig', { static: false })
-  largeDataModalsConfig!: TemplateRef<any>;
+  // ====== Google Maps ======
+  private map!: google.maps.Map;
+  private clickListener?: google.maps.MapsEventListener;
+  private geocoder!: google.maps.Geocoder;
 
-  public nombreRuta: any;
-  public tarifa: any;
-  public distancia: any;
-  public incrementoMetros: any;
-  public costoAdicional: any;
-  public showId: boolean = false;
-  private scrolled = false;
+  // Marcadores / InfoWindows
+  private markerInicio?: google.maps.Marker;
+  private markerFin?: google.maps.Marker;
+  private infoInicio?: google.maps.InfoWindow;
+  private infoFin?: google.maps.InfoWindow;
 
-  rutaGuardada!: {
-    puntoInicio: { coordenadas: google.maps.LatLngLiteral; direccion: string };
-    puntoFin: { coordenadas: google.maps.LatLngLiteral; direccion: string };
-    recorrido: google.maps.LatLngLiteral[];
-  };
+  // Coordenadas seleccionadas
+  private coordInicio?: google.maps.LatLngLiteral;
+  private coordFin?: google.maps.LatLngLiteral;
 
-  constructor(
-    private zone: NgZone,
-    private route: Router,
-    private http: HttpClient,
-    private modalService: NgbModal,
-    private rutaSe: RutasService,
-    private fb: FormBuilder,
-    private activatedRoute: ActivatedRoute
-  ) {}
+  // Direcciones legibles (texto “gris” de Google Maps)
+  private direccionInicio?: string;
+  private direccionFin?: string;
 
-  ngOnInit(): void {
-    this.initForm();
+  // Centro: Toluca
+  private readonly centroToluca: google.maps.LatLngLiteral = { lat: 19.2879, lng: -99.6468 };
 
-    this.activatedRoute.params.subscribe((params) => {
-      this.idRutaEspecifica = params['idRutaEspecifica'];
-
-      if (this.idRutaEspecifica) {
-        this.title = 'Visualizar Ruta';
-        this.subtitle = 'Revisa el camino por donde pasaran sus unidades.';
-        this.obtenerRuta();
-        this.showId = true;
-      } else {
-        this.showId = false;
-      }
-
-      this.loadGoogleMaps();
-    });
-  }
-
-  ngAfterViewChecked(): void {
-    if (this.showId && !this.scrolled) {
-      this.scrolled = true;
-
-      setTimeout(() => {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-      }, 1000);
-    }
-  }
-
-
-  initForm() {
-    this.guardarRutaNueva = this.fb.group({
-      nombreRuta: ['', Validators.required],
-    });
-    this.configRuta = this.fb.group({
-      idRuta: [''],
-      tarifaBase: ['', Validators.required],
-      distanciaBaseKm: ['', Validators.required],
-      incrementoCadaMetros: ['', Validators.required],
-      costoAdicional: ['', Validators.required],
-    });
-  }
-
-  obtenerRuta() {
-    this.rutaSe
-      .obtenerRuta(this.idRutaEspecifica)
-      .subscribe((response: any) => {
-        this.informacion = response;
-        this.nombreRuta = response.nombre?.trim() ? response.nombre : 'Sin información';
-        this.tarifa = this.toNumber(response.tarifa?.tarifaBase);
-        this.distancia = response.distanciaKm ?? 'Sin información';
-        this.incrementoMetros = (response.tarifa?.incrementoCadaMetros != null)
-        ? response.tarifa.incrementoCadaMetros + 'km'
-        : 'Sin información';
-        this.costoAdicional = this.toNumber(response.tarifa?.costoAdicional);
-        if (
-          response.puntoInicio &&
-          response.puntoFin &&
-          response.recorridoDetallado
-        ) {
-          const ruta = {
-            puntoInicio: response.puntoInicio,
-            puntoFin: response.puntoFin,
-            recorrido: response.recorridoDetallado,
-          };
-          this.mostrarRutaGuardada(ruta);
-        }
-      });
-  }
-
-  toNumber(value: any): number | null {
-    const num = parseFloat(value);
-    return isNaN(num) ? null : num;
-  }
-  
-  isNumber(value: any): boolean {
-    return typeof value === 'number' && !isNaN(value);
-  }
-
-  public loading: boolean = false;
-  detalleRuta() {
-  if (this.path.length < 2) return;
-  this.loading = true;
-  const puntoInicio = this.path[0];
-  const puntoFin = this.path[this.path.length - 1];
-
-  this.geocoder.geocode({ location: puntoInicio }, (resA, statusA) => {
-    const direccionA =
-      statusA === 'OK' && resA?.[0] ? resA[0].formatted_address : 'No encontrada';
-
-    this.geocoder.geocode({ location: puntoFin }, (resB, statusB) => {
-      const direccionB =
-        statusB === 'OK' && resB?.[0] ? resB[0].formatted_address : 'No encontrada';
-
-      this.rutaGuardada = {
-        puntoInicio: {
-          coordenadas: puntoInicio,
-          direccion: direccionA,
-        },
-        puntoFin: {
-          coordenadas: puntoFin,
-          direccion: direccionB,
-        },
-        recorrido: [...this.path],
-      };
-
-      let timeoutRef: any = null;
-      timeoutRef = setTimeout(() => {
-        this.loading = false;
-        Swal.fire({
-          title: 'Cargando...',
-          text: 'Por favor espera un momento.',
-          allowOutsideClick: false,
-          showConfirmButton: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
-      }, 10000);
-
-      this.rutaSe.detallarRuta(this.rutaGuardada).subscribe(
-        (response) => {
-          clearTimeout(timeoutRef);
-          Swal.close();
-          this.recorridoDeta = response.recorridoDetallado;
-          this.distanciak = response.distanciaKm;
-          setTimeout(() => {
-            this.loading = false;
-            this.largeModal(this.largeDataModals);
-          }, 550);
-        },
-        (error) => {
-          this.loading = false;
-          clearTimeout(timeoutRef);
-          Swal.close();
-          Swal.fire({
-            title: 'Ops!',
-            text: error,
-            icon: 'error',
-          });
-        }
-      );
-    });
-  });
-}
-
-
-  guardarRutaServi(modal: any) {
-    if (this.guardarRutaNueva.invalid) {
-      Swal.fire({
-        title: 'Campos incompletos',
-        text: 'Por favor llena todos los campos obligatorios antes de guardar.',
-        icon: 'warning',
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'Entendido',
-      });
-      return;
-    }
-    modal.close();
-    const datos = {
-      nombreRuta: this.guardarRutaNueva.get('nombreRuta')?.value,
-      puntoInicio: this.rutaGuardada.puntoInicio,
-      puntoFin: this.rutaGuardada.puntoFin,
-      recorridoDetallado: this.recorridoDeta,
-      distanciaKm: this.distanciak,
-    };
-    console.log('📤 Datos a enviar a guardarRutas:', datos);
-    this.loading = true;
-    let timeoutRef: any = null;
-    timeoutRef = setTimeout(() => {
-      Swal.fire({
-        title: 'Cargando...',
-        text: 'Por favor espera un momento.',
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-    }, 10000);
-
-    this.rutaSe.guardarRutas(datos).subscribe(
-      (response) => {
-        clearTimeout(timeoutRef);
-        setTimeout(() => {
-          this.loading = false;
-          setTimeout(() => {
-            Swal.close();
-            this.idRuta = response.idRuta;
-            this.largeModal(this.largeDataModalsConfig);
-          }, 500);
-        }, 800);
-      },
-      (error) => {
-        clearTimeout(timeoutRef);
-        this.loading = false;
-        Swal.close();
-        Swal.fire({
-          title: 'Ops!',
-          text: error,
-          icon: 'error',
-        });
-      }
-    );
-  }
-
-  modalRef!: NgbModalRef;
-  largeModals(largeDataModal: any) {
-    this.modalRef = this.modalService.open(largeDataModal, {
-      size: 'lg',
-      windowClass: 'modal-holder',
-      centered: true,
-      backdrop: 'static',
-      keyboard: false,
-    });
-  }
-
-  public idRuta: any;
-  configurarRuta(modal: any) {
-    if (this.configRuta.invalid) {
-      Swal.fire({
-        title: 'Campos incompletos',
-        text: 'Por favor llena todos los campos obligatorios antes de guardar.',
-        icon: 'warning',
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'Entendido',
-      });
-      return;
-    }
-    const confg = {
-      ...this.configRuta.value,
-      idRuta: this.idRuta,
-    };
-    modal.close();
-    this.loading = true;
-    let timeoutRef: any = null;
-    timeoutRef = setTimeout(() => {
-      Swal.fire({
-        title: 'Cargando...',
-        text: 'Por favor espera un momento.',
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-    }, 10000);
-
-    this.rutaSe.configurarTarifa(confg).subscribe(
-      (response) => {
-        clearTimeout(timeoutRef);
-        setTimeout(() => {
-          this.loading = false;
-          setTimeout(() => {
-            Swal.close();
-            Swal.fire({
-              title: '¡Ruta Guardada Con Éxito!',
-              text: 'La configuración de la ruta se ha registrado correctamente.',
-              icon: 'success',
-              confirmButtonColor: '#3085d6',
-              confirmButtonText: 'Entendido',
-              showCancelButton: false,
-            }).then((result) => {
-              if (result.isConfirmed) {
-                this.irRuta();
-              }
-            });
-          }, 500);
-        }, 1500);
-      },
-      (error) => {
-        clearTimeout(timeoutRef);
-        this.loading = false;
-        Swal.close();
-        Swal.fire({
-          title: 'Ops!',
-          text: error,
-          icon: 'error',
-        });
-      }
-    );
-  }
-
-  cerrarModal(modal: any) {
-    modal.close();
-  }
-
-  descargarJSON(nombreArchivo: string, data: any) {
-    const jsonStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = nombreArchivo;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  cargarRutaDesdeArchivo() {
-    this.http.get<any>('assets/ruta.json').subscribe(
-      (data) => {
-        this.mostrarRutaGuardada(data);
-      },
-      (err) => {
-        console.error('Error al cargar ruta:', err);
-      }
-    );
-  }
-
-  irRuta() {
-    this.route.navigateByUrl('/rutas/lista-rutas');
-  }
-
-  mostrarRutaGuardada(ruta: {
-    puntoInicio: { coordenadas: google.maps.LatLngLiteral; direccion: string };
-    puntoFin: { coordenadas: google.maps.LatLngLiteral; direccion: string };
-    recorrido: google.maps.LatLngLiteral[];
-  }) {
-    if (!ruta) return;
-
-    const bounds = new google.maps.LatLngBounds();
-    ruta.recorrido.forEach((punto) => bounds.extend(punto));
-    bounds.extend(ruta.puntoInicio.coordenadas);
-    bounds.extend(ruta.puntoFin.coordenadas);
-    this.map.fitBounds(bounds);
-    const center = bounds.getCenter();
-    this.map.setCenter(center);
-
-    if (this.startMarker) this.startMarker.setMap(null);
-    if (this.endMarker) this.endMarker.setMap(null);
-    if (this.polyline) this.polyline.setMap(null);
-
-    this.polyline = new google.maps.Polyline({
-      path: ruta.recorrido,
-      geodesic: true,
-      strokeOpacity: 0,
-      icons: [
-        {
-          icon: {
-            path: 'M 0,-1 0,1',
-            strokeColor: '#002136',
-            strokeOpacity: 1,
-            strokeWeight: 4,
-          },
-          offset: '0',
-          repeat: '20px',
-        },
-      ],
-      map: this.map,
-    });
-
-    this.startMarker = new google.maps.Marker({
-      position: ruta.puntoInicio.coordenadas,
-      map: this.map,
-      label: 'A',
-      icon: {
-        url: 'assets/images/markerGreen.png',
-      },
-    });
-
-    const infoA = new google.maps.InfoWindow({
-      content: `
-        <div style="font-family: 'Segoe UI', sans-serif; border-radius: 12px; max-width: 250px; word-wrap: break-word; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; line-height: 1.2;">
-          <div style="font-size: 14px; color: #4a4a4a;">
-            <strong style="color: green;">Punto de Destino</strong><br><b>${ruta.puntoInicio.direccion}</b>
-          </div>
-        </div>`,
-    });
-    this.startMarker.addListener('click', () =>
-      infoA.open(this.map, this.startMarker)
-    );
-    infoA.open(this.map, this.startMarker);
-
-    this.endMarker = new google.maps.Marker({
-      position: ruta.puntoFin.coordenadas,
-      map: this.map,
-      label: 'B',
-      icon: {
-        url: 'assets/images/markerRed.png',
-      },
-    });
-
-    const infoB = new google.maps.InfoWindow({
-      content: `
-        <div style="font-family: 'Segoe UI', sans-serif; border-radius: 12px; max-width: 250px; word-wrap: break-word; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; line-height: 1.2;">
-          <div style="font-size: 14px; color: #4a4a4a;">
-            <strong style="color: red;">Punto de Destino</strong><br><b>${ruta.puntoFin.direccion}</b>
-          </div>
-        </div>`,
-    });
-    this.endMarker.addListener('click', () =>
-      infoB.open(this.map, this.endMarker)
-    );
-    infoB.open(this.map, this.endMarker);
-  }
-
-  cancelar(modal: any) {
-    modal.close();
-    this.guardarRutaNueva.reset();
-    this.configRuta.reset();
-    this.informacion = null;
-    this.nombreRuta = '';
-    this.tarifa = 0;
-    this.distancia = 0;
-    this.incrementoMetros = 0;
-    this.costoAdicional = 0;
-    this.recorridoDeta = null;
-    this.distanciak = null;
-    this.rutaGuardada = undefined;
-    this.idRuta = null;
-    this.path = [];
-    this.showId = false;
-    if (this.startMarker) this.startMarker.setMap(null);
-    if (this.endMarker) this.endMarker.setMap(null);
-    if (this.polyline) this.polyline.setMap(null);
-    this.startMarker = undefined!;
-    this.endMarker = undefined!;
-    this.polyline = undefined!;
-    this.mostrarBotonDeshacer = false;
-    if (this.modalRef) {
-      this.modalRef.close();
-    }
-    this.title = 'Planeación de Rutas';
-    this.subtitle = 'Define y registra el recorrido que seguirán.';
-    this.idRutaEspecifica = null;
-    this.initForm();
-    this.initMap();
-  }
-
-  loadGoogleMaps() {
-    const existingScript = document.querySelector(
-      'script[src*="maps.googleapis.com"]'
-    );
-    if (existingScript) {
-      this.initMap();
-      return;
-    }
-    const script = document.createElement('script');
-    script.src =
-      'https://maps.googleapis.com/maps/api/js?key=AIzaSyCViGKafQxsHPmgGtlPsUDIaOdttLKJLk4';
-    script.async = true;
-    script.defer = true;
-    script.onload = () => this.zone.run(() => this.initMap());
-    document.head.appendChild(script);
-  }
-
-  initMap() {
-    const mapElement = document.getElementById('map') as HTMLElement;
-
-    this.map = new google.maps.Map(mapElement, {
-      center: this.center,
-      zoom: this.zoom,
-      draggable: true,
-      scrollwheel: true,
-      disableDefaultUI: false,
-    });
-
-    this.geocoder = new google.maps.Geocoder();
-
-    this.polyline = new google.maps.Polyline({
-      path: this.path,
-      geodesic: true,
-      strokeOpacity: 0,
-      icons: [
-        {
-          icon: {
-            path: 'M 0,-1 0,1',
-            strokeColor: '#002136',
-            strokeOpacity: 1,
-            strokeWeight: 4,
-          },
-          offset: '0',
-          repeat: '20px',
-        },
-      ],
-      map: this.map,
-    });
-
-    if (!this.idRutaEspecifica) {
-      this.map.addListener('click', (e: google.maps.MapMouseEvent) => {
-        if (!e.latLng) return;
-        const latLng = e.latLng.toJSON();
-        this.path.push(latLng);
-        this.polyline.setPath(this.path);
-        if (this.path.length === 1) {
-          this.addStartMarker(latLng);
-        } else {
-          this.addEndMarker(latLng);
-        }
-      });
-    }
-  }
-
-  addStartMarker(position: google.maps.LatLngLiteral) {
-    this.mostrarBotonDeshacer = true;
-    if (this.startMarker) this.startMarker.setMap(null);
-    this.startMarker = new google.maps.Marker({
-      position,
-      map: this.map,
-      label: 'A',
-      icon: {
-        url: 'assets/images/markerGreen.png',
-      },
-    });
-
-    this.geocoder.geocode({ location: position }, (results, status) => {
-      const direccion =
-        status === 'OK' && results && results[0]
-          ? results[0].formatted_address
-          : 'Dirección no encontrada';
-
-      const info = new google.maps.InfoWindow({
-        content: `
-            <div style="font-family: 'Segoe UI', sans-serif; border-radius: 12px; max-width: 250px; word-wrap: break-word; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; line-height: 1.2;">
-              <div style="font-size: 14px; color: #4a4a4a;">
-                <strong style="color: green;">Punto de Destino</strong><br><b>${direccion}</b>
-              </div>
-            </div>
-          `,
-      });
-      this.startMarker.addListener('click', () => {
-        info.open(this.map, this.startMarker);
-      });
-      info.open(this.map, this.startMarker);
-    });
-  }
-
-  addEndMarker(position: google.maps.LatLngLiteral) {
-    if (this.endMarker) this.endMarker.setMap(null);
-
-    this.endMarker = new google.maps.Marker({
-      position,
-      map: this.map,
-      label: 'B',
-      icon: {
-        url: 'assets/images/markerRed.png',
-      },
-    });
-
-    this.geocoder.geocode({ location: position }, (results, status) => {
-      const direccion =
-        status === 'OK' && results && results[0]
-          ? results[0].formatted_address
-          : 'Dirección no encontrada';
-
-      const info = new google.maps.InfoWindow({
-        content: `
-            <div style="font-family: 'Segoe UI', sans-serif; border-radius: 12px; max-width: 250px; word-wrap: break-word; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; line-height: 1.2;">
-              <div style="font-size: 14px; color: #4a4a4a;">
-                <strong style="color: red;">Punto de Destino</strong><br><b>${direccion}</b>
-              </div>
-            </div>
-          `,
-      });
-
-      this.endMarker.addListener('click', () => {
-        info.open(this.map, this.endMarker);
-      });
-
-      info.open(this.map, this.endMarker);
-    });
-  }
-
-  eliminarUltimoPunto() {
-    if (this.path.length <= 1) {
-      if (this.startMarker) {
-        this.startMarker.setMap(null);
-        this.startMarker = undefined!;
-      }
-
-      if (this.endMarker) {
-        this.endMarker.setMap(null);
-        this.endMarker = undefined!;
-      }
-
-      this.path = [];
-      this.polyline.setPath(this.path);
-      this.mostrarBotonDeshacer = false;
-      return;
-    }
-
-    this.path.pop();
-    this.polyline.setPath(this.path);
-
-    const nuevoFinal = this.path[this.path.length - 1];
-
-    if (this.endMarker) {
-      this.endMarker.setMap(null);
-      this.endMarker = undefined!;
-    }
-
-    this.addEndMarker(nuevoFinal);
-  }
+  constructor(private fb: FormBuilder, private modalService: NgbModal, private regiService: RegionesService) { }
 
   /**
+   * Open extra large modal
+   * @param exlargeModal extra large modal data
+   */
+  extraLarge(exlargeModal: any) {
+    this.modalService.open(exlargeModal, { size: 'xl',windowClass:'modal-holder', centered: true });
+  }
+
+  // ================== Ciclo de vida ==================
+  ngOnInit(): void {
+    this.rutaForm = this.fb.group({
+      nombreFinal: ['', [Validators.required, Validators.maxLength(200)]],
+      idRegion: [null, Validators.required],
+      estatus: [1, Validators.required],
+    });
+
+    this.obtenerRegiones()
+  }
+
+  obtenerRegiones(){
+    this.regiService.obtenerRegiones().subscribe((response) => {
+      this.listaRegiones = response.data
+    })
+  }
+
+
+  async ngAfterViewInit(): Promise<void> {
+    const API_KEY = 'TU_API_KEY_AQUI'; // o de environment
+    await this.loadGoogleMaps(API_KEY);
+    this.initMap();
+    this.initGeocoder();
+    this.attachClickHandler();
+  }
+
+  ngOnDestroy(): void {
+    this.clickListener?.remove();
+  }
+
+  // ================== Carga e init ==================
+  private loadGoogleMaps(apiKey: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (window.google?.maps) return resolve();
+
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=weekly&language=es&region=MX`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('No se pudo cargar Google Maps.'));
+      document.head.appendChild(script);
+    });
+  }
+
+  private initMap(): void {
+    const el = document.getElementById('map');
+    if (!el) {
+      console.error('No se encontró el elemento #map');
+      return;
+    }
+
+    this.map = new google.maps.Map(el, {
+      center: this.centroToluca,
+      zoom: 13,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: true,
+    });
+  }
+
+  private initGeocoder(): void {
+    this.geocoder = new google.maps.Geocoder();
+  }
+
+  private attachClickHandler(): void {
+    // Click #1: INICIO, Click #2: DESTINO (y LOG del body), Click #3: reinicia
+    this.clickListener = this.map.addListener('click', async (e: google.maps.MapMouseEvent) => {
+      if (!e.latLng) return;
+
+      const coord: google.maps.LatLngLiteral = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+
+      try {
+        if (!this.coordInicio) {
+          await this.setInicio(coord); // <-- esperamos geocoding
+          return;
+        }
+
+        if (!this.coordFin) {
+          await this.setFin(coord);    // <-- esperamos geocoding
+          this.previsualizarBody();    // ya tenemos dirección FIN garantizada
+          this.fitToBoth();
+          return;
+        }
+
+        // Si ya había 2 puntos, reiniciamos y comenzamos de nuevo con INICIO
+        this.resetSelecciones();
+        await this.setInicio(coord);
+      } catch (err) {
+        console.warn('Error al procesar click en el mapa:', err);
+      }
+    });
+  }
+
+  // ================== Marcadores / Tooltips ==================
+  private async setInicio(coord: google.maps.LatLngLiteral): Promise<void> {
+    this.coordInicio = coord;
+
+    this.markerInicio?.setMap(null);
+    this.infoInicio?.close();
+
+    this.markerInicio = new google.maps.Marker({
+      position: coord,
+      map: this.map,
+      title: 'Inicio',
+      icon: {
+        url: 'assets/images/markerGreen.png', // <-- tu imagen
+        scaledSize: new google.maps.Size(40, 40), // tamaño ajustable
+        anchor: new google.maps.Point(20, 40)    // centro en la punta
+      }
+    });
+
+    try {
+      const direccion = await this.reverseGeocode(coord);
+      this.direccionInicio = direccion;
+      const content = this.buildTooltipHTML('Punto de Inicio', direccion, '#1db110ff');
+      this.infoInicio = new google.maps.InfoWindow({ content });
+      this.infoInicio.open(this.map, this.markerInicio);
+    } catch (err) {
+      console.warn('[INICIO] Geocoder falló:', err);
+    }
+  }
+
+  private async setFin(coord: google.maps.LatLngLiteral): Promise<void> {
+    this.coordFin = coord;
+
+    this.markerFin?.setMap(null);
+    this.infoFin?.close();
+
+    this.markerFin = new google.maps.Marker({
+      position: coord,
+      map: this.map,
+      title: 'Destino',
+      icon: {
+        url: 'assets/images/markerRed.png', // <-- tu imagen
+        scaledSize: new google.maps.Size(40, 40),
+        anchor: new google.maps.Point(20, 40)
+      }
+    });
+
+    try {
+      const direccion = await this.reverseGeocode(coord);
+      this.direccionFin = direccion;
+      const content = this.buildTooltipHTML('Punto de Destino', direccion, '#d32f2f');
+      this.infoFin = new google.maps.InfoWindow({ content });
+      this.infoFin.open(this.map, this.markerFin);
+    } catch (err) {
+      console.warn('[DESTINO] Geocoder falló:', err);
+    }
+  }
+
+
+  private resetSelecciones(): void {
+    this.coordInicio = undefined;
+    this.coordFin = undefined;
+
+    this.markerInicio?.setMap(null);
+    this.markerFin?.setMap(null);
+    this.markerInicio = undefined;
+    this.markerFin = undefined;
+
+    this.infoInicio?.close();
+    this.infoFin?.close();
+    this.infoInicio = undefined;
+    this.infoFin = undefined;
+
+    this.direccionInicio = undefined;
+    this.direccionFin = undefined;
+  }
+
+  private fitToBoth(): void {
+    if (!this.coordInicio || !this.coordFin) return;
+    const bounds = new google.maps.LatLngBounds();
+    bounds.extend(this.coordInicio);
+    bounds.extend(this.coordFin);
+    this.map.fitBounds(bounds, 30);
+  }
+
+  // ================== Geocoder & Tooltip ==================
+  private reverseGeocode(coord: google.maps.LatLngLiteral): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.geocoder.geocode({ location: coord }, (results: any, status: string) => {
+        if (status === 'OK' && results && results[0]) {
+          resolve(results[0].formatted_address); // texto “gris”
+        } else {
+          reject(status);
+        }
+      });
+    });
+  }
+
+  private buildTooltipHTML(titulo: string, direccion: string, color: string): string {
+    return `
+      <div style="
+        font-family: 'Segoe UI', sans-serif;
+        border-radius: 12px;
+        max-width: 260px;
+        word-wrap: break-word;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        background: white;
+        line-height: 1.2;
+      ">
+        <div style="font-size: 14px; color: #4a4a4a; padding: 6px 10px;">
+          <strong style="color: ${color};">${titulo}</strong><br>
+          <b>${this.escapeHTML(direccion)}</b>
+        </div>
+      </div>
+    `;
+  }
+
+  // Evitar inyección en la dirección
+  private escapeHTML(text: any): any {
+    return text
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  // ================== Body (console preview) ==================
+  private buildFeatureCollectionPoint(coord: google.maps.LatLngLiteral) {
+    // GeoJSON requiere [lng, lat]
+    return {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: {}, // si quieres, luego agregamos { nombre: ... }
+          geometry: {
+            type: 'Point',
+            coordinates: [coord.lng, coord.lat]
+          }
+        }
+      ]
+    };
+  }
+
+  private previsualizarBody(): void {
+    if (!this.coordInicio || !this.coordFin) return;
+
+    const idRegion = this.rutaForm?.get('idPadre')?.value ?? null;
+    const nombreRuta = this.rutaForm?.get('nombreFinal')?.value ?? 'Ruta sin nombre';
+
+    const body = {
+      nombre: nombreRuta,                                 // nombre de la RUTA (form)
+      puntoInicio: this.buildFeatureCollectionPoint(this.coordInicio),
+      nombreInicio: this.direccionInicio ?? 'Punto Inicio', // dirección legible de INICIO
+      puntoFin: this.buildFeatureCollectionPoint(this.coordFin),
+      nombreFinal: this.direccionFin ?? 'Punto Fin',        // dirección legible de FIN (¡ya espera geocoder!)
+      estatus: 1,
+      idRegion: idRegion
+    };
+
+    console.group('%cBody listo para enviar', 'color:#0a7; font-weight:bold;');
+    console.log('Objeto:', body);
+    console.log('JSON:', JSON.stringify(body, null, 2));
+    console.groupEnd();
+  }
+
+   /**
    * Open Large modal
    * @param largeDataModal large modal data
    */
   largeModal(largeDataModal: any) {
-    this.modalService.open(largeDataModal, {
-      size: 'lg',
-      windowClass: 'modal-holder',
-      centered: true,
-      backdrop: 'static',
-      keyboard: false,
-    });
-  }
-
-  validarMaxCaracteres(event: any, maxLength: number) {
-    if (event.target.value.length > maxLength) {
-      event.target.value = event.target.value.slice(0, maxLength);
-    }
+    this.modalService.open(largeDataModal, { size: 'lg',windowClass:'modal-holder', centered: true, backdrop: 'static',
+      keyboard: false, });
   }
 }

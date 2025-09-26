@@ -6,6 +6,7 @@ import { ListaClientesComponent } from './lista-clientes/lista-clientes.componen
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DxDataGridModule, DxLoadPanelModule, DxPopupModule } from 'devextreme-angular';
 import { AltaClientesComponent } from './alta-clientes/alta-clientes.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 
 @NgModule({
@@ -17,7 +18,8 @@ import { AltaClientesComponent } from './alta-clientes/alta-clientes.component';
     ReactiveFormsModule,
     DxDataGridModule,
     DxLoadPanelModule,
-    DxPopupModule
+    DxPopupModule,
+    SharedModule
   ]
 })
 export class ClientesModule { }

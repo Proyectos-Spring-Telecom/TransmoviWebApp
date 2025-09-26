@@ -1,69 +1,108 @@
-<!-- <div id="loading" class="loading-overlay" *ngIf="isLoading">
-    <div class="loading-spinner"></div>
-</div> -->
-
 <div [@fadeInUp] class="container-fluid">
-
-    <div class="card">
-        <div class="card-body">
-            <div class="header-dispositivos">
-                <div style="display: grid; justify-content: center; align-items: center;">
-                    <i class="fa fa-map-marker"></i>
-                    <span class="titulo">Gestión de Rutas de Camino</span>
-                </div>
-                <div class="subtitulo">Administra, crea y organiza las rutas trazadas para los distintos caminos y dispositivos asignados.</div>
-                <button class="button-18" role="button" (click)="agregarRuta()">Agregar Ruta</button>
-            </div>
-            <div class="row mt-4">
-                <div class="col-lg-12">
-                    <div class="table-responsive mb-4 col-12 col-lg-12">
-                        <dx-data-grid id="gridContainer" (onOptionChanged)="alCambiarOpcion($event)" [columnHidingEnabled]="true" [showBorders]="true"
-                            [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
-                            [dataSource]="listaRutas" [keyExpr]="'id'" [width]="'100%'">
-                            <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
-                            <dxo-paging [pageSize]="10"></dxo-paging>
-                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 50, 100, 200]"
-                                [showInfo]="true"></dxo-pager>
-                            <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
-                            <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
-                            <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
-                            <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column caption="Acciones" cellTemplate="acciones" alignment="center"
-                                [width]="150"></dxi-column>
-                            <dxi-column dataField="nombre" caption="Nombre" alignment="center"
-                                [width]="260"></dxi-column>
-                            <dxi-column dataField="puntoInicioDireccion" caption="Punto Inicio" alignment="center"
-                                [width]="400"></dxi-column>
-                            <dxi-column dataField="puntoFinDireccion" caption="Punto Fin" alignment="center"
-                                [width]="400"></dxi-column>
-                            <dxi-column dataField="ciaKm" caption="Distancia de KM" [width]="150"
-                                alignment="center"></dxi-column>
-                            <dxi-column dataField="tarifaBase" caption="Tarifa Base" alignment="center"
-                                [width]="150"></dxi-column>
-                            <dxi-column dataField="costoAdicional" caption="Tarifa Costo Adicional" alignment="center"
-                                [width]="150"></dxi-column>
-                            <dxi-column dataField="distanciaBaseKm" caption="Tarifa Distancia Base" alignment="center"
-                                [width]="150"></dxi-column>
-                            <dxo-export [enabled]="false" [allowExportSelectedData]="true"
-                                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
-                            </dxo-export>
-                            <div *dxTemplate="let row of 'acciones'" class="d-flex gap-0 justify-content-center">
-                                <div>
-                                    <button type="button" (click)="verRuta(row.data.id)"
-                                        class="btn btn-md btn-rounded waves-effect waves-light"
-                                        style="background-color: #0a66c2; color: white;">
-                                        <i class="fa fa-map-pin"></i> Ver Ruta
-                                    </button>
-                                </div>
-                            </div>
-                        </dx-data-grid>
-                    </div>
-                </div>
-            </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="u-banner">
+        <div class="u-banner__icon">
+          <div class="u-icon">
+            <i class="fas fa-map-pin"></i>
+          </div>
         </div>
+        <div class="u-banner__body">
+          <h2 class="u-banner__title">Gestión de Rutas</h2>
+          <p class="u-banner__subtitle">
+            Consulta, busca y navega entre tus rutas registrados
+          </p>
+          <div *appHasPermission="'50'">
+            <button class="u-btn u-btn--primary" (click)="agregarRuta()">
+              <i class="fas fa-plus"></i>
+              <span>Agregar Rutas</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-lg-12">
+          <div class="table-responsive mb-4 col-12 col-lg-12">
+            <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true" [showBorders]="'true'"
+              [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="'true'" [dataSource]="listaRutas"
+              [keyExpr]="'Id'" [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
+              [pager]="{ 
+                                showPageSizeSelector: true, 
+                                allowedPageSizes: [50], 
+                                showInfo: true,
+                                infoText: 'Página {0} de {1}', 
+                                visible: true 
+                            }" (onPageIndexChanged)=" onPageIndexChanged($event)"
+              (onOptionChanged)="onGridOptionChanged($event)">
+              <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
+              <dxo-paging [pageSize]="20"></dxo-paging>
+              <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
+              <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
+              <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
+              <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
+              <dxi-column caption="Acciones" cellTemplate="acciones" alignment="center"></dxi-column>
+              <dxi-column dataField="nombre" caption="Nombre" alignment="center"></dxi-column>
+              <dxi-column dataField="nombreInicio" caption="Punto Inicio" alignment="center"></dxi-column>
+              <dxi-column dataField="nombreFinal" caption="Punto Fin" alignment="center"></dxi-column>
+              <dxi-column dataField="fechaCreacion" caption="Fecha Creación" alignment="center"
+                cellTemplate="regFechaCreacion">
+                <div *dxTemplate="let s of 'regFechaCreacion' ">
+                  {{s.data.fechaCreacion | date:'dd/MM/yyyy HH:mm' : '+0000'}}
+                </div>
+              </dxi-column>
+              <dxi-column dataField="idRegion2.nombre" caption="Nombre Región" alignment="center"></dxi-column>
+              <dxi-column dataField="idRegion2.descripcion" caption="Descripción" alignment="center"></dxi-column>
+              <dxo-export [enabled]="false" [allowExportSelectedData]="true"
+                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
+              </dxo-export>
+              <div *dxTemplate="let d of 'acciones'" class="d-flex gap-0 justify-content-center">
+                <div>
+                  <button type="button"
+                    (click)="centerModal(exlargeModal, d.data.id, null, null, undefined, undefined, undefined, d.data)"
+                    class="btn btn-primary btn-sm text-white" style="border-radius: 5px;">
+                    <i class="fa fa-map-pin"></i> Ver Ubicación
+                  </button>
+
+
+                </div>
+              </div>
+            </dx-data-grid>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
-    [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
+  [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
 </dx-load-panel>
+
+<div class="col-lg-6">
+  <ng-template #exlargeModal let-modal>
+    <div class="modal-content p-0" style="background-color:#002b47;">
+      <div class="modal-body">
+        <div class="card mb-3 shadow-sm">
+          <div class="card-header ruta-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa fa-map-signs"></i>
+              <span class="fw-bold">{{ selectedRutaNombre }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="showMap" class="map-container" style="border-radius:10px; overflow:hidden;">
+          <div class="w-100" [style.height.px]="300" [id]="'map-' + selectedTransactionId"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer border-top-0 d-flex align-items-center justify-content-center">
+        <button type="button" class="btn btn-md w-50 waves-effect waves-light"
+                style="background-color:#0a66c2; color:#fff; border-radius:5px;"
+                (click)="modal.close()">
+          <i class="fa fa-times"></i>&nbsp;Cerrar
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</div>

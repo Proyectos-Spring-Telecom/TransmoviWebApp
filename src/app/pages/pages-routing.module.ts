@@ -37,6 +37,9 @@ const routes: Routes = [
   { path: 'modulos', loadChildren: () => import('./modulos/modulos.module').then(m => m.ModulosModule)},
   { path: 'roles', loadChildren: () => import('./roles/roles.module').then(m => m.RolesModule)},
   { path: 'punto-venta', loadChildren: () => import('./punto-venta/punto-venta.module').then(m => m.PuntoVentaModule)},
+  { path: 'instalaciones', loadChildren: () => import('./instalaciones/instalaciones.module').then(m => m.InstalacionesModule)},
+  { path: 'regiones', loadChildren: () => import('./regiones/regiones.module').then(m => m.RegionesModule)},
+  { path: 'derroteros', loadChildren: () => import('./derroteros/derroteros.module').then(m => m.DerroterosModule)},
 ];
 
 @NgModule({

@@ -17,7 +17,7 @@
                     <p class="u-banner__subtitle">
                         Consulta, busca y navega entre tus permisos registrados
                     </p>
-                    <div>
+                    <div *appHasPermission="'14'">
                         <button class="u-btn u-btn--primary" (click)="agregarPermiso()">
                             <i class="fas fa-plus"></i>
                             <span>Agregar Permiso</span>
@@ -52,7 +52,7 @@
                             <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
-                            <dxi-column caption="Acciones" cellTemplate="acciones" alignment="center" [width]="150"></dxi-column>
+                            <dxi-column *appHasPermission="['15', '16']" caption="Acciones" cellTemplate="acciones" alignment="center" [width]="150"></dxi-column>
                             <dxo-grouping #expand [autoExpandAll]="true"></dxo-grouping>
                             <dxi-column dataField="nombre" caption="Nombre" alignment="center" dataType="string"[allowSearch]="true"></dxi-column>
                             <dxi-column dataField="descripcion" caption="Descripción" alignment="center" dataType="string" [allowSearch]="true"></dxi-column>
@@ -70,13 +70,13 @@
                                 </div>
                             </dxi-column>
                             <div *dxTemplate="let row of 'acciones'" class="d-flex gap-3 justify-content-center">
-                                <div>
+                                <div *appHasPermission="'15'">
                                     <button valueExpr="id" id="actualizarButton" class="btnAcciones"
                                         (click)="actualizarPermiso(row.data.id)">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </div>
-                                <div>
+                                <div *appHasPermission="'16'">
                                     <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones"
                                         (click)="activar(row.data)">
                                         <i class="fa fa-arrow-up"></i>

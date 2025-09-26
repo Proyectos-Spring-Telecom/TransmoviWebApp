@@ -18,6 +18,10 @@ export class DispositivoBluevoxService {
     return this.http.get(`${environment.API_SECURITY}/bluevox/list`);
   }
 
+  obtenerDispositivosBlueByCliente(idCliente: any): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/bluevox/clientes/${idCliente}`);
+  }
+
   agregarDispositivoBlue(data: FormData) {
     return this.http.post(environment.API_SECURITY + '/bluevox', data);
   }

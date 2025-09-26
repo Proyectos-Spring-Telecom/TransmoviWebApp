@@ -8,6 +8,7 @@ import { DxDataGridModule, DxLoadPanelModule } from 'devextreme-angular';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { AgregarRutaComponent } from './agregar-ruta/agregar-ruta.component';
 import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 
 @NgModule({
@@ -20,7 +21,8 @@ import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
     FormsModule,
     ReactiveFormsModule,
     DxDataGridModule,
-    DxLoadPanelModule
+    DxLoadPanelModule,
+    SharedModule
   ]
 })
 export class RutasModule { }
