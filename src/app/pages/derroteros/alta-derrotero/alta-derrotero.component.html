@@ -1,1 +1,70 @@
-<p>alta-derrotero works!</p>
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-header-custom">
+            <div class="icon-wrapper">
+                <i class="fas fa-plus"></i>
+            </div>
+            <div class="header-text">
+                <h5>{{ 'Agregar Derrotero' }}</h5>
+                <span>Traza el recorrido de tu vehículo.</span>
+            </div>
+        </div>
+        <ng-container *ngIf="contentVisible">
+            <div class="card-body">
+                <form class="cliente-form">
+                    <!-- <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
+              data-bs-target=".bs-example-modal-lg" (click)="extraLarge(exlargeModal)">Large modal</button> -->
+                    <h6 class="Descripcion mt-3">Genera el recorrido del vehículo sobre el mapa, representando de forma visual por donde pasará entre los puntos definidos.</h6>
+                    <div class="col-md-12 mt-1">
+                        <div id="map"></div>
+                    </div>
+                    <div class="form-actions mt-4" style="display: flex; align-items: center; justify-content: center;">
+                        <button type="button" [@fadeInUp] class="submit" *ngIf="showPreviewPayloadBtn"
+                            (click)="agregarDerrotero()">
+                            {{submitButton}}
+                        </button>
+
+                        <button type="button" [@fadeInUp] class="cancel" *ngIf="showClearTraceBtn"
+                            (click)="clearTrace()">
+                            Limpiar trazo
+                        </button>
+                        <button type="button" [@fadeInUp] class="warning" *ngIf="showUndo" (click)="undoLastPoint()">
+                            Deshacer punto
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </ng-container>
+    </div>
+</div>
+
+<ng-template #exlargeModal let-modal>
+    <div class="card-header-custom">
+        <div class="icon-wrapper">
+            <i class="fas fa-map-pin"></i>
+        </div>
+        <div class="header-text">
+            <h5>{{'Selecciona una ruta'}}</h5>
+          <span>Haz click sobre una ruta para realizar el trazo del recorrido.</span>
+        </div>
+    </div>
+    <div class="card-body" style="padding: 20px; background-color: #002136;">
+        <form [formGroup]="rutaForm" class="cliente-form">
+            <div class="row">
+                <div class="col-md-12">
+                    <label>Ruta</label>
+                    <select class="form-control" formControlName="idRegion">
+                        <option [ngValue]="null">Seleccione una ruta</option>
+                        <option *ngFor="let c of listaRutas" [ngValue]="c.id">
+                            {{ c.nombreRuta }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions mt-4">
+                <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
+                <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</ng-template>

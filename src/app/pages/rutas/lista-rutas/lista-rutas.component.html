@@ -24,15 +24,14 @@
         <div class="col-lg-12">
           <div class="table-responsive mb-4 col-12 col-lg-12">
             <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true" [showBorders]="'true'"
-              [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="'true'" [dataSource]="listaRutas"
-              [keyExpr]="'Id'" [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
+              [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="'true'" [dataSource]="listaRutas" [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
               [pager]="{ 
                   showPageSizeSelector: true, 
                   allowedPageSizes: [50], 
                   showInfo: true,
                   infoText: 'Página {0} de {1}', 
                   visible: true 
-              }" (onPageIndexChanged)=" onPageIndexChanged($event)"
+              }" (onPageIndexChanged)="onPageIndexChanged($event)"
               (onOptionChanged)="onGridOptionChanged($event)">
               <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
               <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
@@ -41,7 +40,7 @@
               <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
               <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
               <dxi-column caption="Acciones" cellTemplate="acciones" [width]="160" alignment="center"></dxi-column>
-              <dxi-column dataField="nombre" caption="Nombre" alignment="center" [width]="250"></dxi-column>
+              <dxi-column dataField="nombreRuta" caption="Nombre" alignment="center" [width]="250"></dxi-column>
               <dxi-column dataField="nombreInicio" caption="Punto Inicio" [width]="300" alignment="center" cellTemplate="cell">
                 <div *dxTemplate="let data of 'cell'">
                   <div style="white-space: pre-wrap; word-break: break-word; text-align: center;">
@@ -62,20 +61,20 @@
                   </div>
                 </div>
               </dxi-column>
-              <dxi-column dataField="fechaCreacion" caption="Fecha Creación" [width]="200" alignment="center"  cellTemplate="regFechaCreacion">
+              <dxi-column dataField="fechaCreacionRuta" caption="Fecha Creación" [width]="200" alignment="center"  cellTemplate="regFechaCreacion">
                 <div *dxTemplate="let s of 'regFechaCreacion' ">
-                  {{s.data.fechaCreacion | date:'dd/MM/yyyy HH:mm' : '+0000'}}
+                  {{s.data.fechaCreacionRuta | date:'dd/MM/yyyy HH:mm' : '+0000'}}
                 </div>
               </dxi-column>
-              <dxi-column dataField="idRegion2.nombre" caption="Nombre Región" [width]="200" alignment="center"></dxi-column>
-              <dxi-column dataField="idRegion2.descripcion" caption="Descripción" alignment="center"></dxi-column>
+              <dxi-column dataField="nombreRegion" caption="Nombre Región" [width]="200" alignment="center"></dxi-column>
+              <dxi-column dataField="descripcionRegion" caption="Descripción" alignment="center"></dxi-column>
               <dxo-export [enabled]="false" [allowExportSelectedData]="true"
                 [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
               </dxo-export>
               <div *dxTemplate="let d of 'acciones'" class="d-flex gap-0 justify-content-center">
                 <div>
                   <button type="button" class="btn btn-secondary"
-                    (click)="centerModal(exlargeModal, d.data.id, null, null, undefined, undefined, undefined, d.data)">
+                    (click)="centerModal(exlargeModal, d.data.idRuta, null, null, undefined, undefined, undefined, d.data)">
                     <i class="uil uil-map-pin ml-2"></i> Ubicar
                   </button>
                 </div>
