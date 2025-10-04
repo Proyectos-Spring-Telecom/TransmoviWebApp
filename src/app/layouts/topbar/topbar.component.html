@@ -227,25 +227,21 @@
 
       <div class="dropdown d-inline-block" ngbDropdown>
         <button type="button" class="btn header-item waves-effect" ngbDropdownToggle id="page-header-user-dropdown">
-          <img class="rounded-circle header-profile-user" src="assets/images/user_default.png" alt="Header Avatar">
+          <img class="rounded-circle header-profile-user"
+     [src]="resolvedAvatar"
+     (error)="onAvatarError($event)"
+     alt="Header Avatar">
+
           <span class="d-none d-xl-inline-block ms-1 fw-medium font-size-15">{{showNombre}}</span>
           <i class="uil-angle-down d-none d-xl-inline-block font-size-15" style="color: #09fa3a;"></i>
         </button>
         <div class="dropdown-menu dropdown-menu-end" ngbDropdownMenu>
-          <!-- item-->
           <a class="dropdown-item" style="color: white;" href="javascript: void(0);" (click)="logout()">
             <i class="uil uil-sign-out-alt font-size-18 align-middle me-1 text-muted"></i>
             <span class="align-middle">{{ 'HEADER.LOGIN.LOGOUT' | translate}}</span>
           </a>
         </div>
       </div>
-
-      <!-- <div class="dropdown d-inline-block">
-        <button type="button" class="btn header-item noti-icon right-bar-toggle" (click)="toggleRightSidebar()">
-          <i class="uil-cog"></i>
-        </button>
-      </div> -->
-
     </div>
   </div>
 </header>

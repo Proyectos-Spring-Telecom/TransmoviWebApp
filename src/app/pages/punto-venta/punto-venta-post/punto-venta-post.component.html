@@ -1,23 +1,289 @@
-<div [@fadeInUp] class="container-fluid">
+<div [@fadeInUp] class="container-fluid" *ngIf="showRecargaExitosa">
   <div class="card">
     <div class="card-body">
-      <div class="u-banner">
-        <div class="u-banner__icon">
-          <div class="u-icon">
-            <i class="fas fa-lock"></i>
-          </div>
-        </div>
-        <div class="u-banner__body">
-          <h2 class="u-banner__title">Gestión de Permisos</h2>
-          <p class="u-banner__subtitle">
-            Consulta, busca y navega entre tus permisos registrados
-          </p>
-        </div>
-      </div>
-      <div class="row mt-4">
+      <div class="row mt-0">
         <div class="col-lg-12">
+          <section class="recarga-ok container-fluid my-4">
+            <div class="card glass-card success-header mb-3">
+              <div class="card-body d-flex align-items-center gap-3 position-relative">
+                <div class="ok-icon">
+                  <i class="fa fa-check"></i>
+                </div>
+                <div class="header-copy">
+                  <div class="eyebrow">
+                    <span class="dot"></span> Operación Completada
+                  </div>
+                  <h2 class="title m-0">¡Recarga Exitosa!</h2>
+                  <p class="subtitle m-0">Tu recarga se registró correctamente.</p>
+                </div>
+                <div class="ms-auto d-flex align-items-center gap-3">
+                  <span class="amount-pill" aria-label="Monto recargado">
+                    {{ monto | currency:'MXN':'symbol-narrow':'1.2-2' }}
+                  </span>
+                  <span class="status-chip">
+                    Id Transacción: {{idTransaccion}}
+                  </span>
+                </div>
+                <span class="beam beam-a" aria-hidden="true"></span>
+                <span class="beam beam-b" aria-hidden="true"></span>
+              </div>
+            </div>
+            <div class="card glass-card">
+              <div class="card-header card-header-clean">
+                <div class="header-left">
+                  <span class="fw-semibold">Resumen de la recarga</span>
+                  <span class="divider-dot"></span>
+                  <small class="muted">Detalles</small>
+                </div>
+                <div class="header-right">
+                  <span class="badge-done">
+                    <i class="bi bi-check2-circle me-1"></i> Completada
+                  </span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="data-grid">
+                  <div class="kv-tile">
+                    <div class="kv-ico"><i class="fa fa-shopping-bag"></i></div>
+                    <div class="kv-content">
+                      <div class="k">Monedero</div>
+                      <div class="v text-primary-emph">
+                        #{{ monederoSeleccionado?.numeroserie || monederoSeleccionado?.numeroSerie }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="kv-tile">
+                    <div class="kv-ico"><i class="fa fa-user-circle"></i></div>
+                    <div class="kv-content">
+                      <div class="k">Pasajero</div>
+                      <div class="v">
+                        {{ monederoSeleccionado?.pasajeroNombre }}
+                        {{ monederoSeleccionado?.pasajeroApellidoPaterno || '' }}
+                        {{ monederoSeleccionado?.pasajeroApellidoMaterno || '' }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="kv-tile">
+                    <div class="kv-ico"><i class="fa fa-home"></i></div>
+                    <div class="kv-content">
+                      <div class="k">Cliente</div>
+                      <div class="v">
+                        {{ monederoSeleccionado?.clienteNombre }}
+                        {{ monederoSeleccionado?.clienteApellidoPaterno || '' }}
+                        {{ monederoSeleccionado?.clienteApellidoMaterno || '' }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="kv-tile">
+                    <div class="kv-ico"><i class="fa fa-money"></i></div>
+                    <div class="kv-content">
+                      <div class="k">Monto recargado</div>
+                      <div class="v v-ok">
+                        {{ monto | currency:'MXN':'symbol-narrow':'1.2-2' }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="kv-tile">
+                    <div class="kv-ico"><i class="fa fa-calendar"></i></div>
+                    <div class="kv-content">
+                      <div class="k">Fecha y hora</div>
+                      <div class="v">
+                        {{ (transaccionForm?.value?.fechaHora || (nowZulu && nowZulu())) | date:'yyyy-MM-dd HH:mm' }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <hr class="my-4 soft-divider">
+                <div class="cta-bar d-flex flex-wrap gap-2 justify-content-end">
+                  <button type="button" class="btn btn-success" (click)="irTransacciones()">
+                    Ver transacciones
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<ng-template #exlargeModal let-modal>
+  <div class="card-header-custom">
+    <div class="icon-wrapper">
+      <i class="fas fa-plus"></i>
+    </div>
+    <div class="header-text d-flex align-items-center justify-content-between w-100">
+      <div class="titles d-flex flex-column">
+        <h5>{{ 'Realizar Recarga' }}</h5>
+        <span>Completa los datos necesarios para realizar tu recarga..</span>
+      </div>
+      <button (click)="cancelar()" *ngIf="step !=2" type="button" class="btn btn-danger">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+  </div>
+  <div class="card-body" style="padding: 20px; background-color: #002136">
+    <form [formGroup]="transaccionForm">
+      <div class="row">
+        <section class="table-shell">
+          <div class="topup2b-shell theme-dark-topup">
+            <div class="row">
+              <div class="col-12 col-lg-12">
+                <div *ngIf="step===1" class="topup2b-card card shadow-sm glass-card flex-fill h-100">
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-wallet2 fs-5 text-accent"></i>
+                        <h5 class="m-0">Selecciona monedero</h5>
+                      </div>
+                    </div>
+                    <div class="row g-3">
+                      <div class="wallet-grid-scroll">
+                        <div class="row row-cols-3 g-3">
+                          <div class="col" *ngFor="let m of listaMonederos">
+                            <label class="wallet-tile mt-1 w-100" [class.selected]="monederoSeleccionado?.id===m.id">
+                              <span class="tile-ring"></span>
+                              <div class="tile-top">
+                                <div class="avatar-ring">
+                                  <span class="avatar-text">{{ m.id }}</span>
+                                </div>
+                                <div class="meta">
+                                  <div class="title">{{ m?.pasajeroNombre }} {{ m?.pasajeroApellidoPaterno || ' ' }} {{
+                                    m?.pasajeroApellidoMaterno || ' ' }}</div>
+                                  <div class="sub">Cliente · <b>{{ m?.clienteNombre }} {{ m?.clienteApellidoPaterno || '
+                                      ' }} {{ m?.clienteApellidoMaterno || ' ' }}</b></div>
+                                </div>
+                                <div class="form-check ms-auto">
+                                  <input class="form-check-input" type="radio" name="monederoRadio"
+                                    [checked]="monederoSeleccionado?.id===m.id" (change)="monederoSeleccionado=m">
+                                </div>
+                              </div>
+                              <div class="tile-mid">
+                                <span class="chip">
+                                  <i class="bi bi-qr-code"></i>
+                                  <span>#{{ m.numeroSerie || m.numeroserie }}</span>
+                                </span>
+                                <div class="saldo">
+                                  <small>Saldo:&nbsp;</small>
+                                  <b>{{ m.saldo | currency:'MXN':'symbol-narrow':'1.2-2' }}</b>
+                                </div>
+                              </div>
+                              <div class="tile-progress">
+                                <div class="bar" [style.width.%]="(m.saldo || 0) % 100"></div>
+                              </div>
+                            </label>
+                            <div class="d-flex justify-content-center mt-3" [@fadeInUp]
+                              *ngIf="monederoSeleccionado?.id===m.id">
+                              <button type="button" class="btn btn-outline-accent w-100" (click)="irPaso(2)">
+                                Continuar <i class="bi bi-arrow-right-short"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- PAGINACIÓN -->
+                    <!-- <nav class="mt-3 d-flex justify-content-end" aria-label="Paginación monederos">
+                      <ul class="pagination pagination-sm mb-0 dark-pager">
+                        <li class="page-item" [class.disabled]="pageIndex===0">
+                          <button class="page-link" (click)="goFirst()" aria-label="Primero">
+                            <i class="bi bi-chevron-double-left"></i>
+                          </button>
+                        </li>
+                        <li class="page-item" [class.disabled]="pageIndex===0">
+                          <button class="page-link" (click)="goPrev()" aria-label="Anterior">
+                            <i class="bi bi-chevron-left"></i>
+                          </button>
+                        </li>
+                        <li class="page-item disabled">
+                          <span class="page-link">{{ pageIndex+1 }} / {{ totalPages || 1 }}</span>
+                        </li>
+                        <li class="page-item" [class.disabled]="pageIndex>=totalPages-1">
+                          <button class="page-link" (click)="goNext()" aria-label="Siguiente">
+                            <i class="bi bi-chevron-right"></i>
+                          </button>
+                        </li>
+                        <li class="page-item" [class.disabled]="pageIndex>=totalPages-1">
+                          <button class="page-link" (click)="goLast()" aria-label="Último">
+                            <i class="bi bi-chevron-double-right"></i>
+                          </button>
+                        </li>
+                      </ul>
+                    </nav>-->
+                  </div>
+                </div>
+                <div *ngIf="step===2" class="topup2b-card card shadow-sm glass-card flex-fill h-100">
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-cash-coin fs-5 text-accent"></i>
+                        <h5 class="m-0">Define monto</h5>
+                      </div>
+                      <button class="btn btn-ghost" (click)="irPaso(1)">
+                        <i class="bi bi-arrow-left"></i> Cambiar monedero
+                      </button>
+                    </div>
+                    <div class="amount-panel mt-1 mb-3">
+                      <button class="btn btn-ghost amt-side" (click)="inc(-50)">− $50</button>
+                      <div class="amt-box">
+                        <span class="sym">$</span>
+                        <input type="text" class="amt-input" [value]="montoView" (input)="onInputMonto($event)"
+                          placeholder="0.00" aria-label="Monto a recargar" />
+                      </div>
+                      <button class="btn btn-ghost amt-side" (click)="inc(50)">+ $50</button>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 justify-content-center mb-2">
+                      <button class="btn btn-outline-accent btn-sm" (click)="setMonto(50)">$50</button>
+                      <button class="btn btn-outline-accent btn-sm" (click)="setMonto(100)">$100</button>
+                      <button class="btn btn-outline-accent btn-sm" (click)="setMonto(200)">$200</button>
+                      <button class="btn btn-outline-accent btn-sm" (click)="setMonto(300)">$300</button>
+                      <button class="btn btn-outline-accent btn-sm" (click)="setMonto(500)">$500</button>
+                      <button class="btn btn-outline-accent btn-sm" (click)="setMonto(1000)">$1,000</button>
+                    </div>
+                    <div class="flex-grow-1"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-2" [@fadeInUp] *ngIf="step===2">
+              <div class="col-12">
+                <div class="topup2b-bottombar card shadow-sm glass-bar">
+                  <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <div class="d-flex flex-wrap gap-4 info-mini">
+                      <div>
+                        <small>Monedero:&nbsp;</small>
+                        <strong>{{ monederoSeleccionado?.numeroserie || monederoSeleccionado?.numeroSerie }}</strong>
+                      </div>
+                      <div>
+                        <small>Pasajero:&nbsp;</small>
+                        <strong>{{ monederoSeleccionado.pasajeroNombre }} {{
+                          monederoSeleccionado.pasajeroApellidoPaterno || ' ' }} {{
+                          monederoSeleccionado.pasajeroApellidoMaterno || ' ' }}</strong>
+                      </div>
+                      <div>
+                        <small>Cliente:&nbsp;</small>
+                        <strong>{{ monederoSeleccionado.clienteNombre }} {{ monederoSeleccionado.clienteApellidoPaterno
+                          || ' ' }} {{ monederoSeleccionado.clienteApellidoMaterno || ' ' }}</strong>
+                      </div>
+                      <div>
+                        <small>Monto:&nbsp;</small>
+                        <strong class="text-success">{{ monto | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
+                      </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-ghost-danger" (click)="cancelar()">Cancelar</button>
+                      <button class="btn btn-accent" [disabled]="!monto || monto<=0" (click)="agregarTransaccion()">
+                        {{ submitButton }} <i class="bi bi-lightning-charge-fill"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </form>
+  </div>
+</ng-template>

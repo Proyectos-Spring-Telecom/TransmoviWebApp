@@ -18,20 +18,20 @@ export class DerroterosService {
     return this.http.get(`${environment.API_SECURITY}/derroteros/list`);
   }
 
-  agregarDerrotero(data: FormData) {
+  agregarDerrotero(data: any) {
     return this.http.post(environment.API_SECURITY + '/derroteros', data);
   }
 
-  eliminarDerrotero(idDispositivo: Number) {
-    return this.http.delete(environment.API_SECURITY + '/derroteros/' + idDispositivo);
+  eliminarDerrotero(idDerrotero: Number) {
+    return this.http.delete(environment.API_SECURITY + '/derroteros/eliminado/total/' + idDerrotero);
   }
 
-  obtenerDerrotero(idDispositivo: number): Observable<any> {
-    return this.http.get<any>(environment.API_SECURITY + '/derroteros/' + idDispositivo);
+  obtenerDerrotero(idDerrotero: number): Observable<any> {
+    return this.http.get<any>(environment.API_SECURITY + '/derroteros/' + idDerrotero);
   }
 
-  actualizarDerrotero(idDispositivo: number, saveForm: any): Observable<any> {
-    return this.http.put(`${environment.API_SECURITY}/derroteros/` + idDispositivo, saveForm);
+  actualizarDerrotero(idDerrotero: number, saveForm: any): Observable<any> {
+    return this.http.put(`${environment.API_SECURITY}/derroteros/` + idDerrotero, saveForm);
   }
 
   private apiUrl = `${environment.API_SECURITY}/derroteros`;

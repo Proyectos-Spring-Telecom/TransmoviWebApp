@@ -264,7 +264,7 @@ export class AltaInstalacionComponent implements OnInit {
         Swal.fire({
           title: '¡Operación Exitosa!',
           background: '#002136',
-          text: `Se agregó un nuevo módulo de manera exitosa.`,
+          text: `Se agregó una nueva instalación de manera exitosa.`,
           icon: 'success',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -339,7 +339,7 @@ export class AltaInstalacionComponent implements OnInit {
         Swal.fire({
           title: '¡Operación Exitosa!',
           background: '#002136',
-          text: `Los datos del módulo se actualizaron correctamente.`,
+          text: `Los datos del instalación se actualizaron correctamente.`,
           icon: 'success',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -352,7 +352,7 @@ export class AltaInstalacionComponent implements OnInit {
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: `Ocurrió un error al actualizar el módulo.`,
+          text: `Ocurrió un error al actualizar el instalación.`,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',

@@ -18,7 +18,7 @@ export class TransaccionesService {
 		return this.http.get(`${environment.API_SECURITY}/transacciones/list`);
 	}
   
-  agregarTransaccion(data: FormData) {
+  agregarTransaccion(data: any) {
     return this.http.post(environment.API_SECURITY + '/transacciones', data);
   }
 

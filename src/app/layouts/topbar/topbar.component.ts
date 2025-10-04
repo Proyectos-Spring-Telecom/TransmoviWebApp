@@ -1,11 +1,8 @@
 import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
-
 import { AuthenticationService } from '../../core/services/auth.service';
 import { AuthfakeauthenticationService } from '../../core/services/authfake.service';
-import { environment } from '../../../environments/environment';
-
 import { CookieService } from 'ngx-cookie-service';
 import { LanguageService } from '../../core/services/language.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -16,9 +13,6 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrls: ['./topbar.component.scss']
 })
 
-/**
- * Topbar component
- */
 export class TopbarComponent implements OnInit {
 
   element;
@@ -28,6 +22,7 @@ export class TopbarComponent implements OnInit {
   countryName: any;
   valueset;
   public showNombre: any;
+  public showImage: any;
 
   constructor(@Inject(DOCUMENT) private document: any,
     private router: Router,
@@ -37,9 +32,28 @@ export class TopbarComponent implements OnInit {
     public translate: TranslateService,
     private users: AuthenticationService,
     public _cookiesService: CookieService) {
-      const user = this.users.getUser();
-      this.showNombre = user.nombre + ' ' + user.apellidoPaterno; 
+    const user = this.users.getUser();
+    this.showImage = user.fotoPerfil || 'assets/images/user_default.png';
+    this.showNombre = user.nombre + ' ' + user.apellidoPaterno;
   }
+
+  defaultAvatar = 'assets/images/user_default.png';
+
+  get resolvedAvatar(): string {
+    const v = (this.showImage ?? '').toString().trim();
+    if (!v || v === 'null' || v === 'undefined' || v === '[object Object]') {
+      return this.defaultAvatar;
+    }
+    return v;
+  }
+
+  onAvatarError(ev: Event) {
+    const img = ev.target as HTMLImageElement;
+    if (img && img.src !== this.defaultAvatar) {
+      img.src = this.defaultAvatar;
+    }
+  }
+
 
   listLang = [
     { text: 'English', flag: 'assets/images/flags/us.jpg', lang: 'en' },
@@ -57,12 +71,10 @@ export class TopbarComponent implements OnInit {
   ngOnInit() {
     this.openMobileMenu = false;
     this.element = document.documentElement;
-
     this.configData = {
       suppressScrollX: true,
       wheelSpeed: 0.3
     };
-
     this.cookieValue = this._cookiesService.get('lang');
     const val = this.listLang.filter(x => x.lang === this.cookieValue);
     this.countryName = val.map(element => element.text);
@@ -86,31 +98,19 @@ export class TopbarComponent implements OnInit {
     this.languageService.setLanguage(lang);
   }
 
-  /**
-   * Toggles the right sidebar
-   */
   toggleRightSidebar() {
     this.settingsButtonClicked.emit();
   }
 
-  /**
-   * Toggle the menu bar when having mobile screen
-   */
   toggleMobileMenu(event: any) {
     event.preventDefault();
     this.mobileMenuButtonClicked.emit();
   }
 
-  /**
-   * Logout the user
-   */
   logout() {
     this.router.navigate(['/account/login']);
   }
 
-  /**
-   * Fullscreen method
-   */
   fullscreen() {
     document.body.classList.toggle('fullscreen-enable');
     if (
@@ -119,26 +119,20 @@ export class TopbarComponent implements OnInit {
       if (this.element.requestFullscreen) {
         this.element.requestFullscreen();
       } else if (this.element.mozRequestFullScreen) {
-        /* Firefox */
         this.element.mozRequestFullScreen();
       } else if (this.element.webkitRequestFullscreen) {
-        /* Chrome, Safari and Opera */
         this.element.webkitRequestFullscreen();
       } else if (this.element.msRequestFullscreen) {
-        /* IE/Edge */
         this.element.msRequestFullscreen();
       }
     } else {
       if (this.document.exitFullscreen) {
         this.document.exitFullscreen();
       } else if (this.document.mozCancelFullScreen) {
-        /* Firefox */
         this.document.mozCancelFullScreen();
       } else if (this.document.webkitExitFullscreen) {
-        /* Chrome, Safari and Opera */
         this.document.webkitExitFullscreen();
       } else if (this.document.msExitFullscreen) {
-        /* IE/Edge */
         this.document.msExitFullscreen();
       }
     }

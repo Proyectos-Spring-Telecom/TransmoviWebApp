@@ -329,7 +329,7 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
       puntoInicio: this.buildFeatureCollectionPoint(this.coordInicio),
       nombreInicio: this.direccionInicio ?? 'Punto Inicio',
       puntoFin: this.buildFeatureCollectionPoint(this.coordFin),
-      nombreFinal: this.direccionFin ?? 'Punto Fin',
+      nombreFin: this.direccionFin ?? 'Punto Fin',
       estatus: this.rutaForm?.get('estatus')?.value ?? 1,
       idRegion: this.rutaForm?.get('idRegion')?.value ?? null
     };
@@ -370,7 +370,7 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
       puntoInicio: this.buildFeatureCollectionPoint(this.coordInicio),
       nombreInicio: this.direccionInicio ?? 'Punto Inicio',
       puntoFin: this.buildFeatureCollectionPoint(this.coordFin),
-      nombreFinal: this.direccionFin ?? 'Punto Fin',
+      nombreFin: this.direccionFin ?? 'Punto Fin',
       estatus: Number(this.rutaForm.get('estatus')?.value ?? 1),
       idRegion: Number(this.rutaForm.get('idRegion')?.value ?? 0),
     };

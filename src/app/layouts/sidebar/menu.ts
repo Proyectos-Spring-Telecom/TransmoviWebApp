@@ -53,6 +53,7 @@ export const MENU: MenuItem[] = [
         label: 'Roles',
         icon: 'uil-clipboard-notes',
         link: '/roles',
+        permiso: Permiso.Listado_Roles
     },
     {
         id: 14,
@@ -106,18 +107,21 @@ export const MENU: MenuItem[] = [
                 label: 'Punto de Venta',
                 icon: 'uil-apps',
                 link: '/punto-venta',
+                // permiso: Permiso.Listado_Transacciones
             },
             {
                 id: 5,
                 label: 'Monederos',
                 icon: 'uil-moneybag-alt',
                 link: '/monederos',
+                permiso:Permiso.Listado_Monederos
             },
             {
                 id: 7,
                 label: 'Transacciones',
                 icon: 'uil-refresh',
                 link: '/transacciones',
+                // permiso: Permiso.Listado_Transacciones
             },
         ],
     },
@@ -137,7 +141,8 @@ export const MENU: MenuItem[] = [
             {
                 id: 9,
                 label: 'Regiones',
-                link: '/regiones'
+                link: '/regiones',
+                permiso: Permiso.Listado_Regiones
             },
             {
                 id: 9,
@@ -148,7 +153,13 @@ export const MENU: MenuItem[] = [
             {
                 id: 9,
                 label: 'Derroteros',
-                link: '/derroteros'
+                link: '/derroteros',
+                permiso: Permiso.Listado_Derroteros
+            },
+            {
+                id: 9,
+                label: 'Tarifas',
+                link: '/tarifas',
             }
         ]
     },
@@ -163,6 +174,7 @@ export const MENU: MenuItem[] = [
         label: 'Bitácora de Viajes',
         icon: 'uil-bag-alt',
         link: '/bluevox/lista-bluevox',
+        permiso: Permiso.Listado_ConteoPasajeros
     },
     {
         id: 13,

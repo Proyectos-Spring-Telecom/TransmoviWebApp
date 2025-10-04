@@ -4,3 +4,606 @@
   border: none;
   background-color: #002136;
 }
+
+
+
+/* =========================================================
+   TOPUP DARK — Estilos completos
+   ========================================================= */
+.theme-dark-topup {
+  /* ---------- Paleta ---------- */
+  --bg: #0b1b27;
+  --panel: #0f2232;
+  --panel-2: #132b3f;
+  --text: #dbe7f3;
+  --muted: #8aa5bc;
+  --border: rgba(148, 163, 184, .16);
+  --accent: #5aa9ff;
+  --accent-2: #22c55e;
+  --danger: #ef4444;
+
+  color: var(--text);
+
+  /* Altura mínima de cada tarjeta (tu tile ya tiene su layout) */
+  .wallet-tile {
+    min-height: 160px;
+    /* ajusta si tu tile es más alto */
+  }
+
+  /* g-3 en Bootstrap ≈ 1rem de gap vertical */
+  .wallet-grid-scroll {
+    /* Solo 1 fila visible (tile + gap) => el 4º ya requiere scroll */
+    max-height: calc(400px + 1rem);
+    overflow-y: auto;
+    padding-right: 25px;
+    /* para que el scrollbar no tape contenido */
+  }
+
+  /* Asegura 3 columnas por fila siempre dentro del contenedor */
+  .wallet-grid-scroll .row {
+    margin-right: 0;
+  }
+
+  .wallet-grid-scroll .col {
+    /* nada extra; el grid de Bootstrap con row-cols-3 ya hace 3/row */
+  }
+
+  /* ---------- Helpers ---------- */
+  .text-accent {
+    color: var(--accent) !important;
+  }
+
+  .btn-outline-accent {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .btn-outline-accent:hover {
+    background: color-mix(in oklab, var(--accent) 12%, transparent);
+  }
+
+  .btn-accent {
+    background: #34c38f;
+    color: #fff;
+    border: 0;
+  }
+
+  .btn-accent:hover {
+    filter: brightness(1.07);
+    background-color: #045738;
+  }
+
+  .btn-ghost {
+    color: white;
+    border: 1px solid var(--border);
+    background: #093b66;
+  }
+
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, .05);
+    color: var(--text);
+  }
+
+  .btn-ghost-danger {
+    color: #fff;
+    border: 1px solid rgba(239, 68, 68, .35);
+    background: #f46a6a;
+  }
+
+  .btn-ghost-danger:hover {
+    background-color: #861111;
+    color: #fff;
+  }
+
+  .soft-divider {
+    border-color: var(--border) !important;
+  }
+
+  /* ---------- Cards ---------- */
+  .glass-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+
+  .glass-bar {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+
+  /* =========================================================
+     Sidebar de pasos — ahora 50/50 en altura
+     ========================================================= */
+  .equal-steps {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* centra verticalmente */
+    gap: 12px;
+    height: 100%;
+  }
+
+  .equal-steps .topup2b-step {
+    /* altura automática */
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    min-height: 90px;
+    /* 👈 este valor define lo “largo” del step */
+    border-radius: 12px;
+    color: var(--muted);
+    transition: background .2s ease, box-shadow .2s ease;
+  }
+
+  .topup2b-step .num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    line-height: 1;
+    background: rgba(90, 169, 255, .20);
+    color: var(--accent);
+  }
+
+  .topup2b-step .txt .fw-bold {
+    color: var(--text);
+  }
+
+  .topup2b-step small {
+    color: var(--muted);
+  }
+
+  .topup2b-step.active {
+    background: rgba(34, 197, 94, .12);
+    box-shadow: inset 0 0 0 3px rgba(34, 197, 94, .18);
+  }
+
+  .topup2b-step.active .num {
+    background: rgba(34, 197, 94, .20);
+    color: var(--accent-2);
+  }
+
+  /* =========================================================
+     Buscador
+     ========================================================= */
+  .topup2b-search {
+    width: 360px;
+    max-width: 100%;
+  }
+
+  .input-group-dark .input-group-text {
+    background: #1a3348;
+    color: var(--muted);
+    border-color: var(--border);
+  }
+
+  .input-group-dark .form-control {
+    background: #102333;
+    color: var(--text);
+    border-color: var(--border);
+  }
+
+  .input-group-dark .form-control::placeholder {
+    color: #7890a6;
+  }
+
+  /* =========================================================
+     Panel de monto (sin slider)
+     ========================================================= */
+  .amount-panel {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .00));
+    box-shadow: 0 8px 24px rgba(2, 6, 23, .25) inset, 0 6px 16px rgba(2, 132, 199, .08);
+  }
+
+  .amt-side {
+    min-width: 84px;
+  }
+
+  .amt-box {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #0f2232;
+  }
+
+  .amt-box .sym {
+    font-weight: 900;
+    font-size: 24px;
+    color: var(--text);
+  }
+
+  .amt-input {
+    all: unset;
+    width: 100%;
+    text-align: center;
+    color: var(--text);
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: .5px;
+  }
+
+  /* =========================================================
+     Paginación
+     ========================================================= */
+  .dark-pager .page-link {
+    background: #102333;
+    color: var(--muted);
+    border-color: var(--border);
+  }
+
+  .dark-pager .page-item.disabled .page-link {
+    opacity: .5;
+  }
+
+  .dark-pager .page-link:hover {
+    color: var(--text);
+    background: #163550;
+  }
+
+  /* =========================================================
+     Bottom bar
+     ========================================================= */
+  .topup2b-bottombar .card-body small {
+    color: var(--muted);
+  }
+
+  .topup2b-bottombar .card-body strong {
+    color: var(--text);
+  }
+
+  /* =========================================================
+     Tiles de monederos (nuevo estilo)
+     ========================================================= */
+  .wallet-tile {
+    position: relative;
+    display: block;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .02), rgba(255, 255, 255, .00));
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    overflow: hidden;
+    transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease;
+    cursor: pointer;
+    isolation: isolate;
+  }
+
+  .theme-dark-topup .wallet-tile .tile-cta {
+    margin-top: 2px;
+  }
+
+  /* feedback de selección ya lo tienes con .wallet-tile.selected;
+   si quieres resaltarlo un poco más: */
+  .theme-dark-topup .wallet-tile.selected {
+    transform: translateY(-2px);
+    border-color: var(--accent-2);
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, .25) inset, 0 10px 28px rgba(2, 132, 199, .18);
+  }
+
+  .wallet-tile:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--accent) 40%, var(--border));
+    box-shadow: 0 10px 28px rgba(2, 132, 199, .18);
+  }
+
+  .wallet-tile .tile-ring {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(90, 169, 255, .35), rgba(34, 197, 94, .35));
+    filter: blur(18px);
+    opacity: .0;
+    z-index: 0;
+    transition: opacity .2s ease;
+  }
+
+  .wallet-tile:hover .tile-ring {
+    opacity: .35;
+  }
+
+  .wallet-tile.selected {
+    border-color: var(--accent-2);
+    box-shadow: inset 0 0 0 2px rgba(34, 197, 94, .35);
+  }
+
+  .wallet-tile.selected .tile-ring {
+    opacity: .5;
+  }
+
+  .wallet-tile .tile-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .wallet-tile .avatar-ring {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: conic-gradient(from 180deg, rgba(90, 169, 255, .35), rgba(34, 197, 94, .35), rgba(90, 169, 255, .35));
+    padding: 2px;
+    display: grid;
+    place-items: center;
+  }
+
+  .wallet-tile .avatar-text {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    background: #0f2232;
+    color: var(--text);
+    border-radius: 10px;
+    font-weight: 800;
+  }
+
+  .wallet-tile .meta .title {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .wallet-tile .meta .sub {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .wallet-tile .tile-mid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .wallet-tile .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(90, 169, 255, .12);
+    color: color-mix(in oklab, var(--accent) 85%, white);
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(90, 169, 255, .35);
+    font-size: 12px;
+  }
+
+  .wallet-tile .saldo small {
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  .wallet-tile .saldo b {
+    color: var(--accent-2);
+    font-weight: 800;
+  }
+
+  .wallet-tile .tile-progress {
+    position: relative;
+    z-index: 1;
+    height: 5px;
+    border-radius: 999px;
+    margin-top: 10px;
+    background: rgba(255, 255, 255, .06);
+    overflow: hidden;
+  }
+
+  .wallet-tile .tile-progress .bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  }
+}
+
+::ng-deep .swal2-container .swal2-title {
+    font-size: 24px;
+    font-weight: 200;
+    color: #ffffff;
+}
+
+.swal2-container .swal2-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+::ng-deep div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+/* ===== THEME TOKENS (scoped) ===== */
+.recarga-ok {
+  --ok: #2ecc71;
+  --ok-strong: #22c36b;
+  --ok-ghost: rgba(46, 204, 113, 0.18);
+  --accent: #00b48c;
+  --accent-2: #0082ff;
+  --text: #e9f5ef;
+  --muted: #a8c7ba;
+  --edge: rgba(255,255,255,.08);
+  --edge-2: rgba(255,255,255,.12);
+  --glass: rgba(255,255,255,.04);
+  --glass-2: rgba(255,255,255,.06);
+  --shadow: 0 10px 40px rgba(0, 0, 0, .35);
+  margin-top: -5px;
+  .glass-card {
+    background: linear-gradient(180deg, var(--glass), rgba(255,255,255,.02));
+    border: 1px solid var(--edge);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  /* ===== HEADER/HERO ===== */
+  .success-header .card-body {
+    border-radius: 18px;
+    background:
+      radial-gradient(1200px 220px at right -200px top -120px, rgba(46, 204, 113, 0.22), transparent 55%),
+      linear-gradient(100deg, rgba(0, 210, 140, 0.10), rgba(0, 120, 190, 0.06));
+    border: 1px solid rgba(46, 204, 113, 0.25);
+    position: relative;
+    isolation: isolate;
+  }
+
+  .ok-icon {
+    width: 56px; height: 56px; border-radius: 999px;
+    display: grid; place-items: center;
+    background: conic-gradient(from 140deg, rgba(46,204,113,.18), rgba(46,204,113,.06) 60%, rgba(0,180,140,.10));
+    border: 1px solid rgba(46,204,113,.45);
+    box-shadow: 0 0 0 8px rgba(46,204,113,.07), inset 0 0 24px rgba(46,204,113,.22);
+    color: var(--ok); font-size: 1.5rem;
+  }
+
+  .header-copy {
+    display: grid;
+    gap: 4px;
+    .eyebrow {
+      font-size: .8rem; color: var(--muted); display: flex; align-items: center; gap: .5rem;
+      .dot { width: 8px; height: 8px; border-radius: 99px; background: var(--ok); box-shadow: 0 0 0 6px rgba(46,204,113,.12); }
+    }
+    .title { font-weight: 800; letter-spacing: .2px; }
+    .subtitle { color: var(--muted); }
+  }
+
+  .amount-pill {
+    display:inline-block; padding:.5rem 1rem; border-radius: 999px; font-weight: 800;
+    letter-spacing: .2px;
+    background: linear-gradient(135deg, rgba(46,204,113,.24), rgba(0,185,255,.18));
+    border: 1px solid rgba(255,255,255,.12);
+    box-shadow: 0 6px 24px rgba(0, 200, 150, .22);
+    backdrop-filter: blur(6px);
+  }
+
+  .status-chip {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .45rem .75rem; border-radius: .75rem; font-weight: 700;
+    color: #39d98a; background: var(--ok-ghost);
+    border: 1px solid rgba(46,204,113,.35);
+  }
+
+  /* Decorative beams (no animaciones bruscas) */
+  .beam {
+    position: absolute; inset: auto auto -10px -10px; width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(46,204,113,.18), transparent 65%);
+    filter: blur(10px); opacity: .8; pointer-events: none; z-index: -1;
+    &.beam-b { left: auto; right: -20px; bottom: -20px; background:
+      radial-gradient(closest-side, rgba(0,130,255,.18), transparent 65%); }
+  }
+
+  /* ===== INFO BANNER ===== */
+  .info-banner {
+    padding: .9rem 1rem;
+    background: linear-gradient(0deg, rgba(255,255,255,.06), rgba(255,255,255,.06));
+    border: 1px solid var(--edge-2);
+    color: #cfe9dc; border-radius: 14px;
+  }
+
+  /* ===== CARD HEADER CLEAN ===== */
+  .card-header-clean {
+    display:flex; justify-content:space-between; align-items:center; gap:1rem;
+    padding: .9rem 1rem; border-bottom: 1px solid var(--edge);
+    .header-left { display:flex; align-items:center; gap:.75rem; }
+    .divider-dot { width:6px; height:6px; border-radius:999px; background: var(--edge-2); display:inline-block; }
+    .muted { color: var(--muted); }
+  }
+
+  .badge-done {
+    background: var(--ok-ghost);
+    color: #39d98a;
+    border: 1px solid rgba(46,204,113,.35);
+    padding: .35rem .7rem;
+    border-radius: .6rem;
+    font-weight: 700;
+  }
+
+  /* ===== DATA GRID (responsive tiles) ===== */
+  .data-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 14px;
+
+    @media (max-width: 576px) { grid-template-columns: repeat(6, 1fr); }
+  }
+
+  .kv-tile {
+    grid-column: span 6;
+    display:flex; align-items:center; gap:.9rem;
+    padding: .85rem .9rem; border-radius: 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+    border: 1px solid var(--edge);
+    box-shadow: 0 4px 18px rgba(0,0,0,.18);
+    transition: transform .15s ease, box-shadow .15s ease;
+
+    &:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,.22); }
+
+    @media (min-width: 992px) { grid-column: span 4; } /* 3 por fila desktop */
+
+    .kv-ico {
+      width: 42px; height: 42px; border-radius: 12px; display:grid; place-items:center;
+      background: linear-gradient(135deg, rgba(0,180,140,.14), rgba(0,130,255,.12));
+      border: 1px solid rgba(255,255,255,.10);
+      i { font-size: 1.1rem; color: #6bdcff; }
+    }
+    .kv-content { display:grid; line-height: 1.1; gap: 6px; }
+    .k { font-size: .8rem; color: var(--muted); }
+    .v { font-weight: 700; letter-spacing: .2px; }
+    .v-ok { color: #39d98a; }
+  }
+
+  .text-primary-emph { color: #6bdcff; }
+
+  .soft-divider { border-color: var(--edge); }
+
+  /* ===== CTA BUTTONS ===== */
+  .btn-outline-accent {
+    border-color: rgba(0, 200, 180, .55);
+    color: #aef6e7;
+    &:hover { background: rgba(0,200,180,.08); }
+  }
+  .btn-accent {
+    background: linear-gradient(135deg, rgba(0,180,140,.88), rgba(0,130,255,.78));
+    border: 0; color: #fff; font-weight: 700;
+    box-shadow: 0 8px 28px rgba(0,160,180,.28);
+    &:hover { filter: brightness(1.05); }
+  }
+
+  /* Utilidades ligeras */
+  .card-header { background: transparent; }
+}

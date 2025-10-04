@@ -6,6 +6,7 @@ import CustomStore from 'devextreme/data/custom_store';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { RutasService } from 'src/app/shared/services/rutas.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-lista-rutas',
@@ -206,7 +207,7 @@ export class ListaRutasComponent implements OnInit {
     this.selectedTransactionId = id;
     this.selectedRutaNombre = row?.nombre ?? null;
     this.selectedNombreInicio = row?.nombreInicio ?? null;
-    this.selectedNombreFinal = row?.nombreFinal ?? null;
+    this.selectedNombreFinal = row?.nombreFin ?? null;
 
     const inicio = this.getCoords(row?.puntoInicio);
     const fin = this.getCoords(row?.puntoFin);
@@ -346,7 +347,7 @@ export class ListaRutasComponent implements OnInit {
           left: aPx.x - TW / 2,
           right: aPx.x + TW / 2,
           top: aPx.y - (TIP + TH),
-          bottom: aPx.y - TIP 
+          bottom: aPx.y - TIP
         };
         let union = { ...rectA };
         if (hasB && b) {
@@ -389,4 +390,43 @@ export class ListaRutasComponent implements OnInit {
     return Array.isArray(c) && c.length >= 2 ? Number(c[0]) : null;
   }
 
+  eliminarRuta(ruta: any) {
+    Swal.fire({
+      title: '¡Eliminar Ruta!',
+      background: '#002136',
+      html: `¿Está seguro que desea eliminar el ruta: <br> <strong>${ruta.nombre}</strong>?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.value) {
+        this.rutaSe.eliminarRuta(ruta.id).subscribe(
+          (response) => {
+            Swal.fire({
+              title: '¡Eliminado!',
+              background: '#002136',
+              html: `El ruta ha sido eliminado de forma exitosa.`,
+              icon: 'success',
+              showCancelButton: false,
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'Confirmar',
+            })
+            this.setupDataSource();
+          },
+          (error) => {
+            Swal.fire({
+              title: '¡Ops!',
+              background: '#002136',
+              html: `Error al intentar eliminar el ruta.`,
+              icon: 'error',
+              showCancelButton: false,
+            })
+          }
+        );
+      }
+    });
+  }
 }

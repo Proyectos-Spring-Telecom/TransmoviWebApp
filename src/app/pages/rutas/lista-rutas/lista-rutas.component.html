@@ -40,7 +40,7 @@
               <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
               <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
               <dxi-column caption="Acciones" cellTemplate="acciones" [width]="160" alignment="center"></dxi-column>
-              <dxi-column dataField="nombreRuta" caption="Nombre" alignment="center" [width]="250"></dxi-column>
+              <dxi-column dataField="nombre" caption="Nombre" alignment="center" [width]="250"></dxi-column>
               <dxi-column dataField="nombreInicio" caption="Punto Inicio" [width]="300" alignment="center" cellTemplate="cell">
                 <div *dxTemplate="let data of 'cell'">
                   <div style="white-space: pre-wrap; word-break: break-word; text-align: center;">
@@ -51,7 +51,7 @@
                   </div>
                 </div>
               </dxi-column>
-              <dxi-column dataField="nombreFinal" caption="Punto Fin" [width]="300" alignment="center" cellTemplate="agw">
+              <dxi-column dataField="nombreFin" caption="Punto Fin" [width]="300" alignment="center" cellTemplate="agw">
                 <div *dxTemplate="let data of 'agw'">
                   <div style="white-space: pre-wrap; word-break: break-word; text-align: center;">
                     {{ data.value }}
@@ -73,9 +73,14 @@
               </dxo-export>
               <div *dxTemplate="let d of 'acciones'" class="d-flex gap-0 justify-content-center">
                 <div>
-                  <button type="button" class="btn btn-secondary"
-                    (click)="centerModal(exlargeModal, d.data.idRuta, null, null, undefined, undefined, undefined, d.data)">
-                    <i class="uil uil-map-pin ml-2"></i> Ubicar
+                  <button id="pinButtonBlue" class="btnAcciones"
+                    (click)="centerModal(exlargeModal, d.data.id, null, null, undefined, undefined, undefined, d.data)">
+                    <i class="fa fa-map-pin"></i>
+                  </button>
+                </div>&nbsp;&nbsp;
+                <div>
+                  <button id="deleteButton" class="btnAcciones" (click)="eliminarRuta(d.data)">
+                    <i class="fa fa-trash"></i>
                   </button>
                 </div>
               </div>
@@ -101,7 +106,7 @@
               <div class="icon-circle">
                 <i class="fa fa-map-signs"></i>
               </div>
-              <span class="ruta-titulo">Trayecto: {{ selectedRutaNombre }}</span>
+              <span class="ruta-titulo">Ruta: {{ selectedRutaNombre }}</span>
             </div>
             <div class="header-deco"></div>
           </div>

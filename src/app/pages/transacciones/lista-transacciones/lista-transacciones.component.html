@@ -23,17 +23,17 @@
       <div class="row mt-4">
         <div class="col-lg-12">
           <div class="table-responsive mb-4 col-12 col-lg-12">
-            <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
-                            [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
-                            [rowAlternationEnabled]="'true'" [dataSource]="listaTransacciones" [keyExpr]="'Id'"
-                            [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
-                            [pager]="{ 
+            <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true" [showBorders]="'true'"
+              [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="'true'"
+              [dataSource]="listaTransacciones" [keyExpr]="'Id'" [width]="'100%'" [remoteOperations]="{ paging: true }"
+              [paging]="{ pageSize: pageSize }" [pager]="{ 
                                 showPageSizeSelector: true, 
                                 allowedPageSizes: [50], 
                                 showInfo: true,
                                 infoText: 'Página {0} de {1}', 
                                 visible: true 
-                            }" (onPageIndexChanged)=" onPageIndexChanged($event)" (onOptionChanged)="onGridOptionChanged($event)">
+                            }" (onPageIndexChanged)=" onPageIndexChanged($event)"
+              (onOptionChanged)="onGridOptionChanged($event)">
               <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
               <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
               <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
@@ -45,7 +45,7 @@
                   {{ a.data.fhRegistro | date:'dd/MM/yyyy HH:mm' : '+0000' }}
                 </div>
               </dxi-column>
-                
+
               <dxi-column dataField="monto" caption="Monto" alignment="center" cellTemplate="sald">
                 <div *dxTemplate="let f of 'sald' ">
                   {{f.data.monto | currency: '$'}}
@@ -62,11 +62,21 @@
                 </div>
               </dxi-column>
               <dxi-column dataField="numeroSerieMonedero" caption="N° Serie de Monedero" alignment="center"></dxi-column>
-              <dxi-column dataField="numeroSerieDispositivo" caption="N° Serie Dispositivo" alignment="center"></dxi-column>
+              <dxi-column dataField="numeroSerieDispositivo" caption="N° Serie Dispositivo" alignment="center" cellTemplate="numDisposi">
+                <div *dxTemplate="let f of 'numDisposi'">
+                  <span *ngIf="f.data.numeroSerieDispositivo === null ">
+                    Sin recarga
+                  </span>
+                  <span *ngIf="f.data.numeroSerieDispositivo">
+                    {{f.data.numeroSerieDispositivo}}
+                  </span>
+                </div>
+              </dxi-column>
               <div *dxTemplate="let transaccion of 'Acciones'" class="d-flex gap-3 justify-content-center">
                 <div>
                   <button type="button" class="btn btn-secondary"
-                    (click)="centerModal(centerDataModal, transaccion.data.id, transaccion.data.latitud, transaccion.data.longitud, transaccion.data.fechaHora, transaccion.data.monto, transaccion.data.tipoTransaccion)" style="border-radius: 5px;">
+                    (click)="centerModal(centerDataModal, transaccion.data.id, transaccion.data.latitud, transaccion.data.longitud, transaccion.data.fechaHora, transaccion.data.monto, transaccion.data.tipoTransaccion)"
+                    style="border-radius: 5px;">
                     <i class="uil uil-map-pin ml-2"></i> Ubicar
                   </button>
                 </div>

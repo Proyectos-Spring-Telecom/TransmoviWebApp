@@ -65,8 +65,8 @@
                                         <i class="fa fa-plus"></i>
                                     </button>
                                 </div>
-                                <div>
-                                    <button [disabled]="monedero.data.saldo === '0.00'"
+                                <div> Agregar iconos de recarga ydebito entransacciones
+                                    <button [disabled]="monedero.data.saldo === 0"
                                         (click)="centerModalDebito(centerDataModalDebito, monedero.data.id, monedero.data.numeroSerie, monedero.data.saldo, monedero.data.idCliente, monedero.data.idPasajero)"
                                         class="btn btn-danger btn-md btn-rounded waves-effect waves-light" type="button"
                                         placement="top" role="button">

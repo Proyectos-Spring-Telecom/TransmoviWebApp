@@ -8,13 +8,16 @@
                 <h5>{{ 'Agregar Derrotero' }}</h5>
                 <span>Traza el recorrido de tu vehículo.</span>
             </div>
+            <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
+                data-bs-target=".bs-example-modal-lg" (click)="extraLarges(exlargeModalForm)">Large modal</button>
         </div>
         <ng-container *ngIf="contentVisible">
             <div class="card-body">
                 <form class="cliente-form">
                     <!-- <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
               data-bs-target=".bs-example-modal-lg" (click)="extraLarge(exlargeModal)">Large modal</button> -->
-                    <h6 class="Descripcion mt-3">Genera el recorrido del vehículo sobre el mapa, representando de forma visual por donde pasará entre los puntos definidos.</h6>
+                    <h6 class="Descripcion mt-3">Genera el recorrido del vehículo sobre el mapa, representando de forma
+                        visual por donde pasará entre los puntos definidos.</h6>
                     <div class="col-md-12 mt-1">
                         <div id="map"></div>
                     </div>
@@ -24,12 +27,15 @@
                             {{submitButton}}
                         </button>
 
-                        <button type="button" [@fadeInUp] class="cancel" *ngIf="showClearTraceBtn"
+                        <button type="button" [@fadeInUp] class="primary" *ngIf="showClearTraceBtn"
                             (click)="clearTrace()">
                             Limpiar trazo
                         </button>
                         <button type="button" [@fadeInUp] class="warning" *ngIf="showUndo" (click)="undoLastPoint()">
                             Deshacer punto
+                        </button>
+                        <button type="button" [@fadeInUp] class="cancel" (click)="regresar()">
+                            Cancelar
                         </button>
                     </div>
                 </form>
@@ -44,27 +50,112 @@
             <i class="fas fa-map-pin"></i>
         </div>
         <div class="header-text">
-            <h5>{{'Selecciona una ruta'}}</h5>
-          <span>Haz click sobre una ruta para realizar el trazo del recorrido.</span>
+            <h5>Selecciona una ruta</h5>
+            <span>Haz click sobre una ruta para realizar el trazo del recorrido.</span>
         </div>
     </div>
-    <div class="card-body" style="padding: 20px; background-color: #002136;">
+
+    <div class="card-body route-modal">
         <form [formGroup]="rutaForm" class="cliente-form">
             <div class="row">
                 <div class="col-md-12">
-                    <label>Ruta</label>
-                    <select class="form-control" formControlName="idRegion">
-                        <option [ngValue]="null">Seleccione una ruta</option>
-                        <option *ngFor="let c of listaRutas" [ngValue]="c.id">
-                            {{ c.nombreRuta }}
-                        </option>
-                    </select>
+                    <label class="route-label">Ruta</label>
+
+                    <!-- Toolbar visual (sin lógica) -->
+                    <div class="route-toolbar">
+                        <div class="search">
+                            <i class="fas fa-search"></i>
+                            <input class="search-input" type="text" placeholder="Buscar ruta…"
+                                [formControl]="rutaSearch" />
+                        </div>
+                        <div class="hint">{{ filteredRutas?.length || 0 }} resultado(s)</div>
+                    </div>
+
+                    <!-- Lista scrollable -->
+                    <div class="routes-list" role="listbox" aria-label="Listado de rutas"
+                        [@panelAnim]="rutaSearch.value ? 'filtered':'all'" [@listAnim]="filteredRutas?.length">
+
+                        <label class="route-row" *ngFor="let c of filteredRutas; trackBy: trackByRutaId">
+                            <input class="route-radio" type="radio" formControlName="idRegion" [value]="c.id" />
+                            <div class="route-card">
+                                <div class="route-left">
+                                    <div class="route-icon"><i class="fas fa-route"></i></div>
+                                    <div class="route-text">
+                                        <div class="route-title">{{ c.nombre }}</div>
+                                        <div class="route-meta">ID: {{ c.id }}</div>
+                                    </div>
+                                </div>
+                                <div class="route-right">
+                                    <span class="route-pill">Ruta</span>
+                                    <i class="fas fa-check route-check" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                        </label>
+
+                        <div class="routes-empty" *ngIf="filteredRutas && filteredRutas.length === 0">
+                            <i class="far fa-folder-open"></i>
+                            <span>No hay rutas para mostrar</span>
+                        </div>
+                    </div>
                 </div>
             </div>
+
             <div class="form-actions mt-4">
-                <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
+                <button type="submit" class="submit">{{submitButton}}</button>
                 <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
             </div>
         </form>
+    </div>
+</ng-template>
+
+<ng-template #exlargeModalForm let-modal>
+    <div>
+        <div>
+            <div class="card-header-custom">
+                <div class="icon-wrapper">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <div class="header-text">
+                    <h5>{{titleTarifa}}</h5>
+                    <span>Completa la información para registrar una nueva tarifa.</span>
+                </div>
+            </div>
+            <div class="card-body" style="padding: 20px; background-color: #002136;">
+                <form [formGroup]="tarifaForm" class="cliente-form">
+                    <div class="row">
+                        <div class="col-md-6 mt-3">
+                            <label>Tarifa Base</label>
+                            <input type="text" class="form-control" formControlName="tarifaBase"
+                                placeholder="Ej: 100.00" inputmode="decimal" (keydown)="moneyKeydown($event)"
+                                (input)="moneyInput($event)" (paste)="moneyPaste($event)" (blur)="moneyBlur($event)" />
+                        </div>
+                        <div class="col-md-6 mt-3">
+                            <label>Distancia</label>
+                            <input type="text" class="form-control" formControlName="distanciaBaseKm"
+                                placeholder="Ej: 120.5" inputmode="decimal" (keydown)="distanciaKeydown($event)"
+                                (input)="distanciaInput($event)" (paste)="distanciaPaste($event)" />
+                        </div>
+
+                        <div class="col-md-6 mt-3">
+                            <label>Incremento Por Metro</label>
+                            <input type="text" class="form-control" formControlName="incrementoCadaMetros"
+                                placeholder="Ej: 10.25" inputmode="decimal" (keydown)="incrementoKeydown($event)"
+                                (input)="incrementoInput($event)" (paste)="incrementoPaste($event)" />
+                        </div>
+
+                        <div class="col-md-6 mt-3">
+                            <label>Costo Adicional</label>
+                            <input type="text" class="form-control" formControlName="costoAdicional"
+                                placeholder="Ej: 50.00" inputmode="decimal" (keydown)="costoKeydown($event)"
+                                (input)="costoInput($event)" (paste)="costoPaste($event)" (blur)="costoBlur($event)" />
+                        </div>
+                    </div>
+                    <div class="form-actions mt-4">
+                        <button type="submit" class="submit" (click)="agregarTarifa()">{{submitButton}}</button>
+                        <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </ng-template>
