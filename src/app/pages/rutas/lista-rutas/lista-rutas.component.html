@@ -12,7 +12,7 @@
           <p class="u-banner__subtitle">
             Consulta, busca y navega entre tus rutas registrados
           </p>
-          <div *appHasPermission="'50'">
+          <div *appHasPermission="'66'">
             <button class="u-btn u-btn--primary" (click)="agregarRuta()">
               <i class="fas fa-plus"></i>
               <span>Agregar Rutas</span>
@@ -39,7 +39,7 @@
               <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
               <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
               <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
-              <dxi-column caption="Acciones" cellTemplate="acciones" [width]="160" alignment="center"></dxi-column>
+              <dxi-column *appHasPermission="['67']" caption="Acciones" cellTemplate="acciones" [width]="160" alignment="center"></dxi-column>
               <dxi-column dataField="nombre" caption="Nombre" alignment="center" [width]="250"></dxi-column>
               <dxi-column dataField="nombreInicio" caption="Punto Inicio" [width]="300" alignment="center" cellTemplate="cell">
                 <div *dxTemplate="let data of 'cell'">
@@ -72,7 +72,7 @@
                 [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
               </dxo-export>
               <div *dxTemplate="let d of 'acciones'" class="d-flex gap-0 justify-content-center">
-                <div>
+                <div *appHasPermission="'67'">
                   <button id="pinButtonBlue" class="btnAcciones"
                     (click)="centerModal(exlargeModal, d.data.id, null, null, undefined, undefined, undefined, d.data)">
                     <i class="fa fa-map-pin"></i>

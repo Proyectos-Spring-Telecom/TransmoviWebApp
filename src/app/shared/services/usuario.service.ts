@@ -42,6 +42,10 @@ export class UsuariosService {
     return this.http.post<any>(`${environment.API_SECURITY}/s3/upload`, data);
   }
 
+  actualizarContrasena(idUsuario: number, data: any): Observable<any> {
+    return this.http.put(`${environment.API_SECURITY}/usuarios/actualizar/contrasena/` + idUsuario, data);
+  }
+
   private apiUrl = `${environment.API_SECURITY}/usuarios`;
   updateEstatus(id: number, estatus: number): Observable<string> {
     const url = `${this.apiUrl}/estatus/${id}`;

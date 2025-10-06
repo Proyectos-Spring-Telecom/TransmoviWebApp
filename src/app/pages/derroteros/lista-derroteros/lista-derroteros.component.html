@@ -12,7 +12,7 @@
           <p class="u-banner__subtitle">
             Consulta, busca y navega entre tus derroteros registrados
           </p>
-          <div *appHasPermission="'50'">
+          <div *appHasPermission="'70'">
             <button class="u-btn u-btn--primary" (click)="agregarDerrotero()">
               <i class="fas fa-plus"></i>
               <span>Agregar Derroteros</span>
@@ -39,7 +39,7 @@
               <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
               <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
               <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
-              <dxi-column caption="Acciones" cellTemplate="acciones" [width]="160" alignment="center"></dxi-column>
+              <dxi-column *appHasPermission="['71', '72']" caption="Acciones" cellTemplate="acciones" [width]="160" alignment="center"></dxi-column>
               <dxi-column dataField="nombreRuta" caption="Nombre" alignment="center" [width]="200"></dxi-column>
               <dxi-column dataField="puntoInicio.direccion" caption="Punto Inicio" [width]="350" alignment="center"
                 cellTemplate="cell">
@@ -83,7 +83,7 @@
                     <i class="fa fa-map-pin"></i>
                   </button>
                 </div>&nbsp;&nbsp;
-                <div>
+                <div *appHasPermission="'16'">
                   <button id="deleteButton" class="btnAcciones" (click)="eliminarDerrotero(d.data)">
                     <i class="fa fa-trash"></i>
                   </button>

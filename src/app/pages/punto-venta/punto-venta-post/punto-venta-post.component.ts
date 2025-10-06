@@ -58,6 +58,7 @@ export class PuntoVentaPostComponent implements OnInit {
   @ViewChild('exlargeModal', { static: true }) exlargeModal!: TemplateRef<any>;
   public listaMonederos: any
   public transaccionForm: FormGroup;
+  public showForm = false;
 
   constructor(
     private modalService: NgbModal,
@@ -74,6 +75,18 @@ export class PuntoVentaPostComponent implements OnInit {
   }
 
   ngOnInit() {
+     Swal.fire({
+      title: 'Cargando…',
+      background: '#03131dff',
+      backdrop: 'rgba(0, 0, 0, 0.86)',
+      color: '#e3f8f2',
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
     this.initForm();
     setTimeout(() => this.extraLarge(this.exlargeModal), 0);
     this.obtenerMonerderos()
@@ -84,6 +97,9 @@ export class PuntoVentaPostComponent implements OnInit {
   obtenerMonerderos() {
     this.moneService.obtenerMonederos().subscribe((response) => {
       this.listaMonederos = response.data;
+      setTimeout(()=> {
+        Swal.close()
+      },600)
     })
   }
 

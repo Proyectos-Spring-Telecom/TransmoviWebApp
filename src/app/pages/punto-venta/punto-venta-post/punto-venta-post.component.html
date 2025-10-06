@@ -116,14 +116,14 @@
     <div class="header-text d-flex align-items-center justify-content-between w-100">
       <div class="titles d-flex flex-column">
         <h5>{{ 'Realizar Recarga' }}</h5>
-        <span>Completa los datos necesarios para realizar tu recarga..</span>
+        <span>Completa los datos necesarios para realizar tu recarga.</span>
       </div>
       <button (click)="cancelar()" *ngIf="step !=2" type="button" class="btn btn-danger">
         <i class="fa fa-times"></i>
       </button>
     </div>
   </div>
-  <div class="card-body" style="padding: 20px; background-color: #002136">
+  <div [@fadeInUp] class="card-body" style="padding: 20px; background-color: #002136">
     <form [formGroup]="transaccionForm">
       <div class="row">
         <section class="table-shell">

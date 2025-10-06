@@ -4,18 +4,18 @@
             <div class="u-banner">
                 <div class="u-banner__icon">
                     <div class="u-icon">
-                        <i class="fas fa-map"></i>
+                        <i class="fas fa-clock-o"></i>
                     </div>
                 </div>
                 <div class="u-banner__body">
-                    <h2 class="u-banner__title">Gestión de Regiones</h2>
+                    <h2 class="u-banner__title">Gestión de Turnos</h2>
                     <p class="u-banner__subtitle">
-                        Consulta, busca y navega entre tus regiones registrados
+                        Consulta, busca y navega entre tus turnos registrados
                     </p>
-                    <div *appHasPermission="'62'">
-                        <button class="u-btn u-btn--primary" (click)="agregarRegion()">
+                    <div *appHasPermission="'54'">
+                        <button class="u-btn u-btn--primary" (click)="agregarTurno()">
                             <i class="fas fa-plus"></i>
-                            <span>Agregar Región</span>
+                            <span>Agregar Turno</span>
                         </button>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
                     <div class="table-responsive mb-4 col-12 col-lg-12">
                         <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
                             [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
-                            [rowAlternationEnabled]="'true'" [dataSource]="listaRegiones" [keyExpr]="'Id'"
+                            [rowAlternationEnabled]="'true'" [dataSource]="listaTurnos" [keyExpr]="'Id'"
                             [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
                             [pager]="{ 
                                 showPageSizeSelector: true, 
@@ -42,35 +42,59 @@
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column *appHasPermission="['63', '64']" caption="Acciones" cellTemplate="Acciones" alignment="center"></dxi-column>
-                            <dxi-column dataField="idRegion2.nombre" caption="Nombre Región" alignment="center"></dxi-column>
-                            <dxi-column dataField="idRegion2.descripcion" caption="Descripción" alignment="center"></dxi-column>
-                            <dxi-column dataField="idRegion2.idCliente2.nombreCompleto" caption="Cliente" alignment="center" cellTemplate="nomCliente">
-                                <div *dxTemplate="let re of 'nomCliente'">
-                                    {{ re.data?.idRegion2?.idCliente2?.nombre }}
-                                    {{ re.data?.idRegion2?.idCliente2?.apellidoPaterno || '' }}
-                                    {{ re.data?.idRegion2?.idCliente2?.apellidoMaterno || '' }}
+                            <dxi-column *appHasPermission="['55', '56']" caption="Acciones" cellTemplate="Acciones" alignment="center"></dxi-column>
+                            <dxi-column dataField="inicio" caption="Inicio del Turno" cellTemplate="fechaInicioData" alignment="center">
+                                <div *dxTemplate="let rf of 'fechaInicioData'">
+                                    {{ rf.data.inicio | date:'dd/MM/yyyy HH:mm' : '+0000' }}
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="idRegion2.fechaCreacion" caption="Fecha Creación" alignment="center"
+                            <dxi-column dataField="fin" caption="Fin del Turno" cellTemplate="fechFin" alignment="center">
+                                <div *dxTemplate="let a of 'fechFin'">
+                                    {{ a.data.fin | date:'dd/MM/yyyy HH:mm' : '+0000' }}
+                                </div>
+                            </dxi-column>
+                            <dxi-column caption="Operador" alignment="center" cellTemplate="nomOperador">
+                                <div *dxTemplate="let re of 'nomOperador'">
+                                    {{ re.data?.idOperador2?.idUsuario2?.nombre }}
+                                    {{ re.data?.idOperador2?.idUsuario2?.apellidoPaterno || '' }}
+                                    {{ re.data?.idOperador2?.idUsuario2?.apellidoMaterno || '' }}
+                                </div>
+                            </dxi-column>
+                            <dxi-column caption="Cliente" alignment="center" cellTemplate="nomCliente">
+                                <div *dxTemplate="let re of 'nomCliente'">
+                                    {{ re.data?.idCliente2?.nombre }}
+                                    {{ re.data?.idCliente2?.apellidoPaterno || '' }}
+                                    {{ re.data?.idCliente2?.apellidoMaterno || '' }}
+                                </div>
+                            </dxi-column>
+                            <dxi-column caption="Vehículo" alignment="center" cellTemplate="vehic">
+                                <div *dxTemplate="let re of 'vehic'">
+                                    {{ re.data?.idInstalacion2.vehiculos?.placa }}
+                                </div>
+                            </dxi-column>
+                            <dxi-column caption="Dispositivo" alignment="center" cellTemplate="dispoSi">
+                                <div *dxTemplate="let re of 'dispoSi'">
+                                    {{ re.data?.idInstalacion2.dispositivos?.numeroSerie }}
+                                </div>
+                            </dxi-column>
+                            <dxi-column caption="Bluevox" alignment="center" cellTemplate="blueVo">
+                                <div *dxTemplate="let re of 'blueVo'">
+                                    {{ re.data?.idInstalacion2.blueVoxs?.numeroSerie }}
+                                </div>
+                            </dxi-column>
+                            <dxi-column dataField="fechaCreacion" caption="Fecha Creación" alignment="center"
                                 cellTemplate="fechCreaci">
                                 <div *dxTemplate="let a of 'fechCreaci'">
-                                    {{ a.data.idRegion2.fechaCreacion | date:'dd/MM/yyyy HH:mm' : '+0000' }}
+                                    {{ a.data.fechaCreacion | date:'dd/MM/yyyy HH:mm' : '+0000' }}
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="idRegion2.fechaActualizacion" caption="Fecha Actualización"
-                                alignment="center" cellTemplate="fechActualizacion">
-                                <div *dxTemplate="let a of 'fechActualizacion'">
-                                    {{ a.data.idRegion2.fechaActualizacion | date:'dd/MM/yyyy HH:mm' : '+0000' }}
-                                </div>
-                            </dxi-column>
-                            <dxi-column dataField="idRegion2.estatus" caption="Estatus" alignment="center"
+                            <dxi-column dataField="estatus" caption="Estatus" alignment="center"
                                 cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
-                                    <span *ngIf="f.data.idRegion2.estatus === 1" class="estatus estatus-activo">
+                                    <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
                                         Activo
                                     </span>
-                                    <span *ngIf="f.data.idRegion2.estatus !== 1" class="estatus estatus-inactivo">
+                                    <span *ngIf="f.data.estatus !== 1" class="estatus estatus-inactivo">
                                         Inactivo
                                     </span>
                                 </div>
@@ -79,18 +103,18 @@
                                 [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
                             </dxo-export>
                             <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
-                                <div *appHasPermission="'63'">
+                                <div *appHasPermission="'55'">
                                     <button valueExpr="id" id="actualizarButton" class="btnAcciones"
-                                        (click)="actualizarRegion(row.data.idRegion)">
+                                        (click)="actualizarTurno(row.data.id)">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </div>
-                                <div *appHasPermission="'64'">
-                                    <button *ngIf="row.data.idRegion2.estatus === 0" id="pinButton" class="btnAcciones"
+                                <div *appHasPermission="'56'">
+                                    <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones"
                                         (click)="activar(row.data)">
                                         <i class="fa fa-arrow-up"></i>
                                     </button>
-                                    <button *ngIf="row.data.idRegion2.estatus === 1" id="deleteButton"
+                                    <button *ngIf="row.data.estatus === 1" id="deleteButton"
                                         class="btnAcciones" (click)="desactivar(row.data)">
                                         <i class="fa fa-arrow-down"></i>
                                     </button>

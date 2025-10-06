@@ -7,6 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModalModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { DxDataGridModule, DxLoadPanelModule } from 'devextreme-angular';
 import { AgregarMonederoComponent } from './agregar-monedero/agregar-monedero.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 
 @NgModule({
@@ -19,7 +20,8 @@ import { AgregarMonederoComponent } from './agregar-monedero/agregar-monedero.co
     NgbModalModule,
     ReactiveFormsModule,
     DxDataGridModule,
-    DxLoadPanelModule
+    DxLoadPanelModule,
+    SharedModule
   ]
 })
 export class MonederosModule { }

@@ -54,6 +54,7 @@
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxi-column *appHasPermission="['15', '16']" caption="Acciones" cellTemplate="acciones" alignment="center" [width]="150"></dxi-column>
                             <dxo-grouping #expand [autoExpandAll]="true"></dxo-grouping>
+                            <dxi-column dataField="id" caption="Id" alignment="center" dataType="string"[allowSearch]="true"></dxi-column>
                             <dxi-column dataField="nombre" caption="Nombre" alignment="center" dataType="string"[allowSearch]="true"></dxi-column>
                             <dxi-column dataField="descripcion" caption="Descripción" alignment="center" dataType="string" [allowSearch]="true"></dxi-column>
                             <dxi-column dataField="idModulo2.nombre" caption="Módulo" alignment="center" dataType="string" [allowSearch]="true">

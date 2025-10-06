@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DxDataGridComponent } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
+import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { DerroterosService } from 'src/app/shared/services/derroteros.service';
@@ -63,9 +64,14 @@ export class ListaDerroterosComponent implements OnInit {
     private zone: NgZone,
     private route: Router,
     private modalService: NgbModal,
+    private permissionsService: NgxPermissionsService
   ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
+  }
+
+  hasPermission(permission: string): boolean {
+    return this.permissionsService.getPermission(permission) !== undefined;
   }
 
   ngOnInit(): void {

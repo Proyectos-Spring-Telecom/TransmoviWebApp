@@ -1,0 +1,65 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-header-custom">
+            <div class="icon-wrapper">
+                <i class="fas fa-plus"></i>
+            </div>
+            <div class="header-text">
+                <h5>{{ title }}</h5>
+                <span>Completa la información para registrar una nueva región.</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <form [formGroup]="turnosForm" class="cliente-form">
+                <h6 class="section-title">Datos Generales</h6>
+                <div class="row">
+                    <div class="col-md-4 mt-3">
+                        <label for="descripcion" class="form-label">Inicio del Turno</label>
+                        <input type="datetime-local" class="form-control" formControlName="inicio"
+                            placeholder="Selecciona fecha y hora">
+                    </div>
+
+                    <div class="col-md-4 mt-3">
+                        <label for="descripcion" class="form-label">Fin del Turno</label>
+                        <input type="datetime-local" class="form-control" formControlName="fin"
+                            placeholder="Selecciona fecha y hora">
+                    </div>
+
+                    <div class="col-md-4 mt-3">
+                        <label for="idCliente" class="form-label">Operador</label>
+                        <select id="idCliente" class="form-select" formControlName="idOperador">
+                            <option value="">Seleccione un cliente</option>
+                            <option *ngFor="let c of listaOperadores" [ngValue]="c.id">
+                                {{ c.idUsuario2.nombre }} {{c.idUsuario2.apellidoPaterno || ' ' }}
+                                {{c.idUsuario2.apellidoMaterno || ' ' }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mt-3">
+  <label for="idInstalacion" class="form-label">Instalación</label>
+  <select id="idInstalacion" class="form-select" formControlName="idInstalacion" [compareWith]="compareNums">
+    <option value="">Seleccione una instalación</option>
+    <option *ngFor="let c of listaInstalaciones" [ngValue]="+c.idInstalacion2.id">
+      {{ c?.idInstalacion2?.blueVoxs?.numeroSerie || ' ' }} -
+      {{ c?.idInstalacion2?.dispositivos?.numeroSerie || ' ' }} -
+      {{ c?.idInstalacion2?.vehiculos?.placa || ' ' }}
+    </option>
+  </select>
+</div>
+
+                    <div class="col-md-4 mt-3">
+                        <label for="idCliente" class="form-label">Cliente</label>
+                        <select id="idCliente" class="form-select" formControlName="idCliente">
+                            <option value="">Seleccione un cliente</option>
+                            <option *ngFor="let c of listaClientes" [ngValue]="c.id">
+                                {{ c.nombre }} {{c.apellidoPaterno || ' ' }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions mt-4">
+                    <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
+                    <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

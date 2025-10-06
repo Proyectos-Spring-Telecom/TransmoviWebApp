@@ -12,7 +12,7 @@
                     <p class="u-banner__subtitle">
                         Consulta, busca y navega entre tus monederos registrados
                     </p>
-                    <div>
+                    <div *appHasPermission="'78'">
                         <button class="u-btn u-btn--primary" (click)="agregarMonedero()">
                             <i class="fas fa-plus"></i>
                             <span>Agregar Monederos</span>
@@ -65,7 +65,7 @@
                                         <i class="fa fa-plus"></i>
                                     </button>
                                 </div>
-                                <div> Agregar iconos de recarga ydebito entransacciones
+                                <div>
                                     <button [disabled]="monedero.data.saldo === 0"
                                         (click)="centerModalDebito(centerDataModalDebito, monedero.data.id, monedero.data.numeroSerie, monedero.data.saldo, monedero.data.idCliente, monedero.data.idPasajero)"
                                         class="btn btn-danger btn-md btn-rounded waves-effect waves-light" type="button"

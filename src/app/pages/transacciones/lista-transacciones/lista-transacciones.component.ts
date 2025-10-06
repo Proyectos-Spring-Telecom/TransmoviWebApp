@@ -6,6 +6,7 @@ import { DxDataGridComponent } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
 import { lastValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
+import { NgxPermissionsService } from 'ngx-permissions';
 
 declare var google: any;
 
@@ -45,7 +46,8 @@ export class ListaTransaccionesComponent implements OnInit {
   constructor(
     private tranService: TransaccionesService,
     private modalService: NgbModal,
-    private route: Router
+    private route: Router,
+    private permissionsService: NgxPermissionsService
   ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
@@ -53,6 +55,10 @@ export class ListaTransaccionesComponent implements OnInit {
 
   ngOnInit(): void {
     this.setupDataSource();
+  }
+
+  hasPermission(permission: string): boolean {
+    return this.permissionsService.getPermission(permission) !== undefined;
   }
 
   setupDataSource() {

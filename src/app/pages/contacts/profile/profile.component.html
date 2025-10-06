@@ -1,8 +1,7 @@
 <div class="neo-wrap">
-  <!-- HEADER COMPACTO (sin banner) -->
   <header class="neo-header">
     <div class="neo-avatar">
-      <img [src]="showImage || 'assets/images/user_default.png'" alt="avatar" />
+      <img [src]="resolvedAvatar" (error)="onAvatarError($event)" alt="avatar" />
     </div>
 
     <div class="neo-identity">
@@ -24,10 +23,7 @@
       </div>
     </div>
   </header>
-
-  <!-- CONTENIDO: DOS PANELES -->
   <section class="neo-columns">
-    <!-- Panel Información -->
     <article class="neo-panel info">
       <h2><i class="fa fa-id-badge"></i> Información</h2>
 
@@ -49,71 +45,74 @@
 
         <div class="neo-item" *ngIf="user.joinedAt">
           <dt><i class="fa fa-calendar"></i> Miembro desde</dt>
-          <dd>{{ user.joinedAt | date:'dd/MM/yyyy' }}</dd>
+          <dd>{{ showCreacion }}</dd>
         </div>
 
         <div class="neo-item" *ngIf="user.joinedAt">
           <dt><i class="fa fa-calendar"></i> Último login</dt>
-          <dd>{{ user.joinedAt | date:'dd/MM/yyyy' }}</dd>
+          <dd>{{ ultimoLogin }}</dd>
         </div>
       </dl>
     </article>
 
     <article class="neo-panel security">
-      <h2><i class="fa fa-lock"></i> Cambiar contraseña</h2>
+      <h2><i class="fa fa-key"></i> Cambiar contraseña</h2>
 
-      <form class="neo-form" [formGroup]="passwordForm" (ngSubmit)="onSubmitPassword()" novalidate>
+      <form class="neo-form" [formGroup]="passwordForm" (ngSubmit)="actualizarContrasena()" novalidate>
         <div class="fg">
           <div class="step">1</div>
           <label for="cp">Contraseña actual</label>
           <div class="control">
-            <input id="cp" [type]="show.curr ? 'text' : 'password'"
-                   formControlName="currentPassword" placeholder="••••••••" autocomplete="current-password" />
+            <input id="cp" [type]="show.curr ? 'text' : 'password'" formControlName="contrasenaActual"
+              placeholder="••••••••" autocomplete="current-password" />
             <button type="button" class="peek" (click)="show.curr = !show.curr" aria-label="Mostrar/ocultar">
               <i class="fa" [class.fa-eye]="!show.curr" [class.fa-eye-slash]="show.curr"></i>
             </button>
           </div>
-          <div class="err" *ngIf="t('currentPassword').touched && t('currentPassword').hasError('required')">Requerida.</div>
+          <div class="err" *ngIf="t('contrasenaActual').touched && t('contrasenaActual').hasError('required')">
+            Requerida.
+          </div>
         </div>
-
-        <!-- Paso 2 -->
         <div class="fg">
           <div class="step">2</div>
           <label for="np">Nueva contraseña</label>
           <div class="control">
-            <input id="np" [type]="show.neu ? 'text' : 'password'"
-                   formControlName="newPassword" placeholder="Mínimo 8 caracteres" autocomplete="new-password" />
+            <input id="np" [type]="show.neu ? 'text' : 'password'" formControlName="contrasenaNueva"
+              (input)="onPasswordInput()" placeholder="Mínimo 8 caracteres" autocomplete="new-password" />
             <button type="button" class="peek" (click)="show.neu = !show.neu" aria-label="Mostrar/ocultar">
               <i class="fa" [class.fa-eye]="!show.neu" [class.fa-eye-slash]="show.neu"></i>
             </button>
           </div>
-          <small class="hint">Usa mayúsculas, minúsculas y números.</small>
-          <div class="err" *ngIf="t('newPassword').touched && t('newPassword').hasError('minlength')">Mínimo 8 caracteres.</div>
-          <div class="err" *ngIf="t('newPassword').touched && t('newPassword').hasError('required')">Requerida.</div>
+          <small class="hint" [@hintSwap]="hintVersion" [ngClass]="passwordStrengthColor" aria-live="polite"
+            role="status">
+            {{ passwordStrengthMsg }}
+          </small>
+          <div class="err" *ngIf="t('contrasenaNueva').touched && t('contrasenaNueva').hasError('required')">
+            Requerida.
+          </div>
         </div>
 
-        <!-- Paso 3 -->
         <div class="fg">
           <div class="step">3</div>
           <label for="cf">Confirmar nueva contraseña</label>
           <div class="control">
-            <input id="cf" [type]="show.conf ? 'text' : 'password'"
-                   formControlName="confirmPassword" placeholder="Repite la contraseña" autocomplete="new-password" />
+            <input id="cf" [type]="show.conf ? 'text' : 'password'" formControlName="contrasenaNuevaConfirmacion"
+              (input)="updateConfirmState()" placeholder="Repite la contraseña" autocomplete="new-password" />
+
             <button type="button" class="peek" (click)="show.conf = !show.conf" aria-label="Mostrar/ocultar">
               <i class="fa" [class.fa-eye]="!show.conf" [class.fa-eye-slash]="show.conf"></i>
             </button>
           </div>
-          <div class="err" *ngIf="passwordForm.touched && passwordForm.hasError('passwordMismatch')">Las contraseñas no coinciden.</div>
-          <div class="err" *ngIf="t('confirmPassword').touched && t('confirmPassword').hasError('required')">Requerida.</div>
+          <small class="hint" [ngClass]="confirmState" *ngIf="confirmMsg">{{ confirmMsg }}</small>
+          <div class="err"
+            *ngIf="t('contrasenaNuevaConfirmacion').touched && t('contrasenaNuevaConfirmacion').hasError('required')">
+            Requerida.
+          </div>
         </div>
-
-        <div class="actions">
-          <button class="btn primary" type="submit" [disabled]="passwordForm.invalid || loading">
-            <i class="fa fa-save"></i> Guardar cambios
-          </button>
-          <button class="btn ghost" type="button" (click)="onResetPassword()" [disabled]="loading">
-            <i class="fa fa-undo"></i> Limpiar
-          </button>
+        <div class="actions mt-4">
+          <button type="submit" class="btn GuardarForm" [disabled]="!canSave">Guardar</button>
+          <button type="button" class="btn CancelarForm" (click)="onResetPassword()"
+            [disabled]="loading">Cancelar</button>
         </div>
       </form>
     </article>

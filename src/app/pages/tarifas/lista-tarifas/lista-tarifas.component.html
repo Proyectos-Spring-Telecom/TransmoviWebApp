@@ -12,7 +12,7 @@
                     <p class="u-banner__subtitle">
                         Consulta, busca y navega entre tus tarifas registrados
                     </p>
-                    <div *appHasPermission="'14'">
+                    <div *appHasPermission="'74'">
                         <button class="u-btn u-btn--primary" (click)="agregarTarifa()">
                             <i class="fas fa-plus"></i>
                             <span>Agregar Tarifa</span>
@@ -47,7 +47,7 @@
                             <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
-                            <dxi-column *appHasPermission="['15', '16']" caption="Acciones" cellTemplate="acciones" alignment="center" [width]="150"></dxi-column>
+                            <dxi-column *appHasPermission="['75', '76']" caption="Acciones" cellTemplate="acciones" alignment="center" [width]="150"></dxi-column>
                             <dxo-grouping #expand [autoExpandAll]="true"></dxo-grouping>
                             <dxi-column dataField="nombreRuta" caption="Nombre Ruta" alignment="center" dataType="string" [allowSearch]="true"></dxi-column>
                             <dxi-column dataField="TarifaBase" caption="Tarifa" alignment="center" dataType="string" [allowSearch]="true" cellTemplate="tarBase">
@@ -92,13 +92,13 @@
                                 </div>
                             </dxi-column>
                             <div *dxTemplate="let row of 'acciones'" class="d-flex gap-3 justify-content-center">
-                                <div>
+                                <div *appHasPermission="'75'">
                                     <button valueExpr="id" id="actualizarButton" class="btnAcciones"
                                         (click)="actualizarTarifa(row.data.id)">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </div>
-                                <div>
+                                <div *appHasPermission="'76'">
                                     <button *ngIf="row.data.estatusTarifa === 0" id="pinButton" class="btnAcciones"
                                         (click)="activar(row.data)">
                                         <i class="fa fa-arrow-up"></i>

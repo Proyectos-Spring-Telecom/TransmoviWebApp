@@ -7,6 +7,8 @@ export class User {
     apellidoMaterno?: string;
     nombreCompleto?: string;
     telefono: any;
+    fechaCreacion: any;
+    ultimoLogin: any;
     permisos: any[];
     email:string;
     idCliente?:any;

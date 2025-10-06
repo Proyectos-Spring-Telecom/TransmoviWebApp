@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { DxDataGridComponent } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
+import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { MonederosServices } from 'src/app/shared/services/monederos.service';
@@ -45,7 +46,8 @@ export class ListaMonederosComponent implements OnInit {
     private moneService: MonederosServices,
     private modalService: NgbModal,
     private fb: FormBuilder,
-    private route: Router
+    private route: Router,
+    private permissionsService: NgxPermissionsService
   ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
@@ -54,6 +56,10 @@ export class ListaMonederosComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.obtenerMonederos();
+  }
+
+  hasPermission(permission: string): boolean {
+    return this.permissionsService.getPermission(permission) !== undefined;
   }
 
   initForm() {

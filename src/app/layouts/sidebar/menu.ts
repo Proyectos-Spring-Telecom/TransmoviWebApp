@@ -160,6 +160,12 @@ export const MENU: MenuItem[] = [
                 id: 9,
                 label: 'Tarifas',
                 link: '/tarifas',
+            },
+            {
+                id: 9,
+                label: 'Turnos',
+                link: '/turnos',
+                permiso: Permiso.Listado_Turnos
             }
         ]
     },
