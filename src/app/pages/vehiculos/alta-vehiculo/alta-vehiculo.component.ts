@@ -558,16 +558,17 @@ obtenerVehiculoID() {
   fotoDragging = false;
   uploadingFoto = false;
 
-  // Si ya tienes MAX_MB definido, reutilízalo; si no, define uno:
-  // private readonly MAX_MB = 3;
-
-  // === Validación solo IMAGEN ===
+  allowOnlyNumbers(event: KeyboardEvent): void {
+    const charCode = event.keyCode ? event.keyCode : event.which;
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+    }
+  }
 
   private isAllowedImage(file: File) {
     return this.isImage(file) && file.size <= this.MAX_MB * 1024 * 1024;
   }
 
-  // === Preview con FileReader ===
   private loadImagePreview(file: File, setter: (url: string | ArrayBuffer | null) => void) {
     if (!this.isImage(file)) { setter(null); return; }
     const reader = new FileReader();
@@ -575,7 +576,6 @@ obtenerVehiculoID() {
     reader.readAsDataURL(file);
   }
 
-  // === Handlers de UI (foto) ===
   openFotoFilePicker() { this.fotoFileInput.nativeElement.click(); }
 
   onFotoDragOver(e: DragEvent) { e.preventDefault(); this.fotoDragging = true; }
@@ -601,25 +601,18 @@ obtenerVehiculoID() {
     this.vehiculosForm.get('foto')?.setErrors({ required: true });
   }
 
-  // === Handler principal ===
   private handleFotoFile(file: File) {
     if (!this.isAllowedImage(file)) {
       this.vehiculosForm.get('foto')?.setErrors({ invalid: true });
       return;
     }
-
     this.fotoFileName = file.name;
     this.loadImagePreview(file, (url) => this.fotoPreviewUrl = url);
-
-    // Primero colocamos el File mientras sube
     this.vehiculosForm.patchValue({ foto: file });
     this.vehiculosForm.get('foto')?.setErrors(null);
-
-    // Subir al backend y reemplazar por URL final
     this.uploadFoto(file);
   }
 
-  // === Subida (mismo servicio), folder 'vehiculos', idModule '10' ===
   private uploadFoto(file: File): void {
     if (this.uploadingFoto) return;
     this.uploadingFoto = true;
@@ -633,10 +626,8 @@ obtenerVehiculoID() {
       next: (res: any) => {
         const url = this.extractFileUrl(res);
         if (url) {
-          // Reemplaza el File por la URL en el form
           this.vehiculosForm.patchValue({ foto: url });
-          // Mantenemos el preview con la imagen ya cargada
-          this.fotoPreviewUrl = this.fotoPreviewUrl; // ya seteada por FileReader
+          this.fotoPreviewUrl = this.fotoPreviewUrl;
           this.fotoFileName = file.name;
         }
       },

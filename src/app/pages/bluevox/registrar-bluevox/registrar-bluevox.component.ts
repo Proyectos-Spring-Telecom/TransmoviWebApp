@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
+import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { ClientesService } from 'src/app/shared/services/clientes.service';
 import { DispositivoBluevoxService } from 'src/app/shared/services/dispositivobluevox.service';
 import { DispositivosService } from 'src/app/shared/services/dispositivos.service';
@@ -23,13 +24,23 @@ export class RegistrarBluevoxComponent implements OnInit {
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
 
+  public idClienteUser: number;
+  public idRolUser: number;
+
+  get isAdmin(): boolean { return this.idRolUser === 1; }
+
   constructor(
     private route: Router,
     private fb: FormBuilder,
     private dispoBlueService: DispositivoBluevoxService,
     private activatedRouted: ActivatedRoute,
-    private clieService: ClientesService
-  ) { }
+    private clieService: ClientesService,
+    private users: AuthenticationService,
+  ) {
+    const user = this.users.getUser();
+    this.idClienteUser = Number(user?.idCliente);
+    this.idRolUser = Number(user?.rol?.id);
+  }
 
   ngOnInit(): void {
     this.obtenerClientes();
@@ -49,17 +60,20 @@ export class RegistrarBluevoxComponent implements OnInit {
         ...c,
         id: Number(c?.id ?? c?.Id ?? c?.ID),
       }));
+
+      if (!this.isAdmin) {
+        this.dispositivoForm.get('idCliente')?.setValue(this.idClienteUser, { emitEvent: false });
+      }
     });
   }
 
   obtenerDispositivoID() {
     this.dispoBlueService.obtenerDispositivoBlue(this.idDispositivo).subscribe((response: any) => {
-      const raw = Array.isArray(response) ? response[0] : Array.isArray(response?.data) ? response.data[0] : response?.dispositivo ?? response?.data ?? response ?? {};
+      const raw = Array.isArray(response) ? response[0]
+        : Array.isArray(response?.data) ? response.data[0]
+          : response?.dispositivo ?? response?.data ?? response ?? {};
 
-      const get = (o: any, keys: string[]) => {
-        for (const k of keys) if (o?.[k] !== undefined && o?.[k] !== null) return o[k];
-        return null;
-      };
+      const get = (o: any, keys: string[]) => { for (const k of keys) if (o?.[k] != null) return o[k]; return null; };
 
       const numeroSerie = get(raw, ['numeroSerie', 'NumeroSerie', 'numeroserie']);
       const marca = get(raw, ['marca', 'Marca']);
@@ -72,20 +86,28 @@ export class RegistrarBluevoxComponent implements OnInit {
         marca: marca ?? '',
         modelo: modelo ?? '',
         estatus: est != null && !Number.isNaN(Number(est)) ? Number(est) : 1,
-        idCliente: idCli != null && idCli !== '' ? Number(idCli) : null,
+        idCliente: this.isAdmin ? (idCli != null && idCli !== '' ? Number(idCli) : null)
+          : this.idClienteUser,
       });
+
+      if (!this.isAdmin) {
+        this.dispositivoForm.get('idCliente')?.disable({ onlySelf: true });
+      }
     });
   }
-
 
   initForm() {
     this.dispositivoForm = this.fb.group({
       numeroSerie: ['', Validators.required],
       marca: ['', Validators.required],
       modelo: ['', Validators.required],
-      idCliente: [null, Validators.required], // el control ya espera number
+      idCliente: [this.isAdmin ? null : this.idClienteUser, Validators.required],
       estatus: [1, Validators.required],
     });
+
+    if (!this.isAdmin) {
+      this.dispositivoForm.get('idCliente')?.disable({ onlySelf: true });
+    }
   }
 
   submit() {
@@ -150,35 +172,34 @@ export class RegistrarBluevoxComponent implements OnInit {
       return;
     }
     this.dispositivoForm.removeControl('id');
-    this.dispoBlueService
-      .agregarDispositivoBlue(this.dispositivoForm.value)
-      .subscribe(
-        (response) => {
-          this.submitButton = 'Guardar';
-          this.loading = false;
-          Swal.fire({
-            title: '¡Operación Exitosa!',
-            background: '#002136',
-            text: `Se agregó un nuevo bluevox de manera exitosa.`,
-            icon: 'success',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Confirmar',
-          });
-          this.regresar();
-        },
-        (error) => {
-          this.submitButton = 'Guardar';
-          this.loading = false;
-          Swal.fire({
-            title: '¡Ops!',
-            background: '#002136',
-            text: `Ocurrió un error al agregar el bluevox.`,
-            icon: 'error',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Confirmar',
-          });
-        }
-      );
+    const payload = this.dispositivoForm.getRawValue();
+    this.dispoBlueService.agregarDispositivoBlue(payload).subscribe(
+      (response) => {
+        this.submitButton = 'Guardar';
+        this.loading = false;
+        Swal.fire({
+          title: '¡Operación Exitosa!',
+          background: '#002136',
+          text: `Se agregó un nuevo bluevox de manera exitosa.`,
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+        this.regresar();
+      },
+      (error) => {
+        this.submitButton = 'Guardar';
+        this.loading = false;
+        Swal.fire({
+          title: '¡Ops!',
+          background: '#002136',
+          text: `Ocurrió un error al agregar el bluevox.`,
+          icon: 'error',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+      }
+    );
   }
 
   actualizar() {
@@ -234,36 +255,33 @@ export class RegistrarBluevoxComponent implements OnInit {
       return;
     }
     const { estatus, ...payload } = this.dispositivoForm.getRawValue();
-
-    this.dispoBlueService
-      .actualizarDispositivoBlue(this.idDispositivo, payload)
-      .subscribe(
-        (response) => {
-          this.submitButton = 'Actualizar';
-          this.loading = false;
-          Swal.fire({
-            title: '¡Operación Exitosa!',
-            background: '#002136',
-            text: `Los datos del bluevox se actualizaron correctamente.`,
-            icon: 'success',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Confirmar',
-          });
-          this.regresar();
-        },
-        (error) => {
-          this.submitButton = 'Actualizar';
-          this.loading = false;
-          Swal.fire({
-            title: '¡Ops!',
-            background: '#002136',
-            text: `Ocurrió un error al actualizar el bluevox.`,
-            icon: 'error',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Confirmar',
-          });
-        }
-      );
+    this.dispoBlueService.actualizarDispositivoBlue(this.idDispositivo, payload).subscribe(
+      (response) => {
+        this.submitButton = 'Actualizar';
+        this.loading = false;
+        Swal.fire({
+          title: '¡Operación Exitosa!',
+          background: '#002136',
+          text: `Los datos del bluevox se actualizaron correctamente.`,
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+        this.regresar();
+      },
+      (error) => {
+        this.submitButton = 'Actualizar';
+        this.loading = false;
+        Swal.fire({
+          title: '¡Ops!',
+          background: '#002136',
+          text: `Ocurrió un error al actualizar el bluevox.`,
+          icon: 'error',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+      }
+    );
   }
 
   regresar() {

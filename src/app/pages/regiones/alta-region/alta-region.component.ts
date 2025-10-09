@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
+import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { ClientesService } from 'src/app/shared/services/clientes.service';
 import { RegionesService } from 'src/app/shared/services/regiones.service';
 import Swal from 'sweetalert2';
@@ -28,16 +29,24 @@ export class AltaRegionComponent implements OnInit {
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
 
+  public idClienteUser!: number;
+  public idRolUser!: number;
+  get isAdmin(): boolean { return this.idRolUser === 1; }
+
   constructor(
     private fb: FormBuilder,
     private modalService: NgbModal,
     private regiService: RegionesService,
     private activatedRouted: ActivatedRoute,
     private route: Router,
-    private clieService: ClientesService
-  ) { }
+    private clieService: ClientesService,
+    private users: AuthenticationService,
+  ) {
+    const user = this.users.getUser();
+    this.idClienteUser = Number(user?.idCliente);
+    this.idRolUser = Number(user?.rol?.id);
+  }
 
-  // --- igual que ya lo tienes ---
   ngOnInit(): void {
     this.initForm();
     this.obtenerClientes()
@@ -54,16 +63,27 @@ export class AltaRegionComponent implements OnInit {
   obtenerClientes() {
     this.clieService.obtenerClientes().subscribe((response: any) => {
       this.listaClientes = this.normalizeId(response?.data);
+
+      if (!this.isAdmin) {
+        this.regionesForm.get('idCliente')?.setValue(this.idClienteUser, { emitEvent: false });
+      }
     });
   }
 
   obtenerRegion() {
-    this.regiService.obtenerRegion(this.idRegion).subscribe((response: any) => {;
+    this.regiService.obtenerRegion(this.idRegion).subscribe((response: any) => {
+      const data = response?.data || {};
+      const idCliSrv = Number(data?.idCliente2?.id ?? data?.idCliente ?? null);
+
       this.regionesForm.patchValue({
-        nombre: response.data.nombre,
-        descripcion: response.data.descripcion,
-        idCliente: response.data.idCliente2.id,
-      });
+        nombre: data?.nombre ?? '',
+        descripcion: data?.descripcion ?? '',
+        idCliente: this.isAdmin ? idCliSrv : this.idClienteUser,
+      }, { emitEvent: false });
+
+      if (!this.isAdmin) {
+        this.regionesForm.get('idCliente')?.disable({ onlySelf: true });
+      }
     });
   }
 
@@ -76,8 +96,12 @@ export class AltaRegionComponent implements OnInit {
       estatus: [1, Validators.required],
       nombre: ['', Validators.required],
       descripcion: ['', Validators.required],
-      idCliente: [null, Validators.required],
+      idCliente: [this.isAdmin ? null : this.idClienteUser, Validators.required],
     });
+
+    if (!this.isAdmin) {
+      this.regionesForm.get('idCliente')?.disable({ onlySelf: true });
+    }
   }
 
   submit() {
@@ -137,7 +161,8 @@ export class AltaRegionComponent implements OnInit {
       return;
     }
     this.regionesForm.removeControl('id');
-    this.regiService.agregarRegion(this.regionesForm.value).subscribe(
+    const payload = this.regionesForm.getRawValue();
+    this.regiService.agregarRegion(payload).subscribe(
       (response) => {
         this.submitButton = 'Guardar';
         this.loading = false;
@@ -211,7 +236,8 @@ export class AltaRegionComponent implements OnInit {
         }
       });
     }
-    this.regiService.actualizarRegion(this.idRegion, this.regionesForm.value).subscribe(
+    const payload = this.regionesForm.getRawValue();
+    this.regiService.actualizarRegion(this.idRegion, payload).subscribe(
       (response) => {
         this.submitButton = 'Actualizar';
         this.loading = false;

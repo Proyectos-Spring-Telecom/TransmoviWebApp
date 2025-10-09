@@ -8,16 +8,17 @@
                 <h5>{{ 'Agregar Derrotero' }}</h5>
                 <span>Traza el recorrido de tu vehículo.</span>
             </div>
-            <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
-                data-bs-target=".bs-example-modal-lg" (click)="extraLarges(exlargeModalForm)">Large modal</button>
+            <!-- <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
+                data-bs-target=".bs-example-modal-lg" (click)="extraLarges(exlargeModalForm)">Large modal</button> -->
         </div>
         <ng-container *ngIf="contentVisible">
             <div class="card-body">
                 <form class="cliente-form">
                     <!-- <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
               data-bs-target=".bs-example-modal-lg" (click)="extraLarge(exlargeModal)">Large modal</button> -->
-                    <h6 class="Descripcion mt-3">Genera el recorrido del vehículo sobre el mapa, representando de forma
-                        visual por donde pasará entre los puntos definidos.</h6>
+                    <h6 class="Descripcion mt-3">
+                        Traza en el mapa el recorrido del vehículo marcando los puntos por donde pasará. Al finalizar el trazado, presiona Enter para cerrar la ruta y seguir con el proceso.
+                    </h6>
                     <div class="col-md-12 mt-1">
                         <div id="map"></div>
                     </div>
@@ -51,7 +52,7 @@
         </div>
         <div class="header-text">
             <h5>Selecciona una ruta</h5>
-            <span>Haz click sobre una ruta para realizar el trazo del recorrido.</span>
+            <span>Haz click sobre una ruta para realizar el trayecto del vehículo.</span>
         </div>
     </div>
 
@@ -130,14 +131,14 @@
                                 (input)="moneyInput($event)" (paste)="moneyPaste($event)" (blur)="moneyBlur($event)" />
                         </div>
                         <div class="col-md-6 mt-3">
-                            <label>Distancia</label>
+                            <label>Distancia Base Km</label>
                             <input type="text" class="form-control" formControlName="distanciaBaseKm"
                                 placeholder="Ej: 120.5" inputmode="decimal" (keydown)="distanciaKeydown($event)"
                                 (input)="distanciaInput($event)" (paste)="distanciaPaste($event)" />
                         </div>
 
                         <div class="col-md-6 mt-3">
-                            <label>Incremento Por Metro</label>
+                            <label>Incremento Por Metros</label>
                             <input type="text" class="form-control" formControlName="incrementoCadaMetros"
                                 placeholder="Ej: 10.25" inputmode="decimal" (keydown)="incrementoKeydown($event)"
                                 (input)="incrementoInput($event)" (paste)="incrementoPaste($event)" />

@@ -303,7 +303,7 @@ export class ListaRutasComponent implements OnInit {
       content: `
       <div style="
         font-family:'Segoe UI',sans-serif; display:inline-block; background:#fff; border-radius:12px;
-        box-shadow:0 4px 12px rgba(0,0,0,.12); padding:8px 12px 6px 12px; line-height:1.3; margin-top: -45px;
+        box-shadow:0 4px 12px rgba(223, 14, 14, 0.12); padding:8px 12px 6px 12px; line-height:1.3; margin-top: -45px;
         max-width:240px; white-space:normal; overflow-wrap:break-word; word-wrap:break-word;
       ">
         <div style="font-size:14px;color:#2f2f2f;margin:0;">

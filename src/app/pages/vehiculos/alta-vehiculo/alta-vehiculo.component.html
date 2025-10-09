@@ -23,10 +23,7 @@
           </div>
           <div class="col-md-4 mt-3">
             <label>Año</label>
-            <select class="form-control" formControlName="ano">
-              <option value="">Seleccione año</option>
-              <option *ngFor="let year of anios" [ngValue]="year">{{ year }}</option>
-            </select>
+            <input maxlength="4" class="form-control" (keypress)="allowOnlyNumbers($event)" formControlName="ano" placeholder="Ej: 2020">
           </div>
           <div class="col-md-4 mt-3">
             <label>Placa</label>

@@ -92,8 +92,8 @@ export class ListaUsuariosComponent implements OnInit {
       !obj || !path ? undefined : path.split('.').reduce((acc, k) => acc?.[k], obj);
 
     let qStatusNum: number | null = null;
-    if (q === '1' || q === 'activo') qStatusNum = 1;
-    else if (q === '0' || q === 'inactivo') qStatusNum = 0;
+    if (q === '1' || q === 'Activo') qStatusNum = 1;
+    else if (q === '0' || q === 'Inactivo') qStatusNum = 0;
 
     const dataFiltrada = (this.paginaActualData || []).filter((row: any) => {
       const hitCols = dataFields.some((df) => norm(getByPath(row, df)).includes(q));

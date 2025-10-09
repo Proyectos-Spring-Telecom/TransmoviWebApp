@@ -379,117 +379,117 @@ export class AltaUsuarioComponent implements OnInit {
   }
 
   agregar() {
-  if (this.loading) return;
+    if (this.loading) return;
 
-  this.submitButton = 'Cargando...';
-  this.loading = true;
+    this.submitButton = 'Cargando...';
+    this.loading = true;
 
-  this.usuarioForm.markAllAsTouched();
+    this.usuarioForm.markAllAsTouched();
 
-  const etiquetas: Record<string, string> = {
-    userName: 'Correo electrónico',
-    passwordHash: 'Contraseña',
-    confirmPassword: 'Confirmar contraseña',
-    telefono: 'Teléfono',
-    nombre: 'Nombre',
-    apellidoPaterno: 'Apellido Paterno',
-    apellidoMaterno: 'Apellido Materno',
-    fotoPerfil: 'Foto de perfil',
-    idRol: 'Rol',
-    estatus: 'Estatus',
-    permisosIds: 'Permisos',
-  };
+    const etiquetas: Record<string, string> = {
+      userName: 'Correo electrónico',
+      passwordHash: 'Contraseña',
+      confirmPassword: 'Confirmar contraseña',
+      telefono: 'Teléfono',
+      nombre: 'Nombre',
+      apellidoPaterno: 'Apellido Paterno',
+      apellidoMaterno: 'Apellido Materno',
+      fotoPerfil: 'Foto de perfil',
+      idRol: 'Rol',
+      estatus: 'Estatus',
+      permisosIds: 'Permisos',
+    };
 
-  if (this.usuarioForm.invalid) {
-    const camposFaltantes: string[] = [];
-    Object.keys(this.usuarioForm.controls).forEach((key) => {
-      const control = this.usuarioForm.get(key);
-      if (control?.errors?.['required']) {
-        camposFaltantes.push(etiquetas[key] || key);
+    if (this.usuarioForm.invalid) {
+      const camposFaltantes: string[] = [];
+      Object.keys(this.usuarioForm.controls).forEach((key) => {
+        const control = this.usuarioForm.get(key);
+        if (control?.errors?.['required']) {
+          camposFaltantes.push(etiquetas[key] || key);
+        }
+      });
+
+      const mensajes: string[] = [...camposFaltantes];
+      if (this.usuarioForm.hasError('passwordMismatch')) {
+        mensajes.push('Las contraseñas no coinciden');
       }
-    });
 
-    const mensajes: string[] = [...camposFaltantes];
-    if (this.usuarioForm.hasError('passwordMismatch')) {
-      mensajes.push('Las contraseñas no coinciden');
-    }
-
-    const lista = mensajes
-      .map(
-        (campo, index) => `
+      const lista = mensajes
+        .map(
+          (campo, index) => `
         <div style="padding:8px 12px;border-left:4px solid #d9534f;
                     background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
           <strong style="color:#b02a37;">${index + 1}. ${campo}</strong>
         </div>`
-      )
-      .join('');
+        )
+        .join('');
 
-    this.submitButton = 'Guardar';
-    this.loading = false;
+      this.submitButton = 'Guardar';
+      this.loading = false;
 
-    Swal.fire({
-      title: '¡Faltan campos obligatorios!',
-      background: '#002136',
-      html: `
+      Swal.fire({
+        title: '¡Faltan campos obligatorios!',
+        background: '#002136',
+        html: `
         <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
           Los siguientes <strong>campos</strong> requieren atención:
         </p>
         <div style="max-height:350px;overflow-y:auto;">${lista}</div>
       `,
-      icon: 'error',
-      confirmButtonText: 'Entendido',
-      customClass: { popup: 'swal2-padding swal2-border' },
-    });
-    return;
-  }
-
-  const { confirmPassword, idCliente, idRol, permisosIds, ...rest } = this.usuarioForm.value;
-
-  const toNumOrNull = (v: any) =>
-    v === null || v === undefined || v === '' ? null : Number(v);
-
-  const payload = {
-    ...rest,
-    idCliente: toNumOrNull(idCliente),
-    idRol: toNumOrNull(idRol),
-    permisosIds: (permisosIds || []).map((x: any) => Number(x)),
-  };
-
-  if (!payload.permisosIds || payload.permisosIds.length === 0) {
-    this.submitButton = 'Guardar';
-    this.loading = false;
-    this.mostrarAlertaPermisos();
-    return;
-  }
-
-  this.usuaService.agregarUsuario(payload).subscribe({
-    next: () => {
-      this.submitButton = 'Guardar';
-      this.loading = false;
-      Swal.fire({
-        title: '¡Operación Exitosa!',
-        background: '#002136',
-        text: `Se agregó un nuevo usuario de manera exitosa.`,
-        icon: 'success',
-        confirmButtonColor: '#3085d6',
-        confirmButtonText: 'Confirmar',
-      });
-      this.regresar();
-    },
-    error: () => {
-      this.submitButton = 'Guardar';
-      this.loading = false;
-      Swal.fire({
-        title: '¡Ops!',
-        background: '#002136',
-        text: `Ocurrió un error al agregar el usuario.`,
         icon: 'error',
-        confirmButtonColor: '#3085d6',
-        confirmButtonText: 'Confirmar',
+        confirmButtonText: 'Entendido',
+        customClass: { popup: 'swal2-padding swal2-border' },
       });
-    },
-  });
-}
+      return;
+    }
+
+    const { confirmPassword, idCliente, idRol, permisosIds, ...rest } = this.usuarioForm.value;
+
+    const toNumOrNull = (v: any) =>
+      v === null || v === undefined || v === '' ? null : Number(v);
+
+    const payload = {
+      ...rest,
+      idCliente: toNumOrNull(idCliente),
+      idRol: toNumOrNull(idRol),
+      permisosIds: (permisosIds || []).map((x: any) => Number(x)),
+    };
+
+    if (!payload.permisosIds || payload.permisosIds.length === 0) {
+      this.submitButton = 'Guardar';
+      this.loading = false;
+      this.mostrarAlertaPermisos();
+      return;
+    }
+
+    this.usuaService.agregarUsuario(payload).subscribe({
+      next: () => {
+        this.submitButton = 'Guardar';
+        this.loading = false;
+        Swal.fire({
+          title: '¡Operación Exitosa!',
+          background: '#002136',
+          text: `Se agregó un nuevo usuario de manera exitosa.`,
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+        this.regresar();
+      },
+      error: () => {
+        this.submitButton = 'Guardar';
+        this.loading = false;
+        Swal.fire({
+          title: '¡Ops!',
+          background: '#002136',
+          text: `Ocurrió un error al agregar el usuario.`,
+          icon: 'error',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+      },
+    });
+  }
 
 
   actualizar() {

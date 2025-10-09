@@ -28,10 +28,7 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
   listaRegiones: any;
   public submitButton: string = 'Guardar';
   public loading: boolean = false;
-  // Estado UI
   puntosCompletos = false;
-
-  // Google Maps
   private map!: google.maps.Map;
   private clickListener?: google.maps.MapsEventListener;
   private geocoder!: google.maps.Geocoder;
@@ -231,17 +228,14 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ngZone.run(() => { this.puntosCompletos = false; });
   }
 
-
   private fitToBoth(): void {
     if (!this.coordInicio || !this.coordFin) return;
-
     const bounds = new google.maps.LatLngBounds();
     bounds.extend(this.coordInicio);
     bounds.extend(this.coordFin);
 
     const PADDING = 160;
     this.map.fitBounds(bounds, PADDING);
-
     google.maps.event.addListenerOnce(this.map, 'idle', () => {
       const z = this.map.getZoom();
       if (typeof z === 'number') {
@@ -353,67 +347,130 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   submit(): void {
-    if (this.rutaForm.invalid) {
-      this.rutaForm.markAllAsTouched();
-      return;
-    }
-    if (!this.coordInicio || !this.coordFin) {
-      console.warn('Faltan puntos en el mapa');
-      return;
-    }
+  // Fuerza validación visual del form
+  this.rutaForm.markAllAsTouched();
+  this.rutaForm.updateValueAndValidity();
 
-    this.submitButton = 'Guardando...';
-    this.loading = true;
+  // Lectura de controles clave
+  const ctrlNombre  = this.rutaForm.get('nombre');
+  const ctrlRegion  = this.rutaForm.get('idRegion');
 
-    const body = {
-      nombre: (this.rutaForm.get('nombre')?.value || 'Ruta sin nombre').toString().trim(),
-      puntoInicio: this.buildFeatureCollectionPoint(this.coordInicio),
-      nombreInicio: this.direccionInicio ?? 'Punto Inicio',
-      puntoFin: this.buildFeatureCollectionPoint(this.coordFin),
-      nombreFin: this.direccionFin ?? 'Punto Fin',
-      estatus: Number(this.rutaForm.get('estatus')?.value ?? 1),
-      idRegion: Number(this.rutaForm.get('idRegion')?.value ?? 0),
-    };
+  const nombre      = String(ctrlNombre?.value ?? '').trim();
+  const idRegionVal = ctrlRegion?.value;
 
-    console.group('%cJSON FINAL PARA ENVIAR', 'color:#0a7; font-weight:bold;');
-    console.log('Objeto:', body);
-    console.log('JSON:', JSON.stringify(body, null, 2));
-    console.groupEnd();
+  // Flags de faltantes (solo lo que te interesa aquí)
+  const faltaNombre = !nombre || ctrlNombre?.errors?.['required'];
+  const faltaRegion = idRegionVal === null || idRegionVal === undefined || idRegionVal === '' || ctrlRegion?.errors?.['required'];
 
-    this.rutService.agregarRuta(body)
-      .pipe(finalize(() => {
-        this.submitButton = 'Guardar';
-        this.loading = false;
-      }))
-      .subscribe({
-        next: (response) => {
-          this.regresar()
-          Swal.fire({
-            title: '¡Operación Exitosa!',
-            background: '#002136',
-            text: 'Se agregó una nueva ruta de manera exitosa.',
-            icon: 'success',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Confirmar',
-          });
-          this.modalService.dismissAll();
-          // (opcional) limpia selección y form:
-          // this.resetSelecciones();
-          // this.rutaForm.reset({ nombre: '', idRegion: null, estatus: 1 });
-        },
-        error: (error) => {
-          console.error('Error al agregar ruta:', error);
-          Swal.fire({
-            title: '¡Ops!',
-            background: '#002136',
-            text: 'Ocurrió un error al agregar la ruta.',
-            icon: 'error',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Confirmar',
-          });
-        }
-      });
+  // 1) Validación de campos críticos (Nombre y Región)
+  if (faltaNombre || faltaRegion) {
+    this.submitButton = 'Guardar';
+    this.loading = false;
+
+    const faltantes: string[] = [];
+    if (faltaNombre) faltantes.push('Nombre');
+    if (faltaRegion) faltantes.push('Región');
+
+    const htmlLista = faltantes.map((campo, i) => `
+      <div style="padding:8px 12px;border-left:4px solid #d9534f;
+                  background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
+        <strong style="color:#b02a37;">${i + 1}. ${campo}</strong>
+      </div>
+    `).join('');
+
+    Swal.fire({
+      title: '¡Faltan campos obligatorios!',
+      background: '#002136',
+      html: `
+        <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
+          Por favor completa los siguientes campos antes de continuar:
+        </p>
+        <div style="max-height:350px;overflow-y:auto">${htmlLista}</div>
+      `,
+      icon: 'error',
+      confirmButtonText: 'Entendido',
+      customClass: { popup: 'swal2-padding swal2-border' }
+    });
+    return;
   }
+
+  // 2) Validación de puntos del mapa (ambos)
+  if (!this.coordInicio || !this.coordFin) {
+    this.submitButton = 'Guardar';
+    this.loading = false;
+
+    Swal.fire({
+      title: 'Selecciona Inicio y Destino',
+      background: '#002136',
+      html: `
+        <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
+          Debes marcar <strong>dos puntos</strong> en el mapa: primero el <strong>Inicio</strong> y luego el <strong>Destino</strong>.
+        </p>
+      `,
+      icon: 'warning',
+      confirmButtonText: 'Entendido',
+      customClass: { popup: 'swal2-padding swal2-border' }
+    });
+    return;
+  }
+
+  // Si pasó validaciones, procede a enviar
+  this.submitButton = 'Guardando...';
+  this.loading = true;
+
+  const body = {
+    nombre: nombre,
+    puntoInicio: this.buildFeatureCollectionPoint(this.coordInicio),
+    nombreInicio: this.direccionInicio ?? 'Punto Inicio',
+    puntoFin: this.buildFeatureCollectionPoint(this.coordFin),
+    nombreFin: this.direccionFin ?? 'Punto Fin',
+    estatus: Number(this.rutaForm.get('estatus')?.value ?? 1),
+    idRegion: Number(idRegionVal),
+  };
+
+  console.group('%cJSON FINAL PARA ENVIAR', 'color:#0a7; font-weight:bold;');
+  console.log('Objeto:', body);
+  console.log('JSON:', JSON.stringify(body, null, 2));
+  console.groupEnd();
+
+  this.rutService.agregarRuta(body)
+    .pipe(finalize(() => {
+      this.submitButton = 'Guardar';
+      this.loading = false;
+    }))
+    .subscribe({
+      next: (response) => {
+        // Primero mostramos éxito, luego cerramos y navegamos
+        Swal.fire({
+          title: '¡Ruta registrada!',
+          background: '#002136',
+          text: 'Se agregó una nueva ruta de manera exitosa.',
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        }).then(() => {
+          this.modalService.dismissAll();
+          this.regresar();
+        });
+
+        // (opcional) limpiar selección y form:
+        // this.resetSelecciones();
+        // this.rutaForm.reset({ nombre: '', idRegion: null, estatus: 1 });
+      },
+      error: (error) => {
+        console.error('Error al agregar ruta:', error);
+        Swal.fire({
+          title: '¡Ops!',
+          background: '#002136',
+          text: 'Ocurrió un error al agregar la ruta.',
+          icon: 'error',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+      }
+    });
+}
+
 
   regresar() {
     this.route.navigateByUrl('/rutas')
@@ -425,5 +482,21 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   limpiarMapa(): void {
     this.resetSelecciones();
+  }
+
+  public cancelarYReiniciar(): void {
+    this.limpiarMapa();
+    this.rutaForm.reset({
+      nombre: '',
+      idRegion: null,
+      estatus: 1,
+    });
+    if (this.map) {
+      this.map.setCenter(this.centroToluca);
+      this.map.setZoom(13);
+    }
+    this.submitButton = 'Guardar';
+    this.loading = false;
+    this.modalService.dismissAll();
   }
 }

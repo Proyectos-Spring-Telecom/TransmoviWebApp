@@ -122,34 +122,76 @@ export class ListaClientesComponent implements OnInit {
     });
   }
 
+  onGridOptionChanged(e: any) {
+    if (e.fullName !== 'searchPanel.text') return;
+
+    const grid = this.dataGrid?.instance;
+    const qRaw = (e.value ?? '').toString().trim();
+    if (!qRaw) {
+      this.filtroActivo = '';
+      grid?.option('dataSource', this.listaClientes);
+      return;
+    }
+    this.filtroActivo = qRaw;
+
+    const norm = (v: any) =>
+      (v == null ? '' : String(v))
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .toLowerCase();
+
+    const q = norm(qRaw);
+
+    let columnas: any[] = [];
+    try {
+      const colsOpt = grid?.option('columns');
+      if (Array.isArray(colsOpt) && colsOpt.length) columnas = colsOpt;
+    } catch { }
+    if (!columnas.length && grid?.getVisibleColumns) columnas = grid.getVisibleColumns();
+
+    const dataFields: string[] = columnas
+      .map((c: any) => c?.dataField)
+      .filter((df: any) => typeof df === 'string' && df.trim().length > 0);
+
+    const getByPath = (obj: any, path: string) =>
+      !obj || !path ? undefined : path.split('.').reduce((acc, k) => acc?.[k], obj);
+
+    let qStatusNum: number | null = null;
+    if (q === '1' || q === 'activo') qStatusNum = 1;
+    else if (q === '0' || q === 'inactivo') qStatusNum = 0;
+
+    const dataFiltrada = (this.paginaActualData || []).filter((row: any) => {
+      const hitCols = dataFields.some((df) => norm(getByPath(row, df)).includes(q));
+
+      const estNum = Number(row?.estatus);
+      const estHit =
+        Number.isFinite(estNum) &&
+        (qStatusNum !== null ? estNum === qStatusNum : String(estNum).toLowerCase().includes(q));
+
+      const hitExtras = [
+        norm(row?.id),
+        norm(row?.NombreCompleto),
+        norm(row?.telefono),
+        norm(row?.rfc),
+        norm(row?.correo),
+        norm(row?.tipoPersona),
+        norm(row?.nombreEncargado),
+        norm(row?.telefonoEncargado),
+        norm(row?.correoEncargado),
+        norm(row?.direccionCompleta)
+      ].some((s) => s.includes(q));
+
+      return hitCols || estHit || hitExtras;
+    });
+
+    grid?.option('dataSource', dataFiltrada);
+  }
+
+
   onPageIndexChanged(e: any) {
     const pageIndex = e.component.pageIndex();
     this.paginaActual = pageIndex + 1;
     e.component.refresh();
-  }
-
-  onGridOptionChanged(e: any) {
-    if (e.fullName === "searchPanel.text") {
-      this.filtroActivo = e.value || '';
-      if (!this.filtroActivo) {
-        this.dataGrid.instance.option('dataSource', this.listaClientes);
-        return;
-      }
-      const search = this.filtroActivo.toString().toLowerCase();
-      const dataFiltrada = this.paginaActualData.filter((item: any) => {
-        const idStr = item.id ? item.id.toString().toLowerCase() : '';
-        const nombreStr = item.nombre ? item.nombre.toString().toLowerCase() : '';
-        const descripcionStr = item.descripcion ? item.descripcion.toString().toLowerCase() : '';
-        const moduloStr = item.estatusTexto ? item.estatusTexto.toString().toLowerCase() : '';
-        return (
-          nombreStr.includes(search) ||
-          descripcionStr.includes(search) ||
-          moduloStr.includes(search) ||
-          idStr.includes(search)
-        );
-      });
-      this.dataGrid.instance.option('dataSource', dataFiltrada);
-    }
   }
 
   actualizarCliente(idCliente: number) {
@@ -283,96 +325,96 @@ export class ListaClientesComponent implements OnInit {
   }
 
   pdfPopupVisible = false;
-    pdfTitle = 'Documento';
-    pdfPopupWidth = 500;
-    pdfUrlSafe: SafeResourceUrl | null = null;
-    pdfRawUrl: string | null = null;
-    pdfLoading = false;
-    pdfLoaded = false;
-    pdfError = false;
-    pdfErrorMsg = '';
-    async previsualizar(url?: string, titulo?: string, _row?: any) {
-      this.pdfTitle = titulo || 'Documento';
-      this.pdfRawUrl = (url || '').trim() || null;
-      this.pdfUrlSafe = null;
-      this.pdfLoading = true;
-      this.pdfLoaded = false;
-      this.pdfError = false;
-      this.pdfErrorMsg = '';
-      this.pdfPopupVisible = true;
-      this.pdfPopupWidth = Math.min(Math.floor(window.innerWidth * 0.95), 900);
-      if (!this.pdfRawUrl) {
-        this.pdfError = true;
-        this.pdfLoading = false;
-        this.pdfErrorMsg = 'Este registro no tiene un PDF asignado.';
-        return;
-      }
-      try {
-        const head = await fetch(this.pdfRawUrl, { method: 'HEAD', mode: 'cors' });
-        if (!head.ok) {
-          this.pdfError = true;
-          this.pdfErrorMsg = `No se pudo acceder al archivo (HTTP ${head.status}).`;
-          this.pdfLoading = false;
-          return;
-        }
-        const ct = head.headers.get('content-type') || '';
-        if (!ct.toLowerCase().includes('pdf')) {
-          this.pdfError = true;
-          this.pdfErrorMsg = 'El recurso no es un archivo PDF.';
-          this.pdfLoading = false;
-          return;
-        }
-      } catch (e) {
-        this.pdfError = true;
-        this.pdfErrorMsg = 'El navegador bloqueó la previsualización (CORS). Intenta Abrir o Descargar.';
-        this.pdfLoading = false;
-        return;
-      }
-      const viewerParams = '#toolbar=0&navpanes=0';
-      const finalUrl = this.pdfRawUrl.includes('#') ? this.pdfRawUrl : this.pdfRawUrl + viewerParams;
-      this.pdfUrlSafe = this.sanitizer.bypassSecurityTrustResourceUrl(finalUrl);
-      setTimeout(() => {
-        if (!this.pdfLoaded && !this.pdfError) {
-          this.pdfError = true;
-          this.pdfLoading = false;
-          this.pdfErrorMsg = 'El visor tardó demasiado en cargar.';
-        }
-      }, 4000);
-    }
-  
-    onPdfLoaded() {
-      this.pdfLoaded = true;
+  pdfTitle = 'Documento';
+  pdfPopupWidth = 500;
+  pdfUrlSafe: SafeResourceUrl | null = null;
+  pdfRawUrl: string | null = null;
+  pdfLoading = false;
+  pdfLoaded = false;
+  pdfError = false;
+  pdfErrorMsg = '';
+  async previsualizar(url?: string, titulo?: string, _row?: any) {
+    this.pdfTitle = titulo || 'Documento';
+    this.pdfRawUrl = (url || '').trim() || null;
+    this.pdfUrlSafe = null;
+    this.pdfLoading = true;
+    this.pdfLoaded = false;
+    this.pdfError = false;
+    this.pdfErrorMsg = '';
+    this.pdfPopupVisible = true;
+    this.pdfPopupWidth = Math.min(Math.floor(window.innerWidth * 0.95), 900);
+    if (!this.pdfRawUrl) {
+      this.pdfError = true;
       this.pdfLoading = false;
+      this.pdfErrorMsg = 'Este registro no tiene un PDF asignado.';
+      return;
     }
-  
-    abrirEnNuevaPestana() {
-      if (this.pdfRawUrl) window.open(this.pdfRawUrl, '_blank');
+    try {
+      const head = await fetch(this.pdfRawUrl, { method: 'HEAD', mode: 'cors' });
+      if (!head.ok) {
+        this.pdfError = true;
+        this.pdfErrorMsg = `No se pudo acceder al archivo (HTTP ${head.status}).`;
+        this.pdfLoading = false;
+        return;
+      }
+      const ct = head.headers.get('content-type') || '';
+      if (!ct.toLowerCase().includes('pdf')) {
+        this.pdfError = true;
+        this.pdfErrorMsg = 'El recurso no es un archivo PDF.';
+        this.pdfLoading = false;
+        return;
+      }
+    } catch (e) {
+      this.pdfError = true;
+      this.pdfErrorMsg = 'El navegador bloqueó la previsualización (CORS). Intenta Abrir o Descargar.';
+      this.pdfLoading = false;
+      return;
     }
-  
-    async descargarPdfForzada() {
-      if (!this.pdfRawUrl) return;
+    const viewerParams = '#toolbar=0&navpanes=0';
+    const finalUrl = this.pdfRawUrl.includes('#') ? this.pdfRawUrl : this.pdfRawUrl + viewerParams;
+    this.pdfUrlSafe = this.sanitizer.bypassSecurityTrustResourceUrl(finalUrl);
+    setTimeout(() => {
+      if (!this.pdfLoaded && !this.pdfError) {
+        this.pdfError = true;
+        this.pdfLoading = false;
+        this.pdfErrorMsg = 'El visor tardó demasiado en cargar.';
+      }
+    }, 4000);
+  }
+
+  onPdfLoaded() {
+    this.pdfLoaded = true;
+    this.pdfLoading = false;
+  }
+
+  abrirEnNuevaPestana() {
+    if (this.pdfRawUrl) window.open(this.pdfRawUrl, '_blank');
+  }
+
+  async descargarPdfForzada() {
+    if (!this.pdfRawUrl) return;
+    try {
+      const resp = await fetch(this.pdfRawUrl, { mode: 'cors' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const base = (this.pdfTitle || 'documento')
+        .toLowerCase().replace(/\s+/g, '_').replace(/[^\w\-]+/g, '');
+      a.href = url;
+      a.download = base.endsWith('.pdf') ? base : base + '.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
       try {
-        const resp = await fetch(this.pdfRawUrl, { mode: 'cors' });
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
-        const blob = await resp.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        const base = (this.pdfTitle || 'documento')
-          .toLowerCase().replace(/\s+/g, '_').replace(/[^\w\-]+/g, '');
-        a.href = url;
-        a.download = base.endsWith('.pdf') ? base : base + '.pdf';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
+        const u = new URL(this.pdfRawUrl!);
+        u.searchParams.set('response-content-disposition', `attachment; filename="${(this.pdfTitle || 'documento').replace(/\s+/g, '_')}.pdf"`);
+        window.open(u.toString(), '_self');
       } catch {
-        try {
-          const u = new URL(this.pdfRawUrl!);
-          u.searchParams.set('response-content-disposition', `attachment; filename="${(this.pdfTitle || 'documento').replace(/\s+/g, '_')}.pdf"`);
-          window.open(u.toString(), '_self');
-        } catch {
-          window.open(this.pdfRawUrl!, '_blank');
-        }
+        window.open(this.pdfRawUrl!, '_blank');
       }
     }
+  }
 }

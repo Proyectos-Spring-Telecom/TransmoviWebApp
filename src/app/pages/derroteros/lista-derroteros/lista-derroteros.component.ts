@@ -157,7 +157,7 @@ export class ListaDerroterosComponent implements OnInit {
       const search = this.filtroActivo.toString().toLowerCase();
       const dataFiltrada = this.paginaActualData.filter((item: any) => {
         const idStr = item.id ? item.id.toString().toLowerCase() : '';
-        const nombreStr = item.nombreRuta ? item.nombreRuta.toString().toLowerCase() : ''; // <-- en este componente es nombreRuta
+        const nombreStr = item.nombreRuta ? item.nombreRuta.toString().toLowerCase() : '';
         const descripcionStr = item.descripcion ? item.descripcion.toString().toLowerCase() : '';
         const moduloStr = item.estatusTexto ? item.estatusTexto.toString().toLowerCase() : '';
         return (
@@ -171,11 +171,6 @@ export class ListaDerroterosComponent implements OnInit {
     }
   }
 
-  // ==================== MODAL + MAPA ====================
-
-  /** Devuelve lat/lng desde el shape de este componente:
-   *  row.puntoInicio.coordenadas.{lat,lng}  /  row.puntoFin.coordenadas.{lat,lng}
-   */
   private getCoordsFromDerroteroPoint(point: any): { lat: number | null; lng: number | null } {
     const lat = Number(point?.coordenadas?.lat);
     const lng = Number(point?.coordenadas?.lng);
@@ -202,11 +197,9 @@ export class ListaDerroterosComponent implements OnInit {
     this.selectedNombreInicio = row?.puntoInicio?.direccion ?? null;
     this.selectedNombreFinal = row?.puntoFin?.direccion ?? null;
 
-    // Coordenadas de inicio/fin
     const inicio = this.getCoordsFromDerroteroPoint(row?.puntoInicio);
     const fin = this.getCoordsFromDerroteroPoint(row?.puntoFin);
 
-    // Recorrido detallado (opcional)
     const path: google.maps.LatLngLiteral[] = this.toPath(row?.recorridoDetallado);
 
     const hasInicio = inicio.lat != null && inicio.lng != null;
@@ -223,32 +216,30 @@ export class ListaDerroterosComponent implements OnInit {
           inicio.lat!, inicio.lng!, fin.lat!, fin.lng!, mapId,
           this.selectedNombreInicio || 'Punto Inicio',
           this.selectedNombreFinal || 'Punto Fin',
-          path // <-- nuevo
+          path
         );
       } else if (hasInicio) {
         this.initializeMap(
           inicio.lat!, inicio.lng!, undefined, undefined, mapId,
           this.selectedNombreInicio || 'Punto Inicio',
           undefined,
-          path // <-- nuevo
+          path
         );
       } else {
         this.initializeMap(
           fin.lat!, fin.lng!, undefined, undefined, mapId,
           this.selectedNombreInicio || 'Punto Inicio',
           this.selectedNombreFinal || 'Punto Fin',
-          path // <-- nuevo
+          path
         );
       }
     }, 300);
   }
 
-  // Trazo punteado (mismo que ya usamos)
   private readonly TRACE_COLOR = '#f30606ff';
   private readonly TRACE_WEIGHT = 4;
   private readonly TRACE_REPEAT = '20px';
 
-  // Círculos en cada vértice (como en AltaDerrotero)
   private readonly VERTEX_FILL = '#000000ff';
   private readonly VERTEX_STROKE = '#ffffff';
   private readonly VERTEX_SCALE = 5;
@@ -258,8 +249,6 @@ export class ListaDerroterosComponent implements OnInit {
   private vertexInfoWindow?: google.maps.InfoWindow;
   private vertexHoverCloseTimer?: number;
 
-
-
   initializeMap(
     latA: number,
     lngA: number,
@@ -268,13 +257,12 @@ export class ListaDerroterosComponent implements OnInit {
     mapId: string = 'map',
     labelA?: string,
     labelB?: string,
-    path: google.maps.LatLngLiteral[] = []        // recorridoDetallado normalizado
+    path: google.maps.LatLngLiteral[] = []
   ) {
     const el = document.getElementById(mapId) as HTMLElement | null;
     if (!el) return;
     if ([latA, lngA].some(v => v == null || isNaN(Number(v)))) return;
 
-    // Lazy init de utilidades
     const geocoder = this.geocoder ?? (this.geocoder = new google.maps.Geocoder());
     const vInfo = this.vertexInfoWindow ?? (this.vertexInfoWindow = new google.maps.InfoWindow({ maxWidth: 260 }));
 
@@ -290,12 +278,10 @@ export class ListaDerroterosComponent implements OnInit {
       fullscreenControl: true,
     });
 
-    // Marcadores de Inicio / Fin
     const markerA = new google.maps.Marker({ position: a, map, icon: this.markerIconInicio });
     let markerB: google.maps.Marker | null = null;
     if (hasB && b) markerB = new google.maps.Marker({ position: b, map, icon: this.markerIconFin });
 
-    // Tooltips de Inicio / Fin
     const infoA = new google.maps.InfoWindow({
       disableAutoPan: true,
       maxWidth: 280,
@@ -321,8 +307,6 @@ export class ListaDerroterosComponent implements OnInit {
       </div>`
     }) : null;
 
-    // ====== Trazo punteado + círculos por punto ======
-    // Limpia marcadores previos del path si hubiera
     this.pathPointMarkers.forEach(m => m.setMap(null));
     this.pathPointMarkers = [];
 
@@ -353,82 +337,75 @@ export class ListaDerroterosComponent implements OnInit {
       polyline.setMap(map);
     }
 
-    // Crea un marcador por cada punto del recorrido y tooltip por geocoding (on hover/click)
-    // Círculo en cada punto + tooltip SOLO en hover (sin title nativo)
-if (Array.isArray(path) && path.length) {
-  for (const pt of path) {
-    const mk = new google.maps.Marker({
-      position: pt,
-      map,
-      zIndex: 1000,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        fillColor: this.VERTEX_FILL ?? '#000000ff',
-        fillOpacity: 1,
-        strokeColor: this.VERTEX_STROKE ?? '#ffffff',
-        strokeOpacity: 1,
-        strokeWeight: 2,
-        scale: this.VERTEX_SCALE ?? 5,
-      },
-    });
-    this.pathPointMarkers.push(mk);
+    if (Array.isArray(path) && path.length) {
+      for (const pt of path) {
+        const mk = new google.maps.Marker({
+          position: pt,
+          map,
+          zIndex: 1000,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            fillColor: this.VERTEX_FILL ?? '#000000ff',
+            fillOpacity: 1,
+            strokeColor: this.VERTEX_STROKE ?? '#ffffff',
+            strokeOpacity: 1,
+            strokeWeight: 2,
+            scale: this.VERTEX_SCALE ?? 5,
+          },
+        });
+        this.pathPointMarkers.push(mk);
 
-    const showAddress = async () => {
-      if (this.vertexHoverCloseTimer) {
-        clearTimeout(this.vertexHoverCloseTimer);
-        this.vertexHoverCloseTimer = undefined as any;
-      }
+        const showAddress = async () => {
+          if (this.vertexHoverCloseTimer) {
+            clearTimeout(this.vertexHoverCloseTimer);
+            this.vertexHoverCloseTimer = undefined as any;
+          }
 
-      const key = `${pt.lat.toFixed(6)},${pt.lng.toFixed(6)}`;
-      let addr = this.geocodeCache.get(key);
+          const key = `${pt.lat.toFixed(6)},${pt.lng.toFixed(6)}`;
+          let addr = this.geocodeCache.get(key);
 
-      // Abre placeholder inmediato (SOLO InfoWindow personalizado)
-      this.vertexInfoWindow ??= new google.maps.InfoWindow({ maxWidth: 260 });
-      if (!addr) {
-        this.vertexInfoWindow.setContent(`
+          this.vertexInfoWindow ??= new google.maps.InfoWindow({ maxWidth: 260 });
+          if (!addr) {
+            this.vertexInfoWindow.setContent(`
           <div style="font-family:'Segoe UI',sans-serif; margin-top:-45px; background:#fff;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,.12);padding:8px 10px;">
             <div style="font-size:13px;color:#4a4a4a;">Buscando dirección…</div>
           </div>
         `);
-        this.vertexInfoWindow.open({ map, anchor: mk });
+            this.vertexInfoWindow.open({ map, anchor: mk });
 
-        const geocoder = this.geocoder ?? (this.geocoder = new google.maps.Geocoder());
-        addr = await new Promise<string>((resolve) => {
-          geocoder.geocode({ location: pt }, (res: any, status: string) => {
-            if (status === 'OK' && res && res[0]?.formatted_address) {
-              resolve(res[0].formatted_address);
-            } else {
-              resolve(`${pt.lat.toFixed(5)}, ${pt.lng.toFixed(5)}`);
-            }
-          });
-        });
-        this.geocodeCache.set(key, addr);
-        // OJO: NO usar mk.setTitle(addr); para evitar tooltip del navegador
-      }
+            const geocoder = this.geocoder ?? (this.geocoder = new google.maps.Geocoder());
+            addr = await new Promise<string>((resolve) => {
+              geocoder.geocode({ location: pt }, (res: any, status: string) => {
+                if (status === 'OK' && res && res[0]?.formatted_address) {
+                  resolve(res[0].formatted_address);
+                } else {
+                  resolve(`${pt.lat.toFixed(5)}, ${pt.lng.toFixed(5)}`);
+                }
+              });
+            });
+            this.geocodeCache.set(key, addr);
+          }
 
-      this.vertexInfoWindow.setContent(`
+          this.vertexInfoWindow.setContent(`
         <div style="font-family:'Segoe UI',sans-serif; display:inline-block; background:#fff; border-radius:12px;
         box-shadow:0 4px 12px rgba(0,0,0,.12); padding:8px 12px 6px; line-height:1.3; margin-top:-45px; max-width:260px;">
           <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Ubicación</div>
           <div style="line-height:1.25;">${addr}</div>
         </div>
       `);
-      this.vertexInfoWindow.open({ map, anchor: mk });
-    };
+          this.vertexInfoWindow.open({ map, anchor: mk });
+        };
 
-    mk.addListener('mouseover', showAddress);
-    mk.addListener('mouseout', () => {
-      if (this.vertexHoverCloseTimer) clearTimeout(this.vertexHoverCloseTimer);
-      this.vertexHoverCloseTimer = window.setTimeout(() => {
-        this.vertexInfoWindow?.close();
-      }, 120); // pequeño delay para evitar parpadeo al saltar entre puntos
-    });
-  }
-}
+        mk.addListener('mouseover', showAddress);
+        mk.addListener('mouseout', () => {
+          if (this.vertexHoverCloseTimer) clearTimeout(this.vertexHoverCloseTimer);
+          this.vertexHoverCloseTimer = window.setTimeout(() => {
+            this.vertexInfoWindow?.close();
+          }, 120);
+        });
+      }
+    }
 
-    // ===================================================
-
-    // Ajuste de bounds (A/B + path)
     if (hasB && b) {
       const bounds = new google.maps.LatLngBounds();
       bounds.extend(a);
@@ -447,7 +424,6 @@ if (Array.isArray(path) && path.length) {
       map.setZoom(15);
     }
 
-    // Abre tooltips principales tras quedar estable
     google.maps.event.addListenerOnce(map, 'idle', () => {
       infoA.open({ map, anchor: markerA });
       if (infoB && markerB) infoB.open({ map, anchor: markerB });
@@ -457,7 +433,6 @@ if (Array.isArray(path) && path.length) {
         google.maps.event.addListener(infoB, 'closeclick', () => infoB.open({ map, anchor: markerB! }));
       }
 
-      // Compensación visual por tamaño de globos
       const overlay = new google.maps.OverlayView();
       overlay.onAdd = function () { };
       overlay.draw = function () { };
@@ -497,7 +472,6 @@ if (Array.isArray(path) && path.length) {
     });
   }
 
-  /** Normaliza un arreglo de puntos del recorrido a LatLngLiteral[] */
   private toPath(recorrido: any): google.maps.LatLngLiteral[] {
     if (!Array.isArray(recorrido)) return [];
     return recorrido

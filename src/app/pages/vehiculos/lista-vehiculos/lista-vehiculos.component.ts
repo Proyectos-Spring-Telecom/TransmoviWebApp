@@ -109,34 +109,72 @@ export class ListaVehiculosComponent implements OnInit {
     }
   }
 
+  onGridOptionChanged(e: any) {
+  if (e.fullName !== 'searchPanel.text') return;
+
+  const grid = this.dataGrid?.instance;
+  const qRaw = (e.value ?? '').toString().trim();
+  if (!qRaw) {
+    this.filtroActivo = '';
+    grid?.option('dataSource', this.listaVehiculos);
+    return;
+  }
+  this.filtroActivo = qRaw;
+
+  const norm = (v: any) =>
+    (v == null ? '' : String(v))
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .toLowerCase();
+  const q = norm(qRaw);
+
+  let columnas: any[] = [];
+  try {
+    const colsOpt = grid?.option('columns');
+    if (Array.isArray(colsOpt) && colsOpt.length) columnas = colsOpt;
+  } catch {}
+  if (!columnas.length && grid?.getVisibleColumns) columnas = grid.getVisibleColumns();
+
+  const dataFields: string[] = columnas
+    .map((c: any) => c?.dataField)
+    .filter((df: any) => typeof df === 'string' && df.trim().length > 0);
+
+  const getByPath = (obj: any, path: string) =>
+    !obj || !path ? undefined : path.split('.').reduce((acc, k) => acc?.[k], obj);
+
+  const dataFiltrada = (this.paginaActualData || []).filter((row: any) => {
+    const hitCols = dataFields.some((df) => norm(getByPath(row, df)).includes(q));
+
+    const estNum = Number(row?.estatus);
+    const estText = Number.isFinite(estNum) ? (estNum === 1 ? 'activo' : 'inactivo') : '';
+    const estHits =
+      estText.includes(q) ||
+      ('activo'.startsWith(q) && estNum === 1) ||
+      ('inactivo'.startsWith(q) && estNum === 0) ||
+      (q === '1' && estNum === 1) ||
+      (q === '0' && estNum === 0) ||
+      String(estNum).includes(q);
+
+    const hitExtras = [
+      norm(row?.id),
+      norm(row?.marca),
+      norm(row?.modelo),
+      norm(row?.placa),
+      norm(row?.numeroEconomico),
+      norm(row?.ano)
+    ].some((s) => s.includes(q));
+
+    return hitCols || estHits || hitExtras;
+  });
+
+  grid?.option('dataSource', dataFiltrada);
+}
+
+
   onPageIndexChanged(e: any) {
     const pageIndex = e.component.pageIndex();
     this.paginaActual = pageIndex + 1;
     e.component.refresh();
-  }
-
-  onGridOptionChanged(e: any) {
-    if (e.fullName === "searchPanel.text") {
-      this.filtroActivo = e.value || '';
-      if (!this.filtroActivo) {
-        this.dataGrid.instance.option('dataSource', this.listaVehiculos);
-        return;
-      }
-      const search = this.filtroActivo.toString().toLowerCase();
-      const dataFiltrada = this.paginaActualData.filter((item: any) => {
-        const idStr = item.id ? item.id.toString().toLowerCase() : '';
-        const nombreStr = item.nombre ? item.nombre.toString().toLowerCase() : '';
-        const descripcionStr = item.descripcion ? item.descripcion.toString().toLowerCase() : '';
-        const moduloStr = item.estatusTexto ? item.estatusTexto.toString().toLowerCase() : '';
-        return (
-          nombreStr.includes(search) ||
-          descripcionStr.includes(search) ||
-          moduloStr.includes(search) ||
-          idStr.includes(search)
-        );
-      });
-      this.dataGrid.instance.option('dataSource', dataFiltrada);
-    }
   }
 
   showInfo(id: any): void {

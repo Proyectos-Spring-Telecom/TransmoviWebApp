@@ -7,6 +7,8 @@
             <div class="header-text">
                 <h5>{{ title }}</h5>
                 <span>Completa la información para registrar una nueva bluevox.</span>
+                Cliente:{{idClienteUser}}
+                Rol: {{idRolUser}}
             </div>
         </div>
 
@@ -31,7 +33,7 @@
                     </div>
                     <div class="col-md-4 mt-3">
                         <label>Cliente</label>
-                        <select class="form-control" formControlName="idCliente">
+                        <select class="form-control" formControlName="idCliente" [disabled]="!isAdmin">
                             <option [ngValue]="null" disabled>Seleccione un cliente</option>
                             <option *ngFor="let cliente of listaClientes" [ngValue]="cliente.id">
                                 {{ cliente.nombre }} {{ cliente.apellidoPaterno }} {{ cliente.apellidoMaterno }}

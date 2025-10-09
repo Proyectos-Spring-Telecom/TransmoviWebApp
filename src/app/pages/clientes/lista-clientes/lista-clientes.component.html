@@ -25,7 +25,7 @@
                     <div class="table-responsive mb-4 col-12 col-lg-12">
                         <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
                             [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
-                            [rowAlternationEnabled]="'true'" [dataSource]="listaClientes" [keyExpr]="'Id'"
+                            [rowAlternationEnabled]="'true'" [dataSource]="listaClientes" [keyExpr]="'id'"
                             [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
                             [pager]="{ 
                                 showPageSizeSelector: true, 
@@ -85,12 +85,12 @@
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
                             </div>
-                            <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center"></dxi-column>
-                            <dxi-column dataField="telefono" caption="Teléfono" alignment="center"></dxi-column>
-                            <dxi-column dataField="rfc" caption="RFC" alignment="center"></dxi-column>
-                            <dxi-column dataField="correo" caption="Correo" alignment="center"></dxi-column>
-                            <dxi-column dataField="tipoPersona" caption="Tipo Persona" alignment="center"></dxi-column>
-                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est">
+                            <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="telefono" caption="Teléfono" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="rfc" caption="RFC" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="correo" caption="Correo" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="tipoPersona" caption="Tipo Persona" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" dataType="string" cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
                                     <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
                                         Activo

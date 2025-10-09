@@ -23,9 +23,11 @@
                     </div>
                     <div class="col-md-4 mt-1">
                         <label for="idCliente" class="form-label">Cliente</label>
-                        <select id="idCliente" class="form-select" formControlName="idCliente">
-                            <option value="">Seleccione un cliente</option>
-                            <option *ngFor="let c of listaClientes"  [ngValue]="c.id">{{ c.nombre }} {{c.apellidoPaterno || ' ' }}</option>
+                        <select id="idCliente" class="form-select" formControlName="idCliente" [disabled]="!isAdmin">
+                            <option [ngValue]="null" disabled>Seleccione un cliente</option>
+                            <option *ngFor="let c of listaClientes" [ngValue]="c.id">
+                                {{ c.nombre }} {{ c.apellidoPaterno || ' ' }}
+                            </option>
                         </select>
                     </div>
                 </div>

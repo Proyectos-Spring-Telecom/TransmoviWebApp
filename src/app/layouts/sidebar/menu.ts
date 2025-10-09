@@ -166,12 +166,6 @@ export const MENU: MenuItem[] = [
                 label: 'Tarifas',
                 link: '/tarifas',
             },
-            {
-                id: 9,
-                label: 'Turnos',
-                link: '/turnos',
-                permiso: Permiso.Listado_Turnos
-            }
         ]
     },
     {
@@ -179,6 +173,13 @@ export const MENU: MenuItem[] = [
         label: 'Monitoreo',
         icon: 'uil-map',
         link: '/monitoreo',
+    },
+    {
+        id: 9,
+        label: 'Turnos',
+        link: '/turnos',
+        icon: 'uil-schedule',
+        permiso: Permiso.Listado_Turnos
     },
     {
         id: 10,

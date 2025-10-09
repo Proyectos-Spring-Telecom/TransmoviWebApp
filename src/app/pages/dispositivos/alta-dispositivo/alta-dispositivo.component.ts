@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
+import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { ClientesService } from 'src/app/shared/services/clientes.service';
 import { DispositivosService } from 'src/app/shared/services/dispositivos.service';
 import Swal from 'sweetalert2';
@@ -22,14 +23,22 @@ export class AltaDispositivoComponent implements OnInit {
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
 
+  public idClienteUser: number;
+  public idRolUser: number;
+
+  get isAdmin(): boolean { return this.idRolUser === 1; }
+
   constructor(
-    private route: Router, 
-    private fb: FormBuilder, 
+    private route: Router,
+    private fb: FormBuilder,
     private dispoService: DispositivosService,
     private activatedRouted: ActivatedRoute,
     private clieService: ClientesService,
+    private users: AuthenticationService,
   ) {
-
+    const user = this.users.getUser();
+    this.idClienteUser = Number(user?.idCliente);
+    this.idRolUser = Number(user?.rol?.id);
   }
 
   ngOnInit(): void {
@@ -44,56 +53,62 @@ export class AltaDispositivoComponent implements OnInit {
         }
       }
     )
-
   }
 
-obtenerClientes() {
-  this.clieService.obtenerClientes().subscribe((response) => {
-    this.listaClientes = (response.data || []).map((c: any) => ({
-      ...c,
-      id: Number(c?.id ?? c?.Id ?? c?.ID)
-    }));
-  });
-}
-
-obtenerDispositivoID() {
-  this.dispoService.obtenerDispositivo(this.idDispositivo).subscribe((response: any) => {
-    const raw =
-      Array.isArray(response?.data) ? response.data[0] :
-      response?.dispositivo ?? response?.data ?? response ?? {};
-
-    const get = (o: any, keys: string[]) => {
-      for (const k of keys) if (o?.[k] !== undefined && o?.[k] !== null) return o[k];
-      return null;
-    };
-
-    const numeroSerie = get(raw, ['numeroSerie', 'NumeroSerie', 'numeroserie']);
-    const marca = get(raw, ['marca', 'Marca']);
-    const modelo = get(raw, ['modelo', 'Modelo']);
-    const est = get(raw, ['estatus', 'Estatus']);
-    const idCli = get(raw, ['idCliente', 'idcliente', 'IdCliente', 'IDCliente']);
-
-    this.dispositivoForm.patchValue({
-      numeroSerie: numeroSerie ?? '',
-      marca: marca ?? '',
-      modelo: modelo ?? '',
-      estatus: est != null && !Number.isNaN(Number(est)) ? Number(est) : 1,
-      idCliente: idCli != null && idCli !== '' ? Number(idCli) : null,
+  initForm() {
+    this.dispositivoForm = this.fb.group({
+      numeroSerie: ['', Validators.required],
+      marca: ['', Validators.required],
+      modelo: ['', Validators.required],
+      idCliente: [this.isAdmin ? null : this.idClienteUser, Validators.required],
+      estatus: [1, Validators.required],
     });
-  });
-}
 
+    if (!this.isAdmin) {
+      this.dispositivoForm.get('idCliente')?.disable({ onlySelf: true });
+    }
+  }
 
-initForm() {
-  this.dispositivoForm = this.fb.group({
-    numeroSerie: ['', Validators.required],
-    marca: ['', Validators.required],
-    modelo: ['', Validators.required],
-    idCliente: [null, Validators.required], // el control ya espera number
-    estatus: [1, Validators.required],
-  });
-}
+  obtenerClientes() {
+    this.clieService.obtenerClientes().subscribe((response) => {
+      this.listaClientes = (response.data || []).map((c: any) => ({
+        ...c,
+        id: Number(c?.id ?? c?.Id ?? c?.ID)
+      }));
 
+      if (!this.isAdmin) {
+        this.dispositivoForm.get('idCliente')?.setValue(this.idClienteUser, { emitEvent: false });
+      }
+    });
+  }
+
+  obtenerDispositivoID() {
+    this.dispoService.obtenerDispositivo(this.idDispositivo).subscribe((response: any) => {
+      const raw = Array.isArray(response?.data) ? response.data[0] :
+        response?.dispositivo ?? response?.data ?? response ?? {};
+
+      const get = (o: any, keys: string[]) => { for (const k of keys) if (o?.[k] != null) return o[k]; return null; };
+
+      const numeroSerie = get(raw, ['numeroSerie', 'NumeroSerie', 'numeroserie']);
+      const marca = get(raw, ['marca', 'Marca']);
+      const modelo = get(raw, ['modelo', 'Modelo']);
+      const est = get(raw, ['estatus', 'Estatus']);
+      const idCli = get(raw, ['idCliente', 'idcliente', 'IdCliente', 'IDCliente']);
+
+      this.dispositivoForm.patchValue({
+        numeroSerie: numeroSerie ?? '',
+        marca: marca ?? '',
+        modelo: modelo ?? '',
+        estatus: est != null && !Number.isNaN(Number(est)) ? Number(est) : 1,
+        idCliente: this.isAdmin ? (idCli != null && idCli !== '' ? Number(idCli) : null)
+          : this.idClienteUser,
+      });
+
+      if (!this.isAdmin) {
+        this.dispositivoForm.get('idCliente')?.disable({ onlySelf: true });
+      }
+    });
+  }
 
   submit() {
     this.submitButton = 'Cargando...';
@@ -153,8 +168,9 @@ initForm() {
       });
       return;
     }
+    const payload = this.dispositivoForm.getRawValue();
     this.dispositivoForm.removeControl('id');
-    this.dispoService.agregarDispositivo(this.dispositivoForm.value).subscribe(
+    this.dispoService.agregarDispositivo(payload).subscribe(
       (response) => {
         this.submitButton = 'Guardar';
         this.loading = false;
@@ -230,7 +246,8 @@ initForm() {
         }
       });
     }
-    this.dispoService.actualizarDispositivo(this.idDispositivo, this.dispositivoForm.value).subscribe(
+    const payload = this.dispositivoForm.getRawValue();
+    this.dispoService.actualizarDispositivo(this.idDispositivo, payload).subscribe(
       (response) => {
         this.submitButton = 'Actualizar';
         this.loading = false;

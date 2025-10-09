@@ -67,7 +67,6 @@ export class ListaDispositivosComponent implements OnInit {
 
           const totalRegistros = Number(response?.paginated?.total) || 0;
           const paginaActual = Number(response?.paginated?.page) || page;
-          // Si "limit" es pageSize, usa "take" para calcular total de páginas
           const totalPaginas = take > 0 ? Math.ceil(totalRegistros / take) : 0;
 
           this.totalRegistros = totalRegistros;
@@ -76,14 +75,12 @@ export class ListaDispositivosComponent implements OnInit {
 
           const dataTransformada = (Array.isArray(response?.data) ? response.data : [])
             .map((item: any) => {
-              // ⬇️ Forzamos id a number, contemplando variantes de nombre
               const idNum = Number(item?.id ?? item?.Id ?? item?.ID);
               return {
                 ...item,
-                id: Number.isFinite(idNum) ? idNum : 0, // asegura número válido
+                id: Number.isFinite(idNum) ? idNum : 0,
               };
             })
-            // ⬇️ Ahora sí ordena de mayor a menor por id numérico
             .sort((a: any, b: any) => b.id - a.id);
 
           this.paginaActualData = dataTransformada;
@@ -102,34 +99,71 @@ export class ListaDispositivosComponent implements OnInit {
     });
   }
 
+  onGridOptionChanged(e: any) {
+    if (e.fullName !== 'searchPanel.text') return;
+
+    const grid = this.dataGrid?.instance;
+    const qRaw = (e.value ?? '').toString().trim();
+    if (!qRaw) {
+      this.filtroActivo = '';
+      grid?.option('dataSource', this.listaDispositivos);
+      return;
+    }
+    this.filtroActivo = qRaw;
+
+    const norm = (v: any) =>
+      (v == null ? '' : String(v))
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .toLowerCase();
+
+    const q = norm(qRaw);
+
+    let columnas: any[] = [];
+    try {
+      const colsOpt = grid?.option('columns');
+      if (Array.isArray(colsOpt) && colsOpt.length) columnas = colsOpt;
+    } catch {}
+    if (!columnas.length && grid?.getVisibleColumns) {
+      columnas = grid.getVisibleColumns();
+    }
+
+    const dataFields: string[] = columnas
+      .map((c: any) => c?.dataField)
+      .filter((df: any) => typeof df === 'string' && df.trim().length > 0);
+
+    const getByPath = (obj: any, path: string) =>
+      !obj || !path ? undefined : path.split('.').reduce((acc, k) => acc?.[k], obj);
+
+    let qStatusNum: number | null = null;
+    if (q === '1' || q === 'activo') qStatusNum = 1;
+    else if (q === '0' || q === 'inactivo') qStatusNum = 0;
+
+    const dataFiltrada = (this.paginaActualData || []).filter((row: any) => {
+      const hitCols = dataFields.some((df) => norm(getByPath(row, df)).includes(q));
+
+      const estNum = Number(row?.estatus);
+      const estHit =
+        Number.isFinite(estNum) &&
+        (qStatusNum !== null ? estNum === qStatusNum : String(estNum).toLowerCase().includes(q));
+
+      const hitExtras = [
+        norm(row?.id),
+        norm(row?.marca),
+        norm(row?.modelo),
+        norm(row?.numeroSerie)
+      ].some((s) => s.includes(q));
+
+      return hitCols || estHit || hitExtras;
+    });
+
+    grid?.option('dataSource', dataFiltrada);
+  }
+
   onPageIndexChanged(e: any) {
     const pageIndex = e.component.pageIndex();
     this.paginaActual = pageIndex + 1;
     e.component.refresh();
-  }
-
-  onGridOptionChanged(e: any) {
-    if (e.fullName === "searchPanel.text") {
-      this.filtroActivo = e.value || '';
-      if (!this.filtroActivo) {
-        this.dataGrid.instance.option('dataSource', this.listaDispositivos);
-        return;
-      }
-      const search = this.filtroActivo.toString().toLowerCase();
-      const dataFiltrada = this.paginaActualData.filter((item: any) => {
-        const idStr = item.id ? item.id.toString().toLowerCase() : '';
-        const nombreStr = item.nombre ? item.nombre.toString().toLowerCase() : '';
-        const descripcionStr = item.descripcion ? item.descripcion.toString().toLowerCase() : '';
-        const moduloStr = item.estatusTexto ? item.estatusTexto.toString().toLowerCase() : '';
-        return (
-          nombreStr.includes(search) ||
-          descripcionStr.includes(search) ||
-          moduloStr.includes(search) ||
-          idStr.includes(search)
-        );
-      });
-      this.dataGrid.instance.option('dataSource', dataFiltrada);
-    }
   }
 
   showInfo(id: any): void {

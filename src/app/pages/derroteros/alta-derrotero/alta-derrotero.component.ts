@@ -20,32 +20,26 @@ declare const google: any;
   templateUrl: './alta-derrotero.component.html',
   styleUrls: ['./alta-derrotero.component.scss'],
   animations: [fadeInUpAnimation,
-    // si ya usas fadeInUpAnimation, déjalo también
     trigger('panelAnim', [
       state('all', style({ opacity: 1, transform: 'none' })),
       state('filtered', style({ opacity: 1, transform: 'none' })),
-      // cuando ESCRIBEN (aparecen resultados)
       transition('all => filtered', [
         style({ opacity: 0, transform: 'scale(0.98)' }),
         animate('180ms ease-out')
       ]),
-      // cuando LIMPIAN (regresan todas)
       transition('filtered => all', [
         style({ opacity: 0, transform: 'scale(0.98)' }),
         animate('220ms ease-out')
       ]),
     ]),
     trigger('listAnim', [
-      // se dispara cuando cambia la longitud del arreglo
       transition('* => *', [
-        // nuevos elementos (aparecen con leve subida)
         query(':enter', [
           style({ opacity: 0, transform: 'translateY(6px) scale(0.98)' }),
           stagger(30, animate('160ms ease-out',
             style({ opacity: 1, transform: 'none' })
           ))
         ], { optional: true }),
-        // elementos que se van (desaparecen suave)
         query(':leave', [
           stagger(15, animate('120ms ease-in',
             style({ opacity: 0, transform: 'translateY(-6px) scale(0.98)' })
@@ -177,7 +171,6 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // trackBy para performance
   trackByRutaId = (_: number, item: any) => item?.id;
 
   abrirModal(ev?: Event): void {
@@ -799,7 +792,7 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
 
     const res = await Swal.fire({
       title: '¡Advertencia!',
-      text: '¿Está seguro de guardar el derrotero?',
+      text: '¿Está seguro de guardar el trayecto?',
       icon: 'question',
       background: '#002136',
       showCancelButton: true,
@@ -810,59 +803,64 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
       footer: '<small style="color:#9bb8cc">Si tienes cambios presiona editar.</small>',
     });
 
-    if (res.isConfirmed) {
-      this.submitButton = 'Guardando...';
-      this.loading = true;
-
-      this.derroTService.agregarDerrotero(body).subscribe({
-        next: (resp: any) => {
-          // Cierra cualquier modal abierto (p.ej. el de selección de ruta)
-
-          // 👉 Abre el modal de tarifa usando TU método existente
-          console.log('Operación Exitosa', 'Se agrego un derrotero correctamente.')
-          setTimeout(() => {
-            this.extraLarges(this.exlargeModalForm);
-
-          }, 500)
-
-          const createdId = Number(resp?.id ?? resp?.data?.id);
-          if (!isNaN(createdId) && createdId > 0) {
-            this.tarifaForm.patchValue({ idDerrotero: createdId });
-            this.tarifaForm.get('idDerrotero')?.markAsDirty();
-            this.tarifaForm.get('idDerrotero')?.updateValueAndValidity({ onlySelf: true });
-          }
-
-          this.submitButton = 'Guardar';
-          this.loading = false;
-          
-          // Swal.fire({
-          //   title: '¡Operación Exitosa!',
-          //   background: '#002136',
-          //   text: 'Se agregó un nuevo derrotero de manera exitosa.',
-          //   icon: 'success',
-          //   confirmButtonColor: '#3085d6',
-          //   confirmButtonText: 'Confirmar',
-          // }).then(() => this.route.navigateByUrl('/derroteros'));
-        },
-        error: () => {
-          this.submitButton = 'Guardar';
-          this.loading = false;
-          Swal.fire({
-            title: '¡Ops!',
-            background: '#002136',
-            text: 'Ocurrió un error al agregar el derrotero.',
-            icon: 'error',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Confirmar',
-          });
-        }
-      });
-
-    } else {
+    if (!res.isConfirmed) {
       this.showPreviewPayloadBtn = false;
       this.showClearTraceBtn = true;
       this.resumeTracingFromCurrent();
+      return;
     }
+
+    Swal.fire({
+      title: 'Cargando…',
+      background: '#03131dff',
+      backdrop: 'rgba(0, 0, 0, 0.86)',
+      color: '#e3f8f2',
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    this.submitButton = 'Guardando...';
+    this.loading = true;
+
+    const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+    this.derroTService.agregarDerrotero(body).subscribe({
+      next: async (resp: any) => {
+        console.log('Operación Exitosa', 'Se agrego un derrotero correctamente.');
+
+        const createdId = Number(resp?.id ?? resp?.data?.id);
+        if (!isNaN(createdId) && createdId > 0) {
+          this.tarifaForm.patchValue({ idDerrotero: createdId });
+          this.tarifaForm.get('idDerrotero')?.markAsDirty();
+          this.tarifaForm.get('idDerrotero')?.updateValueAndValidity({ onlySelf: true });
+        }
+
+        this.submitButton = 'Guardar';
+        this.loading = false;
+        await sleep(2500);
+        Swal.close();
+        await sleep(500);
+        this.extraLarges(this.exlargeModalForm);
+      },
+      error: () => {
+        this.submitButton = 'Guardar';
+        this.loading = false;
+        Swal.close();
+
+        Swal.fire({
+          title: '¡Ops!',
+          background: '#002136',
+          text: 'Ocurrió un error al agregar el derrotero, vuelve a intentarlo.',
+          icon: 'error',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+      }
+    });
   }
 
   private resumeTracingFromCurrent(): void {
@@ -933,7 +931,6 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
       disableDoubleClickZoom: true
     });
   }
-
 
   moneyKeydown(e: KeyboardEvent) {
     const allowed = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'];
@@ -1157,7 +1154,6 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
     let v = (input.value || '').replace(',', '.');
     v = v.replace(/[^0-9.]/g, '');
 
-    // solo permitir un punto decimal
     const firstDot = v.indexOf('.');
     if (firstDot !== -1) {
       const before = v.slice(0, firstDot + 1);
@@ -1190,7 +1186,6 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
     this.submitButton = 'Cargando...';
     this.loading = true;
 
-    // 1) Validación de requeridos
     if (this.tarifaForm.invalid) {
       this.submitButton = 'Guardar';
       this.loading = false;
@@ -1234,7 +1229,6 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // 2) Conversión explícita a number
     const v = this.tarifaForm.value;
     const payload = {
       tarifaBase: this.toNum(v.tarifaBase),
@@ -1242,10 +1236,9 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
       incrementoCadaMetros: this.toNum(v.incrementoCadaMetros),
       costoAdicional: this.toNum(v.costoAdicional),
       estatus: this.toNum(v.estatus),
-      idDerrotero: this.toNum(v.idDerrotero), // <- viene del patch en agregarDerrotero
+      idDerrotero: this.toNum(v.idDerrotero),
     };
 
-    // 3) Validación de números (no NaN)
     const etiquetasNum: Record<string, string> = {
       tarifaBase: 'Tarifa Base',
       distanciaBaseKm: 'Distancia Base KM',
@@ -1284,7 +1277,6 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // 4) Llamada al servicio
     this.tarSerice.agregarTarifa(payload).subscribe(
       () => {
         this.modalService.dismissAll();

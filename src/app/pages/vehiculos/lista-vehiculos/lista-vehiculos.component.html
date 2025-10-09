@@ -77,13 +77,13 @@
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
                             </div>
-                            <dxi-column dataField="marca" caption="Marca" alignment="center"></dxi-column>
-                            <dxi-column dataField="modelo" caption="Modelo" alignment="center"></dxi-column>
-                            <dxi-column dataField="ano" caption="Año" alignment="center"></dxi-column>
-                            <dxi-column dataField="placa" caption="Placa" alignment="center"></dxi-column>
-                            <dxi-column dataField="placa" caption="Placa" alignment="center"></dxi-column>
-                            <dxi-column dataField="numeroEconomico" caption="N° Económico" alignment="center"></dxi-column>
-                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est">
+                            <dxi-column dataField="marca" caption="Marca" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="modelo" caption="Modelo" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="ano" caption="Año" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="placa" caption="Placa" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="placa" caption="Placa" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="numeroEconomico" caption="N° Económico" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" dataType="string" cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
                                     <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
                                         Activo
