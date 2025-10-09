@@ -55,7 +55,7 @@ export class ListaRolesComponent implements OnInit {
   hasPermission(permission: string): boolean {
     return this.permissionsService.getPermission(permission) !== undefined;
   }
-  
+
   obtenerlistaRoles() {
     this.loading = true;
     this.rolService.obtenerRoles().subscribe((response: any[]) => {
@@ -75,7 +75,7 @@ export class ListaRolesComponent implements OnInit {
   activar(rowData: any) {
     Swal.fire({
       title: '¡Activar!',
-      html: `¿Está seguro que desea activar el rol: <strong>${rowData.nombre}</strong>?`,
+      html: `¿Está seguro que requiere activar el rol: <strong>${rowData.nombre}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -118,7 +118,7 @@ export class ListaRolesComponent implements OnInit {
   desactivar(rowData: any) {
     Swal.fire({
       title: '¡Desactivar!',
-      html: `¿Está seguro que requiere dar de baja el rol: <strong>${rowData.nombre}</strong>?`,
+      html: `¿Está seguro que requiere desactivar el rol: <strong>${rowData.nombre}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -164,85 +164,127 @@ export class ListaRolesComponent implements OnInit {
     e.component.refresh();
   }
 
-setupDataSource() {
-  this.loading = true;
+  setupDataSource() {
+    this.loading = true;
 
-  this.listaRoles = new CustomStore({
-    key: 'id',
-    load: async (loadOptions: any) => {
-      const take = Number(loadOptions?.take) || this.pageSize || 10;
-      const skip = Number(loadOptions?.skip) || 0;
-      const page = Math.floor(skip / take) + 1;
+    this.listaRoles = new CustomStore({
+      key: 'id',
+      load: async (loadOptions: any) => {
+        const take = Number(loadOptions?.take) || this.pageSize || 10;
+        const skip = Number(loadOptions?.skip) || 0;
+        const page = Math.floor(skip / take) + 1;
 
-      try {
-        const resp: any = await lastValueFrom(
-          this.rolService.obtenerRolesData(page, take)
-        );
-        this.loading = false;
+        try {
+          const resp: any = await lastValueFrom(
+            this.rolService.obtenerRolesData(page, take)
+          );
+          this.loading = false;
 
-        // Filas
-        let rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
+          // Filas
+          let rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
 
-        // Meta de paginación del backend
-        const meta = resp?.paginated || {};
-        const totalRegistros =
-          toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
-        const paginaActual =
-          toNum(meta.page) ?? toNum(resp?.page) ?? page;
-        const totalPaginas =
-          toNum(meta.lastPage) ?? toNum(resp?.pages) ??
-          Math.max(1, Math.ceil(totalRegistros / take));
+          // Meta de paginación del backend
+          const meta = resp?.paginated || {};
+          const totalRegistros =
+            toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
+          const paginaActual =
+            toNum(meta.page) ?? toNum(resp?.page) ?? page;
+          const totalPaginas =
+            toNum(meta.lastPage) ?? toNum(resp?.pages) ??
+            Math.max(1, Math.ceil(totalRegistros / take));
 
-        const dataTransformada = rows.map((item: any) => ({
-          ...item
-        }));
+          const dataTransformada = rows.map((item: any) => ({
+            ...item
+          }));
 
-        // Estado para tu UI
-        this.totalRegistros = totalRegistros;
-        this.paginaActual = paginaActual;
-        this.totalPaginas = totalPaginas;
-        this.paginaActualData = dataTransformada;
+          // Estado para tu UI
+          this.totalRegistros = totalRegistros;
+          this.paginaActual = paginaActual;
+          this.totalPaginas = totalPaginas;
+          this.paginaActualData = dataTransformada;
 
-        return {
-          data: dataTransformada,
-          totalCount: totalRegistros
-        };
-      } catch (err) {
-        this.loading = false;
-        console.error('Error en la solicitud de datos:', err);
-        return { data: [], totalCount: 0 };
+          return {
+            data: dataTransformada,
+            totalCount: totalRegistros
+          };
+        } catch (err) {
+          this.loading = false;
+          console.error('Error en la solicitud de datos:', err);
+          return { data: [], totalCount: 0 };
+        }
       }
-    }
-  });
+    });
 
-  function toNum(v: any): number | null {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : null;
+    function toNum(v: any): number | null {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    }
   }
-}
 
   onGridOptionChanged(e: any) {
-    if (e.fullName === "searchPanel.text") {
-      this.filtroActivo = e.value || '';
-      if (!this.filtroActivo) {
-        this.dataGrid.instance.option('dataSource', this.listaRoles);
-        return;
-      }
-      const search = this.filtroActivo.toString().toLowerCase();
-      const dataFiltrada = this.paginaActualData.filter((item: any) => {
-        const idStr = item.id ? item.id.toString().toLowerCase() : '';
-        const nombreStr = item.nombre ? item.nombre.toString().toLowerCase() : '';
-        const descripcionStr = item.descripcion ? item.descripcion.toString().toLowerCase() : '';
-        const moduloStr = item.estatusTexto ? item.estatusTexto.toString().toLowerCase() : '';
-        return (
-          nombreStr.includes(search) ||
-          descripcionStr.includes(search) ||
-          moduloStr.includes(search) ||
-          idStr.includes(search)
-        );
-      });
-      this.dataGrid.instance.option('dataSource', dataFiltrada);
+    if (e.fullName !== 'searchPanel.text') return;
+
+    const grid = this.dataGrid?.instance;
+    const q = (e.value ?? '').toString().trim().toLowerCase();
+
+    if (!q) {
+      this.filtroActivo = '';
+      grid?.option('dataSource', this.listaRoles);
+      return;
     }
+    this.filtroActivo = q;
+
+    let columnas: any[] = [];
+    try {
+      const colsOpt = grid?.option('columns');
+      if (Array.isArray(colsOpt) && colsOpt.length) columnas = colsOpt;
+    } catch { }
+    if (!columnas.length && grid?.getVisibleColumns) {
+      columnas = grid.getVisibleColumns();
+    }
+
+    const dataFields: string[] = columnas
+      .map((c: any) => c?.dataField)
+      .filter((df: any) => typeof df === 'string' && df.trim().length > 0);
+
+    const getByPath = (obj: any, path: string) => {
+      if (!obj || !path) return undefined;
+      return path.split('.').reduce((acc, key) => acc?.[key], obj);
+    };
+
+    const normalizar = (val: any): string => {
+      if (val === null || val === undefined) return '';
+      if (val instanceof Date) {
+        const dd = String(val.getDate()).padStart(2, '0');
+        const mm = String(val.getMonth() + 1).padStart(2, '0');
+        const yyyy = val.getFullYear();
+        return `${dd}/${mm}/${yyyy}`.toLowerCase();
+      }
+      if (typeof val === 'string') return val.toLowerCase();
+      if (Array.isArray(val)) return val.map(normalizar).join(' ');
+      return String(val).toLowerCase();
+    };
+
+    const dataFiltrada = (this.paginaActualData || []).filter((row: any) => {
+      const hitCols = dataFields.some((df) => normalizar(getByPath(row, df)).includes(q));
+
+      const estNum = Number(row?.estatus);
+      const estText = (row?.estatusTexto ?? (estNum === 1 ? 'Activo' : estNum === 0 ? 'Inactivo' : '')).toLowerCase();
+      const estHits =
+        estText.includes(q) ||
+        String(estNum).toLowerCase().includes(q) ||
+        (q === 'activo' && estNum === 1) ||
+        (q === 'inactivo' && estNum === 0);
+
+      const hitExtras = [
+        normalizar(row?.id),
+        normalizar(row?.Id)
+      ].some((s) => s.includes(q));
+
+      return hitCols || estHits || hitExtras;
+    });
+
+    grid?.option('dataSource', dataFiltrada);
   }
 
   toggleExpandGroups() {

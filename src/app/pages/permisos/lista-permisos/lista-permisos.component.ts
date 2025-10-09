@@ -105,23 +105,78 @@ export class ListaPermisosComponent implements OnInit {
     }
   }
 
-
   onGridOptionChanged(e: any) {
-    if (e.fullName === "searchPanel.text") {
-      this.filtroActivo = e.value || '';
-      if (!this.filtroActivo) {
-        this.dataGrid.instance.option('dataSource', this.listaPermisos);
-        return;
-      }
-      const search = this.filtroActivo.toLowerCase();
-      const dataFiltrada = this.paginaActualData.filter((item: any) =>
-        (item.nombre && item.nombre.toLowerCase().includes(search)) ||
-        (item.descripcion && item.descripcion.toLowerCase().includes(search)) ||
-        (item.modulo?.nombre && item.modulo.nombre.toLowerCase().includes(search))
-      );
-      this.dataGrid.instance.option('dataSource', dataFiltrada);
+    if (e.fullName !== 'searchPanel.text') return;
+
+    const grid = this.dataGrid?.instance;
+    const q = (e.value ?? '').toString().trim().toLowerCase();
+
+    if (!q) {
+      this.filtroActivo = '';
+      grid?.option('dataSource', this.listaPermisos);
+      return;
     }
+    this.filtroActivo = q;
+
+    let columnas: any[] = [];
+    try {
+      const colsOpt = grid?.option('columns');
+      if (Array.isArray(colsOpt) && colsOpt.length) columnas = colsOpt;
+    } catch { }
+    if (!columnas.length && grid?.getVisibleColumns) {
+      columnas = grid.getVisibleColumns();
+    }
+
+    const dataFields: string[] = columnas
+      .map((c: any) => c?.dataField)
+      .filter((df: any) => typeof df === 'string' && df.trim().length > 0);
+
+    const getByPath = (obj: any, path: string) => {
+      if (!obj || !path) return undefined;
+      return path.split('.').reduce((acc, key) => acc?.[key], obj);
+    };
+
+    const normalizar = (val: any): string => {
+      if (val === null || val === undefined) return '';
+      if (val instanceof Date) {
+        const dd = String(val.getDate()).padStart(2, '0');
+        const mm = String(val.getMonth() + 1).padStart(2, '0');
+        const yyyy = val.getFullYear();
+        return `${dd}/${mm}/${yyyy}`.toLowerCase();
+      }
+      if (typeof val === 'string' && /\d{4}-\d{2}-\d{2}T?/.test(val)) {
+        const d = new Date(val);
+        if (!isNaN(d.getTime())) {
+          const dd = String(d.getDate()).padStart(2, '0');
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const yyyy = d.getFullYear();
+          return `${val.toLowerCase()} ${dd}/${mm}/${yyyy}`;
+        }
+      }
+      if (Array.isArray(val)) return val.map(normalizar).join(' ');
+      return String(val).toLowerCase();
+    };
+    const dataFiltrada = (this.paginaActualData || []).filter((row: any) => {
+      const hitEnColumnas = dataFields.some((df) => normalizar(getByPath(row, df)).includes(q));
+      const estNum = Number(row?.estatus);
+      const estText = row?.estatusTexto ?? (estNum === 1 ? 'Activo' : estNum === 0 ? 'Inactivo' : '');
+      const estHits =
+        normalizar(estText).includes(q) ||
+        normalizar(estNum).includes(q) ||
+        (q === 'activo' && estNum === 1) ||
+        (q === 'inactivo' && estNum === 0);
+
+      const extras = [
+        normalizar(row?.id),
+        normalizar(row?.Id)
+      ];
+      const hitExtras = extras.some((s) => s.includes(q));
+
+      return hitEnColumnas || estHits || hitExtras;
+    });
+    grid?.option('dataSource', dataFiltrada);
   }
+
 
   onPageIndexChanged(e: any) {
     const pageIndex = e.component.pageIndex();
@@ -145,7 +200,7 @@ export class ListaPermisosComponent implements OnInit {
     Swal.fire({
       title: '¡Eliminar Permiso!',
       background: '#002136',
-      html: `¿Está seguro que desea eliminar el permiso: <br> ${permiso.Marca + ' ' + permiso.Modelo}?`,
+      html: `¿Está seguro que requiere eliminar el permiso: <br> ${permiso.Marca + ' ' + permiso.Modelo}?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',

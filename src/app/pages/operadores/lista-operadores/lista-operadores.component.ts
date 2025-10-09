@@ -150,7 +150,7 @@ export class ListaOperadoresComponent implements OnInit {
     Swal.fire({
       title: '¡Eliminar Operador!',
       background: '#002136',
-      html: `¿Está seguro que desea eliminar el operador: <br> ${operador.Nombre + ' ' + operador.ApellidoPaterno + ' ' + operador.ApellidoMaterno}?`,
+      html: `¿Está seguro que requiere eliminar el operador: <br> ${operador.Nombre + ' ' + operador.ApellidoPaterno + ' ' + operador.ApellidoMaterno}?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -189,7 +189,7 @@ export class ListaOperadoresComponent implements OnInit {
   activar(rowData: any) {
     Swal.fire({
       title: '¡Activar!',
-      html: `¿Está seguro que desea activar el operador: <br> <strong>${rowData.idUsuario2.nombre} ${rowData.idUsuario2.apellidoPaterno}</strong>?`,
+      html: `¿Está seguro que requiere activar el operador: <br> <strong>${rowData.idUsuario2.nombre} ${rowData.idUsuario2.apellidoPaterno}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -232,7 +232,7 @@ export class ListaOperadoresComponent implements OnInit {
   desactivar(rowData: any) {
     Swal.fire({
       title: '¡Desactivar!',
-      html: `¿Está seguro que desea desactivar el operador: <br> <strong>${rowData.idUsuario2.nombre} ${rowData.idUsuario2.apellidoPaterno}</strong></strong>?`,
+      html: `¿Está seguro que requiere desactivar el operador: <br> <strong>${rowData.idUsuario2.nombre} ${rowData.idUsuario2.apellidoPaterno}</strong></strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',

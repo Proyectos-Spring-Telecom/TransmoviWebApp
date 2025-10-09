@@ -60,9 +60,9 @@ export class AltaRegionComponent implements OnInit {
   obtenerRegion() {
     this.regiService.obtenerRegion(this.idRegion).subscribe((response: any) => {;
       this.regionesForm.patchValue({
-        nombre: response.data.idRegion2.nombre,
-        descripcion: response.data.idRegion2.descripcion,
-        idCliente: response.data.idRegion2.idCliente,
+        nombre: response.data.nombre,
+        descripcion: response.data.descripcion,
+        idCliente: response.data.idCliente2.id,
       });
     });
   }
@@ -144,7 +144,7 @@ export class AltaRegionComponent implements OnInit {
         Swal.fire({
           title: '¡Operación Exitosa!',
           background: '#002136',
-          text: `Se agregó un nuevo módulo de manera exitosa.`,
+          text: `Se agregó una nueva región de manera exitosa.`,
           icon: 'success',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -218,7 +218,7 @@ export class AltaRegionComponent implements OnInit {
         Swal.fire({
           title: '¡Operación Exitosa!',
           background: '#002136',
-          text: `Los datos del módulo se actualizaron correctamente.`,
+          text: `Los datos de la región se actualizaron correctamente.`,
           icon: 'success',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -231,7 +231,7 @@ export class AltaRegionComponent implements OnInit {
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: `Ocurrió un error al actualizar el módulo.`,
+          text: `Ocurrió un error al actualizar la región.`,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',

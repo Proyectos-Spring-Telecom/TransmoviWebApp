@@ -37,7 +37,7 @@ export class AltaVehiculoComponent implements OnInit {
     private disposService: DispositivosService,
     private usuaService: UsuariosService,
     private clieService: ClientesService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const anioActual = new Date().getFullYear();
@@ -58,14 +58,14 @@ export class AltaVehiculoComponent implements OnInit {
     });
   }
 
-  obtenerClientes(){
-  this.clieService.obtenerClientes().subscribe((response) => {
-    this.listaClientes = (response.data || []).map((c: any) => ({
-      ...c,
-      id: Number(c?.id ?? c?.Id ?? c?.ID),
-    }));
-  });
-}
+  obtenerClientes() {
+    this.clieService.obtenerClientes().subscribe((response) => {
+      this.listaClientes = (response.data || []).map((c: any) => ({
+        ...c,
+        id: Number(c?.id ?? c?.Id ?? c?.ID),
+      }));
+    });
+  }
 
 
   obtenerDispositivos() {
@@ -111,28 +111,47 @@ export class AltaVehiculoComponent implements OnInit {
     );
   }
 
-  obtenerVehiculoID() {
-    this.vehiService
-      .obtenerVehiculo(this.idVehiculo)
-      .subscribe((response: any) => {
-        this.vehiculosForm.patchValue({
-          marca: response.data.marca,
-          modelo: response.data.modelo,
-          ano: response.data.ano,
-          placa: response.data.placa,
-          numeroEconomico: response.data.numeroEconomico,
-          tarjetaCirculacion: response.data.tarjetaCirculacion,
-          polizaSeguro: response.data.polizaSeguro,
-          permisoConcesion: response.data.permisoConcesion,
-          inspeccionMecanica: response.data.inspeccionMecanica,
-          foto: response.data.foto,
-          estatus: response.data.estatus,
-          idCliente: Number(response.data.idCliente),
-          // IdOperador: response.data.idOperador,
-          // IdDispositivo: response.data.idDispositivo,
-        });
-      });
-  }
+obtenerVehiculoID() {
+  this.vehiService.obtenerVehiculo(this.idVehiculo).subscribe((response: any) => {
+    const raw = Array.isArray(response?.data)
+      ? response.data[0]
+      : response?.vehiculo ?? response?.data ?? response ?? {};
+
+    const get = (o: any, keys: string[]) => {
+      for (const k of keys) if (o?.[k] !== undefined && o?.[k] !== null) return o[k];
+      return null;
+    };
+
+    const marca = get(raw, ['marca', 'Marca']);
+    const modelo = get(raw, ['modelo', 'Modelo']);
+    const ano = get(raw, ['ano', 'año', 'Ano', 'Año']);
+    const placa = get(raw, ['placa', 'Placa']);
+    const numeroEconomico = get(raw, ['numeroEconomico', 'NumeroEconomico']);
+    const tarjetaCirculacion = get(raw, ['tarjetaCirculacion', 'TarjetaCirculacion']);
+    const polizaSeguro = get(raw, ['polizaSeguro', 'PolizaSeguro']);
+    const permisoConcesion = get(raw, ['permisoConcesion', 'PermisoConcesion']);
+    const inspeccionMecanica = get(raw, ['inspeccionMecanica', 'InspeccionMecanica']);
+    const foto = get(raw, ['foto', 'Foto']);
+    const est = get(raw, ['estatus', 'Estatus']);
+    const idCli = get(raw, ['idCliente', 'idcliente', 'IdCliente', 'IDCliente']);
+
+    this.vehiculosForm.patchValue({
+      marca: marca ?? '',
+      modelo: modelo ?? '',
+      ano: ano ?? '',
+      placa: placa ?? '',
+      numeroEconomico: numeroEconomico ?? '',
+      tarjetaCirculacion: tarjetaCirculacion ?? '',
+      polizaSeguro: polizaSeguro ?? '',
+      permisoConcesion: permisoConcesion ?? '',
+      inspeccionMecanica: inspeccionMecanica ?? '',
+      foto: foto ?? null,
+      estatus: est != null && !Number.isNaN(Number(est)) ? Number(est) : 1,
+      idCliente: idCli != null && idCli !== '' ? Number(idCli) : null,
+    });
+  });
+}
+
 
   initForm() {
     this.vehiculosForm = this.fb.group({
@@ -336,304 +355,300 @@ export class AltaVehiculoComponent implements OnInit {
   }
 
   @ViewChild('tcFileInput') tcFileInput!: ElementRef<HTMLInputElement>;
-@ViewChild('polizaFileInput') polizaFileInput!: ElementRef<HTMLInputElement>;
-@ViewChild('permisoFileInput') permisoFileInput!: ElementRef<HTMLInputElement>;
-@ViewChild('inspeccionFileInput') inspeccionFileInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('polizaFileInput') polizaFileInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('permisoFileInput') permisoFileInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('inspeccionFileInput') inspeccionFileInput!: ElementRef<HTMLInputElement>;
 
-tcDragging = false;        polizaDragging = false;        permisoDragging = false;        inspeccionDragging = false;
-tcFileName: string | null = null; polizaFileName: string | null = null; permisoFileName: string | null = null; inspeccionFileName: string | null = null;
-tcPreviewUrl: null = null; polizaPreviewUrl: null = null; permisoPreviewUrl: null = null; inspeccionPreviewUrl: null = null; // PDFs: sin preview
-private readonly MAX_MB = 3;
-uploadingTc = false; uploadingPoliza = false; uploadingPermiso = false; uploadingInspeccion = false;
+  tcDragging = false; polizaDragging = false; permisoDragging = false; inspeccionDragging = false;
+  tcFileName: string | null = null; polizaFileName: string | null = null; permisoFileName: string | null = null; inspeccionFileName: string | null = null;
+  tcPreviewUrl: null = null; polizaPreviewUrl: null = null; permisoPreviewUrl: null = null; inspeccionPreviewUrl: null = null; // PDFs: sin preview
+  private readonly MAX_MB = 3;
+  uploadingTc = false; uploadingPoliza = false; uploadingPermiso = false; uploadingInspeccion = false;
 
-private extractFileUrl(res: any): string {
-  return res?.url ?? res?.Location ?? res?.data?.url ?? res?.data?.Location ?? res?.key ?? res?.Key ?? res?.path ?? res?.filePath ?? '';
-}
+  private extractFileUrl(res: any): string {
+    return res?.url ?? res?.Location ?? res?.data?.url ?? res?.data?.Location ?? res?.key ?? res?.Key ?? res?.path ?? res?.filePath ?? '';
+  }
 
-private isAllowed(file: File) {
+  private isAllowed(file: File) {
     const okImg = this.isImage(file);
     const okDoc = /(pdf|msword|officedocument|excel)/i.test(file.type);
     return (okImg || okDoc) && file.size <= this.MAX_MB * 1024 * 1024;
   }
-  
-    private isImage(file: File) {
+
+  private isImage(file: File) {
     return /^image\/(png|jpe?g|webp)$/i.test(file.type);
   }
 
-// tarjeta circulación
-openTcFilePicker() { this.tcFileInput.nativeElement.click(); }
-onTcDragOver(e: DragEvent) { e.preventDefault(); this.tcDragging = true; }
-onTcDragLeave(_e: DragEvent) { this.tcDragging = false; }
-onTcDrop(e: DragEvent) { e.preventDefault(); this.tcDragging = false; const f = e.dataTransfer?.files?.[0]; if (f) this.handleTcFile(f); }
-onTcFileSelected(e: Event) { const f = (e.target as HTMLInputElement).files?.[0]; if (f) this.handleTcFile(f); }
-clearTcFile(e: Event) {
-  e.stopPropagation();
-  this.tcPreviewUrl = null;
-  this.tcFileName = null;
-  this.tcFileInput.nativeElement.value = '';
-  this.vehiculosForm.patchValue({ tarjetaCirculacion: null });
-  this.vehiculosForm.get('tarjetaCirculacion')?.setErrors({ required: true });
-}
-private handleTcFile(file: File) {
-  if (!this.isAllowed(file)) { this.vehiculosForm.get('tarjetaCirculacion')?.setErrors({ invalid: true }); return; }
-  this.tcFileName = file.name;
-  this.vehiculosForm.patchValue({ tarjetaCirculacion: file });
-  this.vehiculosForm.get('tarjetaCirculacion')?.setErrors(null);
-  this.uploadTarjeta(file);
-}
-private uploadTarjeta(file: File): void {
-  if (this.uploadingTc) return;
-  this.uploadingTc = true;
-  const fd = new FormData();
-  fd.append('file', file, file.name);
-  fd.append('folder', 'vehiculos');
-  fd.append('idModule', '10');
-  this.usuaService.uploadFile(fd).subscribe({
-    next: (res: any) => {
-      const url = this.extractFileUrl(res);
-      if (url) {
-        this.vehiculosForm.patchValue({ tarjetaCirculacion: url });
-        this.tcPreviewUrl = null;
-        this.tcFileName = file.name;
-      }
-    },
-    error: (err) => console.error('[UPLOAD][tarjetaCirculacion]', err),
-    complete: () => (this.uploadingTc = false),
-  });
-}
-
-
-// póliza seguro
-openPolizaFilePicker() { this.polizaFileInput.nativeElement.click(); }
-onPolizaDragOver(e: DragEvent) { e.preventDefault(); this.polizaDragging = true; }
-onPolizaDragLeave(_e: DragEvent) { this.polizaDragging = false; }
-onPolizaDrop(e: DragEvent) { e.preventDefault(); this.polizaDragging = false; const f = e.dataTransfer?.files?.[0]; if (f) this.handlePolizaFile(f); }
-onPolizaFileSelected(e: Event) { const f = (e.target as HTMLInputElement).files?.[0]; if (f) this.handlePolizaFile(f); }
-clearPolizaFile(e: Event) {
-  e.stopPropagation();
-  this.polizaPreviewUrl = null;
-  this.polizaFileName = null;
-  this.polizaFileInput.nativeElement.value = '';
-  this.vehiculosForm.patchValue({ polizaSeguro: null });
-  this.vehiculosForm.get('polizaSeguro')?.setErrors({ required: true });
-}
-private handlePolizaFile(file: File) {
-  if (!this.isAllowed(file)) { this.vehiculosForm.get('polizaSeguro')?.setErrors({ invalid: true }); return; }
-  this.polizaFileName = file.name;
-  this.vehiculosForm.patchValue({ polizaSeguro: file });
-  this.vehiculosForm.get('polizaSeguro')?.setErrors(null);
-  this.uploadPoliza(file);
-}
-private uploadPoliza(file: File): void {
-  if (this.uploadingPoliza) return;
-  this.uploadingPoliza = true;
-  const fd = new FormData();
-  fd.append('file', file, file.name);
-  fd.append('folder', 'vehiculos');
-  fd.append('idModule', '10');
-  this.usuaService.uploadFile(fd).subscribe({
-    next: (res: any) => {
-      const url = this.extractFileUrl(res);
-      if (url) {
-        this.vehiculosForm.patchValue({ polizaSeguro: url });
-        this.polizaPreviewUrl = null;
-        this.polizaFileName = file.name;
-      }
-    },
-    error: (err) => console.error('[UPLOAD][polizaSeguro]', err),
-    complete: () => (this.uploadingPoliza = false),
-  });
-}
-
-
-// permiso concesión
-openPermisoFilePicker() { this.permisoFileInput.nativeElement.click(); }
-onPermisoDragOver(e: DragEvent) { e.preventDefault(); this.permisoDragging = true; }
-onPermisoDragLeave(_e: DragEvent) { this.permisoDragging = false; }
-onPermisoDrop(e: DragEvent) { e.preventDefault(); this.permisoDragging = false; const f = e.dataTransfer?.files?.[0]; if (f) this.handlePermisoFile(f); }
-onPermisoFileSelected(e: Event) { const f = (e.target as HTMLInputElement).files?.[0]; if (f) this.handlePermisoFile(f); }
-clearPermisoFile(e: Event) {
-  e.stopPropagation();
-  this.permisoPreviewUrl = null;
-  this.permisoFileName = null;
-  this.permisoFileInput.nativeElement.value = '';
-  this.vehiculosForm.patchValue({ permisoConcesion: null });
-  this.vehiculosForm.get('permisoConcesion')?.setErrors({ required: true });
-}
-private handlePermisoFile(file: File) {
-  if (!this.isAllowed(file)) { this.vehiculosForm.get('permisoConcesion')?.setErrors({ invalid: true }); return; }
-  this.permisoFileName = file.name;
-  this.vehiculosForm.patchValue({ permisoConcesion: file });
-  this.vehiculosForm.get('permisoConcesion')?.setErrors(null);
-  this.uploadPermiso(file);
-}
-private uploadPermiso(file: File): void {
-  if (this.uploadingPermiso) return;
-  this.uploadingPermiso = true;
-  const fd = new FormData();
-  fd.append('file', file, file.name);
-  fd.append('folder', 'vehiculos');
-  fd.append('idModule', '10');
-  this.usuaService.uploadFile(fd).subscribe({
-    next: (res: any) => {
-      const url = this.extractFileUrl(res);
-      if (url) {
-        this.vehiculosForm.patchValue({ permisoConcesion: url });
-        this.permisoPreviewUrl = null;
-        this.permisoFileName = file.name;
-      }
-    },
-    error: (err) => console.error('[UPLOAD][permisoConcesion]', err),
-    complete: () => (this.uploadingPermiso = false),
-  });
-}
-
-
-// inspección mecánica
-openInspeccionFilePicker() { this.inspeccionFileInput.nativeElement.click(); }
-onInspeccionDragOver(e: DragEvent) { e.preventDefault(); this.inspeccionDragging = true; }
-onInspeccionDragLeave(_e: DragEvent) { this.inspeccionDragging = false; }
-onInspeccionDrop(e: DragEvent) { e.preventDefault(); this.inspeccionDragging = false; const f = e.dataTransfer?.files?.[0]; if (f) this.handleInspeccionFile(f); }
-onInspeccionFileSelected(e: Event) { const f = (e.target as HTMLInputElement).files?.[0]; if (f) this.handleInspeccionFile(f); }
-clearInspeccionFile(e: Event) {
-  e.stopPropagation();
-  this.inspeccionPreviewUrl = null;
-  this.inspeccionFileName = null;
-  this.inspeccionFileInput.nativeElement.value = '';
-  this.vehiculosForm.patchValue({ inspeccionMecanica: null });
-  this.vehiculosForm.get('inspeccionMecanica')?.setErrors({ required: true });
-}
-private handleInspeccionFile(file: File) {
-  if (!this.isAllowed(file)) { this.vehiculosForm.get('inspeccionMecanica')?.setErrors({ invalid: true }); return; }
-  this.inspeccionFileName = file.name;
-  this.vehiculosForm.patchValue({ inspeccionMecanica: file });
-  this.vehiculosForm.get('inspeccionMecanica')?.setErrors(null);
-  this.uploadInspeccion(file);
-}
-private uploadInspeccion(file: File): void {
-  if (this.uploadingInspeccion) return;
-  this.uploadingInspeccion = true;
-  const fd = new FormData();
-  fd.append('file', file, file.name);
-  fd.append('folder', 'vehiculos');
-  fd.append('idModule', '10');
-  this.usuaService.uploadFile(fd).subscribe({
-    next: (res: any) => {
-      const url = this.extractFileUrl(res);
-      if (url) {
-        this.vehiculosForm.patchValue({ inspeccionMecanica: url });
-        this.inspeccionPreviewUrl = null;
-        this.inspeccionFileName = file.name;
-      }
-    },
-    error: (err) => console.error('[UPLOAD][inspeccionMecanica]', err),
-    complete: () => (this.uploadingInspeccion = false),
-  });
-}
-
-// === ViewChild y estado ===
-@ViewChild('fotoFileInput') fotoFileInput!: ElementRef<HTMLInputElement>;
-
-fotoPreviewUrl: string | ArrayBuffer | null = null;
-fotoFileName: string | null = null;
-fotoDragging = false;
-uploadingFoto = false;
-
-// Si ya tienes MAX_MB definido, reutilízalo; si no, define uno:
-// private readonly MAX_MB = 3;
-
-// === Validación solo IMAGEN ===
-
-private isAllowedImage(file: File) {
-  return this.isImage(file) && file.size <= this.MAX_MB * 1024 * 1024;
-}
-
-// === Preview con FileReader ===
-private loadImagePreview(file: File, setter: (url: string | ArrayBuffer | null) => void) {
-  if (!this.isImage(file)) { setter(null); return; }
-  const reader = new FileReader();
-  reader.onload = () => setter(reader.result);
-  reader.readAsDataURL(file);
-}
-
-// === Handlers de UI (foto) ===
-openFotoFilePicker() { this.fotoFileInput.nativeElement.click(); }
-
-onFotoDragOver(e: DragEvent) { e.preventDefault(); this.fotoDragging = true; }
-onFotoDragLeave(_e: DragEvent) { this.fotoDragging = false; }
-onFotoDrop(e: DragEvent) {
-  e.preventDefault();
-  this.fotoDragging = false;
-  const f = e.dataTransfer?.files?.[0];
-  if (f) this.handleFotoFile(f);
-}
-
-onFotoFileSelected(e: Event) {
-  const f = (e.target as HTMLInputElement).files?.[0];
-  if (f) this.handleFotoFile(f);
-}
-
-clearFotoFile(e: Event) {
-  e.stopPropagation();
-  this.fotoPreviewUrl = null;
-  this.fotoFileName = null;
-  this.fotoFileInput.nativeElement.value = '';
-  this.vehiculosForm.patchValue({ foto: null });
-  this.vehiculosForm.get('foto')?.setErrors({ required: true });
-}
-
-// === Handler principal ===
-private handleFotoFile(file: File) {
-  if (!this.isAllowedImage(file)) {
-    this.vehiculosForm.get('foto')?.setErrors({ invalid: true });
-    return;
+  // tarjeta circulación
+  openTcFilePicker() { this.tcFileInput.nativeElement.click(); }
+  onTcDragOver(e: DragEvent) { e.preventDefault(); this.tcDragging = true; }
+  onTcDragLeave(_e: DragEvent) { this.tcDragging = false; }
+  onTcDrop(e: DragEvent) { e.preventDefault(); this.tcDragging = false; const f = e.dataTransfer?.files?.[0]; if (f) this.handleTcFile(f); }
+  onTcFileSelected(e: Event) { const f = (e.target as HTMLInputElement).files?.[0]; if (f) this.handleTcFile(f); }
+  clearTcFile(e: Event) {
+    e.stopPropagation();
+    this.tcPreviewUrl = null;
+    this.tcFileName = null;
+    this.tcFileInput.nativeElement.value = '';
+    this.vehiculosForm.patchValue({ tarjetaCirculacion: null });
+    this.vehiculosForm.get('tarjetaCirculacion')?.setErrors({ required: true });
+  }
+  private handleTcFile(file: File) {
+    if (!this.isAllowed(file)) { this.vehiculosForm.get('tarjetaCirculacion')?.setErrors({ invalid: true }); return; }
+    this.tcFileName = file.name;
+    this.vehiculosForm.patchValue({ tarjetaCirculacion: file });
+    this.vehiculosForm.get('tarjetaCirculacion')?.setErrors(null);
+    this.uploadTarjeta(file);
+  }
+  private uploadTarjeta(file: File): void {
+    if (this.uploadingTc) return;
+    this.uploadingTc = true;
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    fd.append('folder', 'vehiculos');
+    fd.append('idModule', '10');
+    this.usuaService.uploadFile(fd).subscribe({
+      next: (res: any) => {
+        const url = this.extractFileUrl(res);
+        if (url) {
+          this.vehiculosForm.patchValue({ tarjetaCirculacion: url });
+          this.tcPreviewUrl = null;
+          this.tcFileName = file.name;
+        }
+      },
+      error: (err) => console.error('[UPLOAD][tarjetaCirculacion]', err),
+      complete: () => (this.uploadingTc = false),
+    });
   }
 
-  this.fotoFileName = file.name;
-  this.loadImagePreview(file, (url) => this.fotoPreviewUrl = url);
 
-  // Primero colocamos el File mientras sube
-  this.vehiculosForm.patchValue({ foto: file });
-  this.vehiculosForm.get('foto')?.setErrors(null);
-
-  // Subir al backend y reemplazar por URL final
-  this.uploadFoto(file);
-}
-
-// === Subida (mismo servicio), folder 'vehiculos', idModule '10' ===
-private uploadFoto(file: File): void {
-  if (this.uploadingFoto) return;
-  this.uploadingFoto = true;
-
-  const fd = new FormData();
-  fd.append('file', file, file.name);
-  fd.append('folder', 'vehiculos');
-  fd.append('idModule', '10');
-
-  this.usuaService.uploadFile(fd).subscribe({
-    next: (res: any) => {
-      const url = this.extractFileUrl(res);
-      if (url) {
-        // Reemplaza el File por la URL en el form
-        this.vehiculosForm.patchValue({ foto: url });
-        // Mantenemos el preview con la imagen ya cargada
-        this.fotoPreviewUrl = this.fotoPreviewUrl; // ya seteada por FileReader
-        this.fotoFileName = file.name;
-      }
-    },
-    error: (err) => {
-      console.error('[UPLOAD][foto]', err);
-      // Si quieres, puedes dejar el File o limpiar:
-      // this.vehiculosForm.patchValue({ foto: null });
-      // this.fotoPreviewUrl = null;
-      // this.fotoFileName = null;
-      // this.vehiculosForm.get('foto')?.setErrors({ uploadFailed: true });
-    },
-    complete: () => { this.uploadingFoto = false; },
-  });
-}
-
+  // póliza seguro
+  openPolizaFilePicker() { this.polizaFileInput.nativeElement.click(); }
+  onPolizaDragOver(e: DragEvent) { e.preventDefault(); this.polizaDragging = true; }
+  onPolizaDragLeave(_e: DragEvent) { this.polizaDragging = false; }
+  onPolizaDrop(e: DragEvent) { e.preventDefault(); this.polizaDragging = false; const f = e.dataTransfer?.files?.[0]; if (f) this.handlePolizaFile(f); }
+  onPolizaFileSelected(e: Event) { const f = (e.target as HTMLInputElement).files?.[0]; if (f) this.handlePolizaFile(f); }
+  clearPolizaFile(e: Event) {
+    e.stopPropagation();
+    this.polizaPreviewUrl = null;
+    this.polizaFileName = null;
+    this.polizaFileInput.nativeElement.value = '';
+    this.vehiculosForm.patchValue({ polizaSeguro: null });
+    this.vehiculosForm.get('polizaSeguro')?.setErrors({ required: true });
+  }
+  private handlePolizaFile(file: File) {
+    if (!this.isAllowed(file)) { this.vehiculosForm.get('polizaSeguro')?.setErrors({ invalid: true }); return; }
+    this.polizaFileName = file.name;
+    this.vehiculosForm.patchValue({ polizaSeguro: file });
+    this.vehiculosForm.get('polizaSeguro')?.setErrors(null);
+    this.uploadPoliza(file);
+  }
+  private uploadPoliza(file: File): void {
+    if (this.uploadingPoliza) return;
+    this.uploadingPoliza = true;
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    fd.append('folder', 'vehiculos');
+    fd.append('idModule', '10');
+    this.usuaService.uploadFile(fd).subscribe({
+      next: (res: any) => {
+        const url = this.extractFileUrl(res);
+        if (url) {
+          this.vehiculosForm.patchValue({ polizaSeguro: url });
+          this.polizaPreviewUrl = null;
+          this.polizaFileName = file.name;
+        }
+      },
+      error: (err) => console.error('[UPLOAD][polizaSeguro]', err),
+      complete: () => (this.uploadingPoliza = false),
+    });
+  }
 
 
+  // permiso concesión
+  openPermisoFilePicker() { this.permisoFileInput.nativeElement.click(); }
+  onPermisoDragOver(e: DragEvent) { e.preventDefault(); this.permisoDragging = true; }
+  onPermisoDragLeave(_e: DragEvent) { this.permisoDragging = false; }
+  onPermisoDrop(e: DragEvent) { e.preventDefault(); this.permisoDragging = false; const f = e.dataTransfer?.files?.[0]; if (f) this.handlePermisoFile(f); }
+  onPermisoFileSelected(e: Event) { const f = (e.target as HTMLInputElement).files?.[0]; if (f) this.handlePermisoFile(f); }
+  clearPermisoFile(e: Event) {
+    e.stopPropagation();
+    this.permisoPreviewUrl = null;
+    this.permisoFileName = null;
+    this.permisoFileInput.nativeElement.value = '';
+    this.vehiculosForm.patchValue({ permisoConcesion: null });
+    this.vehiculosForm.get('permisoConcesion')?.setErrors({ required: true });
+  }
+  private handlePermisoFile(file: File) {
+    if (!this.isAllowed(file)) { this.vehiculosForm.get('permisoConcesion')?.setErrors({ invalid: true }); return; }
+    this.permisoFileName = file.name;
+    this.vehiculosForm.patchValue({ permisoConcesion: file });
+    this.vehiculosForm.get('permisoConcesion')?.setErrors(null);
+    this.uploadPermiso(file);
+  }
+  private uploadPermiso(file: File): void {
+    if (this.uploadingPermiso) return;
+    this.uploadingPermiso = true;
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    fd.append('folder', 'vehiculos');
+    fd.append('idModule', '10');
+    this.usuaService.uploadFile(fd).subscribe({
+      next: (res: any) => {
+        const url = this.extractFileUrl(res);
+        if (url) {
+          this.vehiculosForm.patchValue({ permisoConcesion: url });
+          this.permisoPreviewUrl = null;
+          this.permisoFileName = file.name;
+        }
+      },
+      error: (err) => console.error('[UPLOAD][permisoConcesion]', err),
+      complete: () => (this.uploadingPermiso = false),
+    });
+  }
 
+
+  // inspección mecánica
+  openInspeccionFilePicker() { this.inspeccionFileInput.nativeElement.click(); }
+  onInspeccionDragOver(e: DragEvent) { e.preventDefault(); this.inspeccionDragging = true; }
+  onInspeccionDragLeave(_e: DragEvent) { this.inspeccionDragging = false; }
+  onInspeccionDrop(e: DragEvent) { e.preventDefault(); this.inspeccionDragging = false; const f = e.dataTransfer?.files?.[0]; if (f) this.handleInspeccionFile(f); }
+  onInspeccionFileSelected(e: Event) { const f = (e.target as HTMLInputElement).files?.[0]; if (f) this.handleInspeccionFile(f); }
+  clearInspeccionFile(e: Event) {
+    e.stopPropagation();
+    this.inspeccionPreviewUrl = null;
+    this.inspeccionFileName = null;
+    this.inspeccionFileInput.nativeElement.value = '';
+    this.vehiculosForm.patchValue({ inspeccionMecanica: null });
+    this.vehiculosForm.get('inspeccionMecanica')?.setErrors({ required: true });
+  }
+  private handleInspeccionFile(file: File) {
+    if (!this.isAllowed(file)) { this.vehiculosForm.get('inspeccionMecanica')?.setErrors({ invalid: true }); return; }
+    this.inspeccionFileName = file.name;
+    this.vehiculosForm.patchValue({ inspeccionMecanica: file });
+    this.vehiculosForm.get('inspeccionMecanica')?.setErrors(null);
+    this.uploadInspeccion(file);
+  }
+  private uploadInspeccion(file: File): void {
+    if (this.uploadingInspeccion) return;
+    this.uploadingInspeccion = true;
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    fd.append('folder', 'vehiculos');
+    fd.append('idModule', '10');
+    this.usuaService.uploadFile(fd).subscribe({
+      next: (res: any) => {
+        const url = this.extractFileUrl(res);
+        if (url) {
+          this.vehiculosForm.patchValue({ inspeccionMecanica: url });
+          this.inspeccionPreviewUrl = null;
+          this.inspeccionFileName = file.name;
+        }
+      },
+      error: (err) => console.error('[UPLOAD][inspeccionMecanica]', err),
+      complete: () => (this.uploadingInspeccion = false),
+    });
+  }
+
+  // === ViewChild y estado ===
+  @ViewChild('fotoFileInput') fotoFileInput!: ElementRef<HTMLInputElement>;
+
+  fotoPreviewUrl: string | ArrayBuffer | null = null;
+  fotoFileName: string | null = null;
+  fotoDragging = false;
+  uploadingFoto = false;
+
+  // Si ya tienes MAX_MB definido, reutilízalo; si no, define uno:
+  // private readonly MAX_MB = 3;
+
+  // === Validación solo IMAGEN ===
+
+  private isAllowedImage(file: File) {
+    return this.isImage(file) && file.size <= this.MAX_MB * 1024 * 1024;
+  }
+
+  // === Preview con FileReader ===
+  private loadImagePreview(file: File, setter: (url: string | ArrayBuffer | null) => void) {
+    if (!this.isImage(file)) { setter(null); return; }
+    const reader = new FileReader();
+    reader.onload = () => setter(reader.result);
+    reader.readAsDataURL(file);
+  }
+
+  // === Handlers de UI (foto) ===
+  openFotoFilePicker() { this.fotoFileInput.nativeElement.click(); }
+
+  onFotoDragOver(e: DragEvent) { e.preventDefault(); this.fotoDragging = true; }
+  onFotoDragLeave(_e: DragEvent) { this.fotoDragging = false; }
+  onFotoDrop(e: DragEvent) {
+    e.preventDefault();
+    this.fotoDragging = false;
+    const f = e.dataTransfer?.files?.[0];
+    if (f) this.handleFotoFile(f);
+  }
+
+  onFotoFileSelected(e: Event) {
+    const f = (e.target as HTMLInputElement).files?.[0];
+    if (f) this.handleFotoFile(f);
+  }
+
+  clearFotoFile(e: Event) {
+    e.stopPropagation();
+    this.fotoPreviewUrl = null;
+    this.fotoFileName = null;
+    this.fotoFileInput.nativeElement.value = '';
+    this.vehiculosForm.patchValue({ foto: null });
+    this.vehiculosForm.get('foto')?.setErrors({ required: true });
+  }
+
+  // === Handler principal ===
+  private handleFotoFile(file: File) {
+    if (!this.isAllowedImage(file)) {
+      this.vehiculosForm.get('foto')?.setErrors({ invalid: true });
+      return;
+    }
+
+    this.fotoFileName = file.name;
+    this.loadImagePreview(file, (url) => this.fotoPreviewUrl = url);
+
+    // Primero colocamos el File mientras sube
+    this.vehiculosForm.patchValue({ foto: file });
+    this.vehiculosForm.get('foto')?.setErrors(null);
+
+    // Subir al backend y reemplazar por URL final
+    this.uploadFoto(file);
+  }
+
+  // === Subida (mismo servicio), folder 'vehiculos', idModule '10' ===
+  private uploadFoto(file: File): void {
+    if (this.uploadingFoto) return;
+    this.uploadingFoto = true;
+
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    fd.append('folder', 'vehiculos');
+    fd.append('idModule', '10');
+
+    this.usuaService.uploadFile(fd).subscribe({
+      next: (res: any) => {
+        const url = this.extractFileUrl(res);
+        if (url) {
+          // Reemplaza el File por la URL en el form
+          this.vehiculosForm.patchValue({ foto: url });
+          // Mantenemos el preview con la imagen ya cargada
+          this.fotoPreviewUrl = this.fotoPreviewUrl; // ya seteada por FileReader
+          this.fotoFileName = file.name;
+        }
+      },
+      error: (err) => {
+        console.error('[UPLOAD][foto]', err);
+        // Si quieres, puedes dejar el File o limpiar:
+        // this.vehiculosForm.patchValue({ foto: null });
+        // this.fotoPreviewUrl = null;
+        // this.fotoFileName = null;
+        // this.vehiculosForm.get('foto')?.setErrors({ uploadFailed: true });
+      },
+      complete: () => { this.uploadingFoto = false; },
+    });
+  }
 }

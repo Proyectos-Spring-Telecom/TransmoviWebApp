@@ -15,6 +15,7 @@ import {
 import { UsuariosService } from 'src/app/shared/services/usuario.service';
 import Swal from 'sweetalert2';
 import { animate, style, transition, trigger } from '@angular/animations';
+import { finalize } from 'rxjs';
 
 export interface UserMini {
   nombre: string;
@@ -42,7 +43,6 @@ export interface UserMini {
   animations: [
     fadeInRightAnimation,
     trigger('hintSwap', [
-      // Re-animar en cualquier cambio de estado/mensaje
       transition('* => *', [
         animate(
           '90ms ease-in',
@@ -57,9 +57,6 @@ export interface UserMini {
   ],
 })
 
-/**
- * Contacts-profile component
- */
 export class ProfileComponent {
   @Input() user: UserMini = {
     nombre: 'Jane Cooper',
@@ -87,6 +84,17 @@ export class ProfileComponent {
   public showRolExtraDescripcion: any;
   public showCreacion: any;
   ultimoLogin: string | null = null;
+  show = { curr: false, neu: false, conf: false };
+  loading = false;
+  dryRun = true;
+  confirmMsg = '';
+  confirmState: 'neutral' | 'valid' | 'invalid' = 'neutral';
+  passwordStrengthMsg = '';
+  passwordStrengthColor = '';
+  hintVersion = 0;
+  isAllValid = false;
+  defaultAvatar = 'assets/images/user_default.png';
+  showUltimoLogin: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -117,23 +125,17 @@ export class ProfileComponent {
     this.showId = user.id;
   }
 
-  // propiedad usada por la vista
-  showUltimoLogin: string | null = null;
-
-  // tu formateador (el que ya tienes)
   private formatFechaCreacion(raw: any): string {
-    if (!raw || raw === 'null') return ''; // por si viene la cadena "null"
+    if (!raw || raw === 'null') return '';
     const d = new Date(raw);
-    if (isNaN(d.getTime())) return String(raw); // fallback si no parsea
+    if (isNaN(d.getTime())) return String(raw);
     const pad = (n: number) => String(n).padStart(2, '0');
     return (
       `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ` +
       `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
     );
   }
-
-  defaultAvatar = 'assets/images/user_default.png';
-
+  
   get resolvedAvatar(): string {
     const v = (this.showImage ?? '').toString().trim();
     if (!v || v === 'null' || v === 'undefined' || v === '[object Object]') {
@@ -149,9 +151,6 @@ export class ProfileComponent {
     }
   }
 
-  /**
-   * Descripción personalizada según el rol.
-   */
   private getDescripcionRol(rol: string): string {
     switch (rol?.toUpperCase()) {
       case 'SA':
@@ -169,121 +168,109 @@ export class ProfileComponent {
     }
   }
 
-  passwordForm: FormGroup = this.fb.group(
-    {
-      contrasenaActual: ['', Validators.required],
-      contrasenaNueva: ['', [Validators.required, Validators.minLength(8)]],
-      contrasenaNuevaConfirmacion: ['', Validators.required],
-    },
-    { validators: this.passwordsMatchValidator }
-  );
+passwordForm: FormGroup = this.fb.group(
+  {
+    // ✅ NUEVOS NOMBRES
+    passwordActual: ['', Validators.required],
+    passwordNueva: ['', [Validators.required, Validators.minLength(8)]],
+    passwordNuevaConfirmacion: ['', Validators.required],
+  },
+  { validators: this.passwordsMatchValidator }
+);
 
-  passwordStrengthMsg = '';
-  passwordStrengthColor = '';
-  hintVersion = 0;
-  isAllValid = false;
+onPasswordInput(): void {
+  const value = this.passwordForm.get('passwordNueva')?.value || '';
+  const checks = {
+    upper: /\p{Lu}/u.test(value),
+    lower: /\p{Ll}/u.test(value),
+    number: /[0-9]/.test(value),
+    special: /[^\p{L}\p{N}]/u.test(value),
+    length: value.length >= 8 && value.length <= 16,
+  };
+  const missing: string[] = [];
+  if (!checks.upper) missing.push('una mayúscula');
+  if (!checks.lower) missing.push('una minúscula');
+  if (!checks.number) missing.push('un número');
+  if (!checks.special) missing.push('un carácter especial');
+  const allOtherValid = checks.upper && checks.lower && checks.number && checks.special;
+  if (allOtherValid && !checks.length) missing.push('entre 8 y 16 caracteres');
 
-  onPasswordInput(): void {
-    const value = this.passwordForm.get('contrasenaNueva')?.value || '';
+  this.isAllValid = missing.length === 0;
+  const prevMsg = this.passwordStrengthMsg;
+  if (this.isAllValid) {
+    this.passwordStrengthMsg = 'Contraseña válida';
+    this.passwordStrengthColor = 'valid';
+  } else {
+    this.passwordStrengthMsg = 'Debe incluir: ' + missing.join(', ') + '.';
+    this.passwordStrengthColor = 'invalid';
+  }
+  if (this.passwordStrengthMsg !== prevMsg) this.hintVersion++;
+}
 
-    // Usa tu propia lógica ya corregida; dejo un ejemplo neutro:
-    const checks = {
-      upper: /\p{Lu}/u.test(value), // mayúscula (Unicode)
-      lower: /\p{Ll}/u.test(value), // minúscula (Unicode)
-      number: /[0-9]/.test(value), // número
-      special: /[^\p{L}\p{N}]/u.test(value), // no letra y no número (Unicode)
-      length: value.length >= 8 && value.length <= 16,
-    };
+updateConfirmState(): void {
+  const newPwd = this.passwordForm.get('passwordNueva')?.value || '';
+  const conf = this.passwordForm.get('passwordNuevaConfirmacion')?.value || '';
+  if (!newPwd || !conf) {
+    this.confirmMsg = '';
+    this.confirmState = 'neutral';
+    return;
+  }
+  if (newPwd === conf) {
+    this.confirmMsg = 'Las contraseñas coinciden';
+    this.confirmState = 'valid';
+  } else {
+    this.confirmMsg = 'Las contraseñas no coinciden';
+    this.confirmState = 'invalid';
+  }
+}
 
-    // Primero otros requisitos; la longitud solo se muestra al final si TODO lo demás está ok
-    const missing: string[] = [];
-    if (!checks.upper) missing.push('una mayúscula');
-    if (!checks.lower) missing.push('una minúscula');
-    if (!checks.number) missing.push('un número');
-    if (!checks.special) missing.push('un carácter especial');
+get canSave(): boolean {
+  const f = this.passwordForm;
+  const a = f.get('passwordActual')?.value?.trim();
+  const n = f.get('passwordNueva')?.value;
+  const c = f.get('passwordNuevaConfirmacion')?.value;
+  const allFilled = !!a && !!n && !!c;
+  const match = n === c;
+  return allFilled && match && !this.loading;
+}
 
-    const allOtherValid =
-      checks.upper && checks.lower && checks.number && checks.special;
-    if (allOtherValid && !checks.length)
-      missing.push('entre 8 y 16 caracteres');
+// ✅ validador con NUEVOS nombres
+private passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
+  const a = group.get('passwordNueva')?.value;
+  const b = group.get('passwordNuevaConfirmacion')?.value;
+  return a && b && a !== b ? { passwordMismatch: true } : null;
+}
 
-    this.isAllValid = missing.length === 0;
-
-    const prevMsg = this.passwordStrengthMsg;
-    if (this.isAllValid) {
-      this.passwordStrengthMsg = 'Contraseña válida';
-      this.passwordStrengthColor = 'valid';
-    } else {
-      this.passwordStrengthMsg = 'Debe incluir: ' + missing.join(', ') + '.';
-      this.passwordStrengthColor = 'invalid';
-    }
-
-    // Si el mensaje cambió, incrementa versión para re-animar
-    if (this.passwordStrengthMsg !== prevMsg) {
-      this.hintVersion++;
-    }
+// ✅ Ejecuta el servicio (sin dry-run). Mantengo logging.
+actualizarContrasena(): void {
+  if (this.passwordForm.invalid) {
+    this.passwordForm.markAllAsTouched();
+    Swal.fire({
+      background: '#002136',
+      title: 'Formulario incompleto',
+      text: 'Por favor, completa todos los campos correctamente.',
+      icon: 'warning',
+      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'Entendido',
+    });
+    return;
   }
 
-  confirmMsg = '';
-  confirmState: 'neutral' | 'valid' | 'invalid' = 'neutral';
+  const body = {
+    passwordActual: this.passwordForm.get('passwordActual')?.value,
+    passwordNueva: this.passwordForm.get('passwordNueva')?.value,
+    passwordNuevaConfirmacion: this.passwordForm.get('passwordNuevaConfirmacion')?.value,
+  };
 
-  updateConfirmState(): void {
-    const newPwd = this.passwordForm.get('contrasenaNueva')?.value || '';
-    const conf =
-      this.passwordForm.get('contrasenaNuevaConfirmacion')?.value || '';
+  console.log('[REQUEST] actualizarContrasena', { idUsuario: this.showId, body });
 
-    if (!newPwd || !conf) {
-      this.confirmMsg = '';
-      this.confirmState = 'neutral';
-      return;
-    }
+  this.loading = true;
 
-    if (newPwd === conf) {
-      this.confirmMsg = 'Las contraseñas coinciden';
-      this.confirmState = 'valid';
-    } else {
-      this.confirmMsg = 'Las contraseñas no coinciden';
-      this.confirmState = 'invalid';
-    }
-  }
-
-  get canSave(): boolean {
-    const f = this.passwordForm;
-    const a = f.get('contrasenaActual')?.value?.trim();
-    const n = f.get('contrasenaNueva')?.value;
-    const c = f.get('contrasenaNuevaConfirmacion')?.value;
-
-    const allFilled = !!a && !!n && !!c;
-    const match = n === c;
-
-    return allFilled && match && !this.loading;
-  }
-  dryRun = true; // ponlo en false cuando quieras ejecutar de verdad
-
-  actualizarContrasena(): void {
-    const body = {
-      contrasenaActual: this.passwordForm.get('contrasenaActual')?.value,
-      contrasenaNueva: this.passwordForm.get('contrasenaNueva')?.value,
-      contrasenaNuevaConfirmacion: this.passwordForm.get(
-        'contrasenaNuevaConfirmacion'
-      )?.value,
-    };
-
-    console.log('[DRY RUN] Body a enviar:', body, 'idUsuario:', this.showId);
-
-    if (this.dryRun) {
-      Swal.fire({
-        background: '#002136',
-        title: 'Vista previa',
-        icon: 'info',
-        confirmButtonColor: '#3085d6',
-        confirmButtonText: 'OK',
-      });
-      return;
-    }
-
-    this.usuarioService.actualizarContrasena(this.showId, body).subscribe({
-      next: (response: any) => {
+  this.usuarioService
+    .actualizarContrasena(this.showId, body)
+    .pipe(finalize(() => (this.loading = false)))
+    .subscribe({
+      next: () => {
         Swal.fire({
           background: '#002136',
           title: '¡Contraseña actualizada!',
@@ -293,13 +280,16 @@ export class ProfileComponent {
           confirmButtonText: 'Aceptar',
         });
         this.passwordForm.reset();
+        this.show = { curr: false, neu: false, conf: false };
+        this.confirmMsg = '';
+        this.confirmState = 'neutral';
+        this.passwordStrengthMsg = '';
+        this.passwordStrengthColor = '';
+        this.isAllValid = false;
       },
       error: (error) => {
-        let mensaje = 'Ocurrió un error al actualizar la contraseña.';
-        if (error.error?.message) {
-          mensaje = error.error.message;
-        }
-
+        const mensaje = error?.error?.message || 'Ocurrió un error al actualizar la contraseña.';
+        console.error('[ERROR] actualizarContrasena', error);
         Swal.fire({
           title: 'Error',
           text: mensaje,
@@ -310,20 +300,11 @@ export class ProfileComponent {
         });
       },
     });
-  }
+}
 
-  show = { curr: false, neu: false, conf: false };
-  loading = false;
+
 
   t = (c: string): AbstractControl => this.passwordForm.get(c)!;
-
-  private passwordsMatchValidator(
-    group: AbstractControl
-  ): ValidationErrors | null {
-    const a = group.get('newPassword')?.value;
-    const b = group.get('confirmPassword')?.value;
-    return a && b && a !== b ? { passwordMismatch: true } : null;
-  }
 
   onResetPassword(): void {
     this.passwordForm.reset();
@@ -338,11 +319,8 @@ export class ProfileComponent {
     this.loading = true;
     try {
       const { currentPassword, newPassword } = this.passwordForm.value;
-      // TODO: llamar servicio real
-      // await this.authService.updatePassword({ currentPassword, newPassword }).toPromise();
       this.onResetPassword();
     } catch (e) {
-      // manejar error UI
     } finally {
       this.loading = false;
     }

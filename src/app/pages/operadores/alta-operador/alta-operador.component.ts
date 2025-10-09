@@ -49,19 +49,38 @@ export class AltaOperadorComponent implements OnInit {
   }
 
   obtenerOperadorID() {
-    this.operService.obtenerOperador(this.idOperador).subscribe(
-      (response: any) => {
-        this.operadorForm.patchValue({
-          numeroLicencia: response.data.numeroLicencia,
-          fechaNacimiento: response.data.fechaNacimiento,
-          idUsuario: Number(response.data.idUsuario),
-          estatus: response.data.estatus,
-          identificacion: response.data.identificacion,
-          comprobanteDomicilio: response.data.comprobanteDomicilio,
-          antecedentesNoPenales: response.data.antecedentesNoPenales,
-        });
-      }
-    );
+    this.operService.obtenerOperador(this.idOperador).subscribe((response: any) => {
+      const raw = Array.isArray(response?.data)
+        ? response.data[0]
+        : response?.operador ?? response?.data ?? response ?? {};
+
+      const get = (o: any, keys: string[]) => {
+        for (const k of keys) if (o?.[k] !== undefined && o?.[k] !== null) return o[k];
+        return null;
+      };
+
+      const numeroLicencia = get(raw, ['numeroLicencia', 'NumeroLicencia']);
+      const fechaNacimientoRaw = get(raw, ['fechaNacimiento', 'FechaNacimiento']);
+      const idUsuario = get(raw, ['idUsuario', 'IdUsuario']);
+      const estatus = get(raw, ['estatus', 'Estatus']);
+      const identificacion = get(raw, ['identificacion', 'Identificacion']);
+      const comprobanteDomicilio = get(raw, ['comprobanteDomicilio', 'ComprobanteDomicilio']);
+      const antecedentesNoPenales = get(raw, ['antecedentesNoPenales', 'AntecedentesNoPenales']);
+
+      const fechaNacimiento = fechaNacimientoRaw
+        ? fechaNacimientoRaw.split('T')[0]
+        : null;
+
+      this.operadorForm.patchValue({
+        numeroLicencia: numeroLicencia ?? '',
+        fechaNacimiento,
+        idUsuario: idUsuario != null ? Number(idUsuario) : null,
+        estatus: estatus != null ? Number(estatus) : 1,
+        identificacion: identificacion ?? null,
+        comprobanteDomicilio: comprobanteDomicilio ?? null,
+        antecedentesNoPenales: antecedentesNoPenales ?? null,
+      });
+    });
   }
 
   obtenerUsuarios() {

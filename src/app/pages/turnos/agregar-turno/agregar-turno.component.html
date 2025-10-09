@@ -26,25 +26,28 @@
                     </div>
 
                     <div class="col-md-4 mt-3">
-                        <label for="idCliente" class="form-label">Operador</label>
-                        <select id="idCliente" class="form-select" formControlName="idOperador">
-                            <option value="">Seleccione un cliente</option>
+                        <label for="idOperador" class="form-label">Operador</label>
+                        <select id="idOperador" class="form-select" formControlName="idOperador">
+                            <option value="">Seleccione un operador</option>
                             <option *ngFor="let c of listaOperadores" [ngValue]="c.id">
-                                {{ c.idUsuario2.nombre }} {{c.idUsuario2.apellidoPaterno || ' ' }}
-                                {{c.idUsuario2.apellidoMaterno || ' ' }}</option>
+                                {{ c.nombreUsuario }} {{ c.apellidoPaternoUsuario || '' }}
+                                {{ c.apellidoMaternoUsuario || '' }}
+                            </option>
                         </select>
                     </div>
+
                     <div class="col-md-4 mt-3">
-  <label for="idInstalacion" class="form-label">Instalación</label>
-  <select id="idInstalacion" class="form-select" formControlName="idInstalacion" [compareWith]="compareNums">
-    <option value="">Seleccione una instalación</option>
-    <option *ngFor="let c of listaInstalaciones" [ngValue]="+c.idInstalacion2.id">
-      {{ c?.idInstalacion2?.blueVoxs?.numeroSerie || ' ' }} -
-      {{ c?.idInstalacion2?.dispositivos?.numeroSerie || ' ' }} -
-      {{ c?.idInstalacion2?.vehiculos?.placa || ' ' }}
-    </option>
-  </select>
-</div>
+                        <label for="idInstalacion" class="form-label">Instalación</label>
+                        <select id="idInstalacion" class="form-select" formControlName="idInstalacion"
+                            [compareWith]="compareNums">
+                            <option value="">Seleccione una instalación</option>
+                            <option *ngFor="let c of listaInstalaciones" [ngValue]="+c.id">
+                                {{ c?.numeroSerieBlueVox || ' ' }} -
+                                {{ c?.numeroSerieDispositivo || ' ' }} -
+                                {{ c?.placaVehiculo || ' ' }}
+                            </option>
+                        </select>
+                    </div>
 
                     <div class="col-md-4 mt-3">
                         <label for="idCliente" class="form-label">Cliente</label>

@@ -4,7 +4,7 @@ import { MenuItem } from './menu.model';
 export const MENU: MenuItem[] = [
     {
         id: 1,
-        label: 'Trabajo',
+        label: 'Coordinación',
         isTitle: true
     },
     {
@@ -39,6 +39,13 @@ export const MENU: MenuItem[] = [
                 link: '/bitacora/lista-bitacora',
                 permiso: Permiso.Listado_Bitacora
             },
+            {
+                id: 15,
+                label: 'Roles',
+                icon: 'uil-clipboard-notes',
+                link: '/roles',
+                permiso: Permiso.Listado_Roles
+            },
         ],
     },
     {
@@ -49,18 +56,16 @@ export const MENU: MenuItem[] = [
         permiso: Permiso.Listado_Usuarios
     },
     {
-        id: 15,
-        label: 'Roles',
-        icon: 'uil-clipboard-notes',
-        link: '/roles',
-        permiso: Permiso.Listado_Roles
-    },
-    {
         id: 14,
         label: 'Clientes',
         icon: 'uil-users-alt',
         link: '/clientes',
         permiso: Permiso.Listado_Cliente
+    },
+    {
+        id: 1,
+        label: 'Operación',
+        isTitle: true
     },
     {
         id: 2,
@@ -98,6 +103,13 @@ export const MENU: MenuItem[] = [
         permiso: Permiso.Listado_Instalaciones
     },
     {
+        id: 6,
+        label: 'Pasajeros',
+        icon: 'uil-user-circle',
+        link: '/pasajeros',
+        permiso: Permiso.Listado_Pasajeros
+    },
+    {
         id: 20,
         label: 'Centro de Pagos',
         icon: 'uil-refresh',
@@ -121,16 +133,9 @@ export const MENU: MenuItem[] = [
                 label: 'Transacciones',
                 icon: 'uil-refresh',
                 link: '/transacciones',
-                // permiso: Permiso.Listado_Transacciones
+                permiso:Permiso.Listado_Transacciones
             },
         ],
-    },
-    {
-        id: 6,
-        label: 'Pasajeros',
-        icon: 'uil-user-circle',
-        link: '/pasajeros',
-        permiso: Permiso.Listado_Pasajeros
     },
     {
         id: 15,

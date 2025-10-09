@@ -148,7 +148,7 @@ export class ListaDispositivosComponent implements OnInit {
     Swal.fire({
       title: '¡Eliminar Dispositivo!',
       background: '#002136',
-      html: `¿Está seguro que desea eliminar el dispositivo: <br> ${dispositivo.Marca + ' ' + dispositivo.Modelo}?`,
+      html: `¿Está seguro que requiere eliminar el dispositivo: <br> ${dispositivo.Marca + ' ' + dispositivo.Modelo}?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -187,7 +187,7 @@ export class ListaDispositivosComponent implements OnInit {
   activar(rowData: any) {
     Swal.fire({
       title: '¡Activar!',
-      html: `¿Está seguro que desea activar el dispositivo: <strong>${rowData.marca}</strong>?`,
+      html: `¿Está seguro que requiere activar el dispositivo: <strong>${rowData.marca}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -230,7 +230,7 @@ export class ListaDispositivosComponent implements OnInit {
   desactivar(rowData: any) {
     Swal.fire({
       title: '¡Desactivar!',
-      html: `¿Está seguro que requiere dar de baja el dispositivo: <strong>${rowData.marca}</strong>?`,
+      html: `¿Está seguro que requiere desactivar el dispositivo: <strong>${rowData.marca}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',

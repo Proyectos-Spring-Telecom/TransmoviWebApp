@@ -74,7 +74,7 @@ export class ListaInstalacionesComponent implements OnInit {
   activar(rowData: any) {
     Swal.fire({
       title: '¡Activar!',
-      html: `¿Está seguro que desea activar está instalación?`,
+      html: `¿Está seguro que requiere activar está instalación?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',

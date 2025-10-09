@@ -22,7 +22,7 @@ export class ListaMonederosComponent implements OnInit {
   public showFilterRow: boolean;
   public showHeaderFilter: boolean;
   public loadingVisible: boolean = false;
-  public mensajeAgrupar: string ='Arrastre un encabezado de columna aquí para agrupar por esa columna';
+  public mensajeAgrupar: string = 'Arrastre un encabezado de columna aquí para agrupar por esa columna';
   public submitButton: string = 'Aceptar';
   public recargaForm: FormGroup;
   public debitoForm: FormGroup;
@@ -62,6 +62,10 @@ export class ListaMonederosComponent implements OnInit {
     return this.permissionsService.getPermission(permission) !== undefined;
   }
 
+  actualizarMonederos(idMonedero: number) {
+    this.route.navigateByUrl('/monederos/editar-monedero/' + idMonedero);
+  };
+
   initForm() {
     this.recargaForm = this.fb.group({
       tipoTransaccion: ['RECARGA'],
@@ -84,7 +88,7 @@ export class ListaMonederosComponent implements OnInit {
     });
   }
 
-  agregarMonedero(){
+  agregarMonedero() {
     this.route.navigateByUrl('/monederos/agregar-monedero')
   }
 
@@ -144,34 +148,70 @@ export class ListaMonederosComponent implements OnInit {
     }
   }
 
+  onGridOptionChanged(e: any) {
+    if (e.fullName !== 'searchPanel.text') return;
+    const grid = this.dataGrid?.instance;
+    const texto = (e.value ?? '').toString().trim().toLowerCase();
+    if (!texto) {
+      grid?.option('dataSource', this.listaMonederos);
+      this.filtroActivo = '';
+      return;
+    }
+    this.filtroActivo = texto;
+    let columnas: any[] = [];
+    try {
+      const colsOpt = grid?.option('columns');
+      if (Array.isArray(colsOpt) && colsOpt.length) columnas = colsOpt;
+    } catch { }
+    if (!columnas.length && grid?.getVisibleColumns) {
+      columnas = grid.getVisibleColumns();
+    }
+    const dataFields: string[] = columnas
+      .map((c: any) => c?.dataField)
+      .filter((df: any) => typeof df === 'string' && df.trim().length > 0);
+    const normalizar = (val: any): string => {
+      if (val === null || val === undefined) return '';
+      if (val instanceof Date) {
+        const dd = ('0' + val.getDate()).slice(2 - 2);
+        const mm = ('0' + (val.getMonth() + 1)).slice(2 - 2);
+        const yyyy = val.getFullYear();
+        return `${dd}/${mm}/${yyyy}`.toLowerCase();
+      }
+      if (typeof val === 'number') return String(val).toLowerCase();
+      const s = String(val).toLowerCase();
+      return s;
+    };
+    const dataFiltrada = (this.paginaActualData || []).filter((row: any) => {
+      const hitEnColumnas = dataFields.some((df) => {
+        const v = row?.[df];
+        if (df.toLowerCase().includes('fecha')) {
+          try {
+            const d = new Date(v);
+            if (!isNaN(d.getTime())) {
+              const dd = ('0' + d.getDate()).slice(-2);
+              const mm = ('0' + (d.getMonth() + 1)).slice(-2);
+              const yyyy = d.getFullYear();
+              const ddmmyyyy = `${dd}/${mm}/${yyyy}`.toLowerCase();
+              if (ddmmyyyy.includes(texto)) return true;
+            }
+          } catch { }
+        }
+        return normalizar(v).includes(texto);
+      });
+      const extras = [
+        normalizar(row?.id),
+        normalizar(row?.estatusTexto)
+      ];
+
+      return hitEnColumnas || extras.some((s) => s.includes(texto));
+    });
+    grid?.option('dataSource', dataFiltrada);
+  }
+
   onPageIndexChanged(e: any) {
     const pageIndex = e.component.pageIndex();
     this.paginaActual = pageIndex + 1;
     e.component.refresh();
-  }
-
-  onGridOptionChanged(e: any) {
-    if (e.fullName === "searchPanel.text") {
-      this.filtroActivo = e.value || '';
-      if (!this.filtroActivo) {
-        this.dataGrid.instance.option('dataSource', this.listaMonederos);
-        return;
-      }
-      const search = this.filtroActivo.toString().toLowerCase();
-      const dataFiltrada = this.paginaActualData.filter((item: any) => {
-        const idStr = item.id ? item.id.toString().toLowerCase() : '';
-        const nombreStr = item.nombre ? item.nombre.toString().toLowerCase() : '';
-        const descripcionStr = item.descripcion ? item.descripcion.toString().toLowerCase() : '';
-        const moduloStr = item.estatusTexto ? item.estatusTexto.toString().toLowerCase() : '';
-        return (
-          nombreStr.includes(search) ||
-          descripcionStr.includes(search) ||
-          moduloStr.includes(search) ||
-          idStr.includes(search)
-        );
-      });
-      this.dataGrid.instance.option('dataSource', dataFiltrada);
-    }
   }
 
   cerrarModalRecarga() {
@@ -297,46 +337,46 @@ export class ListaMonederosComponent implements OnInit {
   }
 
   crearTransaccionDebito() {
-  const serie = (this.selectedSerie ?? '').toString().trim();
-  const fechaActual = new Date().toISOString();
-  this.debitoForm.patchValue({
-    IdMonedero: this.selectedTransactionId,
-    numeroSerieMonedero: serie,
-    fechaHora: fechaActual,
-    tipoTransaccion: 'DEBITO'
-  });
+    const serie = (this.selectedSerie ?? '').toString().trim();
+    const fechaActual = new Date().toISOString();
+    this.debitoForm.patchValue({
+      IdMonedero: this.selectedTransactionId,
+      numeroSerieMonedero: serie,
+      fechaHora: fechaActual,
+      tipoTransaccion: 'DEBITO'
+    });
 
-  const formValue = this.debitoForm.value;
+    const formValue = this.debitoForm.value;
 
-  if (!formValue?.numeroSerieMonedero) {
-    Swal.fire({ background: '#002136', title: '¡Error!', text: 'No se detectó el número de serie del monedero.', icon: 'error', confirmButtonColor: '#d33', confirmButtonText: 'Aceptar' });
-    return;
-  }
-  if (Number(formValue?.Monto) <= 0) {
-    Swal.fire({ background: '#002136', title: '¡Error!', text: 'El monto no puede ser 0 o vacío.', icon: 'error', confirmButtonColor: '#d33', confirmButtonText: 'Aceptar' });
-    return;
-  }
-
-  this.loading = true;
-  this.submitButton = 'Cargando...';
-  this.moneService.agregarTransacciones(formValue).subscribe(
-    (response: any) => {
-      this.loading = false;
-      this.submitButton = 'Guardar';
-      this.ngOnInit();
-      if (response) {
-        this.cerrarModalDebito();
-        Swal.fire({ title: '¡Operación Exitosa!', text: 'Se realizó el débito de manera correcta.', icon: 'success', confirmButtonColor: '#3085d6', confirmButtonText: 'Confirmar', background: '#002136', });
-      } else {
-        console.log('Respuesta inesperada:', response);
-      }
-    },
-    (error: string) => {
-      this.loading = false;
-      this.submitButton = 'Guardar';
-      Swal.fire({ title: '¡Ops!', text: error, icon: 'error', confirmButtonColor: '#3085d6', confirmButtonText: 'Confirmar', background: '#002136', });
+    if (!formValue?.numeroSerieMonedero) {
+      Swal.fire({ background: '#002136', title: '¡Error!', text: 'No se detectó el número de serie del monedero.', icon: 'error', confirmButtonColor: '#d33', confirmButtonText: 'Aceptar' });
+      return;
     }
-  );
-}
+    if (Number(formValue?.Monto) <= 0) {
+      Swal.fire({ background: '#002136', title: '¡Error!', text: 'El monto no puede ser 0 o vacío.', icon: 'error', confirmButtonColor: '#d33', confirmButtonText: 'Aceptar' });
+      return;
+    }
+
+    this.loading = true;
+    this.submitButton = 'Cargando...';
+    this.moneService.agregarTransacciones(formValue).subscribe(
+      (response: any) => {
+        this.loading = false;
+        this.submitButton = 'Guardar';
+        this.ngOnInit();
+        if (response) {
+          this.cerrarModalDebito();
+          Swal.fire({ title: '¡Operación Exitosa!', text: 'Se realizó el débito de manera correcta.', icon: 'success', confirmButtonColor: '#3085d6', confirmButtonText: 'Confirmar', background: '#002136', });
+        } else {
+          console.log('Respuesta inesperada:', response);
+        }
+      },
+      (error: string) => {
+        this.loading = false;
+        this.submitButton = 'Guardar';
+        Swal.fire({ title: '¡Ops!', text: error, icon: 'error', confirmButtonColor: '#3085d6', confirmButtonText: 'Confirmar', background: '#002136', });
+      }
+    );
+  }
 
 }

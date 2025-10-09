@@ -25,7 +25,7 @@
                     <div class="table-responsive mb-4 col-12 col-lg-12">
                         <dx-data-grid id="gridContainer" [columnHidingEnabled]="true" [showBorders]="true"
                             [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
-                            [dataSource]="listaRoles" [keyExpr]="'Id'" [remoteOperations]="{ paging: true }"
+                            [dataSource]="listaRoles" [keyExpr]="'id'" [remoteOperations]="{ paging: true }"
                             [width]="'100%'" [paging]="{ pageSize: pageSize }" [pager]="{ 
                                 showPageSizeSelector: true, 
                                 allowedPageSizes: [50], 
@@ -43,9 +43,9 @@
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
                             <dxi-column *appHasPermission="['11', '12']" caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="180"></dxi-column>
-                            <dxi-column dataField="nombre" caption="Nombre" alignment="center"></dxi-column>
-                            <dxi-column dataField="descripcion" caption="Descripción" alignment="center"></dxi-column>
-                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est">
+                            <dxi-column dataField="nombre" caption="Nombre" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="descripcion" caption="Descripción" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est" dataType="string">
                                 <div *dxTemplate="let f of 'est'">
                                     <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
                                         Activo

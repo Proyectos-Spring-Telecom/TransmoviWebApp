@@ -54,5 +54,4 @@ export class UsuariosService {
       catchError(error => throwError(() => error))
     );
   }
-  
 }

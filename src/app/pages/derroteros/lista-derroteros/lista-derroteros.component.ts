@@ -407,9 +407,10 @@ if (Array.isArray(path) && path.length) {
       }
 
       this.vertexInfoWindow.setContent(`
-        <div style="font-family:'Segoe UI',sans-serif; margin-top:-45px; background:#fff;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,.12);padding:8px 10px;max-width:260px;">
+        <div style="font-family:'Segoe UI',sans-serif; display:inline-block; background:#fff; border-radius:12px;
+        box-shadow:0 4px 12px rgba(0,0,0,.12); padding:8px 12px 6px; line-height:1.3; margin-top:-45px; max-width:260px;">
           <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Ubicación</div>
-          <div style="font-size:13px;color:#1f2937;font-weight:600;line-height:1.25;">${addr}</div>
+          <div style="line-height:1.25;">${addr}</div>
         </div>
       `);
       this.vertexInfoWindow.open({ map, anchor: mk });
@@ -512,7 +513,7 @@ if (Array.isArray(path) && path.length) {
     Swal.fire({
       title: '¡Eliminar Derrotero!',
       background: '#002136',
-      html: `¿Está seguro que desea eliminar el derrotero: <br> <strong>${derrotero.nombreDerrotero}</strong>?`,
+      html: `¿Está seguro que requiere eliminar el derrotero: <br> <strong>${derrotero.nombreDerrotero}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',

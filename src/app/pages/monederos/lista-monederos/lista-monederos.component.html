@@ -25,7 +25,7 @@
                     <div class="table-responsive mb-4 col-12 col-lg-12">
                         <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
                             [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
-                            [rowAlternationEnabled]="'true'" [dataSource]="listaMonederos" [keyExpr]="'Id'"
+                            [rowAlternationEnabled]="'true'" [dataSource]="listaMonederos" [keyExpr]="'id'"
                             [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
                             [pager]="{ 
                                 showPageSizeSelector: true, 
@@ -42,8 +42,7 @@
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center"
-                                [width]="150"></dxi-column>
+                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="200"></dxi-column>
                             <dxi-column dataField="numeroSerie" caption="NumeroSerie" alignment="center"></dxi-column>
                             <dxi-column dataField="fechaActivacion" caption="Fecha Activación" alignment="center"
                                 cellTemplate="fecActi">
@@ -51,16 +50,22 @@
                                     {{ a.data.fechaActivacion | date: 'dd/MM/yyyy' : '+0000' }}
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="saldo" caption="Saldo" alignment="center" cellTemplate="sald">
+                            <dxi-column dataField="saldo" caption="Saldo" alignment="center" dataType="string" cellTemplate="sald">
                                 <div *dxTemplate="let f of 'sald' ">
                                     {{f.data.saldo | currency: '$'}}
                                 </div>
                             </dxi-column>
                             <div *dxTemplate="let monedero of 'Acciones'" class="d-flex gap-3 justify-content-center">
+                                <div *appHasPermission="'79'">
+                                    <button valueExpr="id" id="actualizarButton" class="btnAcciones"
+                                        (click)="actualizarMonederos(monedero.data.id)">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                </div>
                                 <div>
                                     <button
                                         (click)="centerModalRecarga(centerDataModalRecarga, monedero.data.id, monedero.data.numeroSerie, monedero.data.saldo, monedero.data.idCliente, monedero.data.idPasajero)"
-                                        class="btn btn-success btn-md btn-rounded waves-effect waves-light"
+                                        class="btnAcciones btnRecargar"
                                         type="button" placement="top" role="button">
                                         <i class="fa fa-plus"></i>
                                     </button>
@@ -68,7 +73,7 @@
                                 <div>
                                     <button [disabled]="monedero.data.saldo === 0"
                                         (click)="centerModalDebito(centerDataModalDebito, monedero.data.id, monedero.data.numeroSerie, monedero.data.saldo, monedero.data.idCliente, monedero.data.idPasajero)"
-                                        class="btn btn-danger btn-md btn-rounded waves-effect waves-light" type="button"
+                                        class="btnAcciones btnDebito" type="button"
                                         placement="top" role="button">
                                         <i class="fa fa-minus"></i>
                                     </button>

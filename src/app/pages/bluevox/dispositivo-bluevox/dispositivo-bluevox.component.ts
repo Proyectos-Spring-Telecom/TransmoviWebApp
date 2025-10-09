@@ -138,7 +138,7 @@ export class DispositivoBluevoxComponent implements OnInit {
   activar(rowData: any) {
     Swal.fire({
       title: '¡Activar!',
-      html: `¿Está seguro que desea activar el dispositivo: <strong>${rowData.marca}</strong>?`,
+      html: `¿Está seguro que requiere activar el dispositivo: <strong>${rowData.marca}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -181,7 +181,7 @@ export class DispositivoBluevoxComponent implements OnInit {
   desactivar(rowData: any) {
     Swal.fire({
       title: '¡Desactivar!',
-      html: `¿Está seguro que requiere dar de baja el dispositivo: <strong>${rowData.marca}</strong>?`,
+      html: `¿Está seguro que requiere desactivar el dispositivo: <strong>${rowData.marca}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',

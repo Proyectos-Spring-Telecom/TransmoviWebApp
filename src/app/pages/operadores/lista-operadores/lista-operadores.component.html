@@ -42,11 +42,12 @@
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column *appHasPermission="['35', '36']" caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="150"></dxi-column>
-                            <dxi-column caption="Identificación" [width]="150" alignment="center" [allowSorting]="false" [allowFiltering]="false" cellTemplate="ident"></dxi-column>
+                            <dxi-column *appHasPermission="['35', '36']" caption="Acciones" cellTemplate="Acciones"
+                                alignment="center" [width]="150"></dxi-column>
+                            <dxi-column caption="Identificación" [width]="150" alignment="center" [allowSorting]="false"
+                                [allowFiltering]="false" cellTemplate="ident"></dxi-column>
                             <div *dxTemplate="let f of 'ident'">
-                                <button type="button" class="btn btn-primary btn-sm"
-                                    style="border-radius: 5px;"
+                                <button type="button" class="btn btn-primary btn-sm" style="border-radius: 5px;"
                                     (click)="previsualizar(f?.data?.identificacion, 'Identificación', f?.data)">
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
@@ -55,8 +56,7 @@
                                 [allowFiltering]="false" cellTemplate="comp">
                             </dxi-column>
                             <div *dxTemplate="let f of 'comp'">
-                                <button type="button" class="btn btn-success btn-sm"
-                                    style="border-radius: 5px;"
+                                <button type="button" class="btn btn-success btn-sm" style="border-radius: 5px;"
                                     (click)="previsualizar(f?.data?.comprobanteDomicilio, 'Comprobante de Domicilio', f?.data)">
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
@@ -65,32 +65,33 @@
                                 [allowFiltering]="false" cellTemplate="penales">
                             </dxi-column>
                             <div *dxTemplate="let f of 'penales'">
-                                <button type="button" class="btn btn-warning btn-sm"
-                                    style="border-radius: 5px;"
+                                <button type="button" class="btn btn-warning btn-sm" style="border-radius: 5px;"
                                     (click)="previsualizar(f?.data?.antecedentesNoPenales || f?.data?.antecedentesPenales, 'Antecedentes No Penales', f?.data)">
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
                             </div>
-                            <dxi-column dataField="idUsuario2" caption="Nombre" cellTemplate="nomb" alignment="center">
+                            <dxi-column caption="Nombre" cellTemplate="nomb" alignment="center">
                                 <div *dxTemplate="let r of 'nomb'">
-                                    {{ r.data.idUsuario2.nombre + ' ' + r.data.idUsuario2.apellidoPaterno + ' ' +
-                                    r.data.idUsuario2.apellidoMaterno }}
+                                    {{ r.data.nombreUsuario + ' ' + r.data.apellidoPaternoUsuario + ' ' +
+                                    r.data.apellidoMaternoUsuario }}
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="numeroLicencia" caption="Número Licencia" alignment="center"></dxi-column>
-                            <dxi-column dataField="correo" caption="Correo Electrónico" alignment="center" cellTemplate="correoElec">
-                                <div *dxTemplate="let f of 'correoElec'">
-                                    {{f.data.idUsuario2.userName}}
+                            <dxi-column dataField="licencia" caption="Número Licencia" alignment="center"
+                                cellTemplate="licUser">
+                                <div *dxTemplate="let r of 'licUser'">
+                                    {{ r.data.licencia || 'Sin registro' }}
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="telefono" caption="Teléfono" alignment="center"
-                                cellTemplate="fechNacimi">
-                                <div *dxTemplate="let fr of 'fechNacimi'">
-                                    {{fr.data.idUsuario2.telefono}}
-                                </div>
-                            </dxi-column>
-                            <dxi-column dataField="fechaNacimiento" [width]="150" type="date" caption="Fecha de Nacimiento"
+                            <dxi-column dataField="userNameUsuario" caption="Correo Electrónico"
                                 alignment="center"></dxi-column>
+                            <dxi-column dataField="telefonoUsuario" caption="Teléfono" alignment="center">
+                            </dxi-column>
+                            <dxi-column dataField="fechaNacimiento" [width]="150" caption="Fecha de Nacimiento"
+                                alignment="center" cellTemplate="fechNacicimiento">
+                                <div *dxTemplate="let a of 'fechNacicimiento'">
+                                    {{ a.data.fechaNacimiento | date:'dd/MM/yyyy' : '+0000' }}
+                                </div>
+                            </dxi-column>
                             <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
                                     <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">

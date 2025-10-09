@@ -283,7 +283,7 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
   private geocoder!: any;
 
   async ngAfterViewInit(): Promise<void> {
-    await this.loadGoogleMaps('TU_API_KEY_AQUI');
+    await this.loadGoogleMaps('AIzaSyBpLS8xONczrVarb5aZz-mXj1hBMLxhQpU');
     this.initMap();
   }
 

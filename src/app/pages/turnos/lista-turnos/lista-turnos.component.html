@@ -55,31 +55,31 @@
                             </dxi-column>
                             <dxi-column caption="Operador" alignment="center" cellTemplate="nomOperador">
                                 <div *dxTemplate="let re of 'nomOperador'">
-                                    {{ re.data?.idOperador2?.idUsuario2?.nombre }}
-                                    {{ re.data?.idOperador2?.idUsuario2?.apellidoPaterno || '' }}
-                                    {{ re.data?.idOperador2?.idUsuario2?.apellidoMaterno || '' }}
+                                    {{ re.data?.nombreOperador }}
+                                    {{ re.data?.apellidoPaternoOperador || '' }}
+                                    {{ re.data?.apellidoMaternoOperador || '' }}
                                 </div>
                             </dxi-column>
                             <dxi-column caption="Cliente" alignment="center" cellTemplate="nomCliente">
                                 <div *dxTemplate="let re of 'nomCliente'">
-                                    {{ re.data?.idCliente2?.nombre }}
-                                    {{ re.data?.idCliente2?.apellidoPaterno || '' }}
-                                    {{ re.data?.idCliente2?.apellidoMaterno || '' }}
+                                    {{ re.data?.nombreCliente }}
+                                    {{ re.data?.apellidoPaternoCliente || '' }}
+                                    {{ re.data?.apellidoMaternoCliente || '' }}
                                 </div>
                             </dxi-column>
                             <dxi-column caption="Vehículo" alignment="center" cellTemplate="vehic">
                                 <div *dxTemplate="let re of 'vehic'">
-                                    {{ re.data?.idInstalacion2.vehiculos?.placa }}
+                                    {{ re.data?.placaVehiculo }}
                                 </div>
                             </dxi-column>
                             <dxi-column caption="Dispositivo" alignment="center" cellTemplate="dispoSi">
                                 <div *dxTemplate="let re of 'dispoSi'">
-                                    {{ re.data?.idInstalacion2.dispositivos?.numeroSerie }}
+                                    {{ re.data?.numeroSerieDispositivo }}
                                 </div>
                             </dxi-column>
                             <dxi-column caption="Bluevox" alignment="center" cellTemplate="blueVo">
                                 <div *dxTemplate="let re of 'blueVo'">
-                                    {{ re.data?.idInstalacion2.blueVoxs?.numeroSerie }}
+                                    {{ re.data?.numeroSerieBlueVox }}
                                 </div>
                             </dxi-column>
                             <dxi-column dataField="fechaCreacion" caption="Fecha Creación" alignment="center"

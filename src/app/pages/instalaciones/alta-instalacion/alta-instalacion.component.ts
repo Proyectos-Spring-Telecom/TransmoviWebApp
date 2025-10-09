@@ -44,14 +44,12 @@ export class AltaInstalacionComponent implements OnInit {
     private clieService: ClientesService
   ) { }
 
-  // --- NUEVO: buffer para restaurar selección en edición ---
   private pendingSelecciones: {
     idDispositivo?: number;
     idBlueVox?: number;
     idVehiculo?: number;
   } = {};
 
-  // --- igual que ya lo tienes ---
   ngOnInit(): void {
     this.initForm();
     this.suscribirCambioCliente();
@@ -76,24 +74,39 @@ export class AltaInstalacionComponent implements OnInit {
     });
   }
 
-  obtenerInstalacion() {
-    this.instService.obtenerInstalacion(this.idInstalacion).subscribe((response: any) => {
-      const d = response?.data ?? {};
-      // 1) SOLO CLIENTE aquí (dispara valueChanges para cargar listas ByCliente)
-      this.instalacionesForm.patchValue({
-        idCliente: Number(d?.idCliente2?.id ?? null),
-        estatus: Number(d?.estatus ?? 1),
-      }, { emitEvent: true });
-
-      // 2) Guarda dependientes para aplicarlos cuando lleguen las listas
-      this.pendingSelecciones = {
-        idDispositivo: Number(d?.dispositivos?.id ?? null),
-        idBlueVox: Number(d?.blueVoxs?.id ?? null),
-        idVehiculo: Number(d?.vehiculos?.id ?? null),
-      };
-    });
+  private toNumOrNull(v: any): number | null {
+    return v === undefined || v === null || v === '' || Number.isNaN(Number(v))
+      ? null
+      : Number(v);
   }
 
+  obtenerInstalacion() {
+    this.instService.obtenerInstalacion(this.idInstalacion).subscribe((response: any) => {
+
+      const raw = Array.isArray(response?.data) ? response.data[0] : response?.data || {};
+      if (!raw) return;
+
+      const idCliente = this.toNumOrNull(raw.idCliente ?? raw?.idCliente2?.id);
+      const estatus = this.toNumOrNull(raw.estatus) ?? 1;
+      const idDispositivo = this.toNumOrNull(raw.idDispositivo ?? raw?.dispositivos?.id);
+      const idBlueVox = this.toNumOrNull(raw.idBlueVox ?? raw?.blueVoxs?.id);
+      const idVehiculo = this.toNumOrNull(raw.idVehiculo ?? raw?.vehiculos?.id);
+
+      this.instalacionesForm.patchValue(
+        { idCliente, estatus },
+        { emitEvent: true }
+      );
+      this.pendingSelecciones = {
+        idDispositivo,
+        idBlueVox,
+        idVehiculo,
+      };
+
+      console.log('[INSTALACION][NORMALIZADA]', {
+        idCliente, estatus, idDispositivo, idBlueVox, idVehiculo
+      });
+    });
+  }
 
   private desactivarCamposDependientes(disabled: boolean) {
     if (!this.instalacionesForm) return;
@@ -128,8 +141,6 @@ export class AltaInstalacionComponent implements OnInit {
     this.listaVehiculos = [];
   }
 
-
-  // NO CAMBIES tu suscripción; solo asegúrate de que exista el form
   private suscribirCambioCliente() {
     this.instalacionesForm.get('idCliente')?.valueChanges
       .pipe(debounceTime(150), distinctUntilChanged())
@@ -145,7 +156,6 @@ export class AltaInstalacionComponent implements OnInit {
   private cargarListasPorCliente(idCliente: number) {
     this.loadingDependientes = true;
 
-    // Limpia visualmente mientras carga, pero NO borra el buffer pendingSelecciones
     this.limpiarDependientes();
     this.desactivarCamposDependientes(true);
 
@@ -161,14 +171,9 @@ export class AltaInstalacionComponent implements OnInit {
           this.listaBlueVox = this.normalizeId(resp?.bluevox?.data ?? []);
           this.listaVehiculos = this.normalizeId(resp?.vehiculos?.data ?? []);
 
-          // Habilita selects
           this.desactivarCamposDependientes(false);
-
-          // --- NUEVO: si hay valores pendientes (modo edición), re-aplícalos ahora ---
           const p = this.pendingSelecciones || {};
           const opts = { emitEvent: false };
-
-          // Coerción a number y verificación de que existan en las listas (evita valores huérfanos)
           if (p.idDispositivo && this.listaDipositivos.some(x => x.id === p.idDispositivo)) {
             this.instalacionesForm.get('idDispositivo')?.patchValue(p.idDispositivo, opts);
           }
@@ -178,8 +183,6 @@ export class AltaInstalacionComponent implements OnInit {
           if (p.idVehiculo && this.listaVehiculos.some(x => x.id === p.idVehiculo)) {
             this.instalacionesForm.get('idVehiculo')?.patchValue(p.idVehiculo, opts);
           }
-
-          // Limpia el buffer para no re-parchear en cambios futuros
           this.pendingSelecciones = {};
         },
         error: () => {
@@ -271,7 +274,8 @@ export class AltaInstalacionComponent implements OnInit {
         });
         this.regresar();
       },
-      (error) => {
+      (error: string) => {
+        console.log(error)
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({

@@ -154,7 +154,7 @@ export class ListaVehiculosComponent implements OnInit {
   activar(rowData: any) {
     Swal.fire({
       title: '¡Activar!',
-      html: `¿Está seguro que desea activar el vehículo: <strong>${rowData.marca} ${rowData.modelo}</strong>?`,
+      html: `¿Está seguro que requiere activar el vehículo: <strong>${rowData.marca} ${rowData.modelo}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -197,7 +197,7 @@ export class ListaVehiculosComponent implements OnInit {
   desactivar(rowData: any) {
     Swal.fire({
       title: '¡Desactivar!',
-      html: `¿Está seguro que requiere dar de baja el vehículo: <strong>${rowData.marca} ${rowData.modelo}</strong>?`,
+      html: `¿Está seguro que requiere desactivar el vehículo: <strong>${rowData.marca} ${rowData.modelo}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',

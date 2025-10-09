@@ -135,7 +135,7 @@ export class ListaPasajerosComponent implements OnInit {
     Swal.fire({
       title: '¡Eliminar Pasajero!',
       background: '#002136',
-      html: `¿Está seguro que desea eliminar el pasajero: <br> ${pasajero.Nombre + ' ' + pasajero.ApellidoPaterno + ' ' + pasajero.ApellidoMaterno}?`,
+      html: `¿Está seguro que requiere eliminar el pasajero: <br> ${pasajero.Nombre + ' ' + pasajero.ApellidoPaterno + ' ' + pasajero.ApellidoMaterno}?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',

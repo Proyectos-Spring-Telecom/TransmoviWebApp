@@ -160,7 +160,7 @@ export class ListaClientesComponent implements OnInit {
     Swal.fire({
       title: '¡Eliminar Cliente!',
       background: '#002136',
-      html: `¿Está seguro que desea eliminar el cliente: <br> ${cliente.NombreCompleto}?`,
+      html: `Está seguro que requiere eliminar el cliente: <br> ${cliente.NombreCompleto}?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -199,7 +199,7 @@ export class ListaClientesComponent implements OnInit {
   activar(rowData: any) {
     Swal.fire({
       title: '¡Activar!',
-      html: `¿Está seguro que desea activar el cliente: <strong>${rowData.nombre}</strong>?`,
+      html: `¿Está seguro que requiere activar el cliente: <strong>${rowData.nombre}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -242,7 +242,7 @@ export class ListaClientesComponent implements OnInit {
   desactivar(rowData: any) {
     Swal.fire({
       title: '¡Desactivar!',
-      html: `¿Está seguro que requiere dar de baja el cliente: <strong>${rowData.nombre}</strong>?`,
+      html: `¿Está seguro que requiere desactivar el cliente: <strong>${rowData.nombre}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',

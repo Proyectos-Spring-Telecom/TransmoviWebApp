@@ -185,7 +185,7 @@ export class PuntoVentaPostComponent implements OnInit {
         holdTimer = setTimeout(() => {
           Swal.close();
           this.showRecargaExitosa = true;
-        }, 5000);
+        }, 3000);
       },
       error: (err: any) => {
         if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }

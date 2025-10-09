@@ -38,7 +38,7 @@ export class AgregarTurnoComponent {
     private clieService: ClientesService,
     private operaService: OperadoresService,
     private instService: InstalacionesService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
@@ -67,24 +67,61 @@ export class AgregarTurnoComponent {
   }
 
   obtenerOperador() {
-    this.operaService.obtenerOperadores().subscribe((response) => {
-      this.listaOperadores = this.normalizeId(response.data);
+    this.operaService.obtenerOperadores().subscribe((response: any) => {
+      console.log('[OPERADORES][RAW]', response);
+
+      // Si la API devuelve directamente un array, lo tomamos así:
+      const operadores = Array.isArray(response)
+        ? response
+        : Array.isArray(response?.data)
+          ? response.data
+          : [];
+
+      // Guardamos los operadores en la lista
+      this.listaOperadores = operadores.map((op) => ({
+        id: op.id,
+        nombreUsuario: op.nombreUsuario ?? '',
+        apellidoPaternoUsuario: op.apellidoPaternoUsuario ?? '',
+        apellidoMaternoUsuario: op.apellidoMaternoUsuario ?? '',
+      }));
+
+      console.log('[OPERADORES][NORMALIZADOS]', this.listaOperadores);
     });
   }
+
 
   compareNums = (a: any, b: any) => Number(a) === Number(b);
-
   obtenerTurno() {
     this.turnoService.obtenerTurno(this.idTurno).subscribe((response: any) => {
+      console.log('[TURNO][RAW]', response);
+
+      // Si data viene como array, tomamos el primer elemento
+      const turno = Array.isArray(response?.data) ? response.data[0] : response?.data;
+
+      if (!turno) {
+        console.warn('No se encontró información del turno');
+        return;
+      }
+
+      // Conversión segura de tipos
+      const idCliente = turno.idCliente ? Number(turno.idCliente) : null;
+      const idOperador = turno.idOperador ? Number(turno.idOperador) : null;
+      const idInstalacion = turno.idInstalacion ? Number(turno.idInstalacion) : null;
+
+      // Cargamos los datos en el formulario
       this.turnosForm.patchValue({
-        inicio: this.toInputDatetime(response.data.inicio),
-        fin: this.toInputDatetime(response.data.fin),
-        idCliente: response.data.idCliente2?.id ?? null,
-        idOperador: response.data.idOperador2?.id ?? null,
-        idInstalacion: Number(response.data.idInstalacion2?.id) ?? null,
+        inicio: this.toInputDatetime(turno.inicio),
+        fin: this.toInputDatetime(turno.fin),
+        idCliente,
+        idOperador,
+        idInstalacion,
       });
+
+      console.log('[TURNO][NORMALIZADO]', { ...turno, idCliente, idOperador, idInstalacion });
     });
   }
+
+
 
   private toInputDatetime(z: string | null | undefined): string | null {
     if (!z) return null;
@@ -195,7 +232,7 @@ export class AgregarTurnoComponent {
         Swal.fire({
           title: '¡Operación Exitosa!',
           background: '#002136',
-          text: `Se agregó un nuevo módulo de manera exitosa.`,
+          text: `Se agregó un nuevo turno de manera exitosa.`,
           icon: 'success',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -281,7 +318,7 @@ export class AgregarTurnoComponent {
         Swal.fire({
           title: '¡Operación Exitosa!',
           background: '#002136',
-          text: `Los datos del módulo se actualizaron correctamente.`,
+          text: `Los datos del turno se actualizaron correctamente.`,
           icon: 'success',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -294,7 +331,7 @@ export class AgregarTurnoComponent {
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: `Ocurrió un error al actualizar el módulo.`,
+          text: `Ocurrió un error al actualizar el turno.`,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',

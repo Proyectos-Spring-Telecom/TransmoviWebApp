@@ -51,7 +51,7 @@ export class ListaModulosComponent {
   hasPermission(permission: string): boolean {
     return this.permissionsService.getPermission(permission) !== undefined;
   }
-  
+
   obtenerListaModulos() {
     this.loading = true;
     this.moduloService.obtenerModulos().subscribe((response: any[]) => {
@@ -71,7 +71,7 @@ export class ListaModulosComponent {
   activar(rowData: any) {
     Swal.fire({
       title: '¡Activar!',
-      html: `¿Está seguro que desea activar el módulo: <strong>${rowData.nombre}</strong>?`,
+      html: `¿Está seguro que requiere activar el módulo: <strong>${rowData.nombre}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -114,7 +114,7 @@ export class ListaModulosComponent {
   desactivar(rowData: any) {
     Swal.fire({
       title: '¡Desactivar!',
-      html: `¿Está seguro que requiere dar de baja el módulo: <strong>${rowData.nombre}</strong>?`,
+      html: `¿Está seguro que requiere desactivar el módulo: <strong>${rowData.nombre}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -161,97 +161,109 @@ export class ListaModulosComponent {
   }
 
   setupDataSource() {
-  this.loading = true;
+    this.loading = true;
 
-  this.listaModulos = new CustomStore({
-    key: 'id',
-    load: async (loadOptions: any) => {
-      // DevExtreme manda estos valores cuando usas remote paging
-      const take = Number(loadOptions?.take) || this.pageSize || 10;
-      const skip = Number(loadOptions?.skip) || 0;
-      const page = Math.floor(skip / take) + 1;
+    this.listaModulos = new CustomStore({
+      key: 'id',
+      load: async (loadOptions: any) => {
+        const take = Number(loadOptions?.take) || this.pageSize || 10;
+        const skip = Number(loadOptions?.skip) || 0;
+        const page = Math.floor(skip / take) + 1;
 
-      try {
-        const resp: any = await lastValueFrom(
-          this.moduloService.obtenerModuloData(page, take)
-        );
+        try {
+          const resp: any = await lastValueFrom(
+            this.moduloService.obtenerModuloData(page, take)
+          );
+          this.loading = false;
+          const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
+          const meta = resp?.paginated || {};
+          const totalRegistros =
+            toNum(meta.total) ??
+            toNum(resp?.total) ??
+            rows.length;
 
-        this.loading = false;
+          const paginaActual =
+            toNum(meta.page) ??
+            toNum(resp?.page) ??
+            page;
 
-        const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
+          const totalPaginas =
+            toNum(meta.lastPage) ??
+            toNum(resp?.pages) ??
+            Math.max(1, Math.ceil(totalRegistros / take));
 
-        // ---- Manejo robusto de la meta de paginación ----
-        const meta = resp?.paginated || {};
-        const totalRegistros =
-          toNum(meta.total) ??
-          toNum(resp?.total) ??
-          rows.length;
+          const dataTransformada = rows.map((item: any) => ({
+            ...item,
+            estatusTexto:
+              item?.estatus === 1 ? 'Activo' :
+                item?.estatus === 0 ? 'Inactivo' : null
+          }));
 
-        const paginaActual =
-          toNum(meta.page) ??
-          toNum(resp?.page) ??
-          page;
+          this.totalRegistros = totalRegistros;
+          this.paginaActual = paginaActual;
+          this.totalPaginas = totalPaginas;
+          this.paginaActualData = dataTransformada;
 
-        const totalPaginas =
-          toNum(meta.lastPage) ??
-          toNum(resp?.pages) ??
-          Math.max(1, Math.ceil(totalRegistros / take));
-        // --------------------------------------------------
-
-        const dataTransformada = rows.map((item: any) => ({
-          ...item,
-          estatusTexto:
-            item?.estatus === 1 ? 'Activo' :
-            item?.estatus === 0 ? 'Inactivo' : null
-        }));
-
-        // Si llevas estos contadores en el componente:
-        this.totalRegistros = totalRegistros;
-        this.paginaActual = paginaActual;
-        this.totalPaginas = totalPaginas;
-        this.paginaActualData = dataTransformada;
-
-        return {
-          data: dataTransformada,
-          totalCount: totalRegistros // <- IMPORTANTE para que el grid pagine bien
-        };
-      } catch (err) {
-        this.loading = false;
-        console.error('Error en la solicitud de datos:', err);
-        return { data: [], totalCount: 0 };
+          return {
+            data: dataTransformada,
+            totalCount: totalRegistros
+          };
+        } catch (err) {
+          this.loading = false;
+          console.error('Error en la solicitud de datos:', err);
+          return { data: [], totalCount: 0 };
+        }
       }
+    });
+
+    function toNum(v: any): number | null {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
     }
-  });
-
-  function toNum(v: any): number | null {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : null;
   }
-}
-
 
   onGridOptionChanged(e: any) {
-    if (e.fullName === "searchPanel.text") {
-      this.filtroActivo = e.value || '';
-      if (!this.filtroActivo) {
-        this.dataGrid.instance.option('dataSource', this.listaModulos);
-        return;
-      }
-      const search = this.filtroActivo.toString().toLowerCase();
-      const dataFiltrada = this.paginaActualData.filter((item: any) => {
-        const idStr = item.id ? item.id.toString().toLowerCase() : '';
-        const nombreStr = item.nombre ? item.nombre.toString().toLowerCase() : '';
-        const descripcionStr = item.descripcion ? item.descripcion.toString().toLowerCase() : '';
-        const moduloStr = item.estatusTexto ? item.estatusTexto.toString().toLowerCase() : '';
-        return (
-          nombreStr.includes(search) ||
-          descripcionStr.includes(search) ||
-          moduloStr.includes(search) ||
-          idStr.includes(search)
-        );
-      });
-      this.dataGrid.instance.option('dataSource', dataFiltrada);
+    if (e.fullName !== 'searchPanel.text') return;
+
+    const grid = this.dataGrid?.instance;
+    const texto = (e.value ?? '').toString().trim().toLowerCase();
+    if (!texto) {
+      this.filtroActivo = '';
+      grid?.option('dataSource', this.listaModulos);
+      return;
     }
+    this.filtroActivo = texto;
+    let columnas: any[] = [];
+    try {
+      const colsOpt = grid?.option('columns');
+      if (Array.isArray(colsOpt) && colsOpt.length) columnas = colsOpt;
+    } catch { }
+    if (!columnas.length && grid?.getVisibleColumns) {
+      columnas = grid.getVisibleColumns();
+    }
+    const dataFields: string[] = columnas
+      .map((c: any) => c?.dataField)
+      .filter((df: any) => typeof df === 'string' && df.trim().length > 0);
+    const normalizar = (val: any): string => {
+      if (val === null || val === undefined) return '';
+      if (val instanceof Date) {
+        const dd = String(val.getDate()).padStart(2, '0');
+        const mm = String(val.getMonth() + 1).padStart(2, '0');
+        const yyyy = val.getFullYear();
+        return `${dd}/${mm}/${yyyy}`.toLowerCase();
+      }
+      return String(val).toLowerCase();
+    };
+    const dataFiltrada = (this.paginaActualData || []).filter((row: any) => {
+      const hitEnColumnas = dataFields.some((df) => normalizar(row?.[df]).includes(texto));
+      const extras = [
+        normalizar(row?.id),
+        normalizar(row?.estatusTexto)
+      ];
+
+      return hitEnColumnas || extras.some((s) => s.includes(texto));
+    });
+    grid?.option('dataSource', dataFiltrada);
   }
 
   toggleExpandGroups() {

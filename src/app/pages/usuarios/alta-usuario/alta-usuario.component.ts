@@ -45,7 +45,7 @@ export class AltaUsuarioComponent implements OnInit {
     private permService: PermisosService,
     private rolService: RolesService,
     private clienService: ClientesService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.obtenerClientes();
@@ -87,7 +87,7 @@ export class AltaUsuarioComponent implements OnInit {
         idRol: [null],
         emailConfirmado: [0],
         estatus: [1],
-        idCliente: [null, [Validators.required]],
+        idCliente: [null],
         permisosIds: this.fb.control<number[]>([]),
       },
       { validators: this.passwordsMatchValidator }
@@ -154,38 +154,56 @@ export class AltaUsuarioComponent implements OnInit {
   }
 
   obtenerUsuarioID() {
-    this.usuaService
-      .obtenerUsuario(this.idUsuario)
-      .subscribe((response: any) => {
-        console.log('[USUARIO][RAW]', response);
-        const u = response?.data?.usuario ?? {};
-        const perms = response?.data?.permiso ?? response?.data?.permisos ?? [];
-        this.permisosIds = Array.from(
-          new Set(
-            (perms || [])
-              .filter((p) => Number(p?.estatus) === 1)
-              .map((p) => this.getPermisoId(p))
-              .filter((n): n is number => n !== null)
-          )
-        );
-        this.usuarioForm.patchValue({ permisosIds: this.permisosIds });
-        this.applyAssignedPermsToModules();
-        this.usuarioForm.patchValue({
-          userName: u?.userName ?? '',
-          telefono: u?.telefono ?? '',
-          nombre: u?.nombre ?? '',
-          apellidoPaterno: u?.apellidoPaterno ?? '',
-          apellidoMaterno: u?.apellidoMaterno ?? '',
-          fotoPerfil:
-            u?.fotoPerfil ?? this.usuarioForm.get('fotoPerfil')?.value,
-          emailConfirmado: Number(u?.emailConfirmado ?? 0),
-          estatus: Number(u?.estatus ?? 1),
-          idRol: Number(u?.idRol ?? null),
-          idCliente: Number(u?.idCliente ?? null),
-          permisosIds: this.permisosIds,
-        });
+    this.usuaService.obtenerUsuario(this.idUsuario).subscribe((response: any) => {
+      console.log('[USUARIO][RAW]', response);
+
+      const data = response?.data ?? {};
+
+      const usuarios = Array.isArray(data?.usuario)
+        ? data.usuario
+        : Array.isArray(data?.usuarios)
+          ? data.usuarios
+          : data?.usuario
+            ? [data.usuario]
+            : [];
+
+      const u = usuarios[0] ?? {};
+
+      const perms = Array.isArray(data?.permiso)
+        ? data.permiso
+        : Array.isArray(data?.permisos)
+          ? data.permisos
+          : [];
+
+      this.permisosIds = Array.from(
+        new Set(
+          (perms || [])
+            .filter((p: any) => Number(p?.estatus) === 1)
+            .map((p: any) => this.getPermisoId(p))
+            .filter((n: any): n is number => Number.isFinite(n))
+        )
+      );
+
+      this.usuarioForm.patchValue({ permisosIds: this.permisosIds });
+      this.applyAssignedPermsToModules?.();
+
+      this.usuarioForm.patchValue({
+        userName: u?.userName ?? '',
+        telefono: u?.telefono ?? '',
+        nombre: u?.nombre ?? '',
+        apellidoPaterno: u?.apellidoPaterno ?? '',
+        apellidoMaterno: u?.apellidoMaterno ?? '',
+        fotoPerfil: u?.fotoPerfil ?? this.usuarioForm.get('fotoPerfil')?.value,
+        emailConfirmado: Number(u?.emailConfirmado ?? 0),
+        estatus: Number(u?.estatus ?? 1),
+        idRol: u?.idRol != null ? Number(u.idRol) : null,
+        idCliente: u?.idCliente != null ? Number(u.idCliente) : null,
+        permisosIds: this.permisosIds,
       });
+
+    });
   }
+
 
   isPermisoAsignado(id: any): boolean {
     const nid = this.getPermisoId({ idPermiso: id, id });
@@ -361,113 +379,118 @@ export class AltaUsuarioComponent implements OnInit {
   }
 
   agregar() {
-    if (this.loading) return;
+  if (this.loading) return;
 
-    this.submitButton = 'Cargando...';
-    this.loading = true;
+  this.submitButton = 'Cargando...';
+  this.loading = true;
 
-    this.usuarioForm.markAllAsTouched();
+  this.usuarioForm.markAllAsTouched();
 
-    const etiquetas: Record<string, string> = {
-      userName: 'Correo electrónico',
-      passwordHash: 'Contraseña',
-      confirmPassword: 'Confirmar contraseña',
-      telefono: 'Teléfono',
-      nombre: 'Nombre',
-      apellidoPaterno: 'Apellido Paterno',
-      apellidoMaterno: 'Apellido Materno',
-      fotoPerfil: 'Foto de perfil',
-      idRol: 'Rol',
-      estatus: 'Estatus',
-      idCliente: 'Cliente',
-      permisosIds: 'Permisos',
-    };
+  const etiquetas: Record<string, string> = {
+    userName: 'Correo electrónico',
+    passwordHash: 'Contraseña',
+    confirmPassword: 'Confirmar contraseña',
+    telefono: 'Teléfono',
+    nombre: 'Nombre',
+    apellidoPaterno: 'Apellido Paterno',
+    apellidoMaterno: 'Apellido Materno',
+    fotoPerfil: 'Foto de perfil',
+    idRol: 'Rol',
+    estatus: 'Estatus',
+    permisosIds: 'Permisos',
+  };
 
-    if (this.usuarioForm.invalid) {
-      const camposFaltantes: string[] = [];
-      Object.keys(this.usuarioForm.controls).forEach((key) => {
-        const control = this.usuarioForm.get(key);
-        if (control?.errors?.['required']) {
-          camposFaltantes.push(etiquetas[key] || key);
-        }
-      });
-
-      const mensajes: string[] = [...camposFaltantes];
-      if (this.usuarioForm.hasError('passwordMismatch')) {
-        mensajes.push('Las contraseñas no coinciden');
+  if (this.usuarioForm.invalid) {
+    const camposFaltantes: string[] = [];
+    Object.keys(this.usuarioForm.controls).forEach((key) => {
+      const control = this.usuarioForm.get(key);
+      if (control?.errors?.['required']) {
+        camposFaltantes.push(etiquetas[key] || key);
       }
+    });
 
-      const lista = mensajes
-        .map(
-          (campo, index) => `
+    const mensajes: string[] = [...camposFaltantes];
+    if (this.usuarioForm.hasError('passwordMismatch')) {
+      mensajes.push('Las contraseñas no coinciden');
+    }
+
+    const lista = mensajes
+      .map(
+        (campo, index) => `
         <div style="padding:8px 12px;border-left:4px solid #d9534f;
                     background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
           <strong style="color:#b02a37;">${index + 1}. ${campo}</strong>
         </div>`
-        )
-        .join('');
+      )
+      .join('');
 
-      this.submitButton = 'Guardar';
-      this.loading = false;
+    this.submitButton = 'Guardar';
+    this.loading = false;
 
-      Swal.fire({
-        title: '¡Faltan campos obligatorios!',
-        background: '#002136',
-        html: `
+    Swal.fire({
+      title: '¡Faltan campos obligatorios!',
+      background: '#002136',
+      html: `
         <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
           Los siguientes <strong>campos</strong> requieren atención:
         </p>
         <div style="max-height:350px;overflow-y:auto;">${lista}</div>
       `,
-        icon: 'error',
-        confirmButtonText: 'Entendido',
-        customClass: { popup: 'swal2-padding swal2-border' },
-      });
-      return;
-    }
+      icon: 'error',
+      confirmButtonText: 'Entendido',
+      customClass: { popup: 'swal2-padding swal2-border' },
+    });
+    return;
+  }
 
-    const { confirmPassword, idCliente, idRol, permisosIds, ...rest } =
-      this.usuarioForm.value;
-    const payload = {
-      ...rest,
-      idCliente: Number(idCliente),
-      idRol: Number(idRol),
-      permisosIds: (permisosIds || []).map((x: any) => Number(x)),
-    };
-    if (!payload.permisosIds || payload.permisosIds.length === 0) {
+  const { confirmPassword, idCliente, idRol, permisosIds, ...rest } = this.usuarioForm.value;
+
+  const toNumOrNull = (v: any) =>
+    v === null || v === undefined || v === '' ? null : Number(v);
+
+  const payload = {
+    ...rest,
+    idCliente: toNumOrNull(idCliente),
+    idRol: toNumOrNull(idRol),
+    permisosIds: (permisosIds || []).map((x: any) => Number(x)),
+  };
+
+  if (!payload.permisosIds || payload.permisosIds.length === 0) {
+    this.submitButton = 'Guardar';
+    this.loading = false;
+    this.mostrarAlertaPermisos();
+    return;
+  }
+
+  this.usuaService.agregarUsuario(payload).subscribe({
+    next: () => {
       this.submitButton = 'Guardar';
       this.loading = false;
-      this.mostrarAlertaPermisos();
-      return;
-    }
-    this.usuaService.agregarUsuario(payload).subscribe({
-      next: () => {
-        this.submitButton = 'Guardar';
-        this.loading = false;
-        Swal.fire({
-          title: '¡Operación Exitosa!',
-          background: '#002136',
-          text: `Se agregó un nuevo usuario de manera exitosa.`,
-          icon: 'success',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Confirmar',
-        });
-        this.regresar();
-      },
-      error: () => {
-        this.submitButton = 'Guardar';
-        this.loading = false;
-        Swal.fire({
-          title: '¡Ops!',
-          background: '#002136',
-          text: `Ocurrió un error al agregar el usuario.`,
-          icon: 'error',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Confirmar',
-        });
-      },
-    });
-  }
+      Swal.fire({
+        title: '¡Operación Exitosa!',
+        background: '#002136',
+        text: `Se agregó un nuevo usuario de manera exitosa.`,
+        icon: 'success',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Confirmar',
+      });
+      this.regresar();
+    },
+    error: () => {
+      this.submitButton = 'Guardar';
+      this.loading = false;
+      Swal.fire({
+        title: '¡Ops!',
+        background: '#002136',
+        text: `Ocurrió un error al agregar el usuario.`,
+        icon: 'error',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Confirmar',
+      });
+    },
+  });
+}
+
 
   actualizar() {
     if (this.loading) return;

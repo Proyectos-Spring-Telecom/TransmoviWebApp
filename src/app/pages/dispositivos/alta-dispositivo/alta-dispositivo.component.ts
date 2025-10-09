@@ -51,29 +51,38 @@ obtenerClientes() {
   this.clieService.obtenerClientes().subscribe((response) => {
     this.listaClientes = (response.data || []).map((c: any) => ({
       ...c,
-      id: Number(c?.id ?? c?.Id ?? c?.ID) // asegura número
+      id: Number(c?.id ?? c?.Id ?? c?.ID)
     }));
   });
 }
 
 obtenerDispositivoID() {
   this.dispoService.obtenerDispositivo(this.idDispositivo).subscribe((response: any) => {
-    const d = response?.dispositivo ?? response?.data ?? response ?? {};
+    const raw =
+      Array.isArray(response?.data) ? response.data[0] :
+      response?.dispositivo ?? response?.data ?? response ?? {};
 
-    // toma idCliente/estatus sin importar la variante de nombre y castea a number
-    const idCli = d?.idCliente ?? d?.idcliente ?? d?.IdCliente ?? d?.IDCliente;
-    const est   = d?.estatus    ?? d?.Estatus;
+    const get = (o: any, keys: string[]) => {
+      for (const k of keys) if (o?.[k] !== undefined && o?.[k] !== null) return o[k];
+      return null;
+    };
+
+    const numeroSerie = get(raw, ['numeroSerie', 'NumeroSerie', 'numeroserie']);
+    const marca = get(raw, ['marca', 'Marca']);
+    const modelo = get(raw, ['modelo', 'Modelo']);
+    const est = get(raw, ['estatus', 'Estatus']);
+    const idCli = get(raw, ['idCliente', 'idcliente', 'IdCliente', 'IDCliente']);
 
     this.dispositivoForm.patchValue({
-      // OJO: aquí estaba mal escrito como "nu0meroSerie"
-      numeroSerie: d?.numeroSerie ?? d?.NumeroSerie ?? '',
-      marca: d?.marca ?? d?.Marca ?? '',
-      modelo: d?.modelo ?? d?.Modelo ?? '',
-      estatus: (est != null ? Number(est) : 1),
-      idCliente: (idCli != null ? Number(idCli) : null),
+      numeroSerie: numeroSerie ?? '',
+      marca: marca ?? '',
+      modelo: modelo ?? '',
+      estatus: est != null && !Number.isNaN(Number(est)) ? Number(est) : 1,
+      idCliente: idCli != null && idCli !== '' ? Number(idCli) : null,
     });
   });
 }
+
 
 initForm() {
   this.dispositivoForm = this.fb.group({

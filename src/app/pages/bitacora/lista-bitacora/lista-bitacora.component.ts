@@ -119,40 +119,91 @@ export class ListaBitacoraComponent implements OnInit {
     }
   }
 
+  onGridOptionChanged(e: any) {
+    if (e.fullName !== 'searchPanel.text') return;
+
+    const grid = this.dataGrid?.instance;
+    const q = (e.value ?? '').toString().trim().toLowerCase();
+
+    if (!q) {
+      this.filtroActivo = '';
+      grid?.option('dataSource', this.bitacoraList);
+      return;
+    }
+    this.filtroActivo = q;
+
+    let columnas: any[] = [];
+    try {
+      const colsOpt = grid?.option('columns');
+      if (Array.isArray(colsOpt) && colsOpt.length) columnas = colsOpt;
+    } catch { }
+    if (!columnas.length && grid?.getVisibleColumns) {
+      columnas = grid.getVisibleColumns();
+    }
+
+    const dataFields: string[] = columnas
+      .map((c: any) => c?.dataField)
+      .filter((df: any) => typeof df === 'string' && df.trim().length > 0);
+
+    const getByPath = (obj: any, path: string) => {
+      if (!obj || !path) return undefined;
+      return path.split('.').reduce((acc, key) => acc?.[key], obj);
+    };
+
+    const normalizar = (val: any): string => {
+      if (val === null || val === undefined) return '';
+      if (val instanceof Date) {
+        const dd = String(val.getDate()).padStart(2, '0');
+        const mm = String(val.getMonth() + 1).padStart(2, '0');
+        const yyyy = val.getFullYear();
+        const hh = String(val.getHours()).padStart(2, '0');
+        const mi = String(val.getMinutes()).padStart(2, '0');
+        const ss = String(val.getSeconds()).padStart(2, '0');
+        const ampm = val.getHours() >= 12 ? 'pm' : 'am';
+        return `${dd}/${mm}/${yyyy} ${hh}:${mi}:${ss} ${ampm}`.toLowerCase();
+      }
+      if (typeof val === 'string') {
+        let s = val.toLowerCase();
+        if (/\d{4}-\d{2}-\d{2}T?/.test(val)) {
+          const d = new Date(val);
+          if (!isNaN(d.getTime())) {
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yyyy = d.getFullYear();
+            const hh = String(d.getHours()).padStart(2, '0');
+            const mi = String(d.getMinutes()).padStart(2, '0');
+            const ss = String(d.getSeconds()).padStart(2, '0');
+            const ampm = d.getHours() >= 12 ? 'pm' : 'am';
+            s = `${s} ${dd}/${mm}/${yyyy} ${hh}:${mi}:${ss} ${ampm} ${dd}/${mm}/${yyyy}`;
+          }
+        }
+        return s;
+      }
+      if (Array.isArray(val)) return val.map(normalizar).join(' ');
+      return String(val).toLowerCase();
+    };
+
+    const dataFiltrada = (this.paginaActualData || []).filter((row: any) => {
+      const hitCols = dataFields.some((df) => normalizar(getByPath(row, df)).includes(q));
+      const hitExtras = [
+        normalizar(row?.id),
+        normalizar(row?.modulo),
+        normalizar(row?.accionTexto),
+        normalizar(row?.usuarioNombre),
+        normalizar(row?.estatusTexto)
+      ].some((s) => s.includes(q));
+      const hitFecha = normalizar(row?.fechaCreacion).includes(q);
+      return hitCols || hitExtras || hitFecha;
+    });
+
+    grid?.option('dataSource', dataFiltrada);
+  }
+
+
   onPageIndexChanged(e: any) {
     const pageIndex = e.component.pageIndex();
     this.paginaActual = pageIndex + 1;
     e.component.refresh();
-  }
-
-  onGridOptionChanged(e: any) {
-    if (e.fullName === 'searchPanel.text') {
-      this.filtroActivo = e.value || '';
-      if (!this.filtroActivo) {
-        this.dataGrid.instance.option('dataSource', this.bitacoraList);
-        return;
-      }
-      const search = this.filtroActivo.toString().toLowerCase();
-      const dataFiltrada = this.paginaActualData.filter((item: any) => {
-        const idStr = item.id ? item.id.toString().toLowerCase() : '';
-        const nombreStr = item.nombre
-          ? item.nombre.toString().toLowerCase()
-          : '';
-        const descripcionStr = item.descripcion
-          ? item.descripcion.toString().toLowerCase()
-          : '';
-        const moduloStr = item.estatusTexto
-          ? item.estatusTexto.toString().toLowerCase()
-          : '';
-        return (
-          nombreStr.includes(search) ||
-          descripcionStr.includes(search) ||
-          moduloStr.includes(search) ||
-          idStr.includes(search)
-        );
-      });
-      this.dataGrid.instance.option('dataSource', dataFiltrada);
-    }
   }
 
   getUserFromQuery(query: string): string {

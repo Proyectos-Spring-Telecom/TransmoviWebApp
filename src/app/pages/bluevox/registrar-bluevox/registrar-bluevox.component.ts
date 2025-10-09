@@ -29,7 +29,7 @@ export class RegistrarBluevoxComponent implements OnInit {
     private dispoBlueService: DispositivoBluevoxService,
     private activatedRouted: ActivatedRoute,
     private clieService: ClientesService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.obtenerClientes();
@@ -47,32 +47,36 @@ export class RegistrarBluevoxComponent implements OnInit {
     this.clieService.obtenerClientes().subscribe((response) => {
       this.listaClientes = (response.data || []).map((c: any) => ({
         ...c,
-        id: Number(c?.id ?? c?.Id ?? c?.ID), // asegura número
+        id: Number(c?.id ?? c?.Id ?? c?.ID),
       }));
     });
   }
 
   obtenerDispositivoID() {
-    this.dispoBlueService
-      .obtenerDispositivoBlue(this.idDispositivo)
-      .subscribe((response: any) => {
-        const d = response?.dispositivo ?? response?.data ?? response ?? {};
+    this.dispoBlueService.obtenerDispositivoBlue(this.idDispositivo).subscribe((response: any) => {
+      const raw = Array.isArray(response) ? response[0] : Array.isArray(response?.data) ? response.data[0] : response?.dispositivo ?? response?.data ?? response ?? {};
 
-        // toma idCliente/estatus sin importar la variante de nombre y castea a number
-        const idCli =
-          d?.idCliente ?? d?.idcliente ?? d?.IdCliente ?? d?.IDCliente;
-        const est = d?.estatus ?? d?.Estatus;
+      const get = (o: any, keys: string[]) => {
+        for (const k of keys) if (o?.[k] !== undefined && o?.[k] !== null) return o[k];
+        return null;
+      };
 
-        this.dispositivoForm.patchValue({
-          // OJO: aquí estaba mal escrito como "nu0meroSerie"
-          numeroSerie: d?.numeroSerie ?? d?.NumeroSerie ?? '',
-          marca: d?.marca ?? d?.Marca ?? '',
-          modelo: d?.modelo ?? d?.Modelo ?? '',
-          estatus: est != null ? Number(est) : 1,
-          idCliente: idCli != null ? Number(idCli) : null,
-        });
+      const numeroSerie = get(raw, ['numeroSerie', 'NumeroSerie', 'numeroserie']);
+      const marca = get(raw, ['marca', 'Marca']);
+      const modelo = get(raw, ['modelo', 'Modelo']);
+      const est = get(raw, ['estatus', 'Estatus']);
+      const idCli = get(raw, ['idCliente', 'idcliente', 'IdCliente', 'IDCliente']);
+
+      this.dispositivoForm.patchValue({
+        numeroSerie: numeroSerie ?? '',
+        marca: marca ?? '',
+        modelo: modelo ?? '',
+        estatus: est != null && !Number.isNaN(Number(est)) ? Number(est) : 1,
+        idCliente: idCli != null && idCli !== '' ? Number(idCli) : null,
       });
+    });
   }
+
 
   initForm() {
     this.dispositivoForm = this.fb.group({
@@ -155,7 +159,7 @@ export class RegistrarBluevoxComponent implements OnInit {
           Swal.fire({
             title: '¡Operación Exitosa!',
             background: '#002136',
-            text: `Se agregó un nuevo dispositivo de manera exitosa.`,
+            text: `Se agregó un nuevo bluevox de manera exitosa.`,
             icon: 'success',
             confirmButtonColor: '#3085d6',
             confirmButtonText: 'Confirmar',
@@ -168,7 +172,7 @@ export class RegistrarBluevoxComponent implements OnInit {
           Swal.fire({
             title: '¡Ops!',
             background: '#002136',
-            text: `Ocurrió un error al agregar el dispositivo.`,
+            text: `Ocurrió un error al agregar el bluevox.`,
             icon: 'error',
             confirmButtonColor: '#3085d6',
             confirmButtonText: 'Confirmar',
@@ -240,7 +244,7 @@ export class RegistrarBluevoxComponent implements OnInit {
           Swal.fire({
             title: '¡Operación Exitosa!',
             background: '#002136',
-            text: `Los datos del dispositivo se actualizaron correctamente.`,
+            text: `Los datos del bluevox se actualizaron correctamente.`,
             icon: 'success',
             confirmButtonColor: '#3085d6',
             confirmButtonText: 'Confirmar',
@@ -253,7 +257,7 @@ export class RegistrarBluevoxComponent implements OnInit {
           Swal.fire({
             title: '¡Ops!',
             background: '#002136',
-            text: `Ocurrió un error al actualizar el dispositivo.`,
+            text: `Ocurrió un error al actualizar el bluevox.`,
             icon: 'error',
             confirmButtonColor: '#3085d6',
             confirmButtonText: 'Confirmar',

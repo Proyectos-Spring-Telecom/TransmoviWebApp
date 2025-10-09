@@ -48,21 +48,21 @@
                             <dxi-column dataField="FotoPerfil" caption="Imagen" cellTemplate="imagen" [width]="200" alignment="center">
                                 <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
                             </dxi-column>
-                            <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center"></dxi-column>
-                            <dxi-column dataField="Telefono" caption="Teléfono" alignment="center"></dxi-column>
-                            <dxi-column dataField="UserName" caption="Correo Electrónico" alignment="center"></dxi-column>
-                            <dxi-column dataField="RolNombre" caption="Rol" alignment="center"></dxi-column>
+                            <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="Telefono" caption="Teléfono" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="UserName" caption="Correo Electrónico" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="RolNombre" caption="Rol" alignment="center" dataType="string"></dxi-column>
                             <div *dxTemplate="let data of 'imagen'" style="text-align: center;">
                                 <img *ngIf="data.value" style="max-width: 100px;" [src]="data.value" />
                                 <img *ngIf="data.value == null" style="max-width: 100px;"
                                     src="https://izzimoviles.s3.us-east-1.amazonaws.com/Imagenes/user.jpeg" />
                             </div>
-                            <dxi-column dataField="Estatus" caption="Estatus" alignment="center" cellTemplate="est">
+                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" dataType="string" cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
-                                    <span *ngIf="toNum(f.data.Estatus) === 1" class="estatus estatus-activo">
+                                    <span *ngIf="toNum(f.data.estatus) === 1" class="estatus estatus-activo">
                                         Activo
                                     </span>
-                                    <span *ngIf="toNum(f.data.Estatus) !== 1" class="estatus estatus-inactivo">
+                                    <span *ngIf="toNum(f.data.estatus) !== 1" class="estatus estatus-inactivo">
                                         Inactivo
                                     </span>
                                 </div>
@@ -70,16 +70,16 @@
                             <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
                                 <div *appHasPermission="'7'">
                                     <button valueExpr="id" id="actualizarButton" class="btnAcciones"
-                                        (click)="actualizarUsuario(row.data.Id)">
+                                        (click)="actualizarUsuario(row.data.id)">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </div>
                                 <div *appHasPermission="'8'">
-                                    <button *ngIf="row.data.Estatus === 0" id="pinButton" class="btnAcciones"
+                                    <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones"
                                         (click)="activar(row.data)">
                                         <i class="fa fa-arrow-up"></i>
                                     </button>
-                                    <button *ngIf="row.data.Estatus === 1" id="deleteButton" class="btnAcciones"
+                                    <button *ngIf="row.data.estatus === 1" id="deleteButton" class="btnAcciones"
                                         (click)="desactivar(row.data)">
                                         <i class="fa fa-arrow-down"></i>
                                     </button>

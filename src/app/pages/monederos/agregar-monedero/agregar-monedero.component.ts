@@ -22,6 +22,7 @@ export class AgregarMonederoComponent implements OnInit {
   public title = 'Agregar Monedero';
   public listaClientes: any;
   public listaPasajeros: any;
+  public showDatosID = true;
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
 
@@ -33,26 +34,33 @@ export class AgregarMonederoComponent implements OnInit {
     private clieService: ClientesService,
     private moneService: MonederosServices,
     private pasaService: PasajerosService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.obtenerClientes();
     this.initForm();
     this.obtenerPasajeros()
     this.activatedRouted.params.subscribe((params) => {
-      this.idMonedero = params['idMonedero'];
-      if (this.idMonedero) {
-        this.title = 'Actualizar Monedero';
-        this.obtenerDispositivoID();
-      }
-    });
+  this.idMonedero = params['idMonedero'];
+  if (this.idMonedero) {
+    this.title = 'Actualizar Monedero';
+    this.obtenerMonedero();
+    this.showDatosID = false;
+
+    // 🔓 saldo deja de ser requerido solo en editar
+    const saldoCtrl = this.monederoForm.get('saldo');
+    saldoCtrl?.clearValidators();
+    saldoCtrl?.updateValueAndValidity();
+  }
+});
+
   }
 
-  obtenerPasajeros(){
-    this.pasaService.obtenerPasajeros().subscribe((response)=> {
+  obtenerPasajeros() {
+    this.pasaService.obtenerPasajeros().subscribe((response) => {
       this.listaPasajeros = (response.data || []).map((c: any) => ({
         ...c,
-        id: Number(c?.id ?? c?.Id ?? c?.ID), 
+        id: Number(c?.id ?? c?.Id ?? c?.ID),
       }));
     })
   }
@@ -61,28 +69,20 @@ export class AgregarMonederoComponent implements OnInit {
     this.clieService.obtenerClientes().subscribe((response) => {
       this.listaClientes = (response.data || []).map((c: any) => ({
         ...c,
-        id: Number(c?.id ?? c?.Id ?? c?.ID), 
+        id: Number(c?.id ?? c?.Id ?? c?.ID),
       }));
     });
   }
 
-  obtenerDispositivoID() {
-    this.dispoService
-      .obtenerDispositivo(this.idMonedero)
-      .subscribe((response: any) => {
-        const d = response?.dispositivo ?? response?.data ?? response ?? {};
-        const idCli =
-          d?.idCliente ?? d?.idcliente ?? d?.IdCliente ?? d?.IDCliente;
-        const est = d?.estatus ?? d?.Estatus;
-
-        this.monederoForm.patchValue({
-          numeroSerie: d?.numeroSerie ?? d?.NumeroSerie ?? '',
-          marca: d?.marca ?? d?.Marca ?? '',
-          modelo: d?.modelo ?? d?.Modelo ?? '',
-          estatus: est != null ? Number(est) : 1,
-          idCliente: idCli != null ? Number(idCli) : null,
-        });
+  obtenerMonedero(){
+    this.moneService.obtenerMonedero(this.idMonedero).subscribe((response) => {
+      this.monederoForm.patchValue({
+        numeroSerie: response.data.numeroSerie,
+        idPasajero: Number(response.data.idPasajero),
+        idCliente: Number(response.data.idCliente),
+        // saldo: Number(response.data.saldo)
       });
+    })
   }
 
   initForm() {
@@ -106,108 +106,108 @@ export class AgregarMonederoComponent implements OnInit {
   }
 
   agregar() {
-  this.submitButton = 'Cargando...';
-  this.loading = true;
+    this.submitButton = 'Cargando...';
+    this.loading = true;
 
-  if (this.monederoForm.invalid) {
-    this.submitButton = 'Guardar';
-    this.loading = false;
+    if (this.monederoForm.invalid) {
+      this.submitButton = 'Guardar';
+      this.loading = false;
 
-    const etiquetas: any = {
-      numeroSerie: 'Número de Serie',
-      saldo: 'Saldo',
-      estatus: 'Estatus',
-      idPasajero: 'Pasajero',
-      idCliente: 'Cliente',
-    };
+      const etiquetas: any = {
+        numeroSerie: 'Número de Serie',
+        saldo: 'Saldo',
+        estatus: 'Estatus',
+        idPasajero: 'Pasajero',
+        idCliente: 'Cliente',
+      };
 
-    const camposFaltantes: string[] = [];
-    Object.keys(this.monederoForm.controls).forEach((key) => {
-      const control = this.monederoForm.get(key);
-      if (control?.invalid && control.errors?.['required']) {
-        camposFaltantes.push(etiquetas[key] || key);
-      }
-    });
+      const camposFaltantes: string[] = [];
+      Object.keys(this.monederoForm.controls).forEach((key) => {
+        const control = this.monederoForm.get(key);
+        if (control?.invalid && control.errors?.['required']) {
+          camposFaltantes.push(etiquetas[key] || key);
+        }
+      });
 
-    const lista = camposFaltantes
-      .map(
-        (campo, index) => `
+      const lista = camposFaltantes
+        .map(
+          (campo, index) => `
         <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
                     background: #caa8a8; text-align: center; margin-bottom: 8px;
                     border-radius: 4px;">
           <strong style="color: #b02a37;">${index + 1}. ${campo}</strong>
         </div>
       `
-      )
-      .join('');
+        )
+        .join('');
 
-    Swal.fire({
-      title: '¡Faltan campos obligatorios!',
-      background: '#002136',
-      html: `
+      Swal.fire({
+        title: '¡Faltan campos obligatorios!',
+        background: '#002136',
+        html: `
           <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
             Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
             Por favor complétalos antes de continuar:
           </p>
           <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
         `,
-      icon: 'error',
-      confirmButtonText: 'Entendido',
-      customClass: {
-        popup: 'swal2-padding swal2-border',
-      },
-    });
-    return;
-  }
-
-  const raw = this.monederoForm.getRawValue();
-  const payload: any = { ...raw };
-
-  const s = String(raw.saldo ?? '').replace(',', '.').replace(/[^0-9.]/g, '');
-  const n = parseFloat(s);
-  if (!Number.isFinite(n)) {
-    this.submitButton = 'Guardar';
-    this.loading = false;
-    Swal.fire({
-      title: 'Saldo inválido',
-      background: '#002136',
-      text: 'Verifica el campo Saldo.',
-      icon: 'error',
-      confirmButtonText: 'Entendido',
-    });
-    return;
-  }
-  payload.saldo = Number(n.toFixed(2));
-
-  this.monederoForm.removeControl('id');
-  this.moneService.agregarMonedero(payload).subscribe(
-    (response) => {
-      this.submitButton = 'Guardar';
-      this.loading = false;
-      Swal.fire({
-        title: '¡Operación Exitosa!',
-        background: '#002136',
-        text: `Se agregó un nuevo monedero de manera exitosa.`,
-        icon: 'success',
-        confirmButtonColor: '#3085d6',
-        confirmButtonText: 'Confirmar',
-      });
-      this.regresar();
-    },
-    (error) => {
-      this.submitButton = 'Guardar';
-      this.loading = false;
-      Swal.fire({
-        title: '¡Ops!',
-        background: '#002136',
-        text: `Ocurrió un error al agregar el monedero.`,
         icon: 'error',
-        confirmButtonColor: '#3085d6',
-        confirmButtonText: 'Confirmar',
+        confirmButtonText: 'Entendido',
+        customClass: {
+          popup: 'swal2-padding swal2-border',
+        },
       });
+      return;
     }
-  );
-}
+
+    const raw = this.monederoForm.getRawValue();
+    const payload: any = { ...raw };
+
+    const s = String(raw.saldo ?? '').replace(',', '.').replace(/[^0-9.]/g, '');
+    const n = parseFloat(s);
+    if (!Number.isFinite(n)) {
+      this.submitButton = 'Guardar';
+      this.loading = false;
+      Swal.fire({
+        title: 'Saldo inválido',
+        background: '#002136',
+        text: 'Verifica el campo Saldo.',
+        icon: 'error',
+        confirmButtonText: 'Entendido',
+      });
+      return;
+    }
+    payload.saldo = Number(n.toFixed(2));
+
+    this.monederoForm.removeControl('id');
+    this.moneService.agregarMonedero(payload).subscribe(
+      (response) => {
+        this.submitButton = 'Guardar';
+        this.loading = false;
+        Swal.fire({
+          title: '¡Operación Exitosa!',
+          background: '#002136',
+          text: `Se agregó un nuevo monedero de manera exitosa.`,
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+        this.regresar();
+      },
+      (error) => {
+        this.submitButton = 'Guardar';
+        this.loading = false;
+        Swal.fire({
+          title: '¡Ops!',
+          background: '#002136',
+          text: `Ocurrió un error al agregar el monedero.`,
+          icon: 'error',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+      }
+    );
+  }
 
 actualizar() {
   this.submitButton = 'Cargando...';
@@ -219,8 +219,6 @@ actualizar() {
 
     const etiquetas: any = {
       numeroSerie: 'Número de Serie',
-      saldo: 'Saldo',
-      estatus: 'Estatus',
       idPasajero: 'Pasajero',
       idCliente: 'Cliente',
     };
@@ -233,33 +231,25 @@ actualizar() {
       }
     });
 
-    const lista = camposFaltantes
-      .map(
-        (campo, index) => `
-        <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
-                    background: #caa8a8; text-align: center; margin-bottom: 8px;
-                    border-radius: 4px;">
-          <strong style="color: #b02a37;">${index + 1}. ${campo}</strong>
-        </div>
-      `
-      )
-      .join('');
+    const lista = camposFaltantes.map((campo, index) => `
+      <div style="padding:8px 12px;border-left:4px solid #d9534f;background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
+        <strong style="color:#b02a37;">${index + 1}. ${campo}</strong>
+      </div>
+    `).join('');
 
     Swal.fire({
       title: '¡Faltan campos obligatorios!',
       background: '#002136',
       html: `
-          <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
-            Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
-            Por favor complétalos antes de continuar:
-          </p>
-          <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
-        `,
+        <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
+          Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
+          Por favor complétalos antes de continuar:
+        </p>
+        <div style="max-height:350px;overflow-y:auto;">${lista}</div>
+      `,
       icon: 'error',
       confirmButtonText: 'Entendido',
-      customClass: {
-        popup: 'swal2-padding swal2-border',
-      },
+      customClass: { popup: 'swal2-padding swal2-border' },
     });
     return;
   }
@@ -267,21 +257,28 @@ actualizar() {
   const raw = this.monederoForm.getRawValue();
   const payload: any = { ...raw };
 
-  const s = String(raw.saldo ?? '').replace(',', '.').replace(/[^0-9.]/g, '');
-  const n = parseFloat(s);
-  if (!Number.isFinite(n)) {
-    this.submitButton = 'Actualizar';
-    this.loading = false;
-    Swal.fire({
-      title: 'Saldo inválido',
-      background: '#002136',
-      text: 'Verifica el campo Saldo.',
-      icon: 'error',
-      confirmButtonText: 'Entendido',
-    });
-    return;
+  // 🧠 Solo procesar 'saldo' si el usuario lo llenó
+  const saldoStr = raw.saldo != null ? String(raw.saldo).trim() : '';
+  if (saldoStr !== '') {
+    const s = saldoStr.replace(',', '.').replace(/[^0-9.]/g, '');
+    const n = parseFloat(s);
+    if (!Number.isFinite(n)) {
+      this.submitButton = 'Actualizar';
+      this.loading = false;
+      Swal.fire({
+        title: 'Saldo inválido',
+        background: '#002136',
+        text: 'Verifica el campo Saldo.',
+        icon: 'error',
+        confirmButtonText: 'Entendido',
+      });
+      return;
+    }
+    payload.saldo = Number(n.toFixed(2));
+  } else {
+    // No mandar 'saldo' si no se quiere actualizar
+    delete payload.saldo;
   }
-  payload.saldo = Number(n.toFixed(2));
 
   this.moneService.actualizarMonedero(this.idMonedero, payload).subscribe(
     (response) => {
@@ -312,21 +309,20 @@ actualizar() {
   );
 }
 
-
   regresar() {
     this.route.navigateByUrl('/monederos');
   }
 
   private toNumber2dec(value: any): number {
-  if (value === null || value === undefined) throw new Error('Saldo inválido');
-  const s = String(value).replace(',', '.').replace(/[^0-9.]/g, '');
-  if (!s) throw new Error('Saldo vacío');
-  const n = parseFloat(s);
-  if (!Number.isFinite(n)) throw new Error('Saldo no numérico');
-  return Number(n.toFixed(2)); // fuerza 2 decimales como number
-}
+    if (value === null || value === undefined) throw new Error('Saldo inválido');
+    const s = String(value).replace(',', '.').replace(/[^0-9.]/g, '');
+    if (!s) throw new Error('Saldo vacío');
+    const n = parseFloat(s);
+    if (!Number.isFinite(n)) throw new Error('Saldo no numérico');
+    return Number(n.toFixed(2)); // fuerza 2 decimales como number
+  }
 
-  
+
   moneyKeydown(e: KeyboardEvent) {
     const allowed = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'];
     if (allowed.includes(e.key)) return;

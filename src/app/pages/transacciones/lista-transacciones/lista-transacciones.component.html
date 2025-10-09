@@ -54,10 +54,10 @@
               <dxi-column dataField="tipoTransaccion" caption="Tipo Transacción" alignment="center" cellTemplate="est">
                 <div *dxTemplate="let f of 'est'">
                   <span *ngIf="f.data.tipoTransaccion === 'RECARGA' " class="estatus estatus-activo">
-                    Recarga
+                    <i class="fa fa-arrow-up"></i> Recarga
                   </span>
                   <span *ngIf="f.data.tipoTransaccion === 'DEBITO' " class="estatus estatus-inactivo">
-                    Débito
+                    <i class="fa fa-arrow-down"></i> Débito
                   </span>
                 </div>
               </dxi-column>

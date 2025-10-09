@@ -400,7 +400,7 @@ export class ListaRutasComponent implements OnInit {
     Swal.fire({
       title: '¡Eliminar Ruta!',
       background: '#002136',
-      html: `¿Está seguro que desea eliminar el ruta: <br> <strong>${ruta.nombre}</strong>?`,
+      html: `¿Está seguro que requiere eliminar la ruta: <br> <strong>${ruta.nombre}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
