@@ -25,7 +25,7 @@
                     <div class="table-responsive mb-4 col-12 col-lg-12">
                         <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
                             [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
-                            [rowAlternationEnabled]="'true'" [dataSource]="listaOperadores" [keyExpr]="'Id'"
+                            [rowAlternationEnabled]="'true'" [dataSource]="listaOperadores" [keyExpr]="'id'"
                             [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
                             [pager]="{ 
                                 showPageSizeSelector: true, 
@@ -70,38 +70,26 @@
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
                             </div>
-                            <dxi-column caption="Nombre" cellTemplate="nomb" alignment="center">
-                                <div *dxTemplate="let r of 'nomb'">
-                                    {{ r.data.nombreUsuario + ' ' + r.data.apellidoPaternoUsuario + ' ' +
-                                    r.data.apellidoMaternoUsuario }}
-                                </div>
-                            </dxi-column>
-                            <dxi-column dataField="licencia" caption="Número Licencia" alignment="center"
-                                cellTemplate="licUser">
-                                <div *dxTemplate="let r of 'licUser'">
-                                    {{ r.data.licencia || 'Sin registro' }}
-                                </div>
-                            </dxi-column>
-                            <dxi-column dataField="userNameUsuario" caption="Correo Electrónico"
-                                alignment="center"></dxi-column>
-                            <dxi-column dataField="telefonoUsuario" caption="Teléfono" alignment="center">
-                            </dxi-column>
-                            <dxi-column dataField="fechaNacimiento" [width]="150" caption="Fecha de Nacimiento"
-                                alignment="center" cellTemplate="fechNacicimiento">
-                                <div *dxTemplate="let a of 'fechNacicimiento'">
-                                    {{ a.data.fechaNacimiento | date:'dd/MM/yyyy' : '+0000' }}
-                                </div>
-                            </dxi-column>
-                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est">
-                                <div *dxTemplate="let f of 'est'">
-                                    <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
-                                        Activo
-                                    </span>
-                                    <span *ngIf="f.data.estatus !== 1" class="estatus estatus-inactivo">
-                                        Inactivo
-                                    </span>
-                                </div>
-                            </dxi-column>
+                            <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center" dataType="string" [width]="320"></dxi-column>
+                            <dxi-column dataField="NumeroLicenciaTexto" caption="Número Licencia" alignment="center" dataType="string" [width]="200"></dxi-column>
+                            <dxi-column dataField="userNameUsuario" caption="Correo Electrónico" alignment="center"
+                                dataType="string"></dxi-column>
+                            <dxi-column dataField="telefonoUsuario" caption="Teléfono" alignment="center"
+                                dataType="string"></dxi-column>
+                            <dxi-column dataField="FechaNacimientoTexto" caption="Fecha de Nacimiento"
+                                alignment="center" dataType="string" [width]="150"></dxi-column>
+                            <dxi-column dataField="EstatusTexto" caption="Estatus" alignment="center" dataType="string"
+                                [width]="150" cellTemplate="est"></dxi-column>
+                            <div *dxTemplate="let f of 'est'">
+                                <span *ngIf="(f.data.EstatusNumber ?? f.data.estatus) === 1"
+                                    class="estatus estatus-activo">Activo</span>
+                                <span *ngIf="(f.data.EstatusNumber ?? f.data.estatus) !== 1"
+                                    class="estatus estatus-inactivo">Inactivo</span>
+                            </div>
+                            <dxi-column dataField="DocumentoIdentificacionTexto" [visible]="false"></dxi-column>
+                            <dxi-column dataField="DocumentoComprobanteTexto" [visible]="false"></dxi-column>
+                            <dxi-column dataField="DocumentoAntecedentesTexto" [visible]="false"></dxi-column>
+
                             <dxo-export [enabled]="false" [allowExportSelectedData]="true" [texts]="{ exportAll: 'Exportar todos los datos a Excel', 
                                 exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
                             </dxo-export>

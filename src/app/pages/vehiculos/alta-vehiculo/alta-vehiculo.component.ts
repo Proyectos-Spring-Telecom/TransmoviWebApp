@@ -237,7 +237,9 @@ obtenerVehiculoID() {
       return;
     }
     this.vehiculosForm.removeControl('id');
-    this.vehiService.agregarVehiculo(this.vehiculosForm.value).subscribe(
+    const raw = this.vehiculosForm.getRawValue();
+    const payload = { ...raw, ano: Number(raw.ano) };
+    this.vehiService.agregarVehiculo(payload).subscribe(
       (response) => {
         this.submitButton = 'Guardar';
         this.loading = false;
@@ -319,9 +321,9 @@ obtenerVehiculoID() {
         },
       });
     }
-    this.vehiService
-      .actualizarVehiculo(this.idVehiculo, this.vehiculosForm.value)
-      .subscribe(
+    const raw = this.vehiculosForm.getRawValue();
+    const payload = { ...raw, ano: Number(raw.ano) };
+    this.vehiService.actualizarVehiculo(this.idVehiculo, payload).subscribe(
         (response) => {
           this.submitButton = 'Actualizar';
           this.loading = false;

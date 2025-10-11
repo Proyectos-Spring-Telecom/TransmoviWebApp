@@ -153,6 +153,7 @@ export class DispositivoBluevoxComponent implements OnInit {
     grid?.option('dataSource', dataFiltrada);
   }
 
+
   onPageIndexChanged(e: any) {
     const pageIndex = e.component.pageIndex();
     this.paginaActual = pageIndex + 1;

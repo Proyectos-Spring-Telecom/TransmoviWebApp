@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
+import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { ClientesService } from 'src/app/shared/services/clientes.service';
 import { InstalacionesService } from 'src/app/shared/services/instalaciones.service';
 import { OperadoresService } from 'src/app/shared/services/operadores.service';
@@ -21,6 +22,7 @@ export class AgregarTurnoComponent {
   public turnosForm: FormGroup;
   public idTurno: number;
   public title = 'Agregar Turno';
+
   loadingDependientes = false;
   listaClientes: any[] = [];
   listaOperadores: any[] = [];
@@ -28,6 +30,11 @@ export class AgregarTurnoComponent {
   listaInstalaciones: any[] = [];
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
+
+  // ---- Rol/usuario
+  public idClienteUser!: number;
+  public idRolUser!: number;
+  get isAdmin(): boolean { return this.idRolUser === 1; }
 
   constructor(
     private fb: FormBuilder,
@@ -37,18 +44,24 @@ export class AgregarTurnoComponent {
     private route: Router,
     private clieService: ClientesService,
     private operaService: OperadoresService,
-    private instService: InstalacionesService
-  ) { }
+    private instService: InstalacionesService,
+    private users: AuthenticationService
+  ) {
+    const user = this.users.getUser();
+    this.idClienteUser = Number(user?.idCliente);
+    this.idRolUser = Number(user?.rol?.id);
+  }
 
   ngOnInit(): void {
     this.initForm();
     this.obtenerClientes();
     this.obtenerOperador();
     this.obtenerInstalaciones();
+
     this.activatedRouted.params.subscribe((params) => {
       this.idTurno = params['idTurno'];
       if (this.idTurno) {
-        this.title = 'Actualizar Región';
+        this.title = 'Actualizar Turno';
         this.obtenerTurno();
       }
     });
@@ -56,82 +69,73 @@ export class AgregarTurnoComponent {
 
   obtenerInstalaciones() {
     this.instService.obtenerInstalaciones().subscribe((response) => {
-      this.listaInstalaciones = this.normalizeId(response.data);
+      this.listaInstalaciones = this.normalizeId(response?.data ?? []);
     });
   }
 
   obtenerClientes() {
     this.clieService.obtenerClientes().subscribe((response: any) => {
-      this.listaClientes = this.normalizeId(response?.data);
+      this.listaClientes = this.normalizeId(response?.data ?? []);
+
+      if (!this.isAdmin) {
+        this.turnosForm.get('idCliente')?.setValue(this.idClienteUser, { emitEvent: false });
+        this.turnosForm.get('idCliente')?.disable({ onlySelf: true });
+      }
     });
   }
 
   obtenerOperador() {
     this.operaService.obtenerOperadores().subscribe((response: any) => {
-      console.log('[OPERADORES][RAW]', response);
-
-      // Si la API devuelve directamente un array, lo tomamos así:
       const operadores = Array.isArray(response)
         ? response
         : Array.isArray(response?.data)
           ? response.data
           : [];
 
-      // Guardamos los operadores en la lista
-      this.listaOperadores = operadores.map((op) => ({
-        id: op.id,
+      this.listaOperadores = operadores.map((op: any) => ({
+        id: Number(op.id),
         nombreUsuario: op.nombreUsuario ?? '',
         apellidoPaternoUsuario: op.apellidoPaternoUsuario ?? '',
         apellidoMaternoUsuario: op.apellidoMaternoUsuario ?? '',
       }));
-
-      console.log('[OPERADORES][NORMALIZADOS]', this.listaOperadores);
     });
   }
 
-
   compareNums = (a: any, b: any) => Number(a) === Number(b);
+
   obtenerTurno() {
     this.turnoService.obtenerTurno(this.idTurno).subscribe((response: any) => {
-      console.log('[TURNO][RAW]', response);
-
-      // Si data viene como array, tomamos el primer elemento
       const turno = Array.isArray(response?.data) ? response.data[0] : response?.data;
+      if (!turno) return;
 
-      if (!turno) {
-        console.warn('No se encontró información del turno');
-        return;
-      }
+      const idClienteSrv   = turno.idCliente     != null ? Number(turno.idCliente)     : null;
+      const idOperador     = turno.idOperador    != null ? Number(turno.idOperador)    : null;
+      const idInstalacion  = turno.idInstalacion != null ? Number(turno.idInstalacion) : null;
 
-      // Conversión segura de tipos
-      const idCliente = turno.idCliente ? Number(turno.idCliente) : null;
-      const idOperador = turno.idOperador ? Number(turno.idOperador) : null;
-      const idInstalacion = turno.idInstalacion ? Number(turno.idInstalacion) : null;
+      const idCliente = this.isAdmin ? idClienteSrv : this.idClienteUser;
 
-      // Cargamos los datos en el formulario
       this.turnosForm.patchValue({
         inicio: this.toInputDatetime(turno.inicio),
         fin: this.toInputDatetime(turno.fin),
         idCliente,
         idOperador,
         idInstalacion,
-      });
+        estatus: turno.estatus ?? 1,
+      }, { emitEvent: false });
 
-      console.log('[TURNO][NORMALIZADO]', { ...turno, idCliente, idOperador, idInstalacion });
+      if (!this.isAdmin) {
+        this.turnosForm.get('idCliente')?.disable({ onlySelf: true });
+      }
     });
   }
-
-
 
   private toInputDatetime(z: string | null | undefined): string | null {
     if (!z) return null;
     return String(z).replace('Z', '').slice(0, 16);
   }
 
-  private normalizeId<T extends { id: any }>(
-    arr: T[] = []
-  ): (T & { id: number })[] {
-    return arr.map((x: any) => ({ ...x, id: Number(x.id) }));
+  private normalizeId<T extends { id: any }>(arr: T[] = []): (T & { id: number })[] {
+    return (arr || []).map((x: any) => ({ ...x, id: Number(x.id) }));
   }
 
   private toZulu(input: string | null | undefined): string | null {
@@ -141,20 +145,19 @@ export class AgregarTurnoComponent {
     return `${base}:00Z`;
   }
 
-  private fromZuluToLocalInput(zulu: string | null | undefined): string | null {
-    if (!zulu) return null;
-    return zulu.replace('Z', '').slice(0, 16);
-  }
-
   initForm() {
     this.turnosForm = this.fb.group({
       inicio: ['', Validators.required],
       fin: ['', Validators.required],
       estatus: [1, Validators.required],
-      idCliente: [null, Validators.required],
+      idCliente: [this.isAdmin ? null : this.idClienteUser, Validators.required],
       idOperador: [null, Validators.required],
       idInstalacion: [null, Validators.required],
     });
+
+    if (!this.isAdmin) {
+      this.turnosForm.get('idCliente')?.disable({ onlySelf: true });
+    }
   }
 
   submit() {
@@ -170,6 +173,7 @@ export class AgregarTurnoComponent {
   agregar() {
     this.submitButton = 'Cargando...';
     this.loading = true;
+
     if (this.turnosForm.invalid) {
       this.submitButton = 'Guardar';
       this.loading = false;
@@ -189,44 +193,36 @@ export class AgregarTurnoComponent {
         }
       });
 
-      const lista = camposFaltantes
-        .map(
-          (campo, index) => `
-          <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
-                      background: #caa8a8; text-align: center; margin-bottom: 8px;
-                      border-radius: 4px;">
-            <strong style="color: #b02a37;">${index + 1}. ${campo}</strong>
-          </div>
-        `
-        )
-        .join('');
+      const lista = camposFaltantes.map((campo, i) => `
+        <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
+                    background: #caa8a8; text-align: center; margin-bottom: 8px;
+                    border-radius: 4px;">
+          <strong style="color: #b02a37;">${i + 1}. ${campo}</strong>
+        </div>
+      `).join('');
 
       Swal.fire({
         title: '¡Faltan campos obligatorios!',
         background: '#002136',
         html: `
-        <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
-          Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
-          Por favor complétalos antes de continuar:
-        </p>
-        <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
-      `,
+          <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
+            Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
+            Por favor complétalos antes de continuar:
+          </p>
+          <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
+        `,
         icon: 'error',
         confirmButtonText: 'Entendido',
         customClass: { popup: 'swal2-padding swal2-border' },
       });
       return;
     }
+
     const raw = this.turnosForm.getRawValue();
-    const payload = {
-      ...raw,
-      inicio: this.toZulu(raw.inicio),
-      fin: this.toZulu(raw.fin),
-    };
-    this.turnosForm.removeControl('id');
+    const payload = { ...raw, inicio: this.toZulu(raw.inicio), fin: this.toZulu(raw.fin) };
 
     this.turnoService.agregarTurno(payload).subscribe(
-      (response) => {
+      () => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
@@ -257,9 +253,11 @@ export class AgregarTurnoComponent {
   actualizar() {
     this.submitButton = 'Cargando...';
     this.loading = true;
+
     if (this.turnosForm.invalid) {
       this.submitButton = 'Guardar';
       this.loading = false;
+
       const etiquetas: any = {
         inicio: 'Inicio del Turno',
         fin: 'Fin del Turno',
@@ -276,43 +274,36 @@ export class AgregarTurnoComponent {
         }
       });
 
-      const lista = camposFaltantes
-        .map(
-          (campo, index) => `
-          <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
-                      background: #caa8a8; text-align: center; margin-bottom: 8px;
-                      border-radius: 4px;">
-            <strong style="color: #b02a37;">${index + 1}. ${campo}</strong>
-          </div>
-        `
-        )
-        .join('');
+      const lista = camposFaltantes.map((campo, i) => `
+        <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
+                    background: #caa8a8; text-align: center; margin-bottom: 8px;
+                    border-radius: 4px;">
+          <strong style="color: #b02a37;">${i + 1}. ${campo}</strong>
+        </div>
+      `).join('');
 
       Swal.fire({
         title: '¡Faltan campos obligatorios!',
         background: '#002136',
         html: `
-        <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
-          Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
-          Por favor complétalos antes de continuar:
-        </p>
-        <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
-      `,
+          <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
+            Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
+            Por favor complétalos antes de continuar:
+          </p>
+          <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
+        `,
         icon: 'error',
         confirmButtonText: 'Entendido',
         customClass: { popup: 'swal2-padding swal2-border' },
       });
       return;
     }
+
     const raw = this.turnosForm.getRawValue();
-    const payload = {
-      ...raw,
-      inicio: this.toZulu(raw.inicio),
-      fin: this.toZulu(raw.fin),
-    };
+    const payload = { ...raw, inicio: this.toZulu(raw.inicio), fin: this.toZulu(raw.fin) };
 
     this.turnoService.actualizarTurno(this.idTurno, payload).subscribe(
-      (response) => {
+      () => {
         this.submitButton = 'Actualizar';
         this.loading = false;
         Swal.fire({

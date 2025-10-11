@@ -16,6 +16,7 @@ import { UsuariosService } from 'src/app/shared/services/usuario.service';
 import Swal from 'sweetalert2';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { finalize } from 'rxjs';
+import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 
 export interface UserMini {
   nombre: string;
@@ -40,7 +41,7 @@ export interface UserMini {
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
-  animations: [
+  animations: [ fadeInUpAnimation,
     fadeInRightAnimation,
     trigger('hintSwap', [
       transition('* => *', [

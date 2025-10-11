@@ -111,6 +111,10 @@ export class TopbarComponent implements OnInit {
     this.router.navigate(['/account/login']);
   }
 
+  perfilUsuario(){
+    this.router.navigateByUrl('/contacts/profile')
+  }
+
   fullscreen() {
     document.body.classList.toggle('fullscreen-enable');
     if (
@@ -137,4 +141,8 @@ export class TopbarComponent implements OnInit {
       }
     }
   }
+
+  onAlertClick(kind: 'general' | 'warning' | 'security' | 'messages'): void {
+  }
+
 }

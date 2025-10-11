@@ -396,6 +396,92 @@ export class ListaRutasComponent implements OnInit {
     return Array.isArray(c) && c.length >= 2 ? Number(c[0]) : null;
   }
 
+  activar(rowData: any) {
+      Swal.fire({
+        title: '¡Activar!',
+        html: `¿Está seguro que requiere activar la ruta: <strong>${rowData.nombre}</strong>?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+        background: '#002136',
+      }).then((result) => {
+        if (result.value) {
+          this.rutaSe.updateEstatus(rowData.id, 1).subscribe(
+            (response) => {
+              Swal.fire({
+                title: '¡Confirmación Realizada!',
+                html: `La ruta ha sido activada.`,
+                icon: 'success',
+                background: '#002136',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Confirmar',
+              })
+  
+              this.setupDataSource();
+              this.dataGrid.instance.refresh();
+              // this.obtenerListaModulos();
+            },
+            (error) => {
+              Swal.fire({
+                title: '¡Ops!',
+                html: `${error}`,
+                icon: 'error',
+                background: '#002136',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Confirmar',
+              })
+            }
+          );
+        }
+      });
+    }
+  
+    desactivar(rowData: any) {
+      Swal.fire({
+        title: '¡Desactivar!',
+        html: `¿Está seguro que requiere desactivar la ruta: <strong>${rowData.nombre}</strong>?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+        background: '#002136',
+      }).then((result) => {
+        if (result.value) {
+          this.rutaSe.updateEstatus(rowData.id, 0).subscribe(
+            (response) => {
+              Swal.fire({
+                title: '¡Confirmación Realizada!',
+                html: `La ruta ha sido desactivada.`,
+                icon: 'success',
+                background: '#002136',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Confirmar',
+              })
+              this.setupDataSource();
+              this.dataGrid.instance.refresh();
+              // this.obtenerListaModulos();
+            },
+            (error) => {
+              Swal.fire({
+                title: '¡Ops!',
+                html: `${error}`,
+                icon: 'error',
+                background: '#002136',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Confirmar',
+              })
+            }
+          );
+        }
+      });
+      // console.log('Desactivar:', rowData);
+    }
+
   eliminarRuta(ruta: any) {
     Swal.fire({
       title: '¡Eliminar Ruta!',
@@ -414,7 +500,7 @@ export class ListaRutasComponent implements OnInit {
             Swal.fire({
               title: '¡Eliminado!',
               background: '#002136',
-              html: `El ruta ha sido eliminado de forma exitosa.`,
+              html: `La ruta ha sido eliminada de forma exitosa.`,
               icon: 'success',
               showCancelButton: false,
               confirmButtonColor: '#3085d6',
@@ -426,7 +512,7 @@ export class ListaRutasComponent implements OnInit {
             Swal.fire({
               title: '¡Ops!',
               background: '#002136',
-              html: `Error al intentar eliminar el ruta.`,
+              html: `Error al intentar eliminar la ruta.`,
               icon: 'error',
               showCancelButton: false,
             })

@@ -13,20 +13,23 @@
       <form [formGroup]="rutaForm" class="cliente-form">
         <!-- <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
           data-bs-target=".bs-example-modal-lg" (click)="extraLarge(exlargeModal)">Large modal</button> -->
-        <h6 class="Descripcion mt-3">Elige primero Inicio y luego Fin sobre el mapa. Después, pulsa Continuar, completa Nombre y Región en el modal y confirma el guardado.</h6>
+        <h6 class="u-callout u-callout--subtle mt-3">
+          Elige el punto <strong>Inicio</strong> y punto <strong>Fin</strong> sobre el mapa.
+          Después, presiona el botón <strong>Continuar</strong>, completa los campos <strong>Nombre</strong> y
+          <strong>Región</strong> en el modal y confirma el guardado de la ruta.
+        </h6>
+
         <div class="col-md-12 mt-1">
           <div id="map"></div>
         </div>
         <div class="form-actions mt-4" style="display: flex; align-items: center; justify-content: center;">
-                    <button [@fadeInUp] type="submit" class="submit" *ngIf="puntosCompletos" (click)="abrirModal()">{{submitButton}}</button>
-                    <button type="button"
-         class="warning"
-         *ngIf="hayAlgoSeleccionado"
-         (click)="limpiarMapa()">
-   Limpiar mapa
- </button>
-                    <button [@fadeInUp] type="button" class="cancel" (click)="regresar()">Cancelar</button>
-                </div>
+          <button [@fadeInUp] type="submit" class="submit" *ngIf="puntosCompletos"
+            (click)="abrirModal()">{{submitButton}}</button>
+          <button type="button" class="warning" *ngIf="hayAlgoSeleccionado" (click)="limpiarMapa()">
+            Limpiar mapa
+          </button>
+          <button [@fadeInUp] type="button" class="cancel" (click)="regresar()">Cancelar</button>
+        </div>
       </form>
     </div>
   </div>
@@ -34,7 +37,7 @@
 
 <ng-template #exlargeModal let-modal>
   <div>
-    <div >
+    <div>
       <div class="card-header-custom">
         <div class="icon-wrapper">
           <i class="fas fa-plus"></i>

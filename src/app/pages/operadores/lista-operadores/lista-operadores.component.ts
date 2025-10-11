@@ -59,87 +59,172 @@ export class ListaOperadoresComponent implements OnInit {
     this.route.navigateByUrl('/operadores/agregar-operador')
   }
 
-  obtenerOperadores() {
-    this.loading = true;
-    this.listaOperadores = new CustomStore({
-      key: 'id',
-      load: async (loadOptions: any) => {
-        const skip = Number(loadOptions?.skip) || 0;
-        const take = Number(loadOptions?.take) || this.pageSize;
-        const page = Math.floor(skip / take) + 1;
+obtenerOperadores() {
+  this.loading = true;
+  this.listaOperadores = new CustomStore({
+    key: 'id',
+    load: async (loadOptions: any) => {
+      const skip = Number(loadOptions?.skip) || 0;
+      const take = Number(loadOptions?.take) || this.pageSize;
+      const page = Math.floor(skip / take) + 1;
 
-        try {
-          const response: any = await lastValueFrom(
-            this.opService.obtenerOperadoresData(page, take)
-          );
+      try {
+        const response: any = await lastValueFrom(
+          this.opService.obtenerOperadoresData(page, take)
+        );
 
-          this.loading = false;
+        this.loading = false;
 
-          const totalRegistros = Number(response?.paginated?.total) || 0;
-          const paginaActual = Number(response?.paginated?.page) || page;
-          const totalPaginas = Number(response?.paginated?.limit) ||
-            (take > 0 ? Math.ceil(totalRegistros / take) : 0);
+        const totalRegistros = Number(response?.paginated?.total) || 0;
+        const paginaActual = Number(response?.paginated?.page) || page;
+        const totalPaginas = Number(response?.paginated?.limit) ||
+          (take > 0 ? Math.ceil(totalRegistros / take) : 0);
 
-          this.totalRegistros = totalRegistros;
-          this.paginaActual = paginaActual;
-          this.totalPaginas = totalPaginas;
+        this.totalRegistros = totalRegistros;
+        this.paginaActual = paginaActual;
+        this.totalPaginas = totalPaginas;
 
-          const dataTransformada = (Array.isArray(response?.data) ? response.data : []).map((item: any) => {
+        const fmtFecha = (val: any) => {
+          const d = new Date(val);
+          if (isNaN(d.getTime())) return '';
+          const dd = String(d.getDate()).padStart(2, '0');
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const yyyy = d.getFullYear();
+          return `${dd}/${mm}/${yyyy}`;
+        };
 
+        const dataTransformada = (Array.isArray(response?.data) ? response.data : [])
+          .map((item: any) => {
+            const idNum = Number(item?.id);
+
+            const NombreCompleto = [
+              item?.nombreUsuario || '',
+              item?.apellidoPaternoUsuario || '',
+              item?.apellidoMaternoUsuario || ''
+            ].filter(Boolean).join(' ');
+
+            const EstatusNumber = Number(item?.estatus);
+            const EstatusTexto = Number.isFinite(EstatusNumber)
+              ? (EstatusNumber === 1 ? 'Activo' : 'Inactivo')
+              : '';
 
             return {
               ...item,
-              id: Number(item?.id),
+
+              // claves consistentes para el grid
+              id: Number.isFinite(idNum) ? idNum : 0,
+              Id: Number.isFinite(idNum) ? idNum : 0, // por si tu grid usa keyExpr="Id"
+
+              // ==== Campos derivados para columnas con template (sin tocar HTML) ====
+              NombreCompleto,                                   // para "Nombre"
+              NumeroLicenciaTexto: item?.licencia ?? item?.numeroLicencia ?? 'Sin registro',  // licUser
+              FechaNacimientoTexto: fmtFecha(item?.fechaNacimiento),                           // fechNacicimiento
+              EstatusTexto,                                     // est (texto mostrado)
+              EstatusNumber,                                    // 1 / 0 (útil para filtros rápidos)
+              DocumentoIdentificacionTexto: item?.identificacion ?? '',
+              DocumentoComprobanteTexto: item?.comprobanteDomicilio ?? '',
+              DocumentoAntecedentesTexto: item?.antecedentesNoPenales ?? item?.antecedentesPenales ?? '',
+
+              // otros mapeos que ya traías
               tipoPersona: item?.tipoPersona == 1 ? 'Físico' : item?.tipoPersona == 2 ? 'Moral' : 'Desconocido',
               idRol: item?.idRol != null ? Number(item.idRol) : null,
-              idCliente: item?.idCliente != null ? Number(item.idCliente) : null,
+              idCliente: item?.idCliente != null ? Number(item.idCliente) : null
             };
-          }).sort((a: any, b: any) => Number(b.id) - Number(a.id));
+          })
+          .sort((a: any, b: any) => Number(b.id) - Number(a.id));
 
-          this.paginaActualData = dataTransformada;
+        this.paginaActualData = dataTransformada;
 
-          return {
-            data: dataTransformada,
-            totalCount: totalRegistros
-          };
+        return {
+          data: dataTransformada,
+          totalCount: totalRegistros
+        };
 
-        } catch (error) {
-          this.loading = false;
-          console.error('Error en la solicitud de datos:', error);
-          return { data: [], totalCount: 0 };
-        }
+      } catch (error) {
+        this.loading = false;
+        console.error('Error en la solicitud de datos:', error);
+        return { data: [], totalCount: 0 };
       }
-    });
+    }
+  });
+}
+
+
+onGridOptionChanged(e: any) {
+  if (e.fullName !== 'searchPanel.text') return;
+
+  const grid = e?.component;
+  const qRaw = (e.value ?? '').toString().trim();
+  if (!qRaw) {
+    this.filtroActivo = '';
+    grid?.option('dataSource', this.listaOperadores);
+    return;
   }
+  this.filtroActivo = qRaw;
+
+  const norm = (v: any) =>
+    (v == null ? '' : String(v)).normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+  const q = norm(qRaw);
+
+  // 1) Tomamos los items que YA cargó el grid (lo que se ve en esta página)
+  const ds = grid?.getDataSource?.();
+  const items: any[] = Array.isArray(ds?.items?.()) ? ds.items() : (this.paginaActualData || []);
+
+  // 2) Columnas dinámicas (para no hardcodear)
+  let cols: any[] = [];
+  try { const opt = grid?.option('columns'); if (Array.isArray(opt) && opt.length) cols = opt; } catch {}
+  if (!cols.length && grid?.getVisibleColumns) cols = grid.getVisibleColumns();
+  const dataFields: string[] = cols.map((c: any) => c?.dataField).filter((d: any) => typeof d === 'string' && d);
+
+  const get = (o: any, path: string) => path.split('.').reduce((a, k) => a?.[k], o);
+
+  const fmtFecha = (val: any) => {
+    const d = new Date(val); if (isNaN(d.getTime())) return '';
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  };
+
+  const filtered = items.filter((row: any) => {
+    // Búsqueda en todos los dataField visibles/definidos
+    const hitCols = dataFields.some(df => norm(get(row, df)).includes(q));
+
+    // Nombre completo (en tu grid de operadores se arma así)
+    const nombreCompleto = `${row?.nombreUsuario ?? ''} ${row?.apellidoPaternoUsuario ?? ''} ${row?.apellidoMaternoUsuario ?? ''}`.trim();
+    const fechaNacTxt = norm(fmtFecha(row?.fechaNacimiento));
+
+    // ESTATUS: 1/0 y texto “activo”/“inactivo”
+    const estNum = Number(row?.estatus);
+    const estTxt = Number.isFinite(estNum) ? (estNum === 1 ? 'activo' : 'inactivo') : '';
+    const estHit =
+      estTxt.includes(q) ||                       // “a”, “ac”, “activ…”, “inac…”
+      ('activo'.startsWith(q) && estNum === 1) ||
+      ('inactivo'.startsWith(q) && estNum === 0) ||
+      (q === '1' && estNum === 1) ||
+      (q === '0' && estNum === 0) ||
+      String(estNum).includes(q);                // buscar “1” o “0”
+
+    // Extras típicos del grid
+    const extras = [
+      norm(row?.id),
+      norm(nombreCompleto),
+      norm(row?.licencia ?? row?.numeroLicencia),
+      norm(row?.userNameUsuario),
+      norm(row?.telefonoUsuario),
+      fechaNacTxt
+    ].some(s => s.includes(q));
+
+    return hitCols || estHit || extras;
+  });
+
+  grid?.option('dataSource', filtered);
+}
 
   onPageIndexChanged(e: any) {
     const pageIndex = e.component.pageIndex();
     this.paginaActual = pageIndex + 1;
     e.component.refresh();
-  }
-
-  onGridOptionChanged(e: any) {
-    if (e.fullName === "searchPanel.text") {
-      this.filtroActivo = e.value || '';
-      if (!this.filtroActivo) {
-        this.dataGrid.instance.option('dataSource', this.listaOperadores);
-        return;
-      }
-      const search = this.filtroActivo.toString().toLowerCase();
-      const dataFiltrada = this.paginaActualData.filter((item: any) => {
-        const idStr = item.id ? item.id.toString().toLowerCase() : '';
-        const nombreStr = item.nombre ? item.nombre.toString().toLowerCase() : '';
-        const descripcionStr = item.descripcion ? item.descripcion.toString().toLowerCase() : '';
-        const moduloStr = item.estatusTexto ? item.estatusTexto.toString().toLowerCase() : '';
-        return (
-          nombreStr.includes(search) ||
-          descripcionStr.includes(search) ||
-          moduloStr.includes(search) ||
-          idStr.includes(search)
-        );
-      });
-      this.dataGrid.instance.option('dataSource', dataFiltrada);
-    }
   }
 
   actualizarOperador(idOperador: number) {
@@ -303,7 +388,6 @@ export class ListaOperadoresComponent implements OnInit {
       return;
     }
 
-    // Probar disponibilidad antes de embeber (HEAD)
     try {
       const head = await fetch(this.pdfRawUrl, { method: 'HEAD', mode: 'cors' });
       if (!head.ok) {
@@ -320,19 +404,16 @@ export class ListaOperadoresComponent implements OnInit {
         return;
       }
     } catch (e) {
-      // Si CORS u otro bloqueo, mostramos mensaje pero dejamos habilitadas las acciones
       this.pdfError = true;
       this.pdfErrorMsg = 'El navegador bloqueó la previsualización (CORS). Intenta Abrir o Descargar.';
       this.pdfLoading = false;
       return;
     }
 
-    // Si pasó la verificación, embeber
     const viewerParams = '#toolbar=0&navpanes=0';
     const finalUrl = this.pdfRawUrl.includes('#') ? this.pdfRawUrl : this.pdfRawUrl + viewerParams;
     this.pdfUrlSafe = this.sanitizer.bypassSecurityTrustResourceUrl(finalUrl);
 
-    // Timeout de seguridad: si el iframe no termina de cargar, mostrar mensaje
     setTimeout(() => {
       if (!this.pdfLoaded && !this.pdfError) {
         this.pdfError = true;
@@ -368,7 +449,6 @@ export class ListaOperadoresComponent implements OnInit {
       a.remove();
       URL.revokeObjectURL(url);
     } catch {
-      // Fallback sin CORS: navegar con Content-Disposition forzado
       try {
         const u = new URL(this.pdfRawUrl!);
         u.searchParams.set('response-content-disposition', `attachment; filename="${(this.pdfTitle || 'documento').replace(/\s+/g, '_')}.pdf"`);

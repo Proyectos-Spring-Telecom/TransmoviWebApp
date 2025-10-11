@@ -40,6 +40,16 @@
               <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
               <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
               <dxi-column *appHasPermission="['67']" caption="Acciones" cellTemplate="acciones" [width]="160" alignment="center"></dxi-column>
+              <dxi-column dataField="estatusRuta" caption="Estatus" alignment="center" dataType="string" cellTemplate="est">
+                  <div *dxTemplate="let f of 'est'">
+                      <span *ngIf="f.data.estatusRuta === 1" class="estatus estatus-activo">
+                          Activo
+                      </span>
+                      <span *ngIf="f.data.estatusRuta !== 1" class="estatus estatus-inactivo">
+                          Inactiva
+                      </span>
+                  </div>
+              </dxi-column>
               <dxi-column dataField="nombre" caption="Nombre" alignment="center" [width]="250"></dxi-column>
               <dxi-column dataField="nombreInicio" caption="Punto Inicio" [width]="300" alignment="center" cellTemplate="cell">
                 <div *dxTemplate="let data of 'cell'">
@@ -78,11 +88,21 @@
                     <i class="fa fa-map-pin"></i>
                   </button>
                 </div>&nbsp;&nbsp;
-                <div>
+                <div >
+                                    <button *ngIf="d.data.estatusRuta === 0" id="pinButton" class="btnAcciones"
+                                        (click)="activar(d.data)">
+                                        <i class="fa fa-arrow-up"></i>
+                                    </button>
+                                    <button *ngIf="d.data.estatusRuta === 1" id="deleteButton" class="btnAcciones"
+                                        (click)="desactivar(d.data)">
+                                        <i class="fa fa-arrow-down"></i>
+                                    </button>
+                                </div>
+                <!-- <div *ngIf="d.data.estatusRuta == 1">
                   <button id="deleteButton" class="btnAcciones" (click)="eliminarRuta(d.data)">
                     <i class="fa fa-trash"></i>
                   </button>
-                </div>
+                </div> -->
               </div>
             </dx-data-grid>
           </div>
