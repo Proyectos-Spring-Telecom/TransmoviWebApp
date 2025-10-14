@@ -60,8 +60,8 @@
               <label>Región</label>
               <select class="form-control" formControlName="idRegion">
                 <option [ngValue]="null">Seleccione una región</option>
-                <option *ngFor="let c of listaRegiones" [ngValue]="c.idRegion">
-                  {{ c.idRegion2.nombre }}
+                <option *ngFor="let c of listaRegiones" [ngValue]="c.id">
+                  {{ c.nombre }}
                 </option>
               </select>
             </div>

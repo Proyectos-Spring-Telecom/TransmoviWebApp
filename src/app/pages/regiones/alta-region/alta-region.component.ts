@@ -71,19 +71,39 @@ export class AltaRegionComponent implements OnInit {
   }
 
   obtenerRegion() {
-    this.regiService.obtenerRegion(this.idRegion).subscribe((response: any) => {
-      const data = response?.data || {};
-      const idCliSrv = Number(data?.idCliente2?.id ?? data?.idCliente ?? null);
+    this.regiService.obtenerRegion(this.idRegion).subscribe({
+      next: (response: any) => {
+        const data = Array.isArray(response?.data) ? response.data[0] : response?.data;
 
-      this.regionesForm.patchValue({
-        nombre: data?.nombre ?? '',
-        descripcion: data?.descripcion ?? '',
-        idCliente: this.isAdmin ? idCliSrv : this.idClienteUser,
-      }, { emitEvent: false });
+        if (!data) {
+          console.warn('No se recibió información de la región.');
+          return;
+        }
 
-      if (!this.isAdmin) {
-        this.regionesForm.get('idCliente')?.disable({ onlySelf: true });
-      }
+        const idCliSrv = Number(
+          (data as any)?.idCliente ??
+          (data as any)?.idCliente2?.id ??
+          null
+        );
+
+        this.regionesForm.patchValue(
+          {
+            nombre: data?.nombre ?? '',
+            descripcion: data?.descripcion ?? '',
+            idCliente: this.isAdmin ? idCliSrv : this.idClienteUser,
+          },
+          { emitEvent: false }
+        );
+
+        if (!this.isAdmin) {
+          this.regionesForm.get('idCliente')?.disable({ onlySelf: true });
+        } else {
+          this.regionesForm.get('idCliente')?.enable({ onlySelf: true });
+        }
+      },
+      error: (err) => {
+        console.error('Error al obtener región:', err);
+      },
     });
   }
 

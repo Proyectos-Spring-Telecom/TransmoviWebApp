@@ -43,34 +43,34 @@
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
                             <dxi-column *appHasPermission="['63', '64']" caption="Acciones" cellTemplate="Acciones" alignment="center"></dxi-column>
-                            <dxi-column dataField="idRegion2.nombre" caption="Nombre Región" alignment="center"></dxi-column>
-                            <dxi-column dataField="idRegion2.descripcion" caption="Descripción" alignment="center"></dxi-column>
-                            <dxi-column dataField="idRegion2.idCliente2.nombreCompleto" caption="Cliente" alignment="center" cellTemplate="nomCliente">
+                            <dxi-column dataField="nombre" caption="Nombre Región" alignment="center"></dxi-column>
+                            <dxi-column dataField="descripcion" caption="Descripción" alignment="center"></dxi-column>
+                            <dxi-column caption="Cliente" alignment="center" cellTemplate="nomCliente">
                                 <div *dxTemplate="let re of 'nomCliente'">
-                                    {{ re.data?.idRegion2?.idCliente2?.nombre }}
-                                    {{ re.data?.idRegion2?.idCliente2?.apellidoPaterno || '' }}
-                                    {{ re.data?.idRegion2?.idCliente2?.apellidoMaterno || '' }}
+                                    {{ re.data?.nombreCliente }}
+                                    {{ re.data?.apellidoPaternoCliente || '' }}
+                                    {{ re.data?.apellidoMaternoCliente || '' }}
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="idRegion2.fechaCreacion" caption="Fecha Creación" alignment="center"
+                            <dxi-column dataField="fechaCreacion" caption="Fecha Creación" alignment="center"
                                 cellTemplate="fechCreaci">
                                 <div *dxTemplate="let a of 'fechCreaci'">
-                                    {{ a.data.idRegion2.fechaCreacion | date:'dd/MM/yyyy HH:mm' : '+0000' }}
+                                    {{ a.data.fechaCreacion | date:'dd/MM/yyyy HH:mm' : '+0000' }}
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="idRegion2.fechaActualizacion" caption="Fecha Actualización"
+                            <dxi-column dataField="fechaActualizacion" caption="Fecha Actualización"
                                 alignment="center" cellTemplate="fechActualizacion">
                                 <div *dxTemplate="let a of 'fechActualizacion'">
-                                    {{ a.data.idRegion2.fechaActualizacion | date:'dd/MM/yyyy HH:mm' : '+0000' }}
+                                    {{ a.data.fechaActualizacion | date:'dd/MM/yyyy HH:mm' : '+0000' }}
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="idRegion2.estatus" caption="Estatus" alignment="center"
+                            <dxi-column dataField="estatus" caption="Estatus" alignment="center"
                                 cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
-                                    <span *ngIf="f.data.idRegion2.estatus === 1" class="estatus estatus-activo">
+                                    <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
                                         Activo
                                     </span>
-                                    <span *ngIf="f.data.idRegion2.estatus !== 1" class="estatus estatus-inactivo">
+                                    <span *ngIf="f.data.estatus !== 1" class="estatus estatus-inactivo">
                                         Inactivo
                                     </span>
                                 </div>
@@ -81,16 +81,16 @@
                             <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
                                 <div *appHasPermission="'63'">
                                     <button valueExpr="id" id="actualizarButton" class="btnAcciones"
-                                        (click)="actualizarRegion(row.data.idRegion)">
+                                        (click)="actualizarRegion(row.data.id)">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </div>
                                 <div *appHasPermission="'64'">
-                                    <button *ngIf="row.data.idRegion2.estatus === 0" id="pinButton" class="btnAcciones"
+                                    <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones"
                                         (click)="activar(row.data)">
                                         <i class="fa fa-arrow-up"></i>
                                     </button>
-                                    <button *ngIf="row.data.idRegion2.estatus === 1" id="deleteButton"
+                                    <button *ngIf="row.data.estatus === 1" id="deleteButton"
                                         class="btnAcciones" (click)="desactivar(row.data)">
                                         <i class="fa fa-arrow-down"></i>
                                     </button>
