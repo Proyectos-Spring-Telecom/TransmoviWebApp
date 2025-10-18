@@ -13,10 +13,10 @@
             <form [formGroup]="clienteForm" class="cliente-form">
                 <h6 class="section-title">Datos Generales</h6>
                 <div class="row">
-                    <div class="col-md-4 mt-3">
-                        <label>ID Padre</label>
+                    <div class="col-md-4 mt-3" *ngIf="showRol">
+                        <label>Cuenta Padre</label>
                         <select class="form-control" formControlName="idPadre">
-                            <option [ngValue]="null">Seleccione un cliente</option>
+                            <option [ngValue]="null">Restablecer selección</option>
                             <option *ngFor="let cliente of listaClientes" [ngValue]="cliente.id">
                                 {{ cliente.nombre }} {{ cliente.apellidoPaterno }} {{ cliente.apellidoMaterno }}
                             </option>

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -54,4 +54,25 @@ export class UsuariosService {
       catchError(error => throwError(() => error))
     );
   }
+
+  solicitarCambioContrasena(data: any) {
+    return this.http.post(
+      environment.API_SECURITY + '/login/usuario/recuperar/acceso',
+      data,
+      { responseType: 'text' as const }
+    );
+  }
+
+
+cambioContrasena(data: any, token: string) {
+  const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+  return this.http.post(
+    environment.API_SECURITY + '/login/cambiar/accesso',
+    data,
+    {
+      headers,
+      responseType: 'text' as const   // <- igual que el otro: texto plano
+    }
+  );
+}
 }

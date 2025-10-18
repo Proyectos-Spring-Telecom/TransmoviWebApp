@@ -18,6 +18,10 @@ const routes: Routes = [
         path: 'reset-password',
         component: PasswordresetComponent
     },
+    {
+        path: 'login/verify',
+        component: PasswordresetComponent
+    },
 ];
 
 @NgModule({

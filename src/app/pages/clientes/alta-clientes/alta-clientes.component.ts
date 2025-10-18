@@ -24,6 +24,7 @@ export class AltaClientesComponent implements OnInit {
   public listaClientes: any[] = [];
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
+  public showRol: any;
 
   constructor(
     private fb: FormBuilder,
@@ -31,8 +32,16 @@ export class AltaClientesComponent implements OnInit {
     private clieService: ClientesService,
     private activatedRouted: ActivatedRoute,
     private route: Router,
-    private usuaService: UsuariosService
-  ) {}
+    private usuaService: UsuariosService,
+    private users: AuthenticationService,
+  ) {
+    const user = this.users.getUser();
+    if(user.rol.nombre == 'SA' ){
+      this.showRol = true;
+    } else {
+      this.showRol = false;
+    }
+  }
 
   ngOnInit(): void {
     this.obtenerClientes();
@@ -164,7 +173,7 @@ export class AltaClientesComponent implements OnInit {
 
   initForm() {
     this.clienteForm = this.fb.group({
-      idPadre: [null, Validators.required],
+      idPadre: [null],
       rfc: ['', Validators.required],
       tipoPersona: [null, Validators.required],
       estatus: [1, Validators.required],
@@ -234,7 +243,6 @@ export class AltaClientesComponent implements OnInit {
       this.loading = false;
 
       const etiquetas: any = {
-        idPadre: 'Id Padre',
         rfc: 'RFC',
         tipoPersona: 'Tipo de Persona',
         estatus: 'Estatus',
@@ -299,7 +307,6 @@ export class AltaClientesComponent implements OnInit {
     const v = this.clienteForm.value;
     const payload = {
       ...v,
-      idPadre: v.idPadre != null ? Number(v.idPadre) : null,
       tipoPersona: v.tipoPersona != null ? Number(v.tipoPersona) : null,
     };
 
@@ -353,7 +360,6 @@ export class AltaClientesComponent implements OnInit {
       this.loading = false;
 
       const etiquetas: any = {
-        idPadre: 'Id Padre',
         rfc: 'RFC',
         tipoPersona: 'Tipo de Persona',
         estatus: 'Estatus',
@@ -429,7 +435,6 @@ export class AltaClientesComponent implements OnInit {
         next: (u) => {
           const payload = {
             ...v,
-            idPadre: v.idPadre != null ? Number(v.idPadre) : null,
             tipoPersona: v.tipoPersona != null ? Number(v.tipoPersona) : null,
             logotipo: u.logotipo,
             constanciaSituacionFiscal: u.constanciaSituacionFiscal,

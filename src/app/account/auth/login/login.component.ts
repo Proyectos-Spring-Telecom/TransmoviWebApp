@@ -1,13 +1,11 @@
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators,FormBuilder, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators, FormBuilder, FormGroup } from '@angular/forms';
 
 import { catchError, finalize, Observable, Subject, throwError } from 'rxjs';
 import { AuthenticationService } from '../../../core/services/auth.service';
 import { Credentials } from '../../../entities/Credentials';
 import { User } from '../../../entities/User';
 import { ActivatedRoute, Router } from '@angular/router';
-// import { ToastrService } from 'ngx-toastr';
-
 import { environment } from '../../../../environments/environment';
 import { ToastrService } from 'ngx-toastr';
 import { fadeInRightAnimation } from 'src/app/core/animations/fade-in-right.animation';
@@ -21,9 +19,6 @@ import { scaleInAnimation } from 'src/app/core/animations/scale-in.animation';
   animations: [fadeInRightAnimation, fadeInUpAnimation, scaleInAnimation]
 })
 
-/**
- * Login component
- */
 export class LoginComponent implements OnInit {
 
   loginForm: UntypedFormGroup;
@@ -38,26 +33,20 @@ export class LoginComponent implements OnInit {
 
   hide = true;
 
-   togglePassword(): void {
+  togglePassword(): void {
     this.hide = !this.hide;
   }
-form!: FormGroup;
+  form!: FormGroup;
   submit(): void {
     if (this.form.invalid || this.loading) return;
     this.loading = true;
-
-    // Simula llamada al backend (reemplaza por tu servicio real)
     setTimeout(() => {
       this.loading = false;
-      // Aquí puedes navegar o guardar token, etc.
       console.log('LOGIN OK', this.form.value);
     }, 1200);
   }
 
-  // set the currenr year
-  year: number = new Date().getFullYear();
-
-  // tslint:disable-next-line: max-line-length
+  year: number = new Date().getFullYear()
   constructor(private router: Router,
     private auth: AuthenticationService,
     private fb: FormBuilder,
@@ -68,17 +57,10 @@ form!: FormGroup;
   ngOnInit() {
     this.initForm();
     document.body.setAttribute('class', 'authentication-bg');
-
-    
-
-    // reset login status
-    // this.authenticationService.logout();
-    // get return url from route parameters or default to '/'
-    // tslint:disable-next-line: no-string-literal
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
-  cambiarContraseñas(){
+  cambiarContraseñas() {
     this.router.navigateByUrl('/account/reset-password')
   }
 
@@ -95,109 +77,43 @@ form!: FormGroup;
     this.loginForm = this.fb.group({
       userName: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
-      // email: ['admin@themesbrand.com', [Validators.required, Validators.email]],
-      // password: ['123456', [Validators.required]],
     });
   }
 
-  ngOnDestroy() { 
+  ngOnDestroy() {
     document.body.classList.remove('authentication-bg')
   }
 
-  // convenience getter for easy access to form fields
   get f() { return this.loginForm.controls; }
 
-  /**
-   * Form submit
-   */
-  // onSubmit() {
-  //   this.submitted = true;
 
-  //   // stop here if form is invalid
-  //   if (this.loginForm.invalid) {
-  //     return;
-  //   } else {
-  //     if (environment.defaultauth === 'firebase') {
-  //       this.auth.login(this.f.email.value, this.f.password.value).then((res: any) => {
-  //         document.body.removeAttribute('class');
-  //         this.router.navigate(['/']);
-  //       })
-  //         .catch(error => {
-  //           this.error = error ? error : '';
-  //         });
-  //     } else {
-  //       // this.authFackservice.login(this.f.email.value, this.f.password.value)
-  //       //   .pipe(first())
-  //       //   .subscribe(
-  //       //     data => {
-  //       //       this.router.navigate(['/']);
-  //       //     },
-  //       //     error => {
-  //       //       this.error = error ? error : '';
-  //       //     });
-  //     }
-  //   }
-  // }
   onSubmit() {
-  this.loading = true;
-  this.textLogin = 'Cargando...';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.loading = true;
+    this.textLogin = 'Cargando...';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  this.credentials = this.loginForm.value;
+    this.credentials = this.loginForm.value;
 
-  this.auth.authenticate(this.credentials).pipe(
-    catchError((error) => {
-      this.loading = false;
-      this.textLogin = 'Iniciar Sesión';
-      this.toastr.error("Usuario y/o contraseña incorrectos");
-      return throwError(() => "");
-    })
-  ).subscribe((result: any) => {
-    setTimeout(() => {
-      // 🔹 Convierte [{idPermiso:"6"}, ...] → ["6", ...]
-      const permisosIds = (result.permisos ?? []).map((p: any) => String(p.idPermiso));
-      result.permisos = permisosIds;
+    this.auth.authenticate(this.credentials).pipe(
+      catchError((error) => {
+        this.loading = false;
+        this.textLogin = 'Iniciar Sesión';
+        this.toastr.error("Usuario y/o contraseña incorrectos");
+        return throwError(() => "");
+      })
+    ).subscribe((result: any) => {
+      setTimeout(() => {
+        const permisosIds = (result.permisos ?? []).map((p: any) => String(p.idPermiso));
+        result.permisos = permisosIds;
 
-      this.auth.setData(result);             // guarda ["6","7",...]
-      console.log('Permisos normalizados:', this.auth.getPermissions());
+        this.auth.setData(result);
+        console.log('Permisos normalizados:', this.auth.getPermissions());
 
-      this.router.navigate(['/']);
-      this.toastr.success(`Bienvenido al Sistema`, '¡Operación Exitosa!');
-      this.loading = false;
-      this.textLogin = 'Iniciar Sesión';
-    }, 700);
-  });
-}
-
-
-// onSubmit(){
-//   const data = {
-//     "id": '7',
-//     "nombre": "luis enrique",
-//     "email": "luisnm1@gmail.com",
-//     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTAxOTY5MjEsImV4cCI6MTcxMDIwMDUyMX0.73QOGXDkxbXS7oSjWxSMyt-LKg0xalqC_o3jVGGQD2U",
-//     "permisos": [
-//         {
-//             "IdPermiso": 3
-//         },
-//         {
-//             "IdPermiso": 4
-//         },
-//         {
-//             "IdPermiso": 5
-//         },
-//         {
-//             "IdPermiso": 8
-//         },
-//         {
-//             "IdPermiso": 6
-//         },
-//         {
-//             "IdPermiso": 7
-//         }
-//     ]
-// };
-//   this.auth.setData(data);
-//   this.router.navigate(['']);
-// }
+        this.router.navigate(['/']);
+        this.toastr.success(`Bienvenido al Sistema`, '¡Operación Exitosa!');
+        this.loading = false;
+        this.textLogin = 'Iniciar Sesión';
+      }, 700);
+    });
+  }
 }
