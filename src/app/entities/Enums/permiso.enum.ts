@@ -162,11 +162,15 @@ export enum Permiso {
   /* #region Transacciones */
   Listado_Transacciones = "90",
   Crear_Transacciones = "91",
+  Punto_Venta = "99",
   /* #endregion */
 
   /* #region Extras / Pruebas */
-  Ejemplo = "99",
-  PruebaFront2 = "100",
+  Consultar_Dashboard = "100",
+  /* #endregion */
+
+  /* #region Extras / Pruebas */
+  Consultar_Monitoreo = "101",
   Prueba_Modulos = "101",
   /* #endregion */
 }

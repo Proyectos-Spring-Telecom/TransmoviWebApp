@@ -10,16 +10,9 @@ import Swal from 'sweetalert2';
   styleUrls: ['./verify.component.scss']
 })
 export class VerifyComponent implements OnInit {
-
   verifyForm: UntypedFormGroup;
-  public textLogin: string = 'Iniciar Sesión';
-  public idUsuario;
-  public submitButton: string = 'Guardar';
-  submitted = false;
-  error = '';
-  returnUrl: string;
-  public loading: boolean = false;
-  public passwordType: string = 'password';
+  public submitButton = 'Guardar';
+  public loading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -28,84 +21,50 @@ export class VerifyComponent implements OnInit {
     private router: Router
   ) { }
 
-  initForm() {
+  ngOnInit(): void {
     this.verifyForm = this.fb.group({
       codigo: ['', [Validators.required]],
     });
-  }
-
-  ngOnInit(): void {
-    this.initForm();
-
     const token = this.route.snapshot.queryParamMap.get('token');
     if (token) {
-      this.pasajService.verificarPasajero(token).subscribe({
-        next: (res) => {
-          console.log('[VERIFY] Token verificado correctamente', res);
-        },
-        error: (err) => {
-          console.error('[VERIFY] Error verificando token', err);
-        }
-      });
+      this.pasajService.setVerificationToken(token);
+      this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
     }
   }
 
   agregar() {
     this.submitButton = 'Cargando...';
     this.loading = true;
-
     this.verifyForm.markAllAsTouched();
     this.verifyForm.updateValueAndValidity();
-
     if (this.verifyForm.invalid) {
       this.submitButton = 'Guardar';
       this.loading = false;
-
-      const etiquetas: any = {
-        codigo: 'Código de Verificación',
-      };
-
-      const camposFaltantes: string[] = [];
-      Object.keys(this.verifyForm.controls).forEach(key => {
-        const control = this.verifyForm.get(key);
-        if (control?.errors?.['required']) {
-          camposFaltantes.push(etiquetas[key] || key);
-        }
-      });
-
-      const lista = camposFaltantes.map((campo, index) => `
-        <div style="padding: 8px 12px; border-left: 4px solid #d9534f; background: #caa8a8; text-align: center; margin-bottom: 8px; border-radius: 4px;">
-          <strong style="color: #b02a37;">${index + 1}. ${campo}</strong>
-        </div>
-      `).join('');
-
       Swal.fire({
         title: '¡Faltan campos obligatorios!',
         background: '#002136',
         html: `
-          <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
+          <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
             Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
             Por favor complétalos antes de continuar:
           </p>
-          <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
+          <div style="max-height:350px;overflow-y:auto;">
+            <div style="padding:8px 12px;border-left:4px solid #d9534f;background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
+              <strong style="color:#b02a37;">1. Código de Verificación</strong>
+            </div>
+          </div>
         `,
         icon: 'error',
-        confirmButtonText: 'Entendido',
-        customClass: { popup: 'swal2-padding swal2-border' }
+        confirmButtonText: 'Entendido'
       });
       return;
     }
-
-    this.verifyForm.removeControl('id');
-
-    // Si tu servicio espera el token/código como string en query param:
-    const codigo = this.verifyForm.value.codigo as string;
-
-    this.pasajService.verificarPasajero(codigo).subscribe(
-      (response) => {
+    const codigo = (this.verifyForm.get('codigo')!.value || '').toString().trim();
+    this.pasajService.verificarPasajero(codigo).subscribe({
+      next: () => {
         this.submitButton = 'Guardar';
         this.loading = false;
-
+        this.pasajService.clearVerificationToken();
         Swal.fire({
           title: '¡Código verificado!',
           background: '#002136',
@@ -116,15 +75,12 @@ export class VerifyComponent implements OnInit {
           allowOutsideClick: false,
           allowEscapeKey: false
         }).then(({ isConfirmed }) => {
-          if (isConfirmed) {
-            this.router.navigate(['/account', 'login']);
-          }
+          if (isConfirmed) this.router.navigate(['/account', 'login']);
         });
       },
-      (error) => {
+      error: () => {
         this.submitButton = 'Guardar';
         this.loading = false;
-
         Swal.fire({
           title: 'Código inválido o expirado',
           background: '#002136',
@@ -134,7 +90,6 @@ export class VerifyComponent implements OnInit {
           confirmButtonText: 'Entendido'
         });
       }
-    );
+    });
   }
-
 }

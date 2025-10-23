@@ -1,53 +1,269 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import CustomStore from 'devextreme/data/custom_store';
+import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
+import { AuthenticationService } from 'src/app/core/services/auth.service';
+import { MonederosServices } from 'src/app/shared/services/monederos.service';
+import { OperadoresService } from 'src/app/shared/services/operadores.service';
+import { PasajerosService } from 'src/app/shared/services/pasajeros.service';
+import { TransaccionesService } from 'src/app/shared/services/transacciones.service';
 
 @Component({
   selector: 'app-vista-pasajero',
   templateUrl: './vista-pasajero.component.html',
-  styleUrl: './vista-pasajero.component.scss',
+  styleUrls: ['./vista-pasajero.component.scss'],
   animations: [fadeInUpAnimation],
 })
-export class VistaPasajeroComponent {
+export class VistaPasajeroComponent implements OnInit {
+  loadingTx = false;
+  paginaActualTx = 1;
+  totalRegistrosTx = 0;
+  pageSizeTx = 5;
+  totalPaginasTx = 0;
+  paginaActualDataTx: any[] = [];
+  filtroActivoTx = '';
+
+  loadingMone = false;
+  paginaActualM = 1;
+  totalRegistrosM = 0;
+  pageSizeM = 5;
+  totalPaginasM = 0;
+  paginaActualDataM: any[] = [];
+  filtroActivoM = '';
+
+  showFilterRowTx = false;
+  showHeaderFilterTx = false;
+  showFilterRowM = false;
+  showHeaderFilterM = false;
+
+  mensajeAgruparTx = 'Arrastre un encabezado de columna aquí para agrupar por esa columna';
+  mensajeAgruparM = 'Arrastre un encabezado de columna aquí para agrupar por esa columna';
+
+  listaTransacciones: any;
+  listaMonederos: any;
+
+  showId: any;
+  showNombre: any;
+  showApellidoPaterno: any;
+  showApellidoMaterno: any;
+  showTelefono: any;
+  showCorreo: any;
+  showRol: any;
+  showRolDescripcion: any;
+  showImage: any;
+  showRolExtraDescripcion: any;
+  showCreacion: any;
+  ultimoLogin: string | null = null;
+  showNombreCliente: any;
+  showApellidoPaternoCliente: any;
+  showApellidoMaternoCliente: any;
 
   saldo = 9876.33;
+  informacion: any
 
-transacciones = [
-  { fechaHora: new Date('2025-10-20T13:30:00'), estatus: 'Recarga', monto: 100, ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T13:35:00'), estatus: 'Recarga', monto: 50,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T13:40:00'), estatus: 'Recarga', monto: 20,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T13:45:00'), estatus: 'Débito',  monto: 15,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T13:50:00'), estatus: 'Débito',  monto: 15,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T13:55:00'), estatus: 'Recarga', monto: 20,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T14:00:00'), estatus: 'Débito',  monto: 15,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T14:05:00'), estatus: 'Débito',  monto: 15,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T14:10:00'), estatus: 'Recarga', monto: 50,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T14:15:00'), estatus: 'Recarga', monto: 20,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T14:10:00'), estatus: 'Recarga', monto: 50,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T14:10:00'), estatus: 'Recarga', monto: 50,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T14:10:00'), estatus: 'Recarga', monto: 50,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T14:10:00'), estatus: 'Recarga', monto: 50,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T14:10:00'), estatus: 'Recarga', monto: 50,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T14:10:00'), estatus: 'Recarga', monto: 50,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T14:10:00'), estatus: 'Recarga', monto: 50,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T14:10:00'), estatus: 'Recarga', monto: 50,  ns: '123456789ABCDEFG' },
-  { fechaHora: new Date('2025-10-20T14:10:00'), estatus: 'Recarga', monto: 50,  ns: '123456789ABCDEFG' },
-  
-];
+  constructor(
+    private users: AuthenticationService,
+    private tranService: TransaccionesService,
+    private moneService: MonederosServices,
+    private pasjService: PasajerosService
+  ) {
+    const sanitize = (value: any): string => (value && value !== 'null' ? value : '');
+    const user = this.users.getUser();
+    this.showNombre = sanitize(user.nombre);
+    this.showApellidoPaterno = sanitize(user.apellidoPaterno);
+    this.showApellidoMaterno = sanitize(user.apellidoMaterno);
+    this.showCreacion = this.formatFechaCreacion(user?.fechaCreacion);
+    this.ultimoLogin = this.formatFechaCreacion(user?.ultimoLogin);
+    this.showTelefono = user.telefono == null || user.telefono === 'null' ? 'Sin registro' : user.telefono;
+    this.showCorreo = user.userName;
+    this.showId = user.id;
+    this.showNombreCliente = user.nombreCliente;
+    this.showApellidoPaternoCliente = user.apellidoPaternoCliente;
+    this.showApellidoMaternoCliente = user.apellidoMaternoCliente
+  }
 
-monederos = [
-  { ns: '123456789ABCDEFG', alias: 'Principal',  estatus: 'Activo',   saldo: 9876 },
-  { ns: '987654321ZYXWVUT', alias: 'Secundario', estatus: 'Inactivo', saldo: 135 },
-  { ns: 'A1B2C3D4E5F6G7H8', alias: 'Viajes',     estatus: 'Activo',   saldo: 820 },
-  { ns: 'Z9Y8X7W6V5U4T3S2', alias: 'Oficina',    estatus: 'Activo',   saldo: 430 },
-  { ns: 'M1N2B3V4C5X6Z7Y8', alias: 'Familia',    estatus: 'Inactivo', saldo: 0 },
-  { ns: 'Q1W2E3R4T5Y6U7I8', alias: 'Eventos',    estatus: 'Activo',   saldo: 215 },
-  { ns: 'P9O8I7U6Y5T4R3E2', alias: 'Compras',    estatus: 'Activo',   saldo: 1270 },
-  { ns: 'L1K2J3H4G5F6D7S8', alias: 'Servicios',  estatus: 'Inactivo', saldo: 50 },
-  { ns: 'C1V2B3N4M5A6S7D8', alias: 'Proyectos',  estatus: 'Activo',   saldo: 645 },
-  { ns: 'T1R2E3W4Q5Y6U7I8', alias: 'Ahorros',    estatus: 'Activo',   saldo: 3200 }
-];
+  private formatFechaCreacion(raw: any): string {
+    if (!raw || raw === 'null') return '';
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return String(raw);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  }
 
-ubicar(row: any) { }
+  obtenerUsuarioOperador(idUsuario: any){
+    this.pasjService.datosUsuarioPasajero(this.showId).subscribe((response)=> {
+      this.informacion = response.data[0]
+    })
+  }
 
+  ngOnInit(): void {
+    this.setupTransaccionesDataSource();
+    this.setupMonederosDataSource();
+    this.obtenerUsuarioOperador(this.showId);
+  }
 
+  setupTransaccionesDataSource() {
+    this.loadingTx = true;
+
+    this.listaTransacciones = new CustomStore({
+      key: 'id',
+      load: async (loadOptions: any) => {
+        const take = Number(loadOptions?.take) || this.pageSizeTx || 10;
+        const skip = Number(loadOptions?.skip) || 0;
+        const page = Math.floor(skip / take) + 1;
+
+        try {
+          const resp: any = await lastValueFrom(this.tranService.obtenerTransaccionesData(page, take));
+          this.loadingTx = false;
+
+          const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
+          const meta = resp?.paginated ?? {};
+          const totalRegistros = toNum(meta.total) ?? rows.length;
+          const paginaActual = toNum(meta.page) ?? page;
+          const totalPaginas = toNum(meta.lastPage) ?? Math.max(1, Math.ceil(totalRegistros / take));
+
+          const dataTransformada = rows.map((x: any, idx: number) => ({
+            id: x?.id ?? `tx_${page}_${idx}`,
+            tipoTransaccion: x?.tipoTransaccion ?? null,
+            monto: toMoney(x?.monto),
+            latitud: x?.latitud ?? null,
+            longitud: x?.longitud ?? null,
+            fechaHora: x?.fechaHora ?? null,
+            fhRegistro: x?.fhRegistro ?? null,
+            numeroSerieMonedero: x?.numeroSerieMonedero ?? null,
+            numeroSerieDispositivo: x?.numeroSerieDispositivo ?? null
+          }));
+
+          this.totalRegistrosTx = totalRegistros;
+          this.paginaActualTx = paginaActual;
+          this.totalPaginasTx = totalPaginas;
+          this.paginaActualDataTx = dataTransformada;
+
+          return { data: dataTransformada, totalCount: totalRegistros };
+        } catch (error) {
+          this.loadingTx = false;
+          console.error('[TRANSACCIONES] Error:', error);
+          return { data: [], totalCount: 0 };
+        }
+      }
+    });
+
+    function toNum(v: any): number | null {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function toMoney(v: any): number | null {
+      if (v === null || v === undefined) return null;
+      const s = String(v).replace(',', '.').replace(/[^0-9.-]/g, '');
+      const n = Number(s);
+      return Number.isFinite(n) ? Number(n.toFixed(2)) : null;
+    }
+  }
+
+  setupMonederosDataSource() {
+    this.loadingMone = true;
+
+    const PAGE_SIZE = this.pageSizeM || 5;
+
+    this.listaMonederos = new CustomStore({
+      key: 'id',
+      load: async (loadOptions: any) => {
+        const take = PAGE_SIZE;
+        const skip = Number(loadOptions?.skip) || 0;
+        const page = Math.floor(skip / take) + 1;
+
+        try {
+          const resp: any = await lastValueFrom(this.moneService.obtenerMonederosData(page, take));
+          this.loadingMone = false;
+
+          const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
+          const meta = resp?.paginated || {};
+          const totalRegistros = toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
+          const paginaActual = toNum(meta.page) ?? toNum(resp?.page) ?? page;
+          const totalPaginas = toNum(meta.lastPage) ?? toNum(resp?.pages) ?? Math.max(1, Math.ceil(totalRegistros / take));
+
+          const dataTransformada = rows.map((item: any) => ({
+            ...item,
+            estatusTexto: item?.estatus === 1 ? 'Activo' : item?.estatus === 0 ? 'Inactivo' : null
+          }));
+
+          const start = skip;
+          const end = skip + take;
+          const pageData = dataTransformada.slice(start, end);
+
+          this.totalRegistrosM = totalRegistros;
+          this.paginaActualM = paginaActual;
+          this.totalPaginasM = totalPaginas;
+          this.paginaActualDataM = pageData;
+
+          return { data: pageData, totalCount: totalRegistros };
+        } catch (err) {
+          this.loadingMone = false;
+          console.error('[MONEDEROS] Error:', err);
+          return { data: [], totalCount: 0 };
+        }
+      }
+    });
+
+    function toNum(v: any): number | null {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    }
+  }
+
+  onGridOptionChangedTransacciones(e: any) {
+    if (e.fullName !== 'searchPanel.text') return;
+
+    this.filtroActivoTx = e.value || '';
+    if (!this.filtroActivoTx) {
+      e.component.option('dataSource', this.listaTransacciones);
+      return;
+    }
+
+    const q = this.filtroActivoTx.toLowerCase();
+    const dataFiltrada = this.paginaActualDataTx.filter((item: any) => {
+      const fFecha = (item.fhRegistro ? String(item.fhRegistro) : '').toLowerCase();
+      const fTipo = (item.tipoTransaccion ? String(item.tipoTransaccion) : '').toLowerCase();
+      const fMonto = item.monto != null ? String(item.monto) : '';
+      const fNSM = (item.numeroSerieMonedero ? String(item.numeroSerieMonedero) : '').toLowerCase();
+      const fNSD = (item.numeroSerieDispositivo ? String(item.numeroSerieDispositivo) : '').toLowerCase();
+      return fFecha.includes(q) || fTipo.includes(q) || fMonto.includes(q) || fNSM.includes(q) || fNSD.includes(q);
+    });
+
+    e.component.option('dataSource', dataFiltrada);
+  }
+
+  onGridOptionChangedMonederos(e: any) {
+    if (e.fullName !== 'searchPanel.text') return;
+
+    this.filtroActivoM = e.value || '';
+    if (!this.filtroActivoM) {
+      e.component.option('dataSource', this.listaMonederos);
+      return;
+    }
+
+    const q = this.filtroActivoM.toLowerCase();
+    const dataFiltrada = this.paginaActualDataM.filter((item: any) => {
+      const ns = (item.numeroSerie || item.ns || '').toString().toLowerCase();
+      const alias = (item.alias || '').toString().toLowerCase();
+      const est = (item.estatusTexto || '').toString().toLowerCase();
+      const saldo = item.saldo != null ? String(item.saldo) : '';
+      return ns.includes(q) || alias.includes(q) || est.includes(q) || saldo.includes(q);
+    });
+
+    e.component.option('dataSource', dataFiltrada);
+  }
+
+  onPageIndexChangedTransacciones(e: any) {
+    const pageIndex = e.component.pageIndex();
+    this.paginaActualTx = pageIndex + 1;
+    e.component.refresh();
+  }
+
+  onPageIndexChangedMonederos(e: any) {
+    const pageIndex = e.component.pageIndex();
+    this.paginaActualM = pageIndex + 1;
+    e.component.refresh();
+  }
 }

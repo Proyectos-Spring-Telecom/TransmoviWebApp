@@ -28,7 +28,8 @@
         style="width: 100%; display: flex; align-items: center; justify-content: center;" type="submit">
         <div class="justigy">
           <span [@fadeInUp] *ngIf="loading" class="loader"></span>
-          <span>Guardar</span>
+          <span *ngIf="!loading">Ingresar</span>
+          <span style="margin-left: 5px;" *ngIf="loading">Cargando...</span>
         </div>
       </button>
     </form>

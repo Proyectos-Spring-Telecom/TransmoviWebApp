@@ -1,12 +1,9 @@
 import { AfterViewInit, Component, NgZone, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Router } from '@angular/router';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { DispositivosService } from 'src/app/shared/services/dispositivos.service';
-import { ModulosService } from 'src/app/shared/services/modulos.service';
 import { MonederosServices } from 'src/app/shared/services/monederos.service';
-import { PermisosService } from 'src/app/shared/services/permisos.service';
 import { TransaccionesService } from 'src/app/shared/services/transacciones.service';
 import Swal from 'sweetalert2';
 
@@ -37,7 +34,7 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
     private dispService: DispositivosService,
     private moneService: MonederosServices,
     private zone: NgZone
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.obtenerDispositivos();
@@ -53,7 +50,7 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
       longitud: [null],
       fechaHora: [null, Validators.required],
       numeroSerieMonedero: ['', Validators.required],
-      numeroSerieDispositivo: [null, Validators.required],
+      numeroSerieDispositivo: [null],
     });
   }
 
@@ -73,20 +70,23 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
   submit() {
     this.submitButton = 'Cargando...';
     this.loading = true;
-    // console.log(this.transaccionForm.value)
+    if (!this.transaccionForm.get('fechaHora')?.value) {
+      const nowLocal = this.toDatetimeLocal(new Date().toISOString());
+      this.transaccionForm.patchValue({ fechaHora: nowLocal });
+    }
     this.agregar();
   }
 
   obtenerDispositivos() {
     this.dispService.obtenerDispositivos().subscribe((response) => {
       this.listaDispositivos = response.data;
-    })
+    });
   }
 
   obtenerMonederos() {
     this.moneService.obtenerMonederos().subscribe((response) => {
-      this.listaMonederos = response.data
-    })
+      this.listaMonederos = response.data;
+    });
   }
 
   agregar() {
@@ -97,7 +97,6 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
       monto: 'Monto',
       fechaHora: 'Fecha y Hora',
       numeroSerieMonedero: 'N° de Serie de Monedero',
-      numeroSerieDispositivo: 'N° de Serie de Dispositivo'
     };
     if (this.transaccionForm.invalid) {
       this.submitButton = 'Guardar';
@@ -135,16 +134,6 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const toIsoZulu = (localStr: string | null): string | null => {
-      if (!localStr) return null;
-      return new Date(localStr).toISOString().replace(/\.\d{3}Z$/, 'Z');
-    };
-    const toNumber6 = (v: any): number | null => {
-      if (v === null || v === undefined || v === '') return null;
-      const n = Number(v);
-      return Number.isFinite(n) ? Number(n.toFixed(6)) : null;
-    };
-
     const raw = this.transaccionForm.value;
     const payload = {
       ...raw,
@@ -154,9 +143,9 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
         const n = Number(parseFloat(String(raw.monto).toString().replace(',', '.')).toFixed(2));
         return isNaN(n) ? null : n;
       })(),
-      fechaHora: toIsoZulu(raw?.fechaHora || null),
-      latitud: toNumber6(raw?.latitud),
-      longitud: toNumber6(raw?.longitud),
+      fechaHora: this.toIsoZulu(raw?.fechaHora || null),
+      latitud: this.toNumber6(raw?.latitud),
+      longitud: this.toNumber6(raw?.longitud),
     };
 
     if (this.transaccionForm.contains('id')) {
@@ -164,7 +153,7 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
     }
 
     this.transaccionService.agregarTransaccion(payload).subscribe(
-      (response: any) => {
+      () => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
@@ -181,7 +170,7 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
-          title: `¡Ops!`,
+          title: '¡Ops!',
           background: '#002136',
           text: `${error}`,
           icon: 'error',

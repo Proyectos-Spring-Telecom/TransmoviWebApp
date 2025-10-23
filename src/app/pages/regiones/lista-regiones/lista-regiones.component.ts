@@ -75,7 +75,7 @@ export class ListaRegionesComponent implements OnInit {
       background: '#002136',
     }).then((result) => {
       if (result.value) {
-        this.regiServices.updateEstatus(rowData.idRegion, 1).subscribe(
+        this.regiServices.updateEstatus(rowData.id, 1).subscribe(
           (response) => {
             Swal.fire({
               title: '¡Confirmación Realizada!',
@@ -118,7 +118,7 @@ export class ListaRegionesComponent implements OnInit {
       background: '#002136',
     }).then((result) => {
       if (result.value) {
-        this.regiServices.updateEstatus(rowData.idRegion, 0).subscribe(
+        this.regiServices.updateEstatus(rowData.id, 0).subscribe(
           (response) => {
             Swal.fire({
               title: '¡Confirmación Realizada!',

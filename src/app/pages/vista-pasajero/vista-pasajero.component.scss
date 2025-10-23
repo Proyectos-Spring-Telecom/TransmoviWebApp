@@ -174,14 +174,6 @@ div:where(.swal2-container) .swal2-html-container {
   color: rgba(0, 0, 0, .3);
 }
 
-.card {
-  margin-bottom: 1.25rem;
-  box-shadow: var(--bs-box-shadow);
-  border: none;
-  background-color: #002136;
-}
-
-
 
 
 
@@ -222,28 +214,29 @@ div:where(.swal2-container) .swal2-html-container {
   .panel-body { padding: 16px; }
 
   .balance {
-    background: var(--panel-3);
+    background: #0b1825;
     border-radius: 14px;
     padding: 16px;
+    height: 165px;
   }
 
   .balance-icon {
-    width: 56px;
-    height: 56px;
+    width: 65px;
+    height: 65px;
     border-radius: 12px;
     background: #0e141b;
     display: grid;
     place-items: center;
-    font-size: 22px;
+    font-size: 30px;
     color: #fff;
   }
 
-  .balance .label { color: var(--muted); font-size: 12px; }
-  .balance .amount { color: var(--success); font-weight: 800; font-size: clamp(28px, 3vw, 40px); line-height: 1.1; }
+  .balance .label { color: var(--muted); font-size: 20px; }
+  .balance .amount { color: var(--success); font-weight: 800; font-size: clamp(28px, 3vw, 50px); line-height: 1.1; }
 
   .mini-card {
     position: relative;
-    background: var(--panel-3);
+    background: #0b1825;
     border-radius: 16px;
     padding: 16px 18px 16px 80px;
     height: 100%;
@@ -348,4 +341,11 @@ div:where(.swal2-container) .swal2-html-container {
   @media (max-width: 767.98px) {
     .info-row { grid-template-columns: 1fr; }
   }
+}
+
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  border: none;
+  background-color: #002136;
 }

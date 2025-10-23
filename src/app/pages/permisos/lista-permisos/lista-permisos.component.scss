@@ -37,169 +37,63 @@
   margin-top: 5px;
 }
 
-::ng-deep .swal2-container .swal2-title {
-    font-size: 24px;
-    font-weight: 200;
-    color: #ffffff;
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  background-color: #002136;
 }
-
-.swal2-container .swal2-title {
-    font-size: 24px;
-    font-weight: 500;
-    color: #ffffff;
-}
-
-::ng-deep div:where(.swal2-container) .swal2-html-container {
-    z-index: 1;
-    justify-content: center;
-    margin: 1em 1.6em .3em;
-    padding: 0;
-    overflow: auto;
-    color: #c8c8c8;
-    font-size: 1.125em;
-    font-weight: normal;
-    line-height: normal;
-    text-align: center;
-    word-wrap: break-word;
-    word-break: break-word;
-}
-
-div:where(.swal2-container) .swal2-html-container {
-    z-index: 1;
-    justify-content: center;
-    margin: 1em 1.6em .3em;
-    padding: 0;
-    overflow: auto;
-    color: #c8c8c8;
-    font-size: 1.125em;
-    font-weight: normal;
-    line-height: normal;
-    text-align: center;
-    word-wrap: break-word;
-    word-break: break-word;
-}
-
-
 
 ::ng-deep .dx-searchbox .dx-texteditor-input {
-    --clr-font-main: hsla(0 0% 20% / 100);
-    --btn-bg-1: hsla(271 81% 56% / 1);
-    --btn-bg-2: hsla(217 91% 60% / 1);
-    --radii: 0.0em;
-    cursor: pointer;
-    min-height: 38px;
-    font-size: var(--size, 14px);
-    font-weight: 500;
-    transition: 0.8s;
-    background-size: 280% auto;
-    background-image: linear-gradient(325deg,
-            var(--btn-bg-2) 0%,
-            var(--btn-bg-1) 55%,
-            var(--btn-bg-2) 90%);
-    border: none;
-    border-radius: var(--radii);
-    box-shadow:
-        0px 0px 20px rgba(71, 184, 255, 0.5),
-        0px 5px 5px -1px rgba(58, 125, 233, 0.25),
-        inset 4px 4px 8px rgba(175, 230, 255, 0.5),
-        inset -4px -4px 8px rgba(19, 95, 216, 0.35);
+  --radii: 2.0em;
+  cursor: pointer;
+  min-height: 38px;
+  font-size: var(--size, 14px);
+  font-weight: 500;
+  transition: 0.8s;
+  background-size: 280% auto;
+  background-color: #0a66c2;
+  border: none;
 }
 
 ::ng-deep .dx-searchbox .dx-texteditor-input:hover {
-    background-position: right top;
+  background-position: right top;
 }
 
 ::ng-deep .dx-searchbox .dx-texteditor-input:is(:focus, :focus-visible, :active) {
-    outline: none;
-    box-shadow:
-        0 0 0 0px var(--btn-bg-color),
-        0 0 0 0px var(--btn-bg-2);
+  outline: none;
+  box-shadow:
+      0 0 0 0px var(--btn-bg-color),
+      0 0 0 0px var(--btn-bg-2);
+}
+
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  border: none;
+  background-color: #002136;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .dx-searchbox .dx-texteditor-input {
-        transition: linear;
-    }
+  .dx-searchbox .dx-texteditor-input {
+      transition: linear;
+  }
 }
 
 ::ng-deep .dx-icon-clear:before {
-    content: "\f008";
-    color: white;
+  color: white;
 }
 
 ::ng-deep .dx-icon-search:before {
-    color: white !important; 
+  color: white !important;
 }
 
 ::ng-deep .dx-searchbox .dx-placeholder::before,
 .dx-searchbox .dx-texteditor-input,
 .dx-searchbox.dx-editor-underlined .dx-texteditor-buttons-container+.dx-texteditor-input-container .dx-texteditor-input,
 .dx-searchbox.dx-editor-underlined .dx-texteditor-input {
-    padding-inline-start: 34px;
-    color: white;
+  padding-inline-start: 34px;
+  color: white;
 }
-
-  
-  .sin-informacion {
-    color: white;
-    background-color: transparent;
-  }
-  
-  ::ng-deep .dx-datagrid-search-panel .dx-icon-search:before {
-    content: '\f002';
-    font-family: 'FontAwesome';
-    font-size: 16px;
-    color: #28a745;
-}
-
-::ng-deep .dx-texteditor-buttons-container {
---clr-font-main: hsla(0 0% 20% / 100);
-    --btn-bg-1: hsla(271 81% 56% / 1);
-    --btn-bg-2: hsla(217 91% 60% / 1);
-    display: flex;
-    width: auto;
-    flex-grow: 0;
-    flex-basis: content;
-    align-items: center;
-    background-image: linear-gradient(325deg,
-            var(--btn-bg-2) 0%,
-            var(--btn-bg-1) 55%,
-            var(--btn-bg-2) 90%);
-}
-
- ::ng-deep .dx-show-clear-button .dx-clear-button-area:hover {
-   background-position: right top;
- }
-
- ::ng-deep .dx-show-clear-button .dx-clear-button-area:is(:focus, :focus-visible, :active) {
-   outline: none;
-   box-shadow:
-       0 0 0 0px var(--btn-bg-color),
-       0 0 0 0px var(--btn-bg-2);
- }
-
- @media (prefers-reduced-motion: reduce) {
-   .dx-show-clear-button .dx-clear-button-area {
-       transition: linear;
-   }
- }
-
- ::ng-deep .dx-icon-clear:before {
-   content: "\f008";
-   color: white;
- }
-
- ::ng-deep .dx-icon-search:before {
-   color: white !important; 
- }
-
- ::ng-deep .dx-searchbox .dx-placeholder::before,
- .dx-show-clear-button .dx-clear-button-area,
- .dx-searchbox.dx-editor-underlined .dx-texteditor-buttons-container+.dx-texteditor-input-container .dx-texteditor-input,
- .dx-searchbox.dx-editor-underlined .dx-texteditor-input {
-   padding-inline-start: 34px;
-   color: white;
- }
 
 .button-18 {
   margin-top: 1%;
@@ -248,9 +142,45 @@ div:where(.swal2-container) .swal2-html-container {
   color: rgba(0, 0, 0, .3);
 }
 
-.card {
-  margin-bottom: 1.25rem;
-  box-shadow: var(--bs-box-shadow);
-  border: none;
-  background-color: #002136;
+
+::ng-deep .swal2-container .swal2-title {
+    font-size: 24px;
+    font-weight: 200;
+    color: #ffffff;
+}
+
+.swal2-container .swal2-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+::ng-deep div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
 }

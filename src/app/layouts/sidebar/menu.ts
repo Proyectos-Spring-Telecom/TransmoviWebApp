@@ -5,18 +5,21 @@ export const MENU: MenuItem[] = [
     {
         id: 1,
         label: 'Coordinación',
+        permiso: Permiso!.Listado_Modulos,
         isTitle: true
     },
     {
         id: 12,
         label: 'Dashboard',
         icon: 'uil-home',
+        permiso: Permiso.Consultar_Dashboard,
         link: '/',
     },
     {
         id: 20,
         label: 'Administración',
         icon: 'uil-store-alt',
+        permiso: Permiso.Listado_Modulos,
         subItems: [
             {
                 id: 16,
@@ -119,7 +122,7 @@ export const MENU: MenuItem[] = [
                 label: 'Punto de Venta',
                 icon: 'uil-apps',
                 link: '/punto-venta',
-                // permiso: Permiso.Listado_Transacciones
+                permiso: Permiso.Punto_Venta
             },
             {
                 id: 5,
@@ -165,6 +168,7 @@ export const MENU: MenuItem[] = [
                 id: 9,
                 label: 'Tarifas',
                 link: '/tarifas',
+                permiso: Permiso.Listado_Tarifas
             },
         ]
     },
@@ -173,6 +177,7 @@ export const MENU: MenuItem[] = [
         label: 'Monitoreo',
         icon: 'uil-map',
         link: '/monitoreo',
+        permiso: Permiso.Consultar_Monitoreo
     },
     {
         id: 9,
@@ -194,12 +199,12 @@ export const MENU: MenuItem[] = [
         icon: 'uil-user-circle',
         link: '/contacts/profile',
     },
-    {
-        id: 13,
-        label: 'Pasajero',
-        icon: 'uil-user-circle',
-        link: '/vista-pasajero',
-    },
+    // {
+    //     id: 13,
+    //     label: 'Pasajero',
+    //     icon: 'uil-user',
+    //     link: '/vista-pasajero',
+    // },
     {
         id: 115,
         label: 'MENUITEMS.PRUEBACOMPONENTCERRAR.TEXT',
