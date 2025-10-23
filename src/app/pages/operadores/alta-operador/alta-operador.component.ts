@@ -66,6 +66,7 @@ export class AltaOperadorComponent implements OnInit {
       const identificacion = get(raw, ['identificacion', 'Identificacion']);
       const comprobanteDomicilio = get(raw, ['comprobanteDomicilio', 'ComprobanteDomicilio']);
       const antecedentesNoPenales = get(raw, ['antecedentesNoPenales', 'AntecedentesNoPenales']);
+      const licencia = get(raw, ['licencia', 'Licencia']);
 
       const fechaNacimiento = fechaNacimientoRaw
         ? fechaNacimientoRaw.split('T')[0]
@@ -79,6 +80,7 @@ export class AltaOperadorComponent implements OnInit {
         identificacion: identificacion ?? null,
         comprobanteDomicilio: comprobanteDomicilio ?? null,
         antecedentesNoPenales: antecedentesNoPenales ?? null,
+        licencia: licencia ?? null,
       });
     });
   }
@@ -107,6 +109,7 @@ export class AltaOperadorComponent implements OnInit {
       comprobanteDomicilio: ['', Validators.required],
       antecedentesNoPenales: ['', Validators.required],
       estatus: [1, Validators.required],
+      licencia: [1, Validators.required],
       idUsuario: [null, Validators.required]
     });
   }
@@ -128,14 +131,15 @@ export class AltaOperadorComponent implements OnInit {
       this.submitButton = 'Guardar';
       this.loading = false;
       const etiquetas: any = {
-  numeroLicencia: 'Número de Licencia',
-  fechaNacimiento: 'Fecha de Nacimiento',
-  identificacion: 'Identificación',
-  comprobanteDomicilio: 'Comprobante de Domicilio',
-  antecedentesNoPenales: 'Antecedentes No Penales',
-  estatus: 'Estatus',
-  idUsuario: 'Usuario'
-};
+        numeroLicencia: 'Número de Licencia',
+        fechaNacimiento: 'Fecha de Nacimiento',
+        licencia: 'Licencia',
+        identificacion: 'Identificación',
+        comprobanteDomicilio: 'Comprobante de Domicilio',
+        antecedentesNoPenales: 'Antecedentes No Penales',
+        estatus: 'Estatus',
+        idUsuario: 'Usuario'
+      };
 
 
       const camposFaltantes: string[] = [];
@@ -203,32 +207,33 @@ export class AltaOperadorComponent implements OnInit {
   }
 
   actualizar() {
-  this.submitButton = 'Cargando...';
-  this.loading = true;
+    this.submitButton = 'Cargando...';
+    this.loading = true;
 
-  if (this.operadorForm.invalid) {
-    this.submitButton = 'Guardar';
-    this.loading = false;
+    if (this.operadorForm.invalid) {
+      this.submitButton = 'Guardar';
+      this.loading = false;
 
-    const etiquetas: any = {
-      numeroLicencia: 'Número de Licencia',
-      fechaNacimiento: 'Fecha de Nacimiento',
-      identificacion: 'Identificación',
-      comprobanteDomicilio: 'Comprobante de Domicilio',
-      antecedentesNoPenales: 'Antecedentes No Penales',
-      estatus: 'Estatus',
-      idUsuario: 'Usuario'
-    };
+      const etiquetas: any = {
+        numeroLicencia: 'Número de Licencia',
+        fechaNacimiento: 'Fecha de Nacimiento',
+        licencia: 'Licencia',
+        identificacion: 'Identificación',
+        comprobanteDomicilio: 'Comprobante de Domicilio',
+        antecedentesNoPenales: 'Antecedentes No Penales',
+        estatus: 'Estatus',
+        idUsuario: 'Usuario'
+      };
 
-    const camposFaltantes: string[] = [];
-    Object.keys(this.operadorForm.controls).forEach(key => {
-      const control = this.operadorForm.get(key);
-      if (control?.invalid && control.errors?.['required']) {
-        camposFaltantes.push(etiquetas[key] || key);
-      }
-    });
+      const camposFaltantes: string[] = [];
+      Object.keys(this.operadorForm.controls).forEach(key => {
+        const control = this.operadorForm.get(key);
+        if (control?.invalid && control.errors?.['required']) {
+          camposFaltantes.push(etiquetas[key] || key);
+        }
+      });
 
-    const lista = camposFaltantes.map((campo, index) => `
+      const lista = camposFaltantes.map((campo, index) => `
       <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
                   background: #caa8a8; text-align: center; margin-bottom: 8px;
                   border-radius: 4px;">
@@ -236,261 +241,353 @@ export class AltaOperadorComponent implements OnInit {
       </div>
     `).join('');
 
-    Swal.fire({
-      title: '¡Faltan campos obligatorios!',
-      background: '#002136',
-      html: `
+      Swal.fire({
+        title: '¡Faltan campos obligatorios!',
+        background: '#002136',
+        html: `
         <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
           Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
           Por favor complétalos antes de continuar:
         </p>
         <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
       `,
-      icon: 'error',
-      confirmButtonText: 'Entendido',
-      customClass: {
-        popup: 'swal2-padding swal2-border'
-      }
-    });
-    return; // importante: salir si es inválido
-  }
-
-  // ✅ Clonamos el formValue y eliminamos idUsuario
-  const payload = { ...this.operadorForm.value };
-  delete payload.idUsuario;
-
-  this.operService.actualizarOperador(this.idOperador, payload).subscribe(
-    (response) => {
-      this.submitButton = 'Actualizar';
-      this.loading = false;
-      Swal.fire({
-        title: '¡Operación Exitosa!',
-        background: '#002136',
-        text: `Los datos del operador se actualizaron correctamente.`,
-        icon: 'success',
-        confirmButtonColor: '#3085d6',
-        confirmButtonText: 'Confirmar',
-      });
-      this.regresar();
-    },
-    (error) => {
-      this.submitButton = 'Actualizar';
-      this.loading = false;
-      Swal.fire({
-        title: '¡Ops!',
-        background: '#002136',
-        text: `Ocurrió un error al actualizar el operador.`,
         icon: 'error',
-        confirmButtonColor: '#3085d6',
-        confirmButtonText: 'Confirmar',
+        confirmButtonText: 'Entendido',
+        customClass: {
+          popup: 'swal2-padding swal2-border'
+        }
       });
+      return; // importante: salir si es inválido
     }
-  );
-}
+
+    // ✅ Clonamos el formValue y eliminamos idUsuario
+    const payload = { ...this.operadorForm.value };
+    delete payload.idUsuario;
+
+    this.operService.actualizarOperador(this.idOperador, payload).subscribe(
+      (response) => {
+        this.submitButton = 'Actualizar';
+        this.loading = false;
+        Swal.fire({
+          title: '¡Operación Exitosa!',
+          background: '#002136',
+          text: `Los datos del operador se actualizaron correctamente.`,
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+        this.regresar();
+      },
+      (error) => {
+        this.submitButton = 'Actualizar';
+        this.loading = false;
+        Swal.fire({
+          title: '¡Ops!',
+          background: '#002136',
+          text: `Ocurrió un error al actualizar el operador.`,
+          icon: 'error',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+      }
+    );
+  }
 
   regresar() {
     this.route.navigateByUrl('/operadores');
   }
-// ===== ViewChilds =====
-@ViewChild('identFileInput') identificacionFileInput!: ElementRef<HTMLInputElement>;
-@ViewChild('comprobanteFileInput') comprobanteFileInput!: ElementRef<HTMLInputElement>;
-@ViewChild('antecedentesFileInput') antecedentesFileInput!: ElementRef<HTMLInputElement>;
+  // ===== ViewChilds =====
+  @ViewChild('identFileInput') identificacionFileInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('comprobanteFileInput') comprobanteFileInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('antecedentesFileInput') antecedentesFileInput!: ElementRef<HTMLInputElement>;
 
-// ===== Estado UI =====
-identificacionPreviewUrl: string | ArrayBuffer | null = null;
-comprobantePreviewUrl: string | ArrayBuffer | null = null;
-antecedentesPreviewUrl: string | ArrayBuffer | null = null;
+  // ===== Estado UI =====
+  identificacionPreviewUrl: string | ArrayBuffer | null = null;
+  comprobantePreviewUrl: string | ArrayBuffer | null = null;
+  antecedentesPreviewUrl: string | ArrayBuffer | null = null;
 
-identificacionFileName: string | null = null;
-comprobanteFileName: string | null = null;
-antecedentesFileName: string | null = null;
+  identificacionFileName: string | null = null;
+  comprobanteFileName: string | null = null;
+  antecedentesFileName: string | null = null;
 
-identificacionDragging = false;
-comprobanteDragging = false;
-antecedentesDragging = false;
+  identificacionDragging = false;
+  comprobanteDragging = false;
+  antecedentesDragging = false;
 
-uploadingIdent = false;
-uploadingComprobante = false;
-uploadingAntecedentes = false;
+  uploadingIdent = false;
+  uploadingComprobante = false;
+  uploadingAntecedentes = false;
 
-// Tamaño máximo (MB)
-private readonly MAX_MB = 3;
+  // Tamaño máximo (MB)
+  private readonly MAX_MB = 3;
 
-// ===== Helpers =====
-private isPdf(file: File): boolean {
-  return file.type === 'application/pdf';
-}
-private isAllowedPdf(file: File): boolean {
-  return this.isPdf(file) && file.size <= this.MAX_MB * 1024 * 1024;
-}
-private extractFileUrl(res: any): string {
-  return (
-    res?.url ??
-    res?.Location ??
-    res?.data?.url ??
-    res?.data?.Location ??
-    res?.key ??
-    res?.Key ??
-    res?.path ??
-    res?.filePath ??
-    ''
-  );
-}
-
-// ===== Identificación =====
-openIdentFilePicker(): void { this.identificacionFileInput.nativeElement.click(); }
-onIdentDragOver(e: DragEvent) { e.preventDefault(); this.identificacionDragging = true; }
-onIdentDragLeave(_e: DragEvent) { this.identificacionDragging = false; }
-onIdentDrop(e: DragEvent) { e.preventDefault(); this.identificacionDragging = false; const f = e.dataTransfer?.files?.[0]; if (f) this.handleIdentFile(f); }
-onIdentFileSelected(e: Event) { const f = (e.target as HTMLInputElement).files?.[0]; if (f) this.handleIdentFile(f); }
-
-clearIdentFile(e: Event) {
-  e.stopPropagation();
-  this.identificacionPreviewUrl = null;
-  this.identificacionFileName = null;
-  this.identificacionFileInput.nativeElement.value = '';
-  this.operadorForm.patchValue({ identificacion: null });
-  this.operadorForm.get('identificacion')?.setErrors({ required: true });
-}
-
-private handleIdentFile(file: File) {
-  if (!this.isAllowedPdf(file)) {
-    this.operadorForm.get('identificacion')?.setErrors({ invalid: true });
-    return;
+  // ===== Helpers =====
+  private isPdf(file: File): boolean {
+    return file.type === 'application/pdf';
   }
-  this.identificacionFileName = file.name;
-  // Para mantener tu estructura de preview, dejamos la url en null para PDF (no se muestra imagen)
-  this.identificacionPreviewUrl = null;
-
-  // 1) Colocamos el File temporalmente
-  this.operadorForm.patchValue({ identificacion: file });
-  this.operadorForm.get('identificacion')?.setErrors(null);
-
-  // 2) Subimos y sustituimos por URL
-  this.uploadIdentificacion(file);
-}
-
-private uploadIdentificacion(file: File): void {
-  if (this.uploadingIdent) return;
-  this.uploadingIdent = true;
-
-  const fd = new FormData();
-  fd.append('file', file, file.name);
-  fd.append('folder', 'operadores');
-  fd.append('idModule', '9');
-
-  this.usuaService.uploadFile(fd).subscribe({
-    next: (res: any) => {
-      const url = this.extractFileUrl(res);
-      if (url) {
-        this.operadorForm.patchValue({ identificacion: url });
-      }
-    },
-    error: (err) => { console.error('[UPLOAD][identificacion]', err); },
-    complete: () => { this.uploadingIdent = false; },
-  });
-}
-
-// ===== Comprobante de Domicilio =====
-openComprobanteFilePicker(): void { this.comprobanteFileInput.nativeElement.click(); }
-onComprobanteDragOver(e: DragEvent) { e.preventDefault(); this.comprobanteDragging = true; }
-onComprobanteDragLeave(_e: DragEvent) { this.comprobanteDragging = false; }
-onComprobanteDrop(e: DragEvent) { e.preventDefault(); this.comprobanteDragging = false; const f = e.dataTransfer?.files?.[0]; if (f) this.handleComprobanteFile(f); }
-onComprobanteFileSelected(e: Event) { const f = (e.target as HTMLInputElement).files?.[0]; if (f) this.handleComprobanteFile(f); }
-
-clearComprobanteFile(e: Event) {
-  e.stopPropagation();
-  this.comprobantePreviewUrl = null;
-  this.comprobanteFileName = null;
-  this.comprobanteFileInput.nativeElement.value = '';
-  this.operadorForm.patchValue({ comprobanteDomicilio: null });
-  this.operadorForm.get('comprobanteDomicilio')?.setErrors({ required: true });
-}
-
-private handleComprobanteFile(file: File) {
-  if (!this.isAllowedPdf(file)) {
-    this.operadorForm.get('comprobanteDomicilio')?.setErrors({ invalid: true });
-    return;
+  private isAllowedPdf(file: File): boolean {
+    return this.isPdf(file) && file.size <= this.MAX_MB * 1024 * 1024;
   }
-  this.comprobanteFileName = file.name;
-  this.comprobantePreviewUrl = null;
-
-  this.operadorForm.patchValue({ comprobanteDomicilio: file });
-  this.operadorForm.get('comprobanteDomicilio')?.setErrors(null);
-
-  this.uploadComprobante(file);
-}
-
-private uploadComprobante(file: File): void {
-  if (this.uploadingComprobante) return;
-  this.uploadingComprobante = true;
-
-  const fd = new FormData();
-  fd.append('file', file, file.name);
-  fd.append('folder', 'operadores');
-  fd.append('idModule', '9');
-
-  this.usuaService.uploadFile(fd).subscribe({
-    next: (res: any) => {
-      const url = this.extractFileUrl(res);
-      if (url) {
-        this.operadorForm.patchValue({ comprobanteDomicilio: url });
-      }
-    },
-    error: (err) => { console.error('[UPLOAD][comprobanteDomicilio]', err); },
-    complete: () => { this.uploadingComprobante = false; },
-  });
-}
-
-// ===== Antecedentes No Penales =====
-openAntecedentesFilePicker(): void { this.antecedentesFileInput.nativeElement.click(); }
-onAntecedentesDragOver(e: DragEvent) { e.preventDefault(); this.antecedentesDragging = true; }
-onAntecedentesDragLeave(_e: DragEvent) { this.antecedentesDragging = false; }
-onAntecedentesDrop(e: DragEvent) { e.preventDefault(); this.antecedentesDragging = false; const f = e.dataTransfer?.files?.[0]; if (f) this.handleAntecedentesFile(f); }
-onAntecedentesFileSelected(e: Event) { const f = (e.target as HTMLInputElement).files?.[0]; if (f) this.handleAntecedentesFile(f); }
-
-clearAntecedentesFile(e: Event) {
-  e.stopPropagation();
-  this.antecedentesPreviewUrl = null;
-  this.antecedentesFileName = null;
-  this.antecedentesFileInput.nativeElement.value = '';
-  this.operadorForm.patchValue({ antecedentesNoPenales: null });
-  this.operadorForm.get('antecedentesNoPenales')?.setErrors({ required: true });
-}
-
-private handleAntecedentesFile(file: File) {
-  if (!this.isAllowedPdf(file)) {
-    this.operadorForm.get('antecedentesNoPenales')?.setErrors({ invalid: true });
-    return;
+  private extractFileUrl(res: any): string {
+    return (
+      res?.url ??
+      res?.Location ??
+      res?.data?.url ??
+      res?.data?.Location ??
+      res?.key ??
+      res?.Key ??
+      res?.path ??
+      res?.filePath ??
+      ''
+    );
   }
-  this.antecedentesFileName = file.name;
-  this.antecedentesPreviewUrl = null;
 
-  this.operadorForm.patchValue({ antecedentesNoPenales: file });
-  this.operadorForm.get('antecedentesNoPenales')?.setErrors(null);
+  // ===== Identificación =====
+  openIdentFilePicker(): void { this.identificacionFileInput.nativeElement.click(); }
+  onIdentDragOver(e: DragEvent) { e.preventDefault(); this.identificacionDragging = true; }
+  onIdentDragLeave(_e: DragEvent) { this.identificacionDragging = false; }
+  onIdentDrop(e: DragEvent) { e.preventDefault(); this.identificacionDragging = false; const f = e.dataTransfer?.files?.[0]; if (f) this.handleIdentFile(f); }
+  onIdentFileSelected(e: Event) { const f = (e.target as HTMLInputElement).files?.[0]; if (f) this.handleIdentFile(f); }
 
-  this.uploadAntecedentes(file);
-}
+  clearIdentFile(e: Event) {
+    e.stopPropagation();
+    this.identificacionPreviewUrl = null;
+    this.identificacionFileName = null;
+    this.identificacionFileInput.nativeElement.value = '';
+    this.operadorForm.patchValue({ identificacion: null });
+    this.operadorForm.get('identificacion')?.setErrors({ required: true });
+  }
 
-private uploadAntecedentes(file: File): void {
-  if (this.uploadingAntecedentes) return;
-  this.uploadingAntecedentes = true;
+  private handleIdentFile(file: File) {
+    if (!this.isAllowedPdf(file)) {
+      this.operadorForm.get('identificacion')?.setErrors({ invalid: true });
+      return;
+    }
+    this.identificacionFileName = file.name;
+    // Para mantener tu estructura de preview, dejamos la url en null para PDF (no se muestra imagen)
+    this.identificacionPreviewUrl = null;
 
-  const fd = new FormData();
-  fd.append('file', file, file.name);
-  fd.append('folder', 'operadores');
-  fd.append('idModule', '9');
+    // 1) Colocamos el File temporalmente
+    this.operadorForm.patchValue({ identificacion: file });
+    this.operadorForm.get('identificacion')?.setErrors(null);
 
-  this.usuaService.uploadFile(fd).subscribe({
-    next: (res: any) => {
-      const url = this.extractFileUrl(res);
-      if (url) {
-        this.operadorForm.patchValue({ antecedentesNoPenales: url });
-      }
-    },
-    error: (err) => { console.error('[UPLOAD][antecedentesNoPenales]', err); },
-    complete: () => { this.uploadingAntecedentes = false; },
-  });
-}
+    // 2) Subimos y sustituimos por URL
+    this.uploadIdentificacion(file);
+  }
+
+  private uploadIdentificacion(file: File): void {
+    if (this.uploadingIdent) return;
+    this.uploadingIdent = true;
+
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    fd.append('folder', 'operadores');
+    fd.append('idModule', '9');
+
+    this.usuaService.uploadFile(fd).subscribe({
+      next: (res: any) => {
+        const url = this.extractFileUrl(res);
+        if (url) {
+          this.operadorForm.patchValue({ identificacion: url });
+        }
+      },
+      error: (err) => { console.error('[UPLOAD][identificacion]', err); },
+      complete: () => { this.uploadingIdent = false; },
+    });
+  }
+
+  // ===== Comprobante de Domicilio =====
+  openComprobanteFilePicker(): void { this.comprobanteFileInput.nativeElement.click(); }
+  onComprobanteDragOver(e: DragEvent) { e.preventDefault(); this.comprobanteDragging = true; }
+  onComprobanteDragLeave(_e: DragEvent) { this.comprobanteDragging = false; }
+  onComprobanteDrop(e: DragEvent) { e.preventDefault(); this.comprobanteDragging = false; const f = e.dataTransfer?.files?.[0]; if (f) this.handleComprobanteFile(f); }
+  onComprobanteFileSelected(e: Event) { const f = (e.target as HTMLInputElement).files?.[0]; if (f) this.handleComprobanteFile(f); }
+
+  clearComprobanteFile(e: Event) {
+    e.stopPropagation();
+    this.comprobantePreviewUrl = null;
+    this.comprobanteFileName = null;
+    this.comprobanteFileInput.nativeElement.value = '';
+    this.operadorForm.patchValue({ comprobanteDomicilio: null });
+    this.operadorForm.get('comprobanteDomicilio')?.setErrors({ required: true });
+  }
+
+  private handleComprobanteFile(file: File) {
+    if (!this.isAllowedPdf(file)) {
+      this.operadorForm.get('comprobanteDomicilio')?.setErrors({ invalid: true });
+      return;
+    }
+    this.comprobanteFileName = file.name;
+    this.comprobantePreviewUrl = null;
+
+    this.operadorForm.patchValue({ comprobanteDomicilio: file });
+    this.operadorForm.get('comprobanteDomicilio')?.setErrors(null);
+
+    this.uploadComprobante(file);
+  }
+
+  private uploadComprobante(file: File): void {
+    if (this.uploadingComprobante) return;
+    this.uploadingComprobante = true;
+
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    fd.append('folder', 'operadores');
+    fd.append('idModule', '9');
+
+    this.usuaService.uploadFile(fd).subscribe({
+      next: (res: any) => {
+        const url = this.extractFileUrl(res);
+        if (url) {
+          this.operadorForm.patchValue({ comprobanteDomicilio: url });
+        }
+      },
+      error: (err) => { console.error('[UPLOAD][comprobanteDomicilio]', err); },
+      complete: () => { this.uploadingComprobante = false; },
+    });
+  }
+
+  // ===== Antecedentes No Penales =====
+  openAntecedentesFilePicker(): void { this.antecedentesFileInput.nativeElement.click(); }
+  onAntecedentesDragOver(e: DragEvent) { e.preventDefault(); this.antecedentesDragging = true; }
+  onAntecedentesDragLeave(_e: DragEvent) { this.antecedentesDragging = false; }
+  onAntecedentesDrop(e: DragEvent) { e.preventDefault(); this.antecedentesDragging = false; const f = e.dataTransfer?.files?.[0]; if (f) this.handleAntecedentesFile(f); }
+  onAntecedentesFileSelected(e: Event) { const f = (e.target as HTMLInputElement).files?.[0]; if (f) this.handleAntecedentesFile(f); }
+
+  clearAntecedentesFile(e: Event) {
+    e.stopPropagation();
+    this.antecedentesPreviewUrl = null;
+    this.antecedentesFileName = null;
+    this.antecedentesFileInput.nativeElement.value = '';
+    this.operadorForm.patchValue({ antecedentesNoPenales: null });
+    this.operadorForm.get('antecedentesNoPenales')?.setErrors({ required: true });
+  }
+
+  private handleAntecedentesFile(file: File) {
+    if (!this.isAllowedPdf(file)) {
+      this.operadorForm.get('antecedentesNoPenales')?.setErrors({ invalid: true });
+      return;
+    }
+    this.antecedentesFileName = file.name;
+    this.antecedentesPreviewUrl = null;
+
+    this.operadorForm.patchValue({ antecedentesNoPenales: file });
+    this.operadorForm.get('antecedentesNoPenales')?.setErrors(null);
+
+    this.uploadAntecedentes(file);
+  }
+
+  private uploadAntecedentes(file: File): void {
+    if (this.uploadingAntecedentes) return;
+    this.uploadingAntecedentes = true;
+
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    fd.append('folder', 'operadores');
+    fd.append('idModule', '9');
+
+    this.usuaService.uploadFile(fd).subscribe({
+      next: (res: any) => {
+        const url = this.extractFileUrl(res);
+        if (url) {
+          this.operadorForm.patchValue({ antecedentesNoPenales: url });
+        }
+      },
+      error: (err) => { console.error('[UPLOAD][antecedentesNoPenales]', err); },
+      complete: () => { this.uploadingAntecedentes = false; },
+    });
+  }
+
+
+  @ViewChild('licenciaFileInput') licenciaFileInput!: ElementRef<HTMLInputElement>;
+  licenciaPreviewUrl: string | ArrayBuffer | null = null;
+  licenciaFileName: string | null = null;
+  licenciaDragging = false;
+  uploadingLicencia = false;
+
+
+
+  // NEW
+  private isImage(file: File): boolean {
+    return file.type.startsWith('image/');
+  }
+
+  // NEW (acepta PDF o imagen dentro del límite)
+  private isAllowedFile(file: File): boolean {
+    return (this.isPdf(file) || this.isImage(file)) && file.size <= this.MAX_MB * 1024 * 1024;
+  }
+
+  // ===== Licencia (PDF o imagen) =====
+  openLicFilePicker(): void { this.licenciaFileInput.nativeElement.click(); }
+  onLicDragOver(e: DragEvent) { e.preventDefault(); this.licenciaDragging = true; }
+  onLicDragLeave(_e: DragEvent) { this.licenciaDragging = false; }
+  onLicDrop(e: DragEvent) {
+    e.preventDefault();
+    this.licenciaDragging = false;
+    const f = e.dataTransfer?.files?.[0];
+    if (f) this.handleLicFile(f);
+  }
+  onLicFileSelected(e: Event) {
+    const f = (e.target as HTMLInputElement).files?.[0];
+    if (f) this.handleLicFile(f);
+  }
+
+  clearLicFile(e: Event) {
+    e.stopPropagation();
+    this.licenciaPreviewUrl = null;
+    this.licenciaFileName = null;
+    this.licenciaFileInput.nativeElement.value = '';
+    this.operadorForm.patchValue({ licencia: null });
+    this.operadorForm.get('licencia')?.setErrors({ required: true });
+  }
+
+  private handleLicFile(file: File) {
+    if (!this.isAllowedFile(file)) {
+      this.operadorForm.get('licencia')?.setErrors({ invalid: true });
+      return;
+    }
+
+    this.licenciaFileName = file.name;
+
+    if (this.isImage(file)) {
+      // Preview para imagen
+      const reader = new FileReader();
+      reader.onload = () => { this.licenciaPreviewUrl = reader.result; };
+      reader.readAsDataURL(file);
+    } else {
+      // PDF: sin preview de imagen
+      this.licenciaPreviewUrl = null;
+    }
+
+    // Colocar temporalmente el File en el form
+    this.operadorForm.patchValue({ licencia: file });
+    this.operadorForm.get('licencia')?.setErrors(null);
+
+    // Subir y sustituir por URL
+    this.uploadLicencia(file);
+  }
+
+  private uploadLicencia(file: File): void {
+    if (this.uploadingLicencia) return;
+    this.uploadingLicencia = true;
+
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    fd.append('folder', 'operadores');
+    fd.append('idModule', '9');
+
+    this.usuaService.uploadFile(fd).subscribe({
+      next: (res: any) => {
+        const url = this.extractFileUrl(res);
+        if (url) {
+          this.operadorForm.patchValue({ licencia: url });
+        }
+      },
+      error: (err) => { console.error('[UPLOAD][licencia]', err); },
+      complete: () => { this.uploadingLicencia = false; },
+    });
+  }
+
+
 
 }

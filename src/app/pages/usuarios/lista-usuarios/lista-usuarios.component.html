@@ -55,7 +55,7 @@
                             <div *dxTemplate="let data of 'imagen'" style="text-align: center;">
                                 <img *ngIf="data.value" style="max-width: 100px;" [src]="data.value" />
                                 <img *ngIf="data.value == null" style="max-width: 100px;"
-                                    src="https://izzimoviles.s3.us-east-1.amazonaws.com/Imagenes/user.jpeg" />
+                                    src="https://analitica-video.s3.us-east-1.amazonaws.com/Usuarios/user.png" />
                             </div>
                             <dxi-column dataField="estatus" caption="Estatus" alignment="center" dataType="string" cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">

@@ -18,7 +18,7 @@ $fondo: #2f3547;       // fondo oscuro neutro
   border-radius: 1.5rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
   width: 100%;
-  max-width: 420px;
+  max-width: clamp(520px, 90vw, 1040px); // más grande y responsivo
   color: white;
   text-align: center;
   animation: fadeIn 0.8s ease;
@@ -85,7 +85,7 @@ $fondo: #2f3547;       // fondo oscuro neutro
     .extra-links {
       margin-top: 1.5rem;
       display: flex;
-      justify-content: space-between;
+      justify-content: end;
       font-size: 0.85rem;
 
       a {
@@ -159,4 +159,84 @@ $fondo: #2f3547;       // fondo oscuro neutro
   100% {
       transform: rotate(360deg);
   }
+}
+
+::ng-deep .swal2-container .swal2-title {
+  font-size: 24px;
+  font-weight: 200;
+  color: #ffffff;
+}
+
+.swal2-container .swal2-title {
+  font-size: 24px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+::ng-deep div:where(.swal2-container) .swal2-html-container {
+  z-index: 1;
+  justify-content: center;
+  margin: 1em 1.6em .3em;
+  padding: 0;
+  overflow: auto;
+  color: #c8c8c8;
+  font-size: 1.125em;
+  font-weight: normal;
+  line-height: normal;
+  text-align: center;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+div:where(.swal2-container) .swal2-html-container {
+  z-index: 1;
+  justify-content: center;
+  margin: 1em 1.6em .3em;
+  padding: 0;
+  overflow: auto;
+  color: #c8c8c8;
+  font-size: 1.125em;
+  font-weight: normal;
+  line-height: normal;
+  text-align: center;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  border: none;
+  background-color: #002136;
+}
+
+.pw-hint, .match-hint { font-size: 12px; margin-top: 6px; display: flex; gap: 6px; align-items: center; }
+.ok  { color: #3adb76; }   /* verde */
+.bad { color: #ff6b6b; }   /* rojo  */
+.eyeButton { position: absolute; right: 12px; top: 38px; cursor: pointer; color: #a1a1a1; }
+.input-group { position: relative; }
+
+
+.swal-dark {
+  background: #002136 !important;
+  border-radius: 16px;
+  box-shadow: 0 18px 40px rgba(0,0,0,.45);
+}
+
+.swal-title {
+  color: #ffffff !important;
+  font-weight: 600;
+  font-size: 22px;
+}
+
+.swal-html {
+  color: #c8c8c8 !important;
+  font-size: 1.05rem;
+  text-align: center;
+}
+
+.swal-confirm {
+  padding: .7rem 1.25rem;
+  font-weight: 600;
+  border-radius: 10px;
 }

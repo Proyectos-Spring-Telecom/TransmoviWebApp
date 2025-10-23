@@ -42,4 +42,16 @@ export class PasajerosService {
       catchError(error => throwError(() => error))
     );
   }
+
+  agregarPasajeroAfiliacion(data: FormData) {
+    return this.http.post(environment.API_SECURITY + '/login/pasajero/registro', data);
+  }
+
+  verificarPasajero(token: any): Observable<any> {
+    return this.http.patch(
+      `${environment.API_SECURITY}/account/verify`,
+      {},
+      { params: { token }, responseType: 'text' as 'json' }
+    );
+  }
 }

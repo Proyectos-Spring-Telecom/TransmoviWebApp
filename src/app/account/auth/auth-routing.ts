@@ -4,6 +4,8 @@ import { Routes, RouterModule } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { PasswordresetComponent } from './passwordreset/passwordreset.component';
+import { AffiliationComponent } from './affiliation/affiliation.component';
+import { VerifyComponent } from './verify/verify.component';
 
 const routes: Routes = [
     {
@@ -21,6 +23,14 @@ const routes: Routes = [
     {
         path: 'login/verify',
         component: PasswordresetComponent
+    },
+    {
+        path: 'afiliacion',
+        component: AffiliationComponent
+    },
+    {
+        path: 'verify',
+        component: VerifyComponent
     },
 ];
 

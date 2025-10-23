@@ -14,9 +14,11 @@ import { InterceptService } from './login/intercept.service';
 import { AuthenticationService } from '../../core/services/auth.service';
 import { AuthGuard } from './login/Guard/auth.guard';
 import { ToastrModule } from 'ngx-toastr';
+import { AffiliationComponent } from './affiliation/affiliation.component';
+import { VerifyComponent } from './verify/verify.component';
 
 @NgModule({
-  declarations: [LoginComponent, SignupComponent, PasswordresetComponent],
+  declarations: [LoginComponent, SignupComponent, PasswordresetComponent, AffiliationComponent, VerifyComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,

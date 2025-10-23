@@ -37,6 +37,41 @@
                 </div>
                 <h6 class="section-title mt-5">Archivos</h6>
                 <div class="row">
+                    <!-- Licencia -->
+                    <div class="col-12 col-sm-6 col-lg-4">
+                        <div class="tc-upload">
+                            <label>Licencia</label>
+
+                            <div class="tc-preview" *ngIf="licenciaPreviewUrl; else licenciaTile">
+                                <img [src]="licenciaPreviewUrl" alt="Licencia" />
+                                <div class="file-name" *ngIf="licenciaFileName">{{ licenciaFileName }}</div>
+                                <div class="tc-actions">
+                                    <button type="button" class="btn-change"
+                                        (click)="openLicFilePicker()">Cambiar</button>
+                                    <button type="button" class="btn-remove" (click)="clearLicFile($event)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <ng-template #licenciaTile>
+                                <div class="tc-tile" (click)="openLicFilePicker()" (dragover)="onLicDragOver($event)"
+                                    (dragleave)="onLicDragLeave($event)" (drop)="onLicDrop($event)"
+                                    [class.dragging]="licenciaDragging">
+                                    <div class="circle"><i class="fas fa-id-badge"></i></div>
+                                    <div class="meta">
+                                        <div class="title">Arrastra o haz clic</div>
+                                        <div class="hint">PDF o imagen · máx 3 MB</div>
+                                        <div class="file-name" *ngIf="licenciaFileName">{{ licenciaFileName }}</div>
+                                    </div>
+                                </div>
+                            </ng-template>
+
+                            <input type="file" #licenciaFileInput accept=".pdf,image/*" hidden
+                                (change)="onLicFileSelected($event)">
+                        </div>
+                    </div>
+
                     <div class="col-12 col-sm-6 col-lg-4">
                         <div class="tc-upload">
                             <label>Identificación</label>

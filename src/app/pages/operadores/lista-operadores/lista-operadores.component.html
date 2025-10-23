@@ -44,6 +44,14 @@
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
                             <dxi-column *appHasPermission="['35', '36']" caption="Acciones" cellTemplate="Acciones"
                                 alignment="center" [width]="150"></dxi-column>
+                            <dxi-column caption="Licencia de Conducir" [width]="150" alignment="center"
+                                [allowSorting]="false" [allowFiltering]="false" cellTemplate="licen"></dxi-column>
+                            <div *dxTemplate="let f of 'licen'">
+                                <button type="button" class="btn btn-info btn-sm" style="border-radius: 5px;"
+                                    (click)="previsualizar(f?.data?.licencia, 'Licencia de Conducir', f?.data)">
+                                    <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
+                                </button>
+                            </div>
                             <dxi-column caption="Identificación" [width]="150" alignment="center" [allowSorting]="false"
                                 [allowFiltering]="false" cellTemplate="ident"></dxi-column>
                             <div *dxTemplate="let f of 'ident'">
@@ -70,8 +78,10 @@
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
                             </div>
-                            <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center" dataType="string" [width]="320"></dxi-column>
-                            <dxi-column dataField="NumeroLicenciaTexto" caption="Número Licencia" alignment="center" dataType="string" [width]="200"></dxi-column>
+                            <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center" dataType="string"
+                                [width]="320"></dxi-column>
+                            <dxi-column dataField="NumeroLicenciaTexto" caption="Número Licencia" alignment="center"
+                                dataType="string" [width]="200"></dxi-column>
                             <dxi-column dataField="userNameUsuario" caption="Correo Electrónico" alignment="center"
                                 dataType="string"></dxi-column>
                             <dxi-column dataField="telefonoUsuario" caption="Teléfono" alignment="center"
@@ -136,10 +146,17 @@
         </span>
         <ng-container *ngIf="!pdfError; else pdfErrorTpl">
             <br>
-            <div class="pdf-frame" [class.is-loading]="pdfLoading">
-                <iframe class="pdf-iframe" [src]="pdfUrlSafe" (load)="onPdfLoaded()">
-                </iframe>
-            </div>
+            <!-- PDF -->
+<div class="pdf-frame" *ngIf="!pdfError && !pdfIsImage && pdfUrlSafe" [class.is-loading]="pdfLoading">
+  <iframe class="pdf-iframe" [src]="pdfUrlSafe" (load)="onPdfLoaded()"></iframe>
+</div>
+
+<!-- Imagen -->
+<div class="pdf-frame" *ngIf="!pdfError && pdfIsImage && imgSrc" [class.is-loading]="pdfLoading">
+  <img class="pdf-image" [src]="imgSrc" alt="Vista previa" (load)="onImgLoaded()" (error)="onImgError()">
+</div>
+
+
             <div class="pdf-actions">
                 <button type="button" class="abrirArchivo" (click)="abrirEnNuevaPestana()">
                     <i class="fa fa-plus"></i>&nbsp;&nbsp;Abrir
@@ -151,7 +168,7 @@
         </ng-container>
         <ng-template #pdfErrorTpl>
             <div class="pdf-error-card">
-                <h4>📄 No pudimos previsualizar el PDF</h4>
+                <h4>📄 No pudimos previsualizar el PDF o Imagen</h4>
                 <p>{{ pdfErrorMsg || 'El archivo no está disponible, el tipo de contenido no es PDF o fue bloqueado por el navegador (CORS).' }}</p>
             </div>
         </ng-template>

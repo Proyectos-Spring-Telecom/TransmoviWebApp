@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { DxDataGridComponent } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
@@ -362,71 +362,95 @@ onGridOptionChanged(e: any) {
   pdfTitle = 'Documento';
   pdfPopupWidth = 500;
 
-  pdfUrlSafe: SafeResourceUrl | null = null;
   pdfRawUrl: string | null = null;
 
   pdfLoading = false;
   pdfLoaded = false;
   pdfError = false;
-  pdfErrorMsg = '';
+  pdfErrorMsg = '';            // <- indica si es imagen
+  imgUrlSafe: SafeUrl | null = null;  // <- url segura para <img>
 
-  async previsualizar(url?: string, titulo?: string, _row?: any) {
-    this.pdfTitle = titulo || 'Documento';
-    this.pdfRawUrl = (url || '').trim() || null;
-    this.pdfUrlSafe = null;
-    this.pdfLoading = true;
-    this.pdfLoaded = false;
-    this.pdfError = false;
-    this.pdfErrorMsg = '';
-    this.pdfPopupVisible = true;
-    this.pdfPopupWidth = Math.min(Math.floor(window.innerWidth * 0.95), 900);
 
-    if (!this.pdfRawUrl) {
-      this.pdfError = true;
-      this.pdfLoading = false;
-      this.pdfErrorMsg = 'Este registro no tiene un PDF asignado.';
-      return;
-    }
+// flags/props
+pdfIsImage = false;
+imgSrc: string | null = null;
+pdfUrlSafe: SafeResourceUrl | null = null;  // <- SOLO para iframe PDF
 
-    try {
-      const head = await fetch(this.pdfRawUrl, { method: 'HEAD', mode: 'cors' });
-      if (!head.ok) {
-        this.pdfError = true;
-        this.pdfErrorMsg = `No se pudo acceder al archivo (HTTP ${head.status}).`;
-        this.pdfLoading = false;
-        return;
-      }
-      const ct = head.headers.get('content-type') || '';
-      if (!ct.toLowerCase().includes('pdf')) {
-        this.pdfError = true;
-        this.pdfErrorMsg = 'El recurso no es un archivo PDF.';
-        this.pdfLoading = false;
-        return;
-      }
-    } catch (e) {
-      this.pdfError = true;
-      this.pdfErrorMsg = 'El navegador bloqueó la previsualización (CORS). Intenta Abrir o Descargar.';
-      this.pdfLoading = false;
-      return;
-    }
+private isImageByExt(u: string): boolean {
+  return /\.(png|jpe?g|gif|webp|bmp|svg)(\?|#|$)/i.test(u);
+}
+private isPdfByExt(u: string): boolean {
+  return /\.pdf(\?|#|$)/i.test(u);
+}
 
-    const viewerParams = '#toolbar=0&navpanes=0';
-    const finalUrl = this.pdfRawUrl.includes('#') ? this.pdfRawUrl : this.pdfRawUrl + viewerParams;
-    this.pdfUrlSafe = this.sanitizer.bypassSecurityTrustResourceUrl(finalUrl);
+async previsualizar(url?: string, titulo?: string) {
+  this.pdfTitle = titulo || 'Documento';
+  this.pdfRawUrl = (url || '').trim() || null;
 
-    setTimeout(() => {
-      if (!this.pdfLoaded && !this.pdfError) {
-        this.pdfError = true;
-        this.pdfLoading = false;
-        this.pdfErrorMsg = 'El visor tardó demasiado en cargar.';
-      }
-    }, 4000);
-  }
+  this.pdfLoading = true;
+  this.pdfLoaded = false;
+  this.pdfError = false;
+  this.pdfErrorMsg = '';
+  this.pdfPopupVisible = true;
+  this.pdfPopupWidth = Math.min(Math.floor(window.innerWidth * 0.95), 900);
 
-  onPdfLoaded() {
-    this.pdfLoaded = true;
+  if (!this.pdfRawUrl) {
+    this.pdfError = true;
     this.pdfLoading = false;
+    this.pdfErrorMsg = 'Este registro no tiene un archivo asignado.';
+    return;
   }
+
+  // Limpia estados previos
+  this.pdfIsImage = false;
+  this.imgSrc = null;
+  this.pdfUrlSafe = null;
+
+  // --- Detección por extensión (evita CORS del HEAD) ---
+  const u = this.pdfRawUrl.toLowerCase();
+
+  if (this.isImageByExt(u)) {
+    // IMAGEN
+    this.pdfIsImage = true;
+    this.imgSrc = this.pdfRawUrl;     // <img [src]> acepta string normal
+    this.pdfLoading = false;          // cargará y disparará onImgLoaded
+    return;
+  }
+
+  // Si parece PDF o no se puede inferir, probamos como PDF
+  // (el iframe NO exige CORS para mostrar si el recurso es público)
+  const viewerParams = '#toolbar=0&navpanes=0';
+  const finalUrl = this.pdfRawUrl.includes('#') ? this.pdfRawUrl : this.pdfRawUrl + viewerParams;
+  this.pdfIsImage = false;
+  this.pdfUrlSafe = this.sanitizer.bypassSecurityTrustResourceUrl(finalUrl);
+
+  // timeout solo para PDF/iframe
+  setTimeout(() => {
+    if (!this.pdfLoaded && !this.pdfError) {
+      this.pdfError = true;
+      this.pdfLoading = false;
+      this.pdfErrorMsg = 'El visor tardó demasiado en cargar.';
+    }
+  }, 4000);
+}
+
+onPdfLoaded() {
+  this.pdfLoaded = true;
+  this.pdfLoading = false;
+}
+
+onImgLoaded() {
+  this.pdfLoaded = true;
+  this.pdfLoading = false;
+}
+
+onImgError() {
+  this.pdfError = true;
+  this.pdfLoading = false;
+  this.pdfErrorMsg = 'No se pudo cargar la imagen.';
+}
+
+
 
   abrirEnNuevaPestana() {
     if (this.pdfRawUrl) window.open(this.pdfRawUrl, '_blank');

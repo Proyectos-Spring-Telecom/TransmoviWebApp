@@ -1,0 +1,91 @@
+<div class="login-wrapper">
+  <div class="login-card">
+    <img src="./assets/images/arte/Logo_TransMovi.png" alt="Logo Transmovi" class="logo-header" />
+    <h2>Afiliación Pasajero</h2>
+    <form [formGroup]="afiliacionPasajero" (ngSubmit)="agregar()">
+      <div class="row">
+        <div class="col-12 col-md-6">
+          <div class="input-group">
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" formControlName="nombre" placeholder="Ej.: Osmar Sahid"
+              autocomplete="given-name" />
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="input-group">
+            <label for="apellidoPaterno">Apellido Paterno</label>
+            <input type="text" id="apellidoPaterno" formControlName="apellidoPaterno" placeholder="Ej.: Martínez"
+              autocomplete="family-name" />
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="input-group">
+            <label for="apellidoMaterno">Apellido Materno</label>
+            <input type="text" id="apellidoMaterno" formControlName="apellidoMaterno" placeholder="Ej.: García"
+              autocomplete="additional-name" />
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="input-group">
+            <label for="fechaNacimiento">Fecha de Nacimiento</label>
+            <input type="date" id="fechaNacimiento" formControlName="fechaNacimiento" placeholder="Ej.: 2000-06-20"
+              autocomplete="bday" inputmode="numeric" />
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="input-group">
+            <label for="telefono">Teléfono</label>
+            <input type="tel" id="telefono" formControlName="telefono" placeholder="Ej.: 7773896248" autocomplete="tel"
+              inputmode="tel" />
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="input-group">
+            <label for="correo">Correo Electrónico</label>
+            <input type="email" id="correo" formControlName="correo" placeholder="Ej.: proyect.beeckerco@outlook.com"
+              autocomplete="email" inputmode="email" />
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="input-group" style="position: relative;">
+            <label for="passwordHash">Contraseña</label>
+            <input [type]="type" id="passwordHash" formControlName="passwordHash" placeholder="Ej.: P@ssw0rd."
+              autocomplete="new-password" (focus)="pwFocused = true" (blur)="pwFocused = false" />
+
+            <button type="button" class="eyeButton"
+              style="color:#a1a1a1; position:absolute; right:10px; top:38px; background:transparent; border:0; cursor:pointer;"
+              (click)="myFunctionPasswordCurrent()"
+              [attr.aria-label]="type === 'password' ? 'Mostrar contraseña' : 'Ocultar contraseña'">
+              <i class="fas" [ngClass]="type === 'password' ? 'fa-eye' : 'fa-eye-slash'"></i>
+            </button>
+            <div *ngIf="showPwHint" class="pw-hint" [class.ok]="pwAllOk" [class.bad]="!pwAllOk"
+              [@fadeOnChange]="pwGuideKey" [@fadeInOut] aria-live="polite" style="margin-top:8px;">
+              <i class="fa" [ngClass]="pwAllOk ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+              {{ pwGuideText }}
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="input-group">
+            <label for="numeroSerieMonedero">Número de Serie</label>
+            <input type="text" id="numeroSerieMonedero" formControlName="numeroSerieMonedero"
+              placeholder="Ej.: MON-0005" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+      <div class="extra-links">
+        <a [routerLink]="['/account','login']">Iniciar Sesión</a>
+      </div>
+      <div style="display: flex; align-items: center; justify-content: center;">
+        <button type="submit" class="login-btn"
+          style="width: 50%; display: flex; align-items: center; justify-content: center;">
+          <div class="justify">
+            <span @fadeInUp *ngIf="loading" class="loader"></span>
+            <span *ngIf="!loading">Guardar</span>
+            <span style="margin-left: 5px;" *ngIf="loading">Cargando...</span>
+          </div>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

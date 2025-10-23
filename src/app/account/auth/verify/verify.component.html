@@ -1,0 +1,22 @@
+<div class="login-wrapper">
+  <div class="login-card">
+    <img src="./assets/images/arte/Logo_TransMovi.png" alt="Logo Transmovi" class="logo-header" />
+    <h2>Activación de Pasajero</h2>
+    <form [formGroup]="verifyForm" (ngSubmit)="agregar()">
+      <div class="input-group">
+        <label for="codigo">Código de Verificación</label>
+        <input formControlName="codigo" id="codigo" placeholder="Ej: 0000"/>
+      </div>
+      <!-- <div class="extra-links">
+        <a [routerLink]="['/account','afiliacion']">Afiliate</a>
+      </div> -->
+      <button class="login-btn"
+        style="width: 100%; display: flex; align-items: center; justify-content: center;" type="submit">
+        <div class="justigy">
+          <span [@fadeInUp] *ngIf="loading" class="loader"></span>
+          <span>Guardar</span>
+        </div>
+      </button>
+    </form>
+  </div>
+</div>

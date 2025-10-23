@@ -52,9 +52,60 @@ declare const google: any;
 export class AltaDerroteroComponent implements OnInit, AfterViewInit {
 
   @ViewChild('exlargeModal', { static: false }) exlargeModal!: TemplateRef<any>;
-  extraLarges(exlargeModal: any) {
-    this.modalService.open(exlargeModal, { size: 'xl', windowClass: 'modal-holder', centered: true });
+  extraLarges(tpl: TemplateRef<any>) {
+    // Identifica el modal según el template
+    this.currentModalType = (tpl === this.exlargeModalForm) ? 'tarifa' : 'ruta';
+
+    this.modalRef = this.modalService.open(tpl, {
+      size: 'xl',
+      windowClass: 'modal-holder',
+      centered: true
+    });
   }
+
+  private resetAllState(): void {
+    // 1) trazo & listeners
+    try { this.cancelarTrazado(); } catch { }
+    try { this.clearDrawListeners(); } catch { }
+    try { this.clearDOMHandlers(); } catch { }
+
+    // 2) overlays del mapa
+    try { this.limpiarMapa(); } catch { }
+
+    this.selectedRoute = null;
+    this.vertexMarkers = [];
+    this.tracePoints = [];
+    this.polyline = undefined;
+    this.previewLine = undefined;
+
+    // 3) UI flags — NO mostrar mapa
+    this.contentVisible = false;           // ⬅️ importante: NO mostrar mapa
+    this.showPreviewPayloadBtn = false;
+    this.showClearTraceBtn = false;
+    this.submitButton = 'Guardar';
+    this.loading = false;
+
+    // 4) formularios
+    this.rutaForm?.reset({ idRegion: null });
+    this.tarifaForm?.reset({
+      tarifaBase: null,
+      distanciaBaseKm: null,
+      incrementoCadaMetros: null,
+      costoAdicional: null,
+      estatus: 1,
+      idDerrotero: null,
+    });
+
+    // 5) búsqueda/lista
+    this.rutaSearch?.setValue('', { emitEvent: false });
+    this.filteredRutas = [...(this.listaRutas ?? [])];
+
+    // 6) modales
+    try { this.modalService.dismissAll(); } catch { }
+    this.modalRef = undefined;
+  }
+
+
   @ViewChild('exlargeModalForm', { static: false }) exlargeModalForm!: TemplateRef<any>;
 
   submitButton: string = 'Guardar';
@@ -182,11 +233,88 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
     });
   }
 
-  regresar(ev?: Event): void {
+    regresarRuta(ev?: Event): void {
     this.modalRef?.close();
     this.modalRef = undefined;
     this.route.navigateByUrl('/derroteros')
   }
+
+  // 1) Agrega este campo para saber qué modal está abierto
+  private currentModalType: 'ruta' | 'tarifa' | null = null;
+regresar(ev?: Event): void {
+  ev?.preventDefault();
+
+  // cierra lo que esté abierto (incluido el de tarifa)
+  try { this.modalRef?.close(); } catch {}
+  try { this.modalService.dismissAll(); } catch {}
+  this.modalRef = undefined;
+
+  // reinicia todo y NO muestres el mapa
+  this.resetAllState();
+
+  // vuelve a abrir el modal de rutas
+  // (sin inicializar mapa; hasta que elijan ruta se hará visible)
+  setTimeout(() => {
+    this.modalRef = this.modalService.open(this.exlargeModal, {
+      size: 'xl',
+      windowClass: 'modal-holder',
+      centered: true,
+      backdrop: 'static',
+      keyboard: false
+    });
+  }, 0);
+}
+
+
+  private initOrResetMap(): void {
+    // Asegura que el contenedor exista (si ya estás mostrando el mapa)
+    const el = document.getElementById('map');
+    if (!el) return;
+
+    if (!this.map) {
+      this.map = new google.maps.Map(el, {
+        center: this.centroDefault,
+        zoom: 12,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: true,
+        zoomControl: true,
+        scrollwheel: true,
+        gestureHandling: 'greedy',
+        disableDoubleClickZoom: true,
+        draggableCursor: 'crosshair',
+        draggable: true
+      });
+    } else {
+      // Limpia overlays y regresa a estado base
+      this.limpiarMapa();
+      this.map.setOptions({
+        zoomControl: true,
+        scrollwheel: true,
+        gestureHandling: 'greedy',
+        disableDoubleClickZoom: true,
+        draggable: true,
+        draggableCursor: 'crosshair'
+      });
+      this.map.setCenter(this.centroDefault);
+      this.map.setZoom(12);
+    }
+  }
+
+  private openRouteModal(): void {
+    // Por si hubiera algún modal anterior colgando
+    try { this.modalService.dismissAll(); } catch { }
+
+    this.currentModalType = 'ruta';
+    this.modalRef = this.modalService.open(this.exlargeModal, {
+      size: 'xl',
+      windowClass: 'modal-holder',
+      centered: true,
+      backdrop: 'static',
+      keyboard: false
+    });
+  }
+
 
   submit(ev?: Event): void {
     ev?.preventDefault();

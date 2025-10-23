@@ -21,14 +21,14 @@
         </span>
       </div>
       <div class="extra-links">
+        <a [routerLink]="['/account','afiliacion']">Afiliate</a>
         <a [routerLink]="['/account','reset-password']">¿Olvidaste tu contraseña?</a>
       </div>
       <button class="login-btn" [disabled]="loginForm.invalid"
         style="width: 100%; display: flex; align-items: center; justify-content: center;" type="submit">
         <div class="justigy">
           <span [@fadeInUp] *ngIf="loading" class="loader"></span>
-          <span *ngIf="!loading">Ingresar</span>
-          <span style="margin-left: 5px;" *ngIf="loading">Cargando...</span>
+          <span>Guardar</span>
         </div>
       </button>
     </form>

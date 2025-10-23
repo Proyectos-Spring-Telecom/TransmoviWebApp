@@ -430,3 +430,12 @@ $u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
   letter-spacing: 1px;
   margin-bottom: 5px;
 }
+
+.pdf-frame {
+  position: relative;
+}
+.pdf-image {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}

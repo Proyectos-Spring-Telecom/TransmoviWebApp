@@ -195,6 +195,12 @@ export const MENU: MenuItem[] = [
         link: '/contacts/profile',
     },
     {
+        id: 13,
+        label: 'Pasajero',
+        icon: 'uil-user-circle',
+        link: '/vista-pasajero',
+    },
+    {
         id: 115,
         label: 'MENUITEMS.PRUEBACOMPONENTCERRAR.TEXT',
         isTitle: true
