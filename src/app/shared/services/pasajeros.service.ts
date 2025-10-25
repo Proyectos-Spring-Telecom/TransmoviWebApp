@@ -1,17 +1,17 @@
-// src/app/shared/services/pasajeros.service.ts
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpContext } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { SKIP_APP_AUTH } from 'src/app/account/auth/login/intercept.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PasajerosService {
-
   private readonly VERIFY_TOKEN_KEY = 'verify_token';
+  private apiUrl = `${environment.API_SECURITY}/pasajeros`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   setVerificationToken(token: string): void {
     sessionStorage.setItem(this.VERIFY_TOKEN_KEY, token);
@@ -34,22 +34,21 @@ export class PasajerosService {
   }
 
   agregarPasajero(data: FormData) {
-    return this.http.post(environment.API_SECURITY + '/pasajeros', data);
+    return this.http.post(`${environment.API_SECURITY}/pasajeros`, data);
   }
 
   eliminarPasajero(idPasajero: number) {
-    return this.http.delete(environment.API_SECURITY + '/pasajeros/' + idPasajero);
+    return this.http.delete(`${environment.API_SECURITY}/pasajeros/${idPasajero}`);
   }
 
   obtenerPasajero(idPasajero: number): Observable<any> {
-    return this.http.get<any>(environment.API_SECURITY + '/pasajeros/' + idPasajero);
+    return this.http.get<any>(`${environment.API_SECURITY}/pasajeros/${idPasajero}`);
   }
 
   actualizarPasajero(idPasajero: number, saveForm: any): Observable<any> {
-    return this.http.put(`${environment.API_SECURITY}/pasajeros/` + idPasajero, saveForm);
+    return this.http.put(`${environment.API_SECURITY}/pasajeros/${idPasajero}`, saveForm);
   }
 
-  private apiUrl = `${environment.API_SECURITY}/pasajeros`;
   updateEstatus(id: number, estatus: number): Observable<string> {
     const url = `${this.apiUrl}/estatus/${id}`;
     const body = { estatus };
@@ -59,26 +58,26 @@ export class PasajerosService {
   }
 
   agregarPasajeroAfiliacion(data: FormData) {
-    return this.http.post(environment.API_SECURITY + '/login/pasajero/registro', data);
+    return this.http.post(`${environment.API_SECURITY}/login/pasajero/registro`, data);
   }
 
+verificarPasajero(codigo: string): Observable<any> {
+  // Sin autenticación; sigue siendo PATCH y envía { codigo }
+  const context = new HttpContext().set(SKIP_APP_AUTH, true);
 
-  verificarPasajero(codigo: any): Observable<any> {
-    const token = this.getVerificationToken();
-    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+  return this.http.patch(
+    `${environment.API_SECURITY}/login/verify`,
+    { codigo },
+    { responseType: 'text' as 'json', context }
+  ).pipe(catchError(err => throwError(() => err)));
+}
 
-    return this.http.patch(
-      `${environment.API_SECURITY}/login/verify`,
-      { codigo },
-      { headers, responseType: 'text' as 'json' }
-    ).pipe(catchError(err => throwError(() => err)));
-  }
 
   verificarPorCodigo(codigo: string): Observable<string> {
-    return this.verificarPasajero(codigo);
+    return this.verificarPasajero(codigo) as unknown as Observable<string>;
   }
-  
+
   datosUsuarioPasajero(idUsuario: number): Observable<any> {
-    return this.http.get<any>(environment.API_SECURITY + '/pasajeros/main/' + idUsuario);
+    return this.http.get<any>(`${environment.API_SECURITY}/pasajeros/main/${idUsuario}`);
   }
 }

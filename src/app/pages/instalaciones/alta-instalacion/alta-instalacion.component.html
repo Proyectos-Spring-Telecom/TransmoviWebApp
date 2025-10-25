@@ -9,52 +9,59 @@
         <span>Completa la información para registrar una nueva instalación.</span>
       </div>
     </div>
+
     <div class="card-body">
       <form [formGroup]="instalacionesForm" class="cliente-form">
         <h6 class="section-title">Datos Generales</h6>
+
         <div class="row">
-          <div class="col-md-4 mt-3">
+          <div class="col-md-3 mt-3">
             <label for="idCliente" class="form-label">Cliente</label>
-            <select class="form-control" formControlName="idCliente" [disabled]="!isAdmin">
-              <option [ngValue]="null" disabled>Seleccione un cliente</option>
-              <option *ngFor="let cliente of listaClientes" [ngValue]="cliente.id">
-                {{ cliente.nombre }} {{ cliente.apellidoPaterno }} {{ cliente.apellidoMaterno }}
+            <select id="idCliente" class="form-select" formControlName="idCliente" [disabled]="!isAdmin">
+              <option [value]="null" disabled>Seleccione un cliente</option>
+              <option *ngFor="let c of listaClientes; trackBy: trackId" [value]="c.id">
+                {{ c.nombre }} {{ c.apellidoPaterno }} {{ c.apellidoMaterno }}
               </option>
             </select>
           </div>
-          <div class="col-md-4 mt-3">
+
+          <div class="col-md-3 mt-3">
             <label for="idDispositivo" class="form-label">Dispositivo</label>
-            <select id="idDispositivo" class="form-select" formControlName="idDispositivo" [compareWith]="compareId">
-              <option [ngValue]="null" disabled>Seleccione un dispositivo</option>
-              <option *ngFor="let d of listaDipositivos; trackBy: trackId" [ngValue]="d.id">
+            <select id="idDispositivo" class="form-select" formControlName="idDispositivo">
+              <option [value]="null" disabled>Seleccione un dispositivo</option>
+              <option *ngFor="let d of listaDipositivos; trackBy: trackId" [value]="d.id">
                 {{ d.numeroSerie || d.numeroSerieDispositivo || d.serie || d.id }}
               </option>
             </select>
           </div>
 
-          <div class="col-md-4 mt-3">
+          <div class="col-md-3 mt-3">
             <label for="idBlueVox" class="form-label">Bluevox</label>
-            <select id="idBlueVox" class="form-select" formControlName="idBlueVox" [compareWith]="compareId">
-              <option [ngValue]="null" disabled>Seleccione un Bluevox</option>
-              <option *ngFor="let b of listaBlueVox; trackBy: trackId" [ngValue]="b.id">
+            <select id="idBlueVox" class="form-select" formControlName="idBlueVox">
+              <option [value]="null" disabled>Seleccione un Bluevox</option>
+              <option *ngFor="let b of listaBlueVox; trackBy: trackId" [value]="b.id">
                 {{ b.numeroSerieBlueVox || b.numeroSerie || b.serie || b.id }}
               </option>
             </select>
           </div>
 
-          <div class="col-md-4 mt-3">
+          <div class="col-md-3 mt-3">
             <label for="idVehiculo" class="form-label">Vehículo</label>
-            <select id="idVehiculo" class="form-select" formControlName="idVehiculo" [compareWith]="compareId">
-              <option [ngValue]="null" disabled>Seleccione un vehículo</option>
-              <option *ngFor="let v of listaVehiculos; trackBy: trackId" [ngValue]="v.id">
-                {{ v.placa || v.placaVehiculo || v.numeroEconomico || v.alias || v.id }}
-              </option>
-            </select>
-          </div>
+            <select id="idVehiculo"
+        class="form-select"
+        formControlName="idVehiculo"
+        [disabled]="!!idInstalacion">
+  <option [value]="null" disabled>Seleccione un vehículo</option>
+  <option *ngFor="let v of listaVehiculos; trackBy: trackId" [value]="v.id">
+    {{ v.placa || v.placaVehiculo || v.numeroEconomico || v.alias || v.id }}
+  </option>
+</select>
 
+          </div>
         </div>
+
         <div class="form-actions mt-4">
-          <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
+          <button type="submit" class="submit" (click)="submit()">{{ submitButton }}</button>
           <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
         </div>
       </form>

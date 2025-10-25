@@ -21,10 +21,6 @@ const routes: Routes = [
         component: PasswordresetComponent
     },
     {
-        path: 'login/verify',
-        component: PasswordresetComponent
-    },
-    {
         path: 'afiliacion',
         component: AffiliationComponent
     },

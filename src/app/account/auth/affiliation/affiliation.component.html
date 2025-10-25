@@ -35,7 +35,7 @@
         <div class="col-12 col-md-6">
           <div class="input-group">
             <label for="telefono">Teléfono</label>
-            <input type="tel" id="telefono" formControlName="telefono" placeholder="Ej.: 7773896248" autocomplete="tel"
+            <input type="tel" id="telefono" maxlength="10" (keypress)="allowOnlyNumbers($event)" formControlName="telefono" placeholder="Ej.: 7773896248" autocomplete="tel"
               inputmode="tel" />
           </div>
         </div>
@@ -76,6 +76,8 @@
       <div class="extra-links">
         <a [routerLink]="['/account','login']">Iniciar Sesión</a>
       </div>
+      <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
+  data-bs-target=".bs-example-modal-lg" (click)="largeModal(largeDataModal)">Large modal</button>
       <div style="display: flex; align-items: center; justify-content: center;">
         <button type="submit" class="login-btn"
           style="width: 50%; display: flex; align-items: center; justify-content: center;">
@@ -89,3 +91,44 @@
     </form>
   </div>
 </div>
+
+
+
+<ng-template #largeDataModal let-modal style="background-color: #0061c1; border-color: none;">
+  <div class="card-header-custom">
+    <h5 class="modal-title" id="myLargeModalLabel">Verificación de Cuenta</h5>
+  </div>
+  <div class="card-body route-modal">
+    <div>Hola, nos alegra que estés aquí. Para terminar el registro, ingresa el código de 4 dígitos que te enviamos a tu correo.</div>
+    <div class="otp-wrapper">
+  <div class="otp-inputs" role="group" aria-label="Código de verificación">
+    <input #otpInput class="otp-box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+           aria-label="Dígito 1" autocomplete="one-time-code"
+           (input)="onOtpInput($event, 0)" (keydown)="onOtpKeydown($event, 0)" />
+    <input #otpInput class="otp-box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+           aria-label="Dígito 2" autocomplete="one-time-code"
+           (input)="onOtpInput($event, 1)" (keydown)="onOtpKeydown($event, 1)" />
+    <input #otpInput class="otp-box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+           aria-label="Dígito 3" autocomplete="one-time-code"
+           (input)="onOtpInput($event, 2)" (keydown)="onOtpKeydown($event, 2)" />
+    <input #otpInput class="otp-box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+           aria-label="Dígito 4" autocomplete="one-time-code"
+           (input)="onOtpInput($event, 3)" (keydown)="onOtpKeydown($event, 3)" />
+  </div>
+
+  <div class="otp-actions">
+    <button type="button" class="btn-verify" (click)="onVerify()">Verificar</button>
+
+    <button type="button" class="btn-resend"
+            [disabled]="resendDisabled"
+            (click)="onResend()">
+      <ng-container *ngIf="!resendDisabled; else waitTpl">Reenviar código</ng-container>
+      <ng-template #waitTpl>Volver a enviar en {{ resendSeconds }}s</ng-template>
+    </button>
+  </div>
+</div>
+
+<br>
+    <div style="display: flex; align-items: center; justify-content: center; margin-top: 10px;">¿No reciste el correo? Revisa tu carpeta de spam o solicita de nuevo.</div>
+  </div>
+</ng-template>

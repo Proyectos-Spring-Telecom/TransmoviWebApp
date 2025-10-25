@@ -240,3 +240,170 @@ div:where(.swal2-container) .swal2-html-container {
   font-weight: 600;
   border-radius: 10px;
 }
+
+
+.modal-header{
+  background-color: #005081;
+}
+
+
+/* Header: título más protagonista (sin cambiar estructura) */
+.modal-title {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.6rem;
+  letter-spacing: .3px;
+  text-shadow: 0 1px 0 rgba(0,0,0,.25);
+  margin: 0;
+}
+
+/* Cuerpo del modal */
+.route-modal {
+  padding: 28px 24px;
+  background: #002136;
+  color: #e9f3fb;
+
+  /* Estilo base para los párrafos de texto (excluye el bloque de OTP) */
+  > div:not(.otp-wrapper) {
+    margin: 0px 0;
+    line-height: 1.65;
+    letter-spacing: .2px;
+    color: #d9e7f2; /* ligeramente más claro que el base */
+  }
+
+  /* Primer texto: más “lead” */
+  > div:not(.otp-wrapper):first-of-type {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #f0fbff;
+  }
+
+  /* Segundo texto: tono guía, más sutil */
+  > div:not(.otp-wrapper):last-of-type {
+    font-size: .93rem;
+    color: rgba(233, 243, 251, .78);
+  }
+
+  /* Acentos dentro del texto (por si destacas el nombre del usuario o palabras clave) */
+  > div:not(.otp-wrapper) strong,
+  > div:not(.otp-wrapper) b {
+    color: #9ee6ff;
+    font-weight: 700;
+  }
+
+  /* Links dentro del texto (si luego usas <a>) */
+  a {
+    color: #54c7ff;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: opacity .15s ease;
+    &:hover { opacity: .85; }
+  }
+}
+
+/* Espaciado del bloque OTP respecto a los textos */
+.otp-wrapper {
+  margin: 18px 0 8px;
+}
+
+/* Opcional: una línea sutil separando título y cuerpo (no altera layout) */
+.card-header-custom + .route-modal {
+  position: relative;
+}
+.card-header-custom + .route-modal::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+  top: -1px;
+}
+
+/* Responsive fino */
+@media (max-width: 480px) {
+  .modal-title { font-size: 1.35rem; }
+  .route-modal { padding: 22px 16px; }
+  .route-modal > div:not(.otp-wrapper):first-of-type { font-size: 1rem; }
+  .route-modal > div:not(.otp-wrapper):last-of-type { font-size: .9rem; }
+}
+
+
+.otp-wrapper {
+  display: grid;
+  justify-items: center;
+  gap: 20px;
+  margin: 18px 0;
+}
+
+.otp-inputs {
+  display: flex;
+  gap: 16px;
+}
+
+.otp-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.06);
+  text-align: center;
+  font-size: 32px;
+  line-height: 64px;
+  font-weight: 600;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.otp-box:focus {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
+}
+
+.otp-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn-verify {
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: #22c55e;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.02s ease;
+}
+
+.btn-verify:hover { filter: brightness(0.95); }
+.btn-verify:active { transform: translateY(1px); }
+
+.btn-resend {
+  background: transparent;
+  border: 0;
+  color: #0ea5e9;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 0;
+  text-decoration: none;
+}
+
+.btn-resend:hover { text-decoration: underline; }
+
+@media (max-width: 480px) {
+  .otp-box {
+    width: 56px;
+    height: 56px;
+    font-size: 28px;
+    line-height: 56px;
+  }
+}
+
+.btn-resend[disabled] {
+  opacity: .6;
+  cursor: not-allowed;
+  text-decoration: none;
+}
