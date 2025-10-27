@@ -1,109 +1,118 @@
 <div class="container-fluid px-3 px-md-4 py-3 dashboard-wrap">
-
-    <section class="dvx-hero">
-      <div class="dvx-hero__title">
-        <h1>Panel Operativo</h1>
-        <p>Bluevox · {{ ahora | date:'dd/MM/yyyy HH:mm' }}</p>
+<!-- dashboard.component.html -->
+<div class="dashboard container-fluid px-3 py-3">
+  <div class="row g-3">
+    <div class="col-12 col-md-6 col-lg-3" *ngFor="let k of kpis">
+      <div class="card kpi">
+        <div class="kpi-title">{{ renombrar(k.t) }}</div>
+        <div class="kpi-value">{{ k.v }}</div>
+        <div class="kpi-sub">{{ renombrar(k.s) }}</div>
       </div>
-      <div class="dvx-hero__status">
-        <span class="dot"></span> Actualización en vivo
+    </div>
+  </div>
+
+  <div class="row g-2 mt-2" *ngIf="etiquetasOriginales?.length">
+    <div class="col-auto" *ngFor="let e of etiquetasOriginales">
+      <span class="badge bg-secondary">{{ renombrar(e) }}</span>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-12 col-lg-6">
+      <div class="card chart-card">
+        <div class="card-title">{{ renombrar('Ingresos por hora (hoy)') }}</div>
+        <dx-chart [dataSource]="dsIngresosHora" [palette]="palette" [size]="{ height: 320 }">
+          <dxo-legend position="bottom"></dxo-legend>
+          <dxo-argument-axis argumentType="string"></dxo-argument-axis>
+          <dxo-tooltip [enabled]="true" [customizeTooltip]="customizeIngresosTooltip"></dxo-tooltip>
+          <dxi-value-axis name="money">
+            <dxo-label [format]="{ type: 'currency', precision: 2 }"></dxo-label>
+          </dxi-value-axis>
+          <dxi-value-axis name="ticket"></dxi-value-axis>
+          <dxi-series type="bar" name="Ingresos" argumentField="hora" valueField="ingreso" axis="money"></dxi-series>
+          <dxi-series type="line" name="Ticket promedio" argumentField="hora" valueField="ticket" axis="ticket"></dxi-series>
+        </dx-chart>
       </div>
-    </section>
+    </div>
 
-    <!-- GRID PRINCIPAL -->
-    <section class="dvx-grid">
-      <!-- KPIs fila 1 -->
-      <article class="dvx-card kpi" *ngFor="let k of kpiTop">
-        <header class="card-head"><i class="material-icons">{{k.icon}}</i><span>{{k.title}}</span></header>
-        <div class="kpi-main">{{k.value}}</div>
-        <div class="kpi-foot" [innerHTML]="k.foot"></div>
-      </article>
+    <div class="col-12 col-lg-6">
+      <div class="card chart-card">
+        <div class="card-title">{{ renombrar('Pasajeros por ruta') }}</div>
+        <dx-chart
+  [dataSource]="dsPasajerosPorHora"
+  [series]="seriesPasajeros"
+  [palette]="palette"
+  [size]="{ height: 320 }">
+  <dxo-common-series-settings type="stackedBar" argumentField="hora"></dxo-common-series-settings>
+  <dxo-legend position="bottom"></dxo-legend>
+  <dxo-argument-axis argumentType="string"></dxo-argument-axis>
+</dx-chart>
 
-      <!-- Tabla TOP RUTAS -->
-      <article class="dvx-card span-8">
-        <header class="card-head"><i class="material-icons">leaderboard</i><span>Top 5 rutas por ingreso</span></header>
-        <div class="dvx-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Ruta</th>
-                <th class="right">Ingresos</th>
-                <th class="right">Pasajeros</th>
-                <th class="right">Ticket</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let r of topRutas">
-                <td>{{ r.ruta }}</td>
-                <td class="right">{{ r.monto | currency:'MXN':'symbol':'1.0-0' }}</td>
-                <td class="right">{{ r.pasajeros | number }}</td>
-                <td class="right">{{ r.ticket | currency:'MXN' }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </article>
+      </div>
+    </div>
 
-      <!-- DISPOSITIVOS CON ALERTAS -->
-      <article class="dvx-card span-4">
-        <header class="card-head"><i class="material-icons">warning_amber</i><span>Dispositivos con alertas</span></header>
-        <ul class="dvx-alerts">
-          <li *ngFor="let a of alertasDispositivos" [attr.data-sev]="a.severidad">
-            <div>
-              <div class="strong">{{ a.nombre }}</div>
-              <div class="dim">{{ a.detalle }}</div>
-            </div>
-            <span class="pill" [ngClass]="a.severidad">{{ a.tag }}</span>
-          </li>
-        </ul>
-      </article>
+    <div class="col-12 col-lg-6">
+      <div class="card chart-card">
+        <div class="card-title">{{ renombrar('Ascensos vs. boletos') }}</div>
+        <dx-chart [dataSource]="dsBrecha" [palette]="palette" [size]="{ height: 320 }">
+          <dxo-legend position="bottom"></dxo-legend>
+          <dxo-argument-axis argumentType="string"></dxo-argument-axis>
+          <dxi-series type="line" name="Ascensos" argumentField="hora" valueField="ascensos"></dxi-series>
+          <dxi-series type="line" name="Boletos" argumentField="hora" valueField="boletos"></dxi-series>
+        </dx-chart>
+      </div>
+    </div>
 
-      <!-- GRÁFICAS -->
-      <article class="dvx-card span-7">
-        <header class="card-head"><i class="material-icons">bar_chart</i><span>Ingresos por hora (hoy)</span><em>Barras + ticket</em></header>
-        <div class="dvx-plot">
-          <dx-chart [dataSource]="ingresosHora" class="dx-chart-brand">
-            <dxi-series type="bar" argumentField="hora" valueField="ingresos" name="Ingresos"></dxi-series>
-            <dxi-series type="line" argumentField="hora" valueField="ticket" name="Ticket"></dxi-series>
-            <dxo-legend [visible]="true" position="inside" horizontalAlignment="right" verticalAlignment="top"></dxo-legend>
-            <dxo-tooltip [enabled]="true"></dxo-tooltip>
-          </dx-chart>
-        </div>
-      </article>
+    <div class="col-12 col-lg-3">
+      <div class="card chart-card">
+        <div class="card-title">{{ renombrar('Medios de pago') }}</div>
+        <dx-pie-chart [dataSource]="dsMediosPago" [palette]="palette" [size]="{ height: 320 }">
+          <dxi-series type="doughnut" argumentField="medio" valueField="valor"></dxi-series>
+          <dxo-legend position="bottom"></dxo-legend>
+        </dx-pie-chart>
+      </div>
+    </div>
 
-      <article class="dvx-card span-5">
-        <header class="card-head"><i class="material-icons">donut_small</i><span>Distribución de medios de pago</span><em>Hoy</em></header>
-        <div class="dvx-plot">
-          <dx-pie-chart [dataSource]="pagoDistrib" type="doughnut" class="dx-chart-brand">
-            <dxi-series argumentField="metodo" valueField="valor"></dxi-series>
-            <dxo-legend [visible]="true" horizontalAlignment="center" verticalAlignment="bottom"></dxo-legend>
-            <dxo-tooltip [enabled]="true"></dxo-tooltip>
-            <dxo-label [visible]="true" [format]="{ type:'percent', precision:0 }"></dxo-label>
-          </dx-pie-chart>
-        </div>
-      </article>
+    <div class="col-12 col-lg-3">
+      <div class="card chart-card">
+        <div class="card-title">{{ renombrar('Puntualidad inicio de viaje') }}</div>
+        <dx-chart [dataSource]="dsPuntualidad" [palette]="palette" [size]="{ height: 320 }">
+          <dxo-legend [visible]="false"></dxo-legend>
+          <dxo-argument-axis argumentType="string"></dxo-argument-axis>
+          <dxi-series type="bar" argumentField="bin" valueField="viajes" name="Viajes"></dxi-series>
+        </dx-chart>
+      </div>
+    </div>
+  </div>
 
-      <article class="dvx-card span-7">
-        <header class="card-head"><i class="material-icons">timeline</i><span>Curva de ascensos vs boletos</span><em>Brecha</em></header>
-        <div class="dvx-plot">
-          <dx-chart [dataSource]="ascensosVsBoletos" class="dx-chart-brand">
-            <dxi-series type="line" argumentField="hora" valueField="ascensos" name="Ascensos"></dxi-series>
-            <dxi-series type="line" argumentField="hora" valueField="boletos"  name="Validaciones"></dxi-series>
-            <dxo-legend [visible]="true"></dxo-legend>
-            <dxo-tooltip [enabled]="true"></dxo-tooltip>
-          </dx-chart>
-        </div>
-      </article>
+  <div class="row g-3 mt-1">
+    <div class="col-12 col-xl-6">
+      <div class="card list-card">
+        <div class="card-title">{{ renombrar('Top 5 rutas por ingreso') }}</div>
+        <dx-data-grid class="dx-grid-dark" [dataSource]="topRutas" [columnAutoWidth]="true" [rowAlternationEnabled]="true" [showBorders]="false">
+          <dxi-column dataField="nombre" [caption]="renombrar('Ruta')"></dxi-column>
+          <dxi-column dataField="ingresos" [caption]="renombrar('Ingresos')" dataType="number" format="currency" alignment="right"></dxi-column>
+          <dxi-column dataField="viajes" [caption]="renombrar('Viajes')" dataType="number" alignment="center"></dxi-column>
+        </dx-data-grid>
+      </div>
+    </div>
 
-      <article class="dvx-card span-5">
-        <header class="card-head"><i class="material-icons">schedule</i><span>Puntualidad de inicio de viaje</span><em>Δ minutos</em></header>
-        <div class="dvx-plot">
-          <dx-chart [dataSource]="histPuntualidad" class="dx-chart-brand">
-            <dxi-series type="bar" argumentField="bucket" valueField="conteo" name="Viajes"></dxi-series>
-            <dxo-legend [visible]="false"></dxo-legend>
-            <dxo-tooltip [enabled]="true"></dxo-tooltip>
-          </dx-chart>
-        </div>
-      </article>
-    </section>
+    <div class="col-12 col-xl-6">
+      <div class="card list-card">
+        <div class="card-title">{{ renombrar('Dispositivos con alertas') }}</div>
+        <dx-data-grid class="dx-grid-dark" [dataSource]="dispositivosConAlertas" [rowAlternationEnabled]="true" [showBorders]="false">
+          <dxi-column dataField="nombre" [caption]="renombrar('Equipo')"></dxi-column>
+          <dxi-column dataField="motivo" [caption]="renombrar('Motivo')"></dxi-column>
+          <dxi-column dataField="minSinPos" [caption]="renombrar('Min sin posición')" dataType="number" alignment="center"></dxi-column>
+          <dxi-column dataField="estatus" [caption]="renombrar('Estatus')" alignment="center"></dxi-column>
+          <dxi-column [caption]="renombrar('Tipo')" cellTemplate="tipoTpl"></dxi-column>
+          <ng-template dxTemplate="tipoTpl" let-data>
+            <span class="chip" [ngClass]="data.data.tipo">{{ renombrar(data.data.tipo) }}</span>
+          </ng-template>
+        </dx-data-grid>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div>

@@ -55,6 +55,22 @@
                                     {{f.data.saldo | currency: '$'}}
                                 </div>
                             </dxi-column>
+                            <dxi-column caption="Pasajero" alignment="center" cellTemplate="psaj">
+                                <div *dxTemplate="let f of 'psaj' ">
+                                    <ng-container
+                                    *ngIf="f?.nombrePasajero || f?.apellidoPaternoPasajero || f?.apellidoMaternoPasajero; else sinRegistro">
+                                    {{ f?.nombrePasajero || '' }} {{ f?.apellidoPaternoPasajero || '' }} {{ f?.apellidoMaternoPasajero ||
+                                    '' }}
+                                    </ng-container>
+                                    <ng-template #sinRegistro>sin registro</ng-template>
+                                </div>
+                            </dxi-column>
+                            <dxi-column caption="Cliente" alignment="center" cellTemplate="clien">
+                                <div *dxTemplate="let f of 'clien'">
+                                    {{ f.data.nombreCliente || ' ' }} {{ f.data.apellidoPaternoCliente || ' ' }} {{
+                                    f.data.apellidoMaternoCliente || ' ' }}
+                                </div>
+                            </dxi-column>
                             <div *dxTemplate="let monedero of 'Acciones'" class="d-flex gap-3 justify-content-center">
                                 <div *appHasPermission="'79'">
                                     <button valueExpr="id" id="actualizarButton" class="btnAcciones"

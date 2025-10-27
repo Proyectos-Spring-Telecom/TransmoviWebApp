@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -94,13 +95,78 @@ export class PuntoVentaPostComponent implements OnInit {
     this.aplicarPaginacion();
   }
 
-  obtenerMonerderos() {
-    this.moneService.obtenerMonederos().subscribe((response) => {
-      this.listaMonederos = response.data;
-      setTimeout(()=> {
-        Swal.close()
-      },600)
-    })
+obtenerMonerderos() {
+  this.moneService.obtenerMonederos().subscribe({
+    next: (response: any) => {
+      this.listaMonederos = response?.data ?? [];
+      setTimeout(() => Swal.close(), 600);
+    },
+    error: (err: HttpErrorResponse) => {
+      this.loading = false;
+      this.submitButton = 'Confirmar';
+      // NO cerramos antes de mostrar
+      const show = (txt: string) => {
+        Swal.fire({
+          title: '¡Ops!',
+          text: txt ?? 'Ocurrio un error al mostrar los monederos.',
+          icon: 'warning',
+          background: '#002136',
+          confirmButtonColor: '#3085d6'
+        });
+      };
+
+      const e: any = err?.error;
+
+      if (e instanceof Blob) {
+        e.text().then(show).catch(() => show(err.statusText || ''));
+        return;
+      }
+
+      if (e instanceof ArrayBuffer) {
+        try { show(new TextDecoder('utf-8').decode(e)); }
+        catch { show(err.statusText || ''); }
+        return;
+      }
+
+      if (typeof e === 'string') { show(e); return; }
+
+      if (e && typeof e === 'object') { show(JSON.stringify(e)); return; }
+
+      show(err.statusText || '');
+    }
+  });
+}
+
+  private async getErrorMessage(err: any): Promise<string> {
+    if (err?.status === 0 && !err?.error)
+      return 'No hay conexión con el servidor (status 0). Verifica tu red.';
+    if (err?.error instanceof Blob) {
+      try {
+        const txt = await err.error.text();
+        if (txt) return txt;
+      } catch { }
+    }
+    if (typeof err?.error === 'string' && err.error.trim()) return err.error;
+    if (typeof err?.message === 'string' && err.message.trim())
+      return err.message;
+    if (err?.error?.message) return String(err.error.message);
+    if (err?.error?.errors) {
+      const e = err.error.errors;
+      if (Array.isArray(e)) return e.filter(Boolean).join('\n');
+      if (typeof e === 'object') {
+        const lines: string[] = [];
+        for (const k of Object.keys(e)) {
+          const val = e[k];
+          if (Array.isArray(val)) lines.push(`${k}: ${val.join(', ')}`);
+          else if (val) lines.push(`${k}: ${val}`);
+        }
+        if (lines.length) return lines.join('\n');
+      }
+    }
+    const statusLine = err?.status
+      ? `HTTP ${err.status}${err.statusText ? ' ' + err.statusText : ''}`
+      : '';
+    return statusLine;
   }
 
   extraLarge(exlargeModal: any) {

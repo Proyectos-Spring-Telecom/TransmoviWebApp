@@ -233,7 +233,7 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
     });
   }
 
-    regresarRuta(ev?: Event): void {
+  regresarRuta(ev?: Event): void {
     this.modalRef?.close();
     this.modalRef = undefined;
     this.route.navigateByUrl('/derroteros')
@@ -241,29 +241,14 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
 
   // 1) Agrega este campo para saber qué modal está abierto
   private currentModalType: 'ruta' | 'tarifa' | null = null;
-regresar(ev?: Event): void {
-  ev?.preventDefault();
+  regresar(ev?: Event): void {
+    this.regresarRuta()
+    this.resetAllState();
 
-  // cierra lo que esté abierto (incluido el de tarifa)
-  try { this.modalRef?.close(); } catch {}
-  try { this.modalService.dismissAll(); } catch {}
-  this.modalRef = undefined;
-
-  // reinicia todo y NO muestres el mapa
-  this.resetAllState();
-
-  // vuelve a abrir el modal de rutas
-  // (sin inicializar mapa; hasta que elijan ruta se hará visible)
-  setTimeout(() => {
-    this.modalRef = this.modalService.open(this.exlargeModal, {
-      size: 'xl',
-      windowClass: 'modal-holder',
-      centered: true,
-      backdrop: 'static',
-      keyboard: false
-    });
-  }, 0);
-}
+    this.modalRef?.close();
+    this.modalRef = undefined;
+    this.route.navigateByUrl('/derroteros')
+  }
 
 
   private initOrResetMap(): void {
@@ -1410,6 +1395,7 @@ regresar(ev?: Event): void {
         this.modalService.dismissAll();
         this.submitButton = 'Guardar';
         this.loading = false;
+        this.regresar();
         Swal.fire({
           title: '¡Operación Exitosa!',
           background: '#002136',
@@ -1418,7 +1404,6 @@ regresar(ev?: Event): void {
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
         });
-        this.regresar();
       },
       () => {
         this.submitButton = 'Guardar';
