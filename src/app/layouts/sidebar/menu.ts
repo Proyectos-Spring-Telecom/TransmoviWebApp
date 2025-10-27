@@ -5,7 +5,7 @@ export const MENU: MenuItem[] = [
     {
         id: 1,
         label: 'Coordinación',
-        // permiso: Permiso!.Listado_Modulos,
+        permiso: Permiso.Consultar_Dashboard,
         isTitle: true
     },
     {

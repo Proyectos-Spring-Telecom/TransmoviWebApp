@@ -58,8 +58,8 @@
                             <dxi-column caption="Pasajero" alignment="center" cellTemplate="psaj">
                                 <div *dxTemplate="let f of 'psaj' ">
                                     <ng-container
-                                    *ngIf="f?.nombrePasajero || f?.apellidoPaternoPasajero || f?.apellidoMaternoPasajero; else sinRegistro">
-                                    {{ f?.nombrePasajero || '' }} {{ f?.apellidoPaternoPasajero || '' }} {{ f?.apellidoMaternoPasajero ||
+                                    *ngIf="f?.pasajeroNombre || f?.pasajeroApellidoPaterno || f?.pasajeroApellidoMaterno; else sinRegistro">
+                                    {{ f?.pasajeroNombre || '' }} {{ f?.pasajeroApellidoPaterno || '' }} {{ f?.pasajeroApellidoMaterno ||
                                     '' }}
                                     </ng-container>
                                     <ng-template #sinRegistro>sin registro</ng-template>
@@ -67,8 +67,8 @@
                             </dxi-column>
                             <dxi-column caption="Cliente" alignment="center" cellTemplate="clien">
                                 <div *dxTemplate="let f of 'clien'">
-                                    {{ f.data.nombreCliente || ' ' }} {{ f.data.apellidoPaternoCliente || ' ' }} {{
-                                    f.data.apellidoMaternoCliente || ' ' }}
+                                    {{ f.data.clienteNombre || ' ' }} {{ f.data.clienteApellidoPaterno || ' ' }} {{
+                                    f.data.clienteApellidoMaterno || ' ' }}
                                 </div>
                             </dxi-column>
                             <div *dxTemplate="let monedero of 'Acciones'" class="d-flex gap-3 justify-content-center">

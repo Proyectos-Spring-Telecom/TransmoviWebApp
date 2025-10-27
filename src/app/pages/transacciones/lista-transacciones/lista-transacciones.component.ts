@@ -84,17 +84,26 @@ export class ListaTransaccionesComponent implements OnInit {
           const totalPaginas =
             toNum(meta.lastPage) ?? Math.max(1, Math.ceil(totalRegistros / take));
 
-          const dataTransformada = rows.map((x: any) => ({
-            id: x?.id ?? null,
-            tipoTransaccion: x?.tipoTransaccion ?? null,
-            monto: toMoney(x?.monto),
-            latitud: x?.latitud ?? null,
-            longitud: x?.longitud ?? null,
-            fechaHora: x?.fechaHora ?? null,
-            fhRegistro: x?.fhRegistro ?? null,
-            numeroSerieMonedero: x?.numeroSerieMonedero ?? null,
-            numeroSerieDispositivo: x?.numeroSerieDispositivo ?? null
-          }));
+          const dataTransformada = rows.map((x: any) => {
+            const pasajero = [x?.nombrePasajero, x?.apellidoPaternoPasajero, x?.apellidoMaternoPasajero]
+              .filter(v => !!(v && String(v).trim()))
+              .join(' ')
+              .trim();
+
+            return {
+              id: x?.id ?? null,
+              tipoTransaccion: x?.tipoTransaccion ?? null,
+              monto: toMoney(x?.monto),
+              latitud: x?.latitud ?? null,
+              longitud: x?.longitud ?? null,
+              fechaHora: x?.fechaHora ?? null,
+              fhRegistro: x?.fhRegistro ?? null,
+              numeroSerieMonedero: x?.numeroSerieMonedero ?? null,
+              numeroSerieDispositivo: x?.numeroSerieDispositivo ?? null,
+              pasajero: pasajero || 'sin registro',
+            };
+          });
+
 
           this.totalRegistros = totalRegistros;
           this.paginaActual = paginaActual;

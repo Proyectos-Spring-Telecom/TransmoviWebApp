@@ -37,16 +37,22 @@
                             }" (onPageIndexChanged)=" onPageIndexChanged($event)"
                             (onOptionChanged)="onGridOptionChanged($event)">
                             <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
-                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
+                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]"
+                                [showInfo]="true"></dxo-pager>
                             <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column *appHasPermission="['43', '44']" caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="150"></dxi-column>
-                            <dxi-column dataField="marca" caption="Marca" alignment="center" dataType="string"></dxi-column>
-                            <dxi-column dataField="modelo" caption="Modelo" alignment="center" dataType="string"></dxi-column>
-                            <dxi-column dataField="numeroSerie" caption="Número Serie" alignment="center" dataType="string"></dxi-column>
-                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est" dataType="string">
+                            <dxi-column *appHasPermission="['43', '44']" caption="Acciones" cellTemplate="Acciones"
+                                alignment="center" [width]="150"></dxi-column>
+                            <dxi-column dataField="marca" caption="Marca" alignment="center"
+                                dataType="string"></dxi-column>
+                            <dxi-column dataField="modelo" caption="Modelo" alignment="center"
+                                dataType="string"></dxi-column>
+                            <dxi-column dataField="numeroSerie" caption="Número Serie" alignment="center"
+                                dataType="string"></dxi-column>
+                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est"
+                                dataType="string">
                                 <div *dxTemplate="let f of 'est'">
                                     <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
                                         Activo
@@ -56,8 +62,14 @@
                                     </span>
                                 </div>
                             </dxi-column>
+                            <dxi-column caption="Cliente" alignment="center" cellTemplate="clien">
+                                <div *dxTemplate="let f of 'clien'">
+                                    {{ f.data.nombreCliente || ' ' }} {{ f.data.apellidoPaternoCliente || ' ' }} {{
+                                    f.data.apellidoMaternoCliente || ' ' }}
+                                </div>
+                            </dxi-column>
                             <dxo-export [enabled]="false" [allowExportSelectedData]="true"
-                            [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
+                                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
                             </dxo-export>
                             <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
                                 <div *appHasPermission="'43'">
@@ -66,7 +78,7 @@
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </div>
-                                 <div *appHasPermission="'44'">
+                                <div *appHasPermission="'44'">
                                     <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones"
                                         (click)="activar(row.data)">
                                         <i class="fa fa-arrow-up"></i>
@@ -86,5 +98,5 @@
 </div>
 
 <dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
-  [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
+    [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
 </dx-load-panel>
