@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
+import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { OperadoresService } from 'src/app/shared/services/operadores.service';
 import { UsuariosService } from 'src/app/shared/services/usuario.service';
 import Swal from 'sweetalert2';
@@ -20,7 +21,8 @@ export class AltaOperadorComponent implements OnInit {
   public idOperador: number;
   public listaUsuarios: any;
   public title = 'Agregar Operador';
-  public showUsuario: boolean = true;
+  public showUsuario: boolean = false;
+  public idClienteUser: any;
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
 
@@ -30,8 +32,10 @@ export class AltaOperadorComponent implements OnInit {
     private operService: OperadoresService,
     private activatedRouted: ActivatedRoute,
     private route: Router,
-    private usuaService: UsuariosService
-  ) { }
+    private usuaService: UsuariosService,
+    private users: AuthenticationService,
+  ) { const user = this.users.getUser();
+    this.idClienteUser = Number(user?.idCliente);}
 
   ngOnInit(): void {
     this.obtenerUsuarios()
@@ -86,7 +90,7 @@ export class AltaOperadorComponent implements OnInit {
   }
 
   obtenerUsuarios() {
-    this.usuaService.obtenerUsuariosRolOperador().subscribe((response) => {
+    this.usuaService.obtenerUsuariosRolOperador(this.idClienteUser).subscribe((response) => {
       this.listaUsuarios = (response.data || []).map((c: any) => ({
         ...c,
         id: Number(c?.id ?? c?.Id ?? c?.ID),

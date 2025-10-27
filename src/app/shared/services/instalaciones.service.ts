@@ -18,12 +18,8 @@ export class InstalacionesService {
     return this.http.get(`${environment.API_SECURITY}/instalaciones/list`);
   }
 
-  agregarInstalacion(data: FormData): Observable<string> {
-    return this.http.post<string>(
-      `${environment.API_SECURITY}/instalaciones`,
-      data,
-      { responseType: 'text' as 'json' }   // <- truco
-    );
+  agregarInstalacion (data: any) {
+    return this.http.post(environment.API_SECURITY + '/instalaciones', data);
   }
 
   eliminarInstalacion(idInstalacion: Number) {

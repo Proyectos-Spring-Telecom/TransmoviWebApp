@@ -7,6 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModalModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { DxDataGridModule, DxLoadPanelModule } from 'devextreme-angular';
 import { AgregarTransaccionComponent } from './agregar-transaccion/agregar-transaccion.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 
 @NgModule({
@@ -19,7 +20,8 @@ import { AgregarTransaccionComponent } from './agregar-transaccion/agregar-trans
     NgbTooltipModule,
     NgbModalModule,
     DxDataGridModule,
-    DxLoadPanelModule
+    DxLoadPanelModule,
+    SharedModule
   ]
 })
 export class TransaccionesModule { }

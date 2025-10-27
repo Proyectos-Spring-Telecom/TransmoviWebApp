@@ -67,7 +67,7 @@ export class ListaTurnosComponent implements OnInit {
   activar(rowData: any) {
     Swal.fire({
       title: '¡Activar!',
-      html: `¿Está seguro que requiere activar está región?`,
+      html: `¿Está seguro que requiere activar este turno?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -81,7 +81,7 @@ export class ListaTurnosComponent implements OnInit {
           (response) => {
             Swal.fire({
               title: '¡Confirmación Realizada!',
-              html: `La región ha sido activada.`,
+              html: `El turno ha sido activado.`,
               icon: 'success',
               background: '#002136',
               confirmButtonColor: '#3085d6',
@@ -110,7 +110,7 @@ export class ListaTurnosComponent implements OnInit {
   desactivar(rowData: any) {
     Swal.fire({
       title: '¡Desactivar!',
-      html: `¿Está seguro que requiere desactivar está región?`,
+      html: `¿Está seguro que requiere desactivar este turno?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -124,7 +124,7 @@ export class ListaTurnosComponent implements OnInit {
           (response) => {
             Swal.fire({
               title: '¡Confirmación Realizada!',
-              html: `La región ha sido desactivada.`,
+              html: `El turno ha sido desactivado.`,
               icon: 'success',
               background: '#002136',
               confirmButtonColor: '#3085d6',

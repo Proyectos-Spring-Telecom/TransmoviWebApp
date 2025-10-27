@@ -11,7 +11,7 @@ import { Credentials } from 'src/app/entities/Credentials';
 import { PasajerosService } from 'src/app/shared/services/pasajeros.service';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-affiliation',
@@ -238,28 +238,31 @@ export class AffiliationComponent implements OnInit, OnDestroy {
           text: 'Tu cuenta de pasajero fue creada. Revisa tu correo y abre el enlace de verificación para activarla y poder iniciar sesión.',
           icon: 'success',
           confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Ir a iniciar sesión',
+          confirmButtonText: 'Continuar',
           allowOutsideClick: false,
           allowEscapeKey: false
         }).then(({ isConfirmed }) => {
           if (isConfirmed) {
             setTimeout(() => {
               this.largeModal(this.largeDataModal);
-            }, 3000);
+            }, 1500);
           }
         });
       },
-      (error) => {
-        this.submitButton = 'Guardar';
+      (err: any) => {
         this.loading = false;
-
-        Swal.fire({
-          title: '¡Ups! No pudimos completar tu afiliación',
+        this.submitButton = 'Guardar';
+        this.getErrorMessage(err).then((msg) => {
+          setTimeout(() => {
+            Swal.fire({
+          title: 'Código inválido o expirado',
           background: '#002136',
-          text: 'Revisa que tus datos estén correctos y vuelve a intentarlo. Si el problema continúa, contáctanos para ayudarte.',
+          text: 'Verifica el código de activación y vuelve a intentarlo. Si el problema continúa, solicita uno nuevo o contáctanos.',
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Entendido'
+        });
+          }, 200);
         });
       }
     );
@@ -270,23 +273,23 @@ export class AffiliationComponent implements OnInit, OnDestroy {
    * Open Large modal
    * @param largeDataModal large modal data
    */
-  largeModal(largeDataModal: any) {
-    this.modalService.open(largeDataModal, {
-      size: 'lg',
-      windowClass: 'modal-holder',
-      centered: true,
-      backdrop: 'static',
-      keyboard: false,
-    });
+  private modalRef?: NgbModalRef;
+largeModal(largeDataModal: any) {
+  this.modalRef = this.modalService.open(largeDataModal, {
+    size: 'lg',
+    windowClass: 'modal-holder',
+    centered: true,
+    backdrop: 'static',
+    keyboard: false,
+  });
 
-    // Espera a que el modal pinte y enfoca el primer input
-    setTimeout(() => {
-      // vía query del DOM — no depende de @ViewChildren
-      const first = document.querySelector('.otp-inputs .otp-box') as HTMLInputElement | null;
-      first?.focus();
-      first?.select();
-    }, 0);
-  }
+  setTimeout(() => {
+    const first = document.querySelector('.otp-inputs .otp-box') as HTMLInputElement | null;
+    first?.focus();
+    first?.select();
+  }, 0);
+}
+
 
 
   @ViewChild('largeDataModal') largeDataModal!: TemplateRef<any>;
@@ -328,6 +331,7 @@ export class AffiliationComponent implements OnInit, OnDestroy {
         this.submitButton = 'Guardar';
         this.loading = false;
         this.pasajService.clearVerificationToken();
+        this.modalRef?.close();
         Swal.fire({
           title: '¡Código verificado!',
           background: '#002136',
@@ -341,16 +345,20 @@ export class AffiliationComponent implements OnInit, OnDestroy {
           if (isConfirmed) this.router.navigate(['/account', 'login']);
         });
       },
-      error: () => {
-        this.submitButton = 'Guardar';
+      error: (err: any) => {
         this.loading = false;
-        Swal.fire({
+        this.submitButton = 'Guardar';
+        this.getErrorMessage(err).then((msg) => {
+          setTimeout(() => {
+            Swal.fire({
           title: 'Código inválido o expirado',
           background: '#002136',
           text: 'Verifica el código de activación y vuelve a intentarlo. Si el problema continúa, solicita uno nuevo o contáctanos.',
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Entendido'
+        });
+          }, 200);
         });
       }
     });
@@ -448,5 +456,45 @@ export class AffiliationComponent implements OnInit, OnDestroy {
       event.preventDefault();
     }
   }
-  // ======================================================================
+  
+  private async getErrorMessage(err: any): Promise<string> {
+    if (err?.status === 0 && !err?.error) {
+      return 'No hay conexión con el servidor (status 0). Verifica tu red.';
+    }
+    if (err?.error instanceof Blob) {
+      try {
+        const txt = await err.error.text();
+        if (txt) return txt;
+      } catch {
+      }
+    }
+    if (typeof err?.error === 'string' && err.error.trim()) {
+      return err.error;
+    }
+    if (typeof err?.message === 'string' && err.message.trim()) {
+      return err.message;
+    }
+    if (err?.error?.message) {
+      return String(err.error.message);
+    }
+    if (err?.error?.errors) {
+      const e = err.error.errors;
+      if (Array.isArray(e)) {
+        return e.filter(Boolean).join('\n');
+      }
+      if (typeof e === 'object') {
+        const lines: string[] = [];
+        for (const k of Object.keys(e)) {
+          const val = e[k];
+          if (Array.isArray(val)) lines.push(`${k}: ${val.join(', ')}`);
+          else if (val) lines.push(`${k}: ${val}`);
+        }
+        if (lines.length) return lines.join('\n');
+      }
+    }
+    const statusLine = err?.status
+      ? `HTTP ${err.status}${err.statusText ? ' ' + err.statusText : ''}`
+      : '';
+    return statusLine;
+  }
 }
