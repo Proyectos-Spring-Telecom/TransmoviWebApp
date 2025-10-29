@@ -51,6 +51,20 @@
                                 dataType="string"></dxi-column>
                             <dxi-column dataField="numeroSerie" caption="Número Serie" alignment="center"
                                 dataType="string"></dxi-column>
+                            <dxi-column dataField="estadoActual" caption="Estado Bluevox" alignment="center"
+                                dataType="string" cellTemplate="estadoBluevoxTpl">
+                            </dxi-column>
+                            <div *dxTemplate="let cell of 'estadoBluevoxTpl'">
+                                <ng-container [ngSwitch]="cell.value">
+                                    <div *ngSwitchCase="0" class="estatus estatus-inactivo">Inactivo</div>
+                                    <div *ngSwitchCase="1" class="estatus estatus-disponible">Disponible</div>
+                                    <div *ngSwitchCase="2" class="estatus estatus-asignado">Asignado</div>
+                                    <div *ngSwitchCase="3" class="estatus estatus-mantenimiento">En Mantenimiento</div>
+                                    <div *ngSwitchCase="4" class="estatus estatus-danado">Dañado</div>
+                                    <div *ngSwitchCase="5" class="estatus estatus-retirado">Retirado</div>
+                                    <div *ngSwitchDefault class="estatus estatus-inactivo">Inactivo</div>
+                                </ng-container>
+                            </div>
                             <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est"
                                 dataType="string">
                                 <div *dxTemplate="let f of 'est'">

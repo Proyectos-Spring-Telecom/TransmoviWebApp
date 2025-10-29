@@ -78,16 +78,16 @@ export class AltaUsuarioComponent implements OnInit {
       {
         userName: ['', [Validators.required, Validators.email]],
         passwordHash: ['', [Validators.required]],
-        confirmPassword: [''],
+        confirmPassword: ['', [Validators.required]],
         telefono: ['', [Validators.required]],
         nombre: ['', [Validators.required]],
         apellidoPaterno: ['', [Validators.required]],
-        apellidoMaterno: ['', [Validators.required]],
+        apellidoMaterno: [''],
         fotoPerfil: [null],
         idRol: [null],
-        emailConfirmado: [null],
+        emailConfirmado: [1],
         estatus: [1],
-        idCliente: [null],
+        idCliente: [null, [Validators.required]],
         permisosIds: this.fb.control<number[]>([]),
       },
       { validators: this.passwordsMatchValidator }
@@ -263,7 +263,7 @@ export class AltaUsuarioComponent implements OnInit {
   logoDragging = false;
   private logoFile: File | null = null;
 
-  private readonly DEFAULT_AVATAR_URL = 'https://wallpapercat.com/w/full/9/5/a/945731-3840x2160-desktop-4k-matte-black-wallpaper-image.jpg';
+  private readonly DEFAULT_AVATAR_URL = 'https://transmovi.s3.us-east-2.amazonaws.com/imagenes/user_default.png';
   private readonly MAX_MB = 3;
   private readonly S3_FOLDER = 'usuarios';
   private readonly S3_ID_MODULE = 2;
@@ -386,16 +386,15 @@ export class AltaUsuarioComponent implements OnInit {
     this.usuarioForm.markAllAsTouched();
 
     const etiquetas: Record<string, string> = {
-      userName: 'Correo electrónico',
-      passwordHash: 'Contraseña',
-      confirmPassword: 'Confirmar contraseña',
-      telefono: 'Teléfono',
       nombre: 'Nombre',
       apellidoPaterno: 'Apellido Paterno',
-      apellidoMaterno: 'Apellido Materno',
-      fotoPerfil: 'Foto de perfil',
+      telefono: 'Teléfono',
+      userName: 'Correo electrónico',
       idRol: 'Rol',
-      estatus: 'Estatus',
+      idCliente: 'Cliente',
+      passwordHash: 'Contraseña',
+      confirmPassword: 'Confirmar contraseña',
+      fotoPerfil: 'Foto de perfil',
       permisosIds: 'Permisos',
     };
 
@@ -416,10 +415,10 @@ export class AltaUsuarioComponent implements OnInit {
       const lista = mensajes
         .map(
           (campo, index) => `
-        <div style="padding:8px 12px;border-left:4px solid #d9534f;
-                    background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
-          <strong style="color:#b02a37;">${index + 1}. ${campo}</strong>
-        </div>`
+      <div style="padding:8px 12px;border-left:4px solid #d9534f;
+                  background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
+        <strong style="color:#b02a37;">${index + 1}. ${campo}</strong>
+      </div>`
         )
         .join('');
 
@@ -430,11 +429,11 @@ export class AltaUsuarioComponent implements OnInit {
         title: '¡Faltan campos obligatorios!',
         background: '#002136',
         html: `
-        <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
-          Los siguientes <strong>campos</strong> requieren atención:
-        </p>
-        <div style="max-height:350px;overflow-y:auto;">${lista}</div>
-      `,
+      <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
+        Los siguientes <strong>campos</strong> requieren atención:
+      </p>
+      <div style="max-height:350px;overflow-y:auto;">${lista}</div>
+    `,
         icon: 'error',
         confirmButtonText: 'Entendido',
         customClass: { popup: 'swal2-padding swal2-border' },
@@ -447,12 +446,18 @@ export class AltaUsuarioComponent implements OnInit {
     const toNumOrNull = (v: any) =>
       v === null || v === undefined || v === '' ? null : Number(v);
 
-    const payload = {
+    const payload: any = {
       ...rest,
       idCliente: toNumOrNull(idCliente),
       idRol: toNumOrNull(idRol),
       permisosIds: (permisosIds || []).map((x: any) => Number(x)),
     };
+
+    const fotoValue = this.usuarioForm.get('fotoPerfil')?.value;
+    payload.fotoPerfil =
+      (typeof fotoValue === 'string' && fotoValue.trim())
+        ? fotoValue
+        : 'https://transmovi.s3.us-east-2.amazonaws.com/imagenes/user_default.png';
 
     if (!payload.permisosIds || payload.permisosIds.length === 0) {
       this.submitButton = 'Guardar';
@@ -504,16 +509,15 @@ export class AltaUsuarioComponent implements OnInit {
       confirmCtrl?.updateValueAndValidity({ emitEvent: false });
     }
     const etiquetas: Record<string, string> = {
-      userName: 'Correo electrónico',
-      passwordHash: 'Contraseña',
-      confirmPassword: 'Confirmar contraseña',
-      telefono: 'Teléfono',
       nombre: 'Nombre',
       apellidoPaterno: 'Apellido Paterno',
-      apellidoMaterno: 'Apellido Materno',
+      telefono: 'Teléfono',
+      userName: 'Correo electrónico',
       idRol: 'Rol',
-      estatus: 'Estatus',
       idCliente: 'Cliente',
+      passwordHash: 'Contraseña',
+      confirmPassword: 'Confirmar contraseña',
+      fotoPerfil: 'Foto de perfil',
       permisosIds: 'Permisos',
     };
     const camposFaltantes: string[] = [];

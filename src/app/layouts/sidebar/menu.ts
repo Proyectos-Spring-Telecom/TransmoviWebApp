@@ -129,14 +129,14 @@ export const MENU: MenuItem[] = [
                 label: 'Monederos',
                 icon: 'uil-moneybag-alt',
                 link: '/monederos',
-                permiso:Permiso.Listado_Monederos
+                permiso: Permiso.Listado_Monederos
             },
             {
                 id: 7,
                 label: 'Transacciones',
                 icon: 'uil-refresh',
                 link: '/transacciones',
-                permiso:Permiso.Listado_Transacciones
+                permiso: Permiso.Listado_Transacciones
             },
         ],
     },
@@ -199,22 +199,58 @@ export const MENU: MenuItem[] = [
         icon: 'uil-user-circle',
         link: '/contacts/profile',
     },
+    {
+        id: 115,
+        label: 'Reportes',
+        isTitle: true
+    },
+    {
+        id: 116,
+        label: 'Recaudación Día',
+        icon: 'uil-calendar-alt',
+        link: '/reportes/recaudacion-diaria-ruta',
+    },
+    {
+        id: 116,
+        label: 'Recaudación Operador',
+        icon: 'uil-user-check',
+        link: '/reportes/recaudacion-operador',
+    },
+    {
+        id: 116,
+        label: 'Recaudación Vehículo',
+        icon: 'uil-car-sideview',
+        link: '/reportes/recaudacion-vehiculo',
+    },
+    {
+        id: 116,
+        label: 'Recaudación Disp/Inst.',
+        icon: 'uil-cpu',
+        link: '/reportes/recaudacion-dispositivoInstalacion',
+    },
+    {
+        id: 116,
+        label: 'Recaudación Detalladas',
+        icon: 'uil-list-ul',
+        link: '/reportes/recaudacion-detalladas',
+    },
+
     // {
     //     id: 13,
     //     label: 'Pasajero',
     //     icon: 'uil-user',
     //     link: '/vista-pasajero',
     // },
-    {
-        id: 115,
-        label: 'MENUITEMS.PRUEBACOMPONENTCERRAR.TEXT',
-        isTitle: true
-    },
-    {
-        id: 116,
-        label: 'MENUITEMS.PRUEBACUATROSESION.TEXT',
-        icon: 'uil-arrow-to-right',
-        link: '/account/login',
-    },
+    // {
+    //     id: 115,
+    //     label: 'MENUITEMS.PRUEBACOMPONENTCERRAR.TEXT',
+    //     isTitle: true
+    // },
+    // {
+    //     id: 116,
+    //     label: 'MENUITEMS.PRUEBACUATROSESION.TEXT',
+    //     icon: 'uil-arrow-to-right',
+    //     link: '/account/login',
+    // },
 ];
 

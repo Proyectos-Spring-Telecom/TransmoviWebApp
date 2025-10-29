@@ -14,18 +14,18 @@
             <form [formGroup]="monederoForm" class="cliente-form">
                 <h6 class="section-title">Datos Generales</h6>
                 <div class="row">
-                    <div class="col-md-4 mt-3">
+                    <div class="col-md-3 mt-3">
                         <label>Número de Serie</label>
                         <input type="text" class="form-control" formControlName="numeroSerie"
                             placeholder="Ej: 41f170e5dafc640e">
                     </div>
-                    <div class="col-md-4 mt-3" *ngIf="showDatosID">
+                    <div class="col-md-3 mt-3" *ngIf="showDatosID">
                         <label>Saldo</label>
                         <input type="text" class="form-control" formControlName="saldo" placeholder="Ej 100.00"
                             inputmode="decimal" (keydown)="moneyKeydown($event)" (input)="moneyInput($event)"
                             (paste)="moneyPaste($event)" (blur)="moneyBlur($event)" />
                     </div>
-                    <div class="col-md-4 mt-3">
+                    <div class="col-md-3 mt-3">
                         <label>Pasajero</label>
                         <select class="form-control" formControlName="idPasajero">
                             <option [ngValue]="null" disabled>Seleccione un pasajero</option>
@@ -34,7 +34,7 @@
                             </option>
                         </select>
                     </div>
-                    <div class="col-md-4 mt-3">
+                    <div class="col-md-3 mt-3">
                         <label>Cliente</label>
                         <select class="form-control" formControlName="idCliente">
                             <option [ngValue]="null" disabled>Seleccione un cliente</option>

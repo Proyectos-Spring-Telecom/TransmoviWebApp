@@ -11,7 +11,7 @@ export class PasajerosService {
   private readonly VERIFY_TOKEN_KEY = 'verify_token';
   private apiUrl = `${environment.API_SECURITY}/pasajeros`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   setVerificationToken(token: string): void {
     sessionStorage.setItem(this.VERIFY_TOKEN_KEY, token);
@@ -57,20 +57,23 @@ export class PasajerosService {
     );
   }
 
-  agregarPasajeroAfiliacion(data: FormData) {
-    return this.http.post(`${environment.API_SECURITY}/login/pasajero/registro`, data);
+  agregarPasajeroAfiliacion(data: any) {
+    return this.http.post(
+      `${environment.API_SECURITY}/login/pasajero/registro`,
+      data,
+      { observe: 'response', responseType: 'text' } // <- fuerza texto crudo
+    );
   }
 
-verificarPasajero(codigo: string): Observable<any> {
-  // Sin autenticación; sigue siendo PATCH y envía { codigo }
-  const context = new HttpContext().set(SKIP_APP_AUTH, true);
+  verificarPasajero(codigo: string): Observable<any> {
+    const context = new HttpContext().set(SKIP_APP_AUTH, true);
 
-  return this.http.patch(
-    `${environment.API_SECURITY}/login/verify`,
-    { codigo },
-    { responseType: 'text' as 'json', context }
-  ).pipe(catchError(err => throwError(() => err)));
-}
+    return this.http.patch(
+      `${environment.API_SECURITY}/login/verify`,
+      { codigo },
+      { responseType: 'text' as 'json', context }
+    ).pipe(catchError(err => throwError(() => err)));
+  }
 
 
   verificarPorCodigo(codigo: string): Observable<string> {

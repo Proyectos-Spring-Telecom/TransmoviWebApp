@@ -78,16 +78,12 @@
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
                             </div>
-                            <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center" dataType="string"
-                                [width]="320"></dxi-column>
-                            <dxi-column dataField="userNameUsuario" caption="Correo Electrónico" alignment="center"
-                                dataType="string"></dxi-column>
-                            <dxi-column dataField="telefonoUsuario" caption="Teléfono" alignment="center"
-                                dataType="string"></dxi-column>
-                            <dxi-column dataField="FechaNacimientoTexto" caption="Fecha de Nacimiento"
-                                alignment="center" dataType="string" [width]="150"></dxi-column>
-                            <dxi-column dataField="EstatusTexto" caption="Estatus" alignment="center" dataType="string"
-                                [width]="150" cellTemplate="est"></dxi-column>
+                            <dxi-column dataField="numeroLicencia" caption="Número de Licencia" [width]="150" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center" dataType="string" [width]="320"></dxi-column>
+                            <dxi-column dataField="userNameUsuario" caption="Correo Electrónico" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="telefonoUsuario" caption="Teléfono" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="FechaNacimientoTexto" caption="Fecha de Nacimiento" alignment="center" dataType="string" [width]="150"></dxi-column>
+                            <dxi-column dataField="EstatusTexto" caption="Estatus" alignment="center" dataType="string" [width]="150" cellTemplate="est"></dxi-column>
                             <div *dxTemplate="let f of 'est'">
                                 <span *ngIf="(f.data.EstatusNumber ?? f.data.estatus) === 1"
                                     class="estatus estatus-activo">Activo</span>

@@ -137,14 +137,12 @@ export class AltaOperadorComponent implements OnInit {
       const etiquetas: any = {
         numeroLicencia: 'Número de Licencia',
         fechaNacimiento: 'Fecha de Nacimiento',
-        licencia: 'Licencia',
+        idUsuario: 'Usuario',
+        licencia: 'Foto Licencia',
         identificacion: 'Identificación',
         comprobanteDomicilio: 'Comprobante de Domicilio',
-        antecedentesNoPenales: 'Antecedentes No Penales',
-        estatus: 'Estatus',
-        idUsuario: 'Usuario'
+        antecedentesNoPenales: 'Antecedente No Penales',
       };
-
 
       const camposFaltantes: string[] = [];
       Object.keys(this.operadorForm.controls).forEach(key => {
@@ -221,12 +219,11 @@ export class AltaOperadorComponent implements OnInit {
       const etiquetas: any = {
         numeroLicencia: 'Número de Licencia',
         fechaNacimiento: 'Fecha de Nacimiento',
-        licencia: 'Licencia',
+        idUsuario: 'Usuario',
+        licencia: 'Foto Licencia',
         identificacion: 'Identificación',
         comprobanteDomicilio: 'Comprobante de Domicilio',
-        antecedentesNoPenales: 'Antecedentes No Penales',
-        estatus: 'Estatus',
-        idUsuario: 'Usuario'
+        antecedentesNoPenales: 'Antecedente No Penales',
       };
 
       const camposFaltantes: string[] = [];

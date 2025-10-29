@@ -89,7 +89,7 @@ export class AgregarMonederoComponent implements OnInit {
       numeroSerie: ['', Validators.required],
       saldo: [null, Validators.required],
       estatus: [1, Validators.required],
-      idPasajero: [null, Validators.required],
+      idPasajero: [null],
       idCliente: [null, Validators.required],
     });
   }
@@ -116,7 +116,6 @@ export class AgregarMonederoComponent implements OnInit {
         numeroSerie: 'Número de Serie',
         saldo: 'Saldo',
         estatus: 'Estatus',
-        idPasajero: 'Pasajero',
         idCliente: 'Cliente',
       };
 
@@ -218,7 +217,6 @@ export class AgregarMonederoComponent implements OnInit {
 
       const etiquetas: any = {
         numeroSerie: 'Número de Serie',
-        idPasajero: 'Pasajero',
         idCliente: 'Cliente',
       };
 

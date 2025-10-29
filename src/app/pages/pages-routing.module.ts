@@ -43,6 +43,7 @@ const routes: Routes = [
   { path: 'tarifas', loadChildren: () => import('./tarifas/tarifas.module').then(m => m.TarifasModule)},
   { path: 'turnos', loadChildren: () => import('./turnos/turnos.module').then(m => m.TurnosModule)},
   { path: 'vista-pasajero', loadChildren: () => import('./vista-pasajero/vista-pasajero.module').then(m => m.VistaPasajeroModule)},
+  { path: 'reportes', loadChildren: () => import('./reportes/reportes.module').then(m => m.ReportesModule)},
 ];
 
 @NgModule({

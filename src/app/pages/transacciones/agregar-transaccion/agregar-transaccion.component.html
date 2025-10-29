@@ -13,7 +13,7 @@
             <form [formGroup]="transaccionForm" class="cliente-form">
                 <h6 class="section-title">Datos Generales</h6>
                 <div class="row ">
-                    <div class="col-md-3 mt-3">
+                    <div class="col-md-4 mt-3">
                         <label>Transacción</label>
                         <select class="form-control" formControlName="tipoTransaccion">
                             <option [ngValue]="null" disabled>Seleccione un tipo de transacción</option>
@@ -21,13 +21,13 @@
                             <option value="DEBITO">Débito</option>
                         </select>
                     </div>
-                    <div class="col-md-3 mt-3">
+                    <div class="col-md-4 mt-3">
                         <label>Monto</label>
                         <input type="text" class="form-control" formControlName="monto" placeholder="Ej 100.00"
                             inputmode="decimal" (keydown)="moneyKeydown($event)" (input)="moneyInput($event)"
                             (paste)="moneyPaste($event)" (blur)="moneyBlur($event)" />
                     </div>
-                    <div class="col-md-3 mt-3">
+                    <div class="col-md-4 mt-3">
                         <label>N° de Monedero</label>
                         <select class="form-control" formControlName="numeroSerieMonedero">
                             <option [ngValue]="null" disabled>Seleccione un monedero</option>
@@ -36,7 +36,7 @@
                             </option>
                         </select>
                     </div>
-                    <div class="col-md-3 mt-3">
+                    <!-- <div class="col-md-3 mt-3">
                         <label>N° de Serie de Dispositivo</label>
                         <select class="form-control" formControlName="numeroSerieDispositivo">
                             <option [ngValue]="null" disabled>Seleccione un dispositivo</option>
@@ -44,7 +44,7 @@
                                 {{ (d.numeroSerie || d.numeroserie) }}
                             </option>
                         </select>
-                    </div>
+                    </div> -->
                 </div>
                 <h6 class="section-title mt-5">Seleccione una ubicación para la transacción</h6>
                 <div class="col-md-12 mt-1">

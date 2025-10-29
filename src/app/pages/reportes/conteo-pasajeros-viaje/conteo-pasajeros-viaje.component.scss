@@ -140,3 +140,133 @@ div:where(.swal2-container) .swal2-html-container {
   border: none;
   background-color: #002136;
 }
+
+.filtros-panel {
+  background: linear-gradient(135deg, #092e3c 0%, #0e485e 100%);
+  border: 1px solid rgba(17, 89, 113, 0.8);
+  border-radius: 18px;
+  padding: 22px 26px;
+  color: #eaf3ff;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 10% 15%, rgba(15, 163, 127, 0.15), transparent 60%);
+    pointer-events: none;
+  }
+
+  .filtros-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px dashed rgba(158, 197, 254, 0.3);
+    padding-bottom: 12px;
+  }
+
+  .filtros-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #0fa37f, #0c7a61);
+    color: #fff;
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    box-shadow: 0 6px 18px rgba(15, 163, 127, 0.3);
+  }
+
+  .filtros-texto {
+    h3 {
+      font-size: 18px;
+      color: #eaf3ff;
+      margin-bottom: 2px;
+    }
+    p {
+      font-size: 13px;
+      color: #9ec5fe;
+      margin: 0;
+    }
+  }
+
+  .filtros-body label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #9ec5fe;
+    margin-bottom: 6px;
+    display: block;
+    text-shadow: 0 0 6px rgba(15, 163, 127, 0.25);
+  }
+
+  /* DevExtreme style refinements */
+  .dx-texteditor.dx-editor-filled,
+  .dx-dropdowneditor.dx-editor-filled {
+    background-color: rgba(9, 46, 60, 0.85);
+    border: 1px solid rgba(33, 102, 128, 0.9);
+    border-radius: 10px;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+  }
+
+  .dx-texteditor.dx-state-focused {
+    border-color: #0fa37f !important;
+    box-shadow: 0 0 0 3px rgba(15, 163, 127, 0.2);
+  }
+
+  .dx-texteditor-input {
+    color: #eaf3ff;
+    font-size: 14px;
+  }
+
+  .dx-placeholder::before {
+    color: #a9c8e8;
+    opacity: 0.6;
+  }
+
+  .btn-filtro {
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    border: none;
+    outline: none;
+    cursor: pointer;
+
+    i {
+      font-size: 14px;
+    }
+
+    &.limpiar {
+      background: rgba(13, 47, 65, 0.4);
+      color: #d8e9f8;
+      border: 1px solid rgba(46, 113, 132, 0.55);
+    }
+
+    &.limpiar:hover {
+      background: rgba(13, 47, 65, 0.6);
+      border-color: rgba(66, 162, 187, 0.7);
+      transform: translateY(-1px);
+    }
+
+    &.aplicar {
+      background: linear-gradient(135deg, #0fa37f, #0d7f66);
+      color: #fff;
+      box-shadow: 0 6px 14px rgba(15, 163, 127, 0.3);
+    }
+
+    &.aplicar:hover {
+      background: linear-gradient(135deg, #11b98e, #0fa37f);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(15, 163, 127, 0.4);
+    }
+  }
+}

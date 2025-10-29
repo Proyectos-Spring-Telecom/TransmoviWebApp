@@ -223,12 +223,10 @@ export class AffiliationComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.afiliacionPasajero.contains('id')) {
-      this.afiliacionPasajero.removeControl('id');
-    }
+    const { id, ...payload } = this.afiliacionPasajero.getRawValue?.() ?? this.afiliacionPasajero.value;
 
-    this.pasajService.agregarPasajeroAfiliacion(this.afiliacionPasajero.value).subscribe(
-      (response) => {
+    this.pasajService.agregarPasajeroAfiliacion(payload).subscribe(
+      () => {
         this.submitButton = 'Guardar';
         this.loading = false;
 
@@ -249,46 +247,54 @@ export class AffiliationComponent implements OnInit, OnDestroy {
           }
         });
       },
-      (err: any) => {
+      async (err) => {
         this.loading = false;
         this.submitButton = 'Guardar';
-        this.getErrorMessage(err).then((msg) => {
-          setTimeout(() => {
-            Swal.fire({
-          title: 'Código inválido o expirado',
+
+        let raw = '';
+        if (typeof err.error === 'string') {
+          raw = err.error;
+        } else if (err.error instanceof Blob || err.error instanceof ArrayBuffer) {
+          try { raw = await new Response(err.error).text(); } catch { raw = ''; }
+        } else if (err.error && typeof err.error === 'object') {
+          try { raw = JSON.stringify(err.error, null, 2); } catch { raw = String(err.error); }
+        }
+
+        if (!raw) return;
+
+        const escaped = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+        Swal.fire({
           background: '#002136',
-          text: 'Verifica el código de activación y vuelve a intentarlo. Si el problema continúa, solicita uno nuevo o contáctanos.',
+          html: `<pre style="white-space:pre-wrap; text-align:left; margin:0">${escaped}</pre>`,
           icon: 'error',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Entendido'
-        });
-          }, 200);
+          confirmButtonText: 'Cerrar'
         });
       }
     );
-
   }
+
 
   /**
    * Open Large modal
    * @param largeDataModal large modal data
    */
   private modalRef?: NgbModalRef;
-largeModal(largeDataModal: any) {
-  this.modalRef = this.modalService.open(largeDataModal, {
-    size: 'lg',
-    windowClass: 'modal-holder',
-    centered: true,
-    backdrop: 'static',
-    keyboard: false,
-  });
+  largeModal(largeDataModal: any) {
+    this.modalRef = this.modalService.open(largeDataModal, {
+      size: 'lg',
+      windowClass: 'modal-holder',
+      centered: true,
+      backdrop: 'static',
+      keyboard: false,
+    });
 
-  setTimeout(() => {
-    const first = document.querySelector('.otp-inputs .otp-box') as HTMLInputElement | null;
-    first?.focus();
-    first?.select();
-  }, 0);
-}
+    setTimeout(() => {
+      const first = document.querySelector('.otp-inputs .otp-box') as HTMLInputElement | null;
+      first?.focus();
+      first?.select();
+    }, 0);
+  }
 
 
 
@@ -351,20 +357,18 @@ largeModal(largeDataModal: any) {
         this.getErrorMessage(err).then((msg) => {
           setTimeout(() => {
             Swal.fire({
-          title: 'Código inválido o expirado',
-          background: '#002136',
-          text: 'Verifica el código de activación y vuelve a intentarlo. Si el problema continúa, solicita uno nuevo o contáctanos.',
-          icon: 'error',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Entendido'
-        });
+              title: 'Código inválido o expirado',
+              background: '#002136',
+              text: 'Verifica el código de activación y vuelve a intentarlo. Si el problema continúa, solicita uno nuevo o contáctanos.',
+              icon: 'error',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'Entendido'
+            });
           }, 200);
         });
       }
     });
   }
-
-  // ===================== NUEVO: Lógica OTP y Reenvío =====================
 
   onOtpInput(e: Event, i: number) {
     const input = e.target as HTMLInputElement;
@@ -372,21 +376,18 @@ largeModal(largeDataModal: any) {
     input.value = v;
     this.otp[i] = v;
 
-    // ---- salto usando hermano siguiente (funciona sin @ViewChildren) ----
     if (v && i < 3) {
       const sib = input.nextElementSibling as HTMLInputElement | null;
       if (sib && sib.classList.contains('otp-box')) {
         sib.focus();
         sib.select();
       } else {
-        // fallback a @ViewChildren por si ya está disponible
         const next = this.otpInputs?.get(i + 1)?.nativeElement;
         next?.focus();
         next?.select();
       }
     }
 
-    // cuando hay 4 dígitos, actualiza el form oculto
     if (this.otp.join('').length === 4) {
       this.verifyForm.patchValue({ codigo: this.otp.join('') }, { emitEvent: false });
     }
@@ -395,7 +396,6 @@ largeModal(largeDataModal: any) {
   onOtpKeydown(e: KeyboardEvent, i: number) {
     const input = e.target as HTMLInputElement;
 
-    // backspace: si está vacío, ve al anterior
     if (e.key === 'Backspace' && !input.value && i > 0) {
       const prev = input.previousElementSibling as HTMLInputElement | null;
       if (prev && prev.classList.contains('otp-box')) {
@@ -409,7 +409,6 @@ largeModal(largeDataModal: any) {
       return;
     }
 
-    // bloquea caracteres no numéricos
     if (!/^\d$/.test(e.key) && e.key !== 'Backspace' && e.key.length === 1) {
       e.preventDefault();
     }
@@ -429,7 +428,6 @@ largeModal(largeDataModal: any) {
     }, 1000);
   }
 
-  // Click del botón "Verificar" del modal
   onVerify() {
     const code = this.otp.join('');
     this.verifyForm.patchValue({ codigo: code }, { emitEvent: false });
@@ -438,7 +436,6 @@ largeModal(largeDataModal: any) {
     this.Verify();
   }
 
-  // Click del botón "Reenviar código" del modal
   onResend() {
     if (this.resendDisabled) return;
     const payload = this.afiliacionPasajero.value;
@@ -456,7 +453,7 @@ largeModal(largeDataModal: any) {
       event.preventDefault();
     }
   }
-  
+
   private async getErrorMessage(err: any): Promise<string> {
     if (err?.status === 0 && !err?.error) {
       return 'No hay conexión con el servidor (status 0). Verifica tu red.';

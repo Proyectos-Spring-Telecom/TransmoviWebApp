@@ -190,14 +190,14 @@ export class AltaClientesComponent implements OnInit {
       municipio: ['', Validators.required],
       colonia: ['', Validators.required],
       calle: ['', Validators.required],
-      entreCalles: ['', Validators.required],
+      entreCalles: [null],
       numeroExterior: ['', Validators.required],
-      numeroInterior: ['', Validators.required],
+      numeroInterior: [''],
       cp: ['', Validators.required],
       nombreEncargado: ['', Validators.required],
       telefonoEncargado: ['', Validators.required],
       correoEncargado: ['', [Validators.required, Validators.email]],
-      sitioWeb: ['', Validators.required],
+      sitioWeb: [null],
     });
   }
 
@@ -261,12 +261,10 @@ export class AltaClientesComponent implements OnInit {
         calle: 'Calle',
         entreCalles: 'Entre Calles',
         numeroExterior: 'Número Exterior',
-        numeroInterior: 'Número Interior',
         cp: 'Código Postal',
         nombreEncargado: 'Nombre del Encargado',
         telefonoEncargado: 'Teléfono del Encargado',
         correoEncargado: 'Email del Encargado',
-        sitioWeb: 'Sitio Web',
       };
 
       const camposFaltantes: string[] = [];
@@ -378,12 +376,10 @@ export class AltaClientesComponent implements OnInit {
         calle: 'Calle',
         entreCalles: 'Entre Calles',
         numeroExterior: 'Número Exterior',
-        numeroInterior: 'Número Interior',
         cp: 'Código Postal',
         nombreEncargado: 'Nombre del Encargado',
         telefonoEncargado: 'Teléfono del Encargado',
         correoEncargado: 'Email del Encargado',
-        sitioWeb: 'Sitio Web',
       };
 
       const camposFaltantes: string[] = [];

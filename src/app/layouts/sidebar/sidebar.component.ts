@@ -23,6 +23,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
   menu: any;
   public permisos = [];
   menuItems = [];
+  public showRol: any;
   @ViewChild('sideMenu') sideMenu: ElementRef;
   @ViewChild('componentRef') scrollRef;
 
@@ -48,10 +49,15 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
     this._scrollElement();
 
     const user = this.user.getUser();
+
+    if(user.rol.nombre == 'Pasajeros'){
+      this.showRol = true
+    } else{
+      this.showRol = false;
+    }
+
     this.permisos = (this.authService.getPermissions() || [])
       .map((p: any) => (typeof p === 'object' ? p.idPermiso : p).toString().trim());
-
-    // console.log('Permisos normalizados:', this.permisos);
   }
 
   ngAfterViewInit() {

@@ -703,6 +703,38 @@ $u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
   color: #f5d4d4;
 }
 
+.estatus-disponible {
+  background-color: #256d3a;
+  border: 1px solid #1e5a2f;
+  color: #d4f5dc;
+}
+.estatus-asignado {
+  background-color: #1f4f7a;
+  border: 1px solid #173d5f;
+  color: #d4e6f5;
+}
+.estatus-mantenimiento {
+  background-color: #8a5a00;
+  border: 1px solid #704800;
+  color: #fff4d6;
+}
+.estatus-danado {
+  background-color: #7a1f1f;
+  border: 1px solid #611818;
+  color: #f5d4d4;
+}
+.estatus-retirado {
+  background-color: #5a5a5a;
+  border: 1px solid #444;
+  color: #ececec;
+}
+.estatus-inactivo {
+  background-color: #7a1f1f;
+  border: 1px solid #611818;
+  color: #f5d4d4;
+}
+
+
 $u-bg: #0b2633;
 $u-card: #0f3a43;
 $u-card-2: #0f544f;

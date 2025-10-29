@@ -92,61 +92,67 @@ export class ListaMonederosComponent implements OnInit {
     this.route.navigateByUrl('/monederos/agregar-monedero')
   }
 
-  obtenerMonederos() {
-    this.loading = true;
-    this.listaMonederos = new CustomStore({
-      key: 'id',
-      load: async (loadOptions: any) => {
-        const take = Number(loadOptions?.take) || this.pageSize || 10;
-        const skip = Number(loadOptions?.skip) || 0;
-        const page = Math.floor(skip / take) + 1;
-        try {
-          const resp: any = await lastValueFrom(
-            this.moneService.obtenerMonederosData(page, take)
-          );
-          this.loading = false;
-          const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
-          const meta = resp?.paginated || {};
-          const totalRegistros =
-            toNum(meta.total) ??
-            toNum(resp?.total) ??
-            rows.length;
+obtenerMonederos() {
+  this.loading = true;
+  this.listaMonederos = new CustomStore({
+    key: 'id',
+    load: async (loadOptions: any) => {
+      const take = Number(loadOptions?.take) || this.pageSize || 10;
+      const skip = Number(loadOptions?.skip) || 0;
+      const page = Math.floor(skip / take) + 1;
 
-          const paginaActual =
-            toNum(meta.page) ??
-            toNum(resp?.page) ??
-            page;
-          const totalPaginas =
-            toNum(meta.lastPage) ??
-            toNum(resp?.pages) ??
-            Math.max(1, Math.ceil(totalRegistros / take));
-          const dataTransformada = rows.map((item: any) => ({
-            ...item,
-            estatusTexto:
-              item?.estatus === 1 ? 'Activo' :
-                item?.estatus === 0 ? 'Inactivo' : null
-          }));
-          this.totalRegistros = totalRegistros;
-          this.paginaActual = paginaActual;
-          this.totalPaginas = totalPaginas;
-          this.paginaActualData = dataTransformada;
+      try {
+        const resp: any = await lastValueFrom(
+          this.moneService.obtenerMonederosData(page, take)
+        );
+        this.loading = false;
+
+        const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
+        const meta = resp?.paginated || {};
+
+        const totalRegistros = toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
+        const paginaActual   = toNum(meta.page) ?? toNum(resp?.page) ?? page;
+        const totalPaginas   = toNum(meta.lastPage) ?? toNum(resp?.pages) ??
+                               Math.max(1, Math.ceil(totalRegistros / take));
+
+        const dataTransformada = rows.map((item: any) => {
+          const nombre = [
+            item?.pasajeroNombre,
+            item?.pasajeroApellidoPaterno,
+            item?.pasajeroApellidoMaterno
+          ].filter(Boolean).join(' ').trim();
+
           return {
-            data: dataTransformada,
-            totalCount: totalRegistros
+            ...item,
+            // Texto de estatus
+            estatusTexto: item?.estatus === 1 ? 'Activo'
+                         : item?.estatus === 0 ? 'Inactivo'
+                         : null,
+            // Campo que engloba nombre y fallback
+            pasajeroCompleto: nombre || 'sin registro',
           };
-        } catch (err) {
-          this.loading = false;
-          console.error('Error en la solicitud de datos:', err);
-          return { data: [], totalCount: 0 };
-        }
-      }
-    });
+        });
 
-    function toNum(v: any): number | null {
-      const n = Number(v);
-      return Number.isFinite(n) ? n : null;
+        this.totalRegistros  = totalRegistros;
+        this.paginaActual    = paginaActual;
+        this.totalPaginas    = totalPaginas;
+        this.paginaActualData = dataTransformada;
+
+        return { data: dataTransformada, totalCount: totalRegistros };
+      } catch (err) {
+        this.loading = false;
+        console.error('Error en la solicitud de datos:', err);
+        return { data: [], totalCount: 0 };
+      }
     }
+  });
+
+  function toNum(v: any): number | null {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
   }
+}
+
 
   onGridOptionChanged(e: any) {
     if (e.fullName !== 'searchPanel.text') return;

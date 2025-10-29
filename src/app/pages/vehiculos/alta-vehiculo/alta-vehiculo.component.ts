@@ -189,13 +189,17 @@ obtenerVehiculoID() {
       this.submitButton = 'Guardar';
       this.loading = false;
       const etiquetas: any = {
-        Marca: 'Marca',
-        Modelo: 'Modelo',
-        Ano: 'Año',
-        Placa: 'Placa',
-        NumeroEconomico: 'Número Económico',
-        IdOperador: 'Operador',
-        idVehiculo: 'Dispositivo',
+        marca: 'Marca',
+        modelo: 'Modelo',
+        ano: 'Año',
+        placa: 'Placa',
+        idCliente: 'Cliente',
+        foto: 'Foto del Vehículo',
+        numeroEconomico: 'Número Económico',
+        tarjetaCirculacion: 'Tarjeta de Circulación',
+        polizaSeguro: 'Póliza de Seguro',
+        permisoConcesion: 'Permiso de Concesión',
+        inspeccionMecanica: 'Inspección Mecánica',
       };
 
       const camposFaltantes: string[] = [];
@@ -275,13 +279,17 @@ obtenerVehiculoID() {
       this.submitButton = 'Guardar';
       this.loading = false;
       const etiquetas: any = {
-        Marca: 'Marca',
-        Modelo: 'Modelo',
-        Ano: 'Año',
-        Placa: 'Placa',
-        NumeroEconomico: 'Número Económico',
-        IdOperador: 'Operador',
-        idVehiculo: 'Dispositivo',
+        marca: 'Marca',
+        modelo: 'Modelo',
+        ano: 'Año',
+        placa: 'Placa',
+        idCliente: 'Cliente',
+        foto: 'Foto del Vehículo',
+        numeroEconomico: 'Número Económico',
+        tarjetaCirculacion: 'Tarjeta de Circulación',
+        polizaSeguro: 'Póliza de Seguro',
+        permisoConcesion: 'Permiso de Concesión',
+        inspeccionMecanica: 'Inspección Mecánica',
       };
 
       const camposFaltantes: string[] = [];

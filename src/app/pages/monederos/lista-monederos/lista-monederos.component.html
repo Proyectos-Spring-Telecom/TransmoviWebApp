@@ -42,7 +42,8 @@
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="200"></dxi-column>
+                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center"
+                                [width]="200"></dxi-column>
                             <dxi-column dataField="numeroSerie" caption="NumeroSerie" alignment="center"></dxi-column>
                             <dxi-column dataField="fechaActivacion" caption="Fecha Activación" alignment="center"
                                 cellTemplate="fecActi">
@@ -50,21 +51,16 @@
                                     {{ a.data.fechaActivacion | date: 'dd/MM/yyyy' : '+0000' }}
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="saldo" caption="Saldo" alignment="center" dataType="string" cellTemplate="sald">
+                            <dxi-column dataField="saldo" caption="Saldo" alignment="center" dataType="string"
+                                cellTemplate="sald">
                                 <div *dxTemplate="let f of 'sald' ">
                                     {{f.data.saldo | currency: '$'}}
                                 </div>
                             </dxi-column>
-                            <dxi-column caption="Pasajero" alignment="center" cellTemplate="psaj">
-                                <div *dxTemplate="let f of 'psaj' ">
-                                    <ng-container
-                                    *ngIf="f?.pasajeroNombre || f?.pasajeroApellidoPaterno || f?.pasajeroApellidoMaterno; else sinRegistro">
-                                    {{ f?.pasajeroNombre || '' }} {{ f?.pasajeroApellidoPaterno || '' }} {{ f?.pasajeroApellidoMaterno ||
-                                    '' }}
-                                    </ng-container>
-                                    <ng-template #sinRegistro>sin registro</ng-template>
-                                </div>
+                            <dxi-column dataField="pasajeroCompleto" caption="Pasajero" alignment="center"
+                                dataType="string">
                             </dxi-column>
+
                             <dxi-column caption="Cliente" alignment="center" cellTemplate="clien">
                                 <div *dxTemplate="let f of 'clien'">
                                     {{ f.data.clienteNombre || ' ' }} {{ f.data.clienteApellidoPaterno || ' ' }} {{
@@ -81,16 +77,14 @@
                                 <div>
                                     <button
                                         (click)="centerModalRecarga(centerDataModalRecarga, monedero.data.id, monedero.data.numeroSerie, monedero.data.saldo, monedero.data.idCliente, monedero.data.idPasajero)"
-                                        class="btnAcciones btnRecargar"
-                                        type="button" placement="top" role="button">
+                                        class="btnAcciones btnRecargar" type="button" placement="top" role="button">
                                         <i class="fa fa-plus"></i>
                                     </button>
                                 </div>
                                 <div>
                                     <button [disabled]="monedero.data.saldo === 0"
                                         (click)="centerModalDebito(centerDataModalDebito, monedero.data.id, monedero.data.numeroSerie, monedero.data.saldo, monedero.data.idCliente, monedero.data.idPasajero)"
-                                        class="btnAcciones btnDebito" type="button"
-                                        placement="top" role="button">
+                                        class="btnAcciones btnDebito" type="button" placement="top" role="button">
                                         <i class="fa fa-minus"></i>
                                     </button>
                                 </div>
