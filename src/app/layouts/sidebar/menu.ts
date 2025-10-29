@@ -225,7 +225,7 @@ export const MENU: MenuItem[] = [
     {
         id: 116,
         label: 'Recaudación Disp/Inst.',
-        icon: 'uil-cpu',
+        icon: 'uil-plug',
         link: '/reportes/recaudacion-dispositivoInstalacion',
     },
     {
