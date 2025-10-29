@@ -67,7 +67,7 @@ dsPasajerosPorHora = [
     'BlueVoxs - Contadores',
     'Derroteros - Variantes',
     'Dispositivos - Validadores',
-    'Pin - Codigo',
+    'Pin',
     'Regiones - Zonas'
   ];
 

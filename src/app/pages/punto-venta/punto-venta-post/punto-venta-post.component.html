@@ -57,7 +57,7 @@
                     <div class="kv-content">
                       <div class="k">Pasajero</div>
                       <div class="v">
-                        {{ monederoSeleccionado?.pasajeroNombre }}
+                        {{ monederoSeleccionado?.pasajeroNombre || 'Sin registro' }}
                         {{ monederoSeleccionado?.pasajeroApellidoPaterno || '' }}
                         {{ monederoSeleccionado?.pasajeroApellidoMaterno || '' }}
                       </div>
@@ -149,8 +149,9 @@
                                   <span class="avatar-text">{{ m.id }}</span>
                                 </div>
                                 <div class="meta">
-                                  <div class="title">{{ m?.pasajeroNombre }} {{ m?.pasajeroApellidoPaterno || ' ' }} {{
-                                    m?.pasajeroApellidoMaterno || ' ' }}</div>
+                                  <div class="title">
+                                    {{ m?.pasajeroNombre || 'Sin registro' }} {{ m?.pasajeroApellidoPaterno || ' ' }} {{ m?.pasajeroApellidoMaterno || ' ' }}
+                                  </div>
                                   <div class="sub">Cliente · <b>{{ m?.clienteNombre }} {{ m?.clienteApellidoPaterno || '
                                       ' }} {{ m?.clienteApellidoMaterno || ' ' }}</b></div>
                                 </div>
@@ -260,9 +261,11 @@
                       </div>
                       <div>
                         <small>Pasajero:&nbsp;</small>
-                        <strong>{{ monederoSeleccionado.pasajeroNombre }} {{
-                          monederoSeleccionado.pasajeroApellidoPaterno || ' ' }} {{
-                          monederoSeleccionado.pasajeroApellidoMaterno || ' ' }}</strong>
+                        <strong>
+                          {{ monederoSeleccionado.pasajeroNombre || 'Sin registro' }} 
+                          {{ monederoSeleccionado.pasajeroApellidoPaterno || ' ' }} 
+                          {{ monederoSeleccionado.pasajeroApellidoMaterno || ' ' }}
+                        </strong>
                       </div>
                       <div>
                         <small>Cliente:&nbsp;</small>
