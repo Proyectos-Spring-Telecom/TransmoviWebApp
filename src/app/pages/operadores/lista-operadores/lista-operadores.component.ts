@@ -274,7 +274,7 @@ onGridOptionChanged(e: any) {
   activar(rowData: any) {
     Swal.fire({
       title: '¡Activar!',
-      html: `¿Está seguro que requiere activar el operador: <br> <strong>${rowData.idUsuario2.nombre} ${rowData.idUsuario2.apellidoPaterno}</strong>?`,
+      html: `¿Está seguro que requiere activar el operador: <br> <strong>${rowData.nombreUsuario} ${rowData.apellidoPaternoUsuario} ${rowData.apellidoMaternoUsuario}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -317,7 +317,7 @@ onGridOptionChanged(e: any) {
   desactivar(rowData: any) {
     Swal.fire({
       title: '¡Desactivar!',
-      html: `¿Está seguro que requiere desactivar el operador: <br> <strong>${rowData.idUsuario2.nombre} ${rowData.idUsuario2.apellidoPaterno}</strong></strong>?`,
+      html: `¿Está seguro que requiere desactivar el operador: <br> <strong>${rowData.nombreUsuario} ${rowData.apellidoPaternoUsuario} ${rowData.apellidoMaternoUsuario}</strong></strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
