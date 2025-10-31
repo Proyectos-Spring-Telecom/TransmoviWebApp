@@ -43,7 +43,7 @@
                                                     <i class="fa fa-money"></i>
                                                 </div>
                                                 <div class="mini-label">Última recarga</div>
-                                                <div class="mini-value">{{informacion.UltimaRecarga | currency: '$'}} </div>
+                                                <div class="mini-value">{{(informacion.UltimaRecarga | currency: '$') || 'Sin recargas' }} </div>
                                             </div>
                                         </div>
                                     </div>
@@ -128,9 +128,6 @@
                                                 alignment="center" cellTemplate="estTx"></dxi-column>
                                             <dxi-column dataField="numeroSerieMonedero" caption="N° Serie de Monedero"
                                                 alignment="center"></dxi-column>
-                                            <dxi-column dataField="numeroSerieDispositivo"
-                                                caption="N° Serie Dispositivo" alignment="center"
-                                                cellTemplate="numDisposiTx"></dxi-column>
 
                                             <div *dxTemplate="let a of 'fecActiTx'">
                                                 {{ a.data.fhRegistro | date:'dd/MM/yyyy HH:mm' : '+0000' }}

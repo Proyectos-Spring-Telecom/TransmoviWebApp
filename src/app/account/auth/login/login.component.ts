@@ -86,7 +86,6 @@ export class LoginComponent implements OnInit {
 
   get f() { return this.loginForm.controls; }
 
-
   onSubmit() {
     this.loading = true;
     this.textLogin = 'Cargando...';
@@ -98,8 +97,8 @@ export class LoginComponent implements OnInit {
       catchError((error) => {
         this.loading = false;
         this.textLogin = 'Iniciar Sesión';
-        this.toastr.error("Usuario y/o contraseña incorrectos");
-        return throwError(() => "");
+        this.toastr.error('Usuario y/o contraseña incorrectos');
+        return throwError(() => '');
       })
     ).subscribe((result: any) => {
       setTimeout(() => {
@@ -109,8 +108,15 @@ export class LoginComponent implements OnInit {
         this.auth.setData(result);
         console.log('Permisos normalizados:', this.auth.getPermissions());
 
-        this.router.navigate(['/']);
-        this.toastr.success(`Bienvenido al Sistema`, '¡Operación Exitosa!');
+        let target = '/contacts/profile';
+        if ((result?.rol?.nombre ?? '').trim().toLowerCase() === 'pasajeros') {
+          target = '/vista-pasajero';
+        } else if (permisosIds.includes('100')) {
+          target = '/';
+        }
+
+        this.router.navigate([target]);
+        this.toastr.success('Bienvenido al Sistema', '¡Operación Exitosa!');
         this.loading = false;
         this.textLogin = 'Iniciar Sesión';
       }, 700);
