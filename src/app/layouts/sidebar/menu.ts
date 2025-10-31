@@ -208,6 +208,7 @@ export const MENU: MenuItem[] = [
         id: 116,
         label: 'Recaudación Día',
         icon: 'uil-calendar-alt',
+        permiso: Permiso.Consultar_Reportes,
         link: '/reportes/recaudacion-diaria-ruta',
     },
     {
@@ -215,24 +216,28 @@ export const MENU: MenuItem[] = [
         label: 'Recaudación Operador',
         icon: 'uil-user-check',
         link: '/reportes/recaudacion-operador',
+        permiso: Permiso.Consultar_Reportes,
     },
     {
         id: 116,
         label: 'Recaudación Vehículo',
         icon: 'uil-car-sideview',
         link: '/reportes/recaudacion-vehiculo',
+        permiso: Permiso.Consultar_Reportes,
     },
     {
         id: 116,
         label: 'Recaudación Disp/Inst.',
         icon: 'uil-plug',
         link: '/reportes/recaudacion-dispositivoInstalacion',
+        permiso: Permiso.Consultar_Reportes,
     },
     {
         id: 116,
         label: 'Recaudación Detalladas',
         icon: 'uil-list-ul',
         link: '/reportes/recaudacion-detalladas',
+        permiso: Permiso.Consultar_Reportes,
     },
 
     // {

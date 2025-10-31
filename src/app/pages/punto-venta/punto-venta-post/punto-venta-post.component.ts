@@ -95,47 +95,27 @@ export class PuntoVentaPostComponent implements OnInit {
     this.aplicarPaginacion();
   }
 
-obtenerMonerderos() {
-  this.moneService.obtenerMonederos().subscribe({
-    next: (response: any) => {
-      this.listaMonederos = response?.data ?? [];
-      setTimeout(() => Swal.close(), 600);
-    },
-    error: (err: HttpErrorResponse) => {
-      this.loading = false;
-      this.submitButton = 'Confirmar';
-      // NO cerramos antes de mostrar
-      const show = (txt: string) => {
-        Swal.fire({
-          title: '¡Ops!',
-          text: txt ?? 'Ocurrio un error al mostrar los monederos.',
-          icon: 'warning',
-          background: '#002136',
-          confirmButtonColor: '#3085d6'
-        });
-      };
+  public mensajeMonederos: string = '';
 
-      const e: any = err?.error;
-
-      if (e instanceof Blob) {
-        e.text().then(show).catch(() => show(err.statusText || ''));
-        return;
+  obtenerMonerderos() {
+    this.mensajeMonederos = '';
+    this.moneService.obtenerMonederos().subscribe({
+      next: (response: any) => {
+        this.listaMonederos = response?.data ?? [];
+        if (!this.listaMonederos.length) this.mensajeMonederos = 'No se encontraron monederos.';
+        setTimeout(() => Swal.close(), 600);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.loading = false;
+        this.submitButton = 'Confirmar';
+        setTimeout(() => Swal.close(), 0);
+        this.listaMonederos = [];
+        this.mensajeMonederos = err.status === 404
+          ? 'No se encontraron monederos.'
+          : 'No se encontraron monederos para realizar una recarga.';
       }
-
-      if (e instanceof ArrayBuffer) {
-        try { show(new TextDecoder('utf-8').decode(e)); }
-        catch { show(err.statusText || ''); }
-        return;
-      }
-
-      if (typeof e === 'string') { show(e); return; }
-
-      if (e && typeof e === 'object') { show(JSON.stringify(e)); return; }
-
-      show(err.statusText || '');
-    }
-  });
-}
+    });
+  }
 
   private async getErrorMessage(err: any): Promise<string> {
     if (err?.status === 0 && !err?.error)

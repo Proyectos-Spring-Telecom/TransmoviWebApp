@@ -24,7 +24,7 @@ export class AltaClientesComponent implements OnInit {
   public listaClientes: any[] = [];
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
-  public showRol: any;
+  // public showRol: any;
 
   constructor(
     private fb: FormBuilder,
@@ -35,12 +35,12 @@ export class AltaClientesComponent implements OnInit {
     private usuaService: UsuariosService,
     private users: AuthenticationService,
   ) {
-    const user = this.users.getUser();
-    if(user.rol.nombre == 'SA' ){
-      this.showRol = true;
-    } else {
-      this.showRol = false;
-    }
+    // const user = this.users.getUser();
+    // if(user.rol.nombre == 'SA' ){
+    //   this.showRol = true;
+    // } else {
+    //   this.showRol = false;
+    // }
   }
 
   ngOnInit(): void {
