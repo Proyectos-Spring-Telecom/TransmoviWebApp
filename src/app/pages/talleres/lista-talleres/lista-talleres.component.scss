@@ -1,0 +1,303 @@
+.total-registros-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #f7fb06;
+  padding: 8px 15px;
+  border-radius: 5px;
+  background-color: #002136;
+  display: inline-block;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.data {
+  min-width: 1000px;
+}
+
+.header-dispositivos {
+  text-align: center;
+  background-color: #00836d;
+  padding: 20px;
+}
+
+.header-dispositivos i {
+  font-size: 30px;
+  color: #09fa3a;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.titulo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.subtitulo {
+  font-size: 14px;
+  color: #fff;
+  margin-top: 5px;
+}
+
+::ng-deep .swal2-container .swal2-title {
+  font-size: 24px;
+  font-weight: 200;
+  color: #ffffff;
+}
+
+.swal2-container .swal2-title {
+  font-size: 24px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+::ng-deep div:where(.swal2-container) .swal2-html-container {
+  z-index: 1;
+  justify-content: center;
+  margin: 1em 1.6em .3em;
+  padding: 0;
+  overflow: auto;
+  color: #c8c8c8;
+  font-size: 1.125em;
+  font-weight: normal;
+  line-height: normal;
+  text-align: center;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+div:where(.swal2-container) .swal2-html-container {
+  z-index: 1;
+  justify-content: center;
+  margin: 1em 1.6em .3em;
+  padding: 0;
+  overflow: auto;
+  color: #c8c8c8;
+  font-size: 1.125em;
+  font-weight: normal;
+  line-height: normal;
+  text-align: center;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+
+
+::ng-deep .dx-searchbox .dx-texteditor-input {
+  --radii: 2.0em;
+  cursor: pointer;
+  min-height: 38px;
+  font-size: var(--size, 14px);
+  font-weight: 500;
+  transition: 0.8s;
+  background-size: 280% auto;
+  background-color: #0a66c2;
+  border: none;
+}
+
+::ng-deep .dx-searchbox .dx-texteditor-input:hover {
+  background-position: right top;
+}
+
+::ng-deep .dx-searchbox .dx-texteditor-input:is(:focus, :focus-visible, :active) {
+  outline: none;
+  box-shadow:
+    0 0 0 0px var(--btn-bg-color),
+    0 0 0 0px var(--btn-bg-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dx-searchbox .dx-texteditor-input {
+    transition: linear;
+  }
+}
+
+::ng-deep .dx-icon-clear:before {
+  color: white;
+}
+
+::ng-deep .dx-icon-search:before {
+  color: white !important;
+}
+
+::ng-deep .dx-searchbox .dx-placeholder::before,
+.dx-searchbox .dx-texteditor-input,
+.dx-searchbox.dx-editor-underlined .dx-texteditor-buttons-container+.dx-texteditor-input-container .dx-texteditor-input,
+.dx-searchbox.dx-editor-underlined .dx-texteditor-input {
+  padding-inline-start: 34px;
+  color: white;
+}
+
+.button-18 {
+  margin-top: 1%;
+  align-items: center;
+  background-color: #0A66C2;
+  border: 0;
+  border-radius: 100px;
+  box-sizing: border-box;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  justify-content: center;
+  line-height: 20px;
+  width: 20%;
+  height: 40%;
+  min-width: 0px;
+  overflow: hidden;
+  padding: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+  touch-action: manipulation;
+  transition: background-color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, box-shadow 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+}
+
+.button-18:hover,
+.button-18:focus {
+  background-color: #16437E;
+  color: #ffffff;
+}
+
+.button-18:active {
+  background: #09223b;
+  color: rgb(255, 255, 255, .7);
+}
+
+.button-18:disabled {
+  cursor: not-allowed;
+  background: rgba(0, 0, 0, .08);
+  color: rgba(0, 0, 0, .3);
+}
+
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  border: none;
+  background-color: #002136;
+}
+
+
+.estatus {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 80px;
+  text-align: center;
+  color: #fff;
+}
+
+.estatus-activo {
+  background: linear-gradient(90deg, #0f9d58, #00c853);
+  border: 1px solid #1e5a2f;
+  color: #d4f5dc;
+}
+
+.estatus-inactivo {
+  background: linear-gradient(90deg, #d32f2f, #ff5252);
+  border: 1px solid #611818;
+  color: #f5d4d4;
+}
+
+.tx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .375rem .75rem;
+  border-radius: 999px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  line-height: 1;
+  user-select: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .25);
+}
+
+.tx-badge--recarga {
+  color: #eafff1;
+  background: linear-gradient(90deg, #0f9d58, #00c853);
+  box-shadow: 0 0 20px rgba(0, 200, 83, .45), inset 0 0 12px rgba(255, 255, 255, .15);
+}
+
+.tx-badge--debito {
+  color: #ffecec;
+  background: linear-gradient(90deg, #d32f2f, #ff5252);
+  box-shadow: 0 0 20px rgba(211, 47, 47, .45), inset 0 0 12px rgba(255, 255, 255, .15);
+}
+
+.tx-text {
+  font-size: .85rem;
+}
+
+.tx-dot {
+  width: .5rem;
+  height: .5rem;
+  border-radius: 50%;
+  position: relative;
+  flex: 0 0 auto;
+  animation: tx-pulse 1.6s infinite;
+  box-shadow: 0 0 0 0 currentColor;
+}
+
+.tx-dot--recarga {
+  background: #b9ffcd;
+  color: rgba(0, 200, 83, .6);
+}
+
+.tx-dot--debito {
+  background: #ffc2c2;
+  color: rgba(211, 47, 47, .6);
+}
+
+@keyframes tx-pulse {
+  0% {
+    box-shadow: 0 0 0 0 currentColor;
+  }
+
+  70% {
+    box-shadow: 0 0 0 .5rem transparent;
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.card-header.tx-h--recarga {
+  background: linear-gradient(90deg, #0f9d58, #00c853) !important;
+  box-shadow: 0 0 20px rgba(0, 200, 83, .35);
+}
+
+.card-header.tx-h--debito {
+  background: linear-gradient(90deg, #d32f2f, #ff5252) !important;
+  box-shadow: 0 0 20px rgba(211, 47, 47, .35);
+}
+
+.textPrimary {
+  color: #c8c8c8;
+  font-weight: 400;
+}
+
+.badge-recarga {
+  background-color: #0f9d58;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-debito {
+  background-color: #d32f2f;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}

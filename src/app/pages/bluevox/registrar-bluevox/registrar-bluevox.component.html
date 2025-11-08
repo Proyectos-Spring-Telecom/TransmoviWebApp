@@ -19,21 +19,21 @@
                     <div class="col-md-4">
                         <label>Número de Serie</label>
                         <input type="text" class="form-control" formControlName="numeroSerie"
-                            placeholder="Ej: 41f170e5dafc640e">
+                            placeholder="41f170e5dafc640e">
                     </div>
                     <div class="col-md-4">
                         <label>Marca</label>
                         <input type="text" class="form-control" formControlName="marca"
-                            placeholder="Ej: Zebra">
+                            placeholder="Zebra">
                     </div>
                     <div class="col-md-4">
                         <label>Módelo</label>
                         <input type="text" class="form-control" formControlName="modelo"
-                            placeholder="Ej: ZQ520">
+                            placeholder="ZQ520">
                     </div>
                     <div class="col-md-4 mt-3">
                         <label>Cliente</label>
-                        <select class="form-control" formControlName="idCliente" [disabled]="!isAdmin">
+                        <select class="form-select" formControlName="idCliente">
                             <option [ngValue]="null" disabled>Seleccione un cliente</option>
                             <option *ngFor="let cliente of listaClientes" [ngValue]="cliente.id">
                                 {{ cliente.nombre }} {{ cliente.apellidoPaterno }} {{ cliente.apellidoMaterno }}

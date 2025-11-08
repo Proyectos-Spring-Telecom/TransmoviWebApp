@@ -78,12 +78,19 @@
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
                             </div>
-                            <dxi-column dataField="numeroLicencia" caption="Número de Licencia" [width]="150" alignment="center" dataType="string"></dxi-column>
-                            <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center" dataType="string" [width]="320"></dxi-column>
-                            <dxi-column dataField="userNameUsuario" caption="Correo Electrónico" alignment="center" dataType="string"></dxi-column>
-                            <dxi-column dataField="telefonoUsuario" caption="Teléfono" alignment="center" dataType="string"></dxi-column>
-                            <dxi-column dataField="FechaNacimientoTexto" caption="Fecha de Nacimiento" alignment="center" dataType="string" [width]="150"></dxi-column>
-                            <dxi-column dataField="EstatusTexto" caption="Estatus" alignment="center" dataType="string" [width]="150" cellTemplate="est"></dxi-column>
+                            <dxi-column dataField="numeroLicencia" caption="Número de Licencia" [width]="150"
+                                alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center" dataType="string"
+                                [width]="320"></dxi-column>
+                            <dxi-column dataField="userNameUsuario" caption="Correo Electrónico" alignment="center"
+                                dataType="string"></dxi-column>
+                            <dxi-column dataField="telefonoUsuario" caption="Teléfono" alignment="center"
+                                dataType="string"></dxi-column>
+                            <dxi-column dataField="" caption="Vigencias" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="FechaNacimientoTexto" caption="Fecha de Nacimiento"
+                                alignment="center" dataType="string" [width]="150"></dxi-column>
+                            <dxi-column dataField="EstatusTexto" caption="Estatus" alignment="center" dataType="string"
+                                [width]="150" cellTemplate="est"></dxi-column>
                             <div *dxTemplate="let f of 'est'">
                                 <span *ngIf="(f.data.EstatusNumber ?? f.data.estatus) === 1"
                                     class="estatus estatus-activo">Activo</span>
@@ -141,14 +148,14 @@
         <ng-container *ngIf="!pdfError; else pdfErrorTpl">
             <br>
             <!-- PDF -->
-<div class="pdf-frame" *ngIf="!pdfError && !pdfIsImage && pdfUrlSafe" [class.is-loading]="pdfLoading">
-  <iframe class="pdf-iframe" [src]="pdfUrlSafe" (load)="onPdfLoaded()"></iframe>
-</div>
+            <div class="pdf-frame" *ngIf="!pdfError && !pdfIsImage && pdfUrlSafe" [class.is-loading]="pdfLoading">
+                <iframe class="pdf-iframe" [src]="pdfUrlSafe" (load)="onPdfLoaded()"></iframe>
+            </div>
 
-<!-- Imagen -->
-<div class="pdf-frame" *ngIf="!pdfError && pdfIsImage && imgSrc" [class.is-loading]="pdfLoading">
-  <img class="pdf-image" [src]="imgSrc" alt="Vista previa" (load)="onImgLoaded()" (error)="onImgError()">
-</div>
+            <!-- Imagen -->
+            <div class="pdf-frame" *ngIf="!pdfError && pdfIsImage && imgSrc" [class.is-loading]="pdfLoading">
+                <img class="pdf-image" [src]="imgSrc" alt="Vista previa" (load)="onImgLoaded()" (error)="onImgError()">
+            </div>
 
 
             <div class="pdf-actions">

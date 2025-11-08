@@ -55,6 +55,115 @@ export class AgregarTarifaComponent implements OnInit {
     return isNaN(n) ? null : n;
   }
 
+  onTarifaFocus(): void {
+    const c = this.tarifaForm.get('tarifaBase');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9.,-]/g, '').replace(',', '.'));
+  }
+
+  onTarifaBlur(): void {
+    const c = this.tarifaForm.get('tarifaBase');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9.-]/g, '');
+    const num = parseFloat(raw);
+    if (isNaN(num)) { c.setValue(''); return; }
+    c.setValue(`$${num.toFixed(2)}`);
+  }
+
+  onCostoFocus(): void {
+    const c = this.tarifaForm.get('costoAdicional');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9.,-]/g, '').replace(',', '.'));
+  }
+
+  onCostoBlur(): void {
+    const c = this.tarifaForm.get('costoAdicional');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9.-]/g, '');
+    const num = parseFloat(raw);
+    if (isNaN(num)) { c.setValue(''); return; }
+    c.setValue(`$${num.toFixed(2)}`);
+  }
+
+  onDistanciaFocus(): void {
+    const c = this.tarifaForm.get('distanciaBaseKm');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9]/g, ''));
+  }
+
+  onDistanciaBlur(): void {
+    const c = this.tarifaForm.get('distanciaBaseKm');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9]/g, '');
+    if (!raw) { c.setValue(''); return; }
+    c.setValue(`${raw} km`);
+  }
+
+  onIncrementoFocus(): void {
+    const c = this.tarifaForm.get('incrementoCadaMetros');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9]/g, ''));
+  }
+
+  onIncrementoBlur(): void {
+    const c = this.tarifaForm.get('incrementoCadaMetros');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9]/g, '');
+    if (!raw) { c.setValue(''); return; }
+    c.setValue(`${raw} m`);
+  }
+
+  allowOnlyNumbers(event: KeyboardEvent): void {
+    const charCode = event.keyCode ? event.keyCode : event.which;
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+    }
+  }
+
+  // Permitir solo enteros
+allowInteger(event: KeyboardEvent): void {
+  const key = event.key;
+  // permitir controles
+  if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(key)) return;
+  // permitir solo dígitos
+  if (!/^[0-9]$/.test(key)) event.preventDefault();
+}
+
+// Permitir decimales con un solo punto o coma
+allowDecimal(event: KeyboardEvent): void {
+  const key = event.key;
+  if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(key)) return;
+  const target = event.target as HTMLInputElement;
+  // dígitos
+  if (/^[0-9]$/.test(key)) return;
+  // punto o coma solo una vez
+  if ((key === '.' || key === ',') && !/[.,]/.test(target.value)) return;
+  event.preventDefault();
+}
+
+// Parser común para enviar solo números
+private parseNumeric(value: any): number | null {
+  if (value === null || value === undefined) return null;
+  const raw = value.toString().replace(/[^0-9.,-]/g, '').replace(',', '.');
+  const n = parseFloat(raw);
+  return Number.isFinite(n) ? n : null;
+}
+
+// Si quieres que el formulario también quede en number antes de enviar:
+private normalizeFormToNumbers(): void {
+  const v = this.tarifaForm.value;
+  this.tarifaForm.patchValue({
+    tarifaBase: this.parseNumeric(v.tarifaBase),
+    distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
+    incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
+    costoAdicional: this.parseNumeric(v.costoAdicional),
+  }, { emitEvent: false });
+}
+
   obtenerTarifa() {
     this.tarSerice.obtenerTarifa(this.idTarifa).subscribe({
       next: (response: any) => {
@@ -120,10 +229,10 @@ export class AgregarTarifaComponent implements OnInit {
 
     const v = this.tarifaForm.value;
     const payload = {
-      tarifaBase: this.toNum(v.tarifaBase),
-      distanciaBaseKm: this.toNum(v.distanciaBaseKm),
-      incrementoCadaMetros: this.toNum(v.incrementoCadaMetros),
-      costoAdicional: this.toNum(v.costoAdicional),
+      tarifaBase: this.parseNumeric(v.tarifaBase),
+    distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
+    incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
+    costoAdicional: this.parseNumeric(v.costoAdicional),
       estatus: this.toNum(v.estatus),
       idDerrotero: this.toNum(v.idDerrotero),
     };
@@ -169,10 +278,10 @@ export class AgregarTarifaComponent implements OnInit {
 
     const v = this.tarifaForm.value;
     const payload = {
-      tarifaBase: this.toNum(v.tarifaBase),
-      distanciaBaseKm: this.toNum(v.distanciaBaseKm),
-      incrementoCadaMetros: this.toNum(v.incrementoCadaMetros),
-      costoAdicional: this.toNum(v.costoAdicional),
+      tarifaBase: this.parseNumeric(v.tarifaBase),
+    distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
+    incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
+    costoAdicional: this.parseNumeric(v.costoAdicional),
       estatus: this.toNum(v.estatus),
       idDerrotero: this.toNum(v.idDerrotero),
     };

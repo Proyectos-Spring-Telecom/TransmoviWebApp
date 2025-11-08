@@ -15,8 +15,8 @@
                 <div class="row">
                     <div class="col-md-4 mt-3">
                         <label>Cuenta Padre</label>
-                        <select class="form-control" formControlName="idPadre">
-                            <option [ngValue]="null">Restablecer selección</option>
+                        <select class="form-select" formControlName="idPadre">
+                            <option [ngValue]="null" disabled>Seleccione una cuenta padre</option>
                             <option *ngFor="let cliente of listaClientes" [ngValue]="cliente.id">
                                 {{ cliente.nombre }} {{ cliente.apellidoPaterno }} {{ cliente.apellidoMaterno }}
                             </option>
@@ -24,14 +24,14 @@
                     </div>
                     <div class="col-md-4 mt-3">
                         <label>RFC *</label>
-                        <input class="form-control" id="rfc" placeholder="Ej: ABC123456789" formControlName="rfc"
+                        <input class="form-control" id="rfc" placeholder="ABC123456789" formControlName="rfc"
                             maxlength="13" (input)="sanitizeInput($event)" />
                     </div>
                     <div class="col-md-4 mt-3">
                         <label>Tipo Persona</label>
-                        <select class="form-control" formControlName="tipoPersona"
+                        <select class="form-select" formControlName="tipoPersona"
                             (change)="onTipoPersonaChange($event)">
-                            <option [ngValue]="null">Seleccione un cliente</option>
+                            <option [ngValue]="null" disabled>Seleccione un tipo</option>
                             <option [ngValue]="1">Física</option>
                             <option [ngValue]="2">Moral</option>
                         </select>
@@ -41,32 +41,101 @@
                             {{ clienteForm.value.tipoPersona == 2 ? 'Razón Social' : 'Nombre' }}
                         </label>
                         <input type="text" class="form-control" formControlName="nombre" [placeholder]="clienteForm.value.tipoPersona == 2 
-                            ? 'Ej: Comercializadora Ejemplo S.A. de C.V.' 
-                            : 'Ej: Juan'">
+                            ? 'Comercializadora Ejemplo S.A. de C.V.' 
+                            : 'Juan'">
                     </div>
                     <ng-container *ngIf="clienteForm.value.tipoPersona != 2">
                         <div class="col-md-4 mt-3">
                             <label>Apellido Paterno</label>
                             <input type="text" class="form-control" formControlName="apellidoPaterno"
-                                placeholder="Ej: Rodríguez">
+                                placeholder="Rodríguez">
                         </div>
                         <div class="col-md-4 mt-3">
                             <label>Apellido Materno</label>
                             <input type="text" class="form-control" formControlName="apellidoMaterno"
-                                placeholder="Ej: Santos">
+                                placeholder="Santos">
                         </div>
                     </ng-container>
                     <div class="col-md-4 mt-3">
                         <label>Teléfono</label>
-                        <input class="form-control" formControlName="telefono" placeholder="Ej: 5555555555"
+                        <input class="form-control" formControlName="telefono" placeholder="5555555555"
                             maxlength="10" (keypress)="allowOnlyNumbers($event)">
                     </div>
                     <div class="col-md-4 mt-3">
                         <label>Correo Electrónico</label>
                         <input type="email" class="form-control" formControlName="correo"
-                            placeholder="Ej: contacto@ejemplo.com">
+                            placeholder="contacto@ejemplo.com">
+                    </div>
+                </div>
+                <h6 class="section-title mt-4">Dirección</h6>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Estado</label>
+                        <input type="text" class="form-control" formControlName="estado"
+                            placeholder="Ciudad de México">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Municipio</label>
+                        <input type="text" class="form-control" formControlName="municipio"
+                            placeholder="Benito Juárez">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Colonia</label>
+                        <input type="text" class="form-control" formControlName="colonia" placeholder="Del Valle">
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <label>Calle</label>
+                        <input type="text" class="form-control" formControlName="calle"
+                            placeholder="Av. Insurgentes Sur">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Entre Calles</label>
+                        <input type="text" class="form-control" formControlName="entreCalles"
+                            placeholder="Xola y Eugenia">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Código Postal</label>
+                        <input pattern="[0-9]*" maxlength="5" (keypress)="allowOnlyNumbers($event)" class="form-control" formControlName="cp"
+                            placeholder="03100">
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <label>Número Exterior</label>
+                        <input type="text" class="form-control" formControlName="numeroExterior" placeholder="123">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Número Interior</label>
+                        <input type="text" class="form-control" formControlName="numeroInterior" placeholder="2B">
+                    </div>
+                </div>
+                <h6 class="section-title mt-5">Datos del Encargado</h6>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Nombre Encargado</label>
+                        <input type="text" class="form-control" formControlName="nombreEncargado"
+                            placeholder="Luis Hernández">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Teléfono Encargado</label>
+                        <input maxlength="10" (keypress)="allowOnlyNumbers($event)" class="form-control"
+                            formControlName="telefonoEncargado" placeholder="5566778899">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Correo Electrónico Encargado</label>
+                        <input type="email" class="form-control" formControlName="correoEncargado"
+                            placeholder="luis.hdz@ejemplo.com">
                     </div>
                     <div class="col-md-4 mt-3">
+                        <label>Sitio Web</label>
+                        <input type="email" class="form-control" formControlName="sitioWeb" placeholder="devse.com">
+                    </div>
+                </div>
+                <h6 class="section-title mt-5">Archivos</h6>
+                <div class="row">
+                    <div class="col-12 col-sm-6 col-lg-4 col-xxl-4">
                         <div class="tc-upload">
                             <label>Logotipo</label>
                             <div class="tc-preview" *ngIf="logoPreviewUrl; else logoTile">
@@ -94,75 +163,6 @@
                                 hidden (change)="onLogoFileSelected($event)">
                         </div>
                     </div>
-                </div>
-                <h6 class="section-title mt-4">Dirección</h6>
-                <div class="row">
-                    <div class="col-md-4">
-                        <label>Estado</label>
-                        <input type="text" class="form-control" formControlName="estado"
-                            placeholder="Ej: Ciudad de México">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Municipio</label>
-                        <input type="text" class="form-control" formControlName="municipio"
-                            placeholder="Ej: Benito Juárez">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Colonia</label>
-                        <input type="text" class="form-control" formControlName="colonia" placeholder="Ej: Del Valle">
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <label>Calle</label>
-                        <input type="text" class="form-control" formControlName="calle"
-                            placeholder="Ej: Av. Insurgentes Sur">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Entre Calles</label>
-                        <input type="text" class="form-control" formControlName="entreCalles"
-                            placeholder="Ej: Xola y Eugenia">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Código Postal</label>
-                        <input pattern="[0-9]*" maxlength="5" class="form-control" formControlName="cp"
-                            placeholder="Ej: 03100">
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <label>Número Exterior</label>
-                        <input type="text" class="form-control" formControlName="numeroExterior" placeholder="Ej: 123">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Número Interior</label>
-                        <input type="text" class="form-control" formControlName="numeroInterior" placeholder="Ej: 2B">
-                    </div>
-                </div>
-                <h6 class="section-title mt-5">Datos del Encargado</h6>
-                <div class="row">
-                    <div class="col-md-4">
-                        <label>Nombre Encargado</label>
-                        <input type="text" class="form-control" formControlName="nombreEncargado"
-                            placeholder="Ej: Luis Hernández">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Teléfono Encargado</label>
-                        <input maxlength="10" (keypress)="allowOnlyNumbers($event)" class="form-control"
-                            formControlName="telefonoEncargado" placeholder="Ej: 5566778899">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Correo Electrónico Encargado</label>
-                        <input type="email" class="form-control" formControlName="correoEncargado"
-                            placeholder="Ej: luis.hdz@ejemplo.com">
-                    </div>
-                    <div class="col-md-4 mt-3">
-                        <label>Sitio Web</label>
-                        <input type="email" class="form-control" formControlName="sitioWeb" placeholder="Ej: devse.com">
-                    </div>
-                </div>
-                <h6 class="section-title mt-5">Archivos</h6>
-                <div class="row">
                     <div class="col-12 col-sm-6 col-lg-4 col-xxl-4">
                         <div class="tc-upload">
                             <label>Constancia de Situación Fiscal</label>

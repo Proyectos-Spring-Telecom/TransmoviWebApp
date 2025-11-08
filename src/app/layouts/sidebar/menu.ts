@@ -36,18 +36,18 @@ export const MENU: MenuItem[] = [
                 permiso: Permiso.Listado_Permisos
             },
             {
-                id: 8,
-                label: 'Bitácora',
-                icon: 'uil-list-ul',
-                link: '/bitacora/lista-bitacora',
-                permiso: Permiso.Listado_Bitacora
-            },
-            {
                 id: 15,
                 label: 'Roles',
                 icon: 'uil-clipboard-notes',
                 link: '/roles',
                 permiso: Permiso.Listado_Roles
+            },
+            {
+                id: 8,
+                label: 'Bitácora',
+                icon: 'uil-list-ul',
+                link: '/bitacora/lista-bitacora',
+                permiso: Permiso.Listado_Bitacora
             },
         ],
     },
@@ -80,7 +80,7 @@ export const MENU: MenuItem[] = [
     {
         id: 2,
         label: 'Bluevox',
-        icon: 'uil-document-layout-left',
+        icon: 'uil-book',
         link: '/bluevox/dispositivo-bluevox',
         permiso: Permiso.Listado_BlueVoxs
     },
@@ -192,6 +192,34 @@ export const MENU: MenuItem[] = [
         icon: 'uil-bag-alt',
         link: '/bluevox/lista-bluevox',
         permiso: Permiso.Listado_ConteoPasajeros
+    },
+    {
+        id: 20,
+        label: 'Gestión Vehícular',
+        icon: 'uil-wrench',
+        subItems: [
+            {
+                id: 16,
+                label: 'Mantenimiento',
+                icon: 'uil-apps',
+            },
+            {
+                id: 16,
+                label: 'Verificaciones',
+                icon: 'uil-apps',
+            },
+            {
+                id: 16,
+                label: 'Siniestros',
+                icon: 'uil-apps',
+            },
+            {
+                id: 16,
+                label: 'Talleres',
+                icon: 'uil-apps',
+                link: '/talleres'
+            },
+        ],
     },
     {
         id: 13,

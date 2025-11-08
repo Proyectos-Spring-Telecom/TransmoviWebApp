@@ -59,17 +59,17 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
     this.modalRef = this.modalService.open(tpl, {
       size: 'xl',
       windowClass: 'modal-holder',
-      centered: true
+      centered: true,
+      backdrop: 'static',
+      keyboard: false
     });
   }
 
   private resetAllState(): void {
-    // 1) trazo & listeners
     try { this.cancelarTrazado(); } catch { }
     try { this.clearDrawListeners(); } catch { }
     try { this.clearDOMHandlers(); } catch { }
 
-    // 2) overlays del mapa
     try { this.limpiarMapa(); } catch { }
 
     this.selectedRoute = null;
@@ -78,14 +78,12 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
     this.polyline = undefined;
     this.previewLine = undefined;
 
-    // 3) UI flags — NO mostrar mapa
-    this.contentVisible = false;           // ⬅️ importante: NO mostrar mapa
+    this.contentVisible = false;
     this.showPreviewPayloadBtn = false;
     this.showClearTraceBtn = false;
     this.submitButton = 'Guardar';
     this.loading = false;
 
-    // 4) formularios
     this.rutaForm?.reset({ idRegion: null });
     this.tarifaForm?.reset({
       tarifaBase: null,
@@ -96,11 +94,9 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
       idDerrotero: null,
     });
 
-    // 5) búsqueda/lista
     this.rutaSearch?.setValue('', { emitEvent: false });
     this.filteredRutas = [...(this.listaRutas ?? [])];
 
-    // 6) modales
     try { this.modalService.dismissAll(); } catch { }
     this.modalRef = undefined;
   }
@@ -233,13 +229,120 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
     });
   }
 
+  allowInteger(event: KeyboardEvent): void {
+  const key = event.key;
+  // permitir controles
+  if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(key)) return;
+  // permitir solo dígitos
+  if (!/^[0-9]$/.test(key)) event.preventDefault();
+}
+
+// Permitir decimales con un solo punto o coma
+allowDecimal(event: KeyboardEvent): void {
+  const key = event.key;
+  if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(key)) return;
+  const target = event.target as HTMLInputElement;
+  // dígitos
+  if (/^[0-9]$/.test(key)) return;
+  // punto o coma solo una vez
+  if ((key === '.' || key === ',') && !/[.,]/.test(target.value)) return;
+  event.preventDefault();
+}
+
+// Parser común para enviar solo números
+private parseNumeric(value: any): number | null {
+  if (value === null || value === undefined) return null;
+  const raw = value.toString().replace(/[^0-9.,-]/g, '').replace(',', '.');
+  const n = parseFloat(raw);
+  return Number.isFinite(n) ? n : null;
+}
+
+// Si quieres que el formulario también quede en number antes de enviar:
+private normalizeFormToNumbers(): void {
+  const v = this.tarifaForm.value;
+  this.tarifaForm.patchValue({
+    tarifaBase: this.parseNumeric(v.tarifaBase),
+    distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
+    incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
+    costoAdicional: this.parseNumeric(v.costoAdicional),
+  }, { emitEvent: false });
+}
+
+  onTarifaFocus(): void {
+    const c = this.tarifaForm.get('tarifaBase');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9.,-]/g, '').replace(',', '.'));
+  }
+
+  onTarifaBlur(): void {
+    const c = this.tarifaForm.get('tarifaBase');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9.-]/g, '');
+    const num = parseFloat(raw);
+    if (isNaN(num)) { c.setValue(''); return; }
+    c.setValue(`$${num.toFixed(2)}`);
+  }
+
+  onCostoFocus(): void {
+    const c = this.tarifaForm.get('costoAdicional');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9.,-]/g, '').replace(',', '.'));
+  }
+
+  onCostoBlur(): void {
+    const c = this.tarifaForm.get('costoAdicional');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9.-]/g, '');
+    const num = parseFloat(raw);
+    if (isNaN(num)) { c.setValue(''); return; }
+    c.setValue(`$${num.toFixed(2)}`);
+  }
+
+  onDistanciaFocus(): void {
+    const c = this.tarifaForm.get('distanciaBaseKm');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9]/g, ''));
+  }
+
+  onDistanciaBlur(): void {
+    const c = this.tarifaForm.get('distanciaBaseKm');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9]/g, '');
+    if (!raw) { c.setValue(''); return; }
+    c.setValue(`${raw} km`);
+  }
+
+  onIncrementoFocus(): void {
+    const c = this.tarifaForm.get('incrementoCadaMetros');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9]/g, ''));
+  }
+
+  onIncrementoBlur(): void {
+    const c = this.tarifaForm.get('incrementoCadaMetros');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9]/g, '');
+    if (!raw) { c.setValue(''); return; }
+    c.setValue(`${raw} m`);
+  }
+
+  allowOnlyNumbers(event: KeyboardEvent): void {
+    const charCode = event.keyCode ? event.keyCode : event.which;
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+    }
+  }
+
   regresarRuta(ev?: Event): void {
     this.modalRef?.close();
     this.modalRef = undefined;
     this.route.navigateByUrl('/derroteros')
   }
 
-  // 1) Agrega este campo para saber qué modal está abierto
   private currentModalType: 'ruta' | 'tarifa' | null = null;
   regresar(ev?: Event): void {
     this.regresarRuta()
@@ -252,7 +355,6 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
 
 
   private initOrResetMap(): void {
-    // Asegura que el contenedor exista (si ya estás mostrando el mapa)
     const el = document.getElementById('map');
     if (!el) return;
 
@@ -271,7 +373,6 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
         draggable: true
       });
     } else {
-      // Limpia overlays y regresa a estado base
       this.limpiarMapa();
       this.map.setOptions({
         zoomControl: true,
@@ -287,7 +388,6 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
   }
 
   private openRouteModal(): void {
-    // Por si hubiera algún modal anterior colgando
     try { this.modalService.dismissAll(); } catch { }
 
     this.currentModalType = 'ruta';
@@ -1344,10 +1444,10 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
 
     const v = this.tarifaForm.value;
     const payload = {
-      tarifaBase: this.toNum(v.tarifaBase),
-      distanciaBaseKm: this.toNum(v.distanciaBaseKm),
-      incrementoCadaMetros: this.toNum(v.incrementoCadaMetros),
-      costoAdicional: this.toNum(v.costoAdicional),
+      tarifaBase: this.parseNumeric(v.tarifaBase),
+    distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
+    incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
+    costoAdicional: this.parseNumeric(v.costoAdicional),
       estatus: this.toNum(v.estatus),
       idDerrotero: this.toNum(v.idDerrotero),
     };

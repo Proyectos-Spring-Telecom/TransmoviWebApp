@@ -54,11 +54,11 @@
             <div class="col-md-6">
               <label>Nombre</label>
               <input type="text" class="form-control" formControlName="nombre"
-                placeholder="Ej: Consultar Administración">
+                placeholder="Centro">
             </div>
             <div class="col-md-6">
               <label>Región</label>
-              <select class="form-control" formControlName="idRegion">
+              <select class="form-select" formControlName="idRegion">
                 <option [ngValue]="null">Seleccione una región</option>
                 <option *ngFor="let c of listaRegiones" [ngValue]="c.id">
                   {{ c.nombre }}

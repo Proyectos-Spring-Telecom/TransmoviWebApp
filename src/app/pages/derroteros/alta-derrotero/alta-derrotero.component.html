@@ -105,7 +105,7 @@
             </div>
 
             <div class="form-actions mt-4">
-                <button type="submit" class="submit">{{submitButton}}</button>
+                <!-- <button type="submit" class="submit">{{submitButton}}</button> -->
                 <button type="button" class="cancel" (click)="regresarRuta()">Cancelar</button>
             </div>
         </form>
@@ -129,29 +129,30 @@
                     <div class="row">
                         <div class="col-md-6 mt-3">
                             <label>Tarifa Base</label>
-                            <input type="text" class="form-control" formControlName="tarifaBase"
-                                placeholder="Ej: 100.00" inputmode="decimal" (keydown)="moneyKeydown($event)"
-                                (input)="moneyInput($event)" (paste)="moneyPaste($event)" (blur)="moneyBlur($event)" />
+                            <input type="text" class="form-control" formControlName="tarifaBase" placeholder="100.00"
+                                inputmode="decimal" (focus)="onTarifaFocus()" (blur)="onTarifaBlur()"
+                                (keypress)="allowDecimal($event)" />
                         </div>
                         <div class="col-md-6 mt-3">
                             <label>Distancia Base Km</label>
                             <input type="text" class="form-control" formControlName="distanciaBaseKm"
-                                placeholder="Ej: 120.5" inputmode="decimal" (keydown)="distanciaKeydown($event)"
-                                (input)="distanciaInput($event)" (paste)="distanciaPaste($event)" />
+                                placeholder="120.5" (focus)="onDistanciaFocus()" (blur)="onDistanciaBlur()"
+                                (keypress)="allowDecimal($event)">
                         </div>
 
                         <div class="col-md-6 mt-3">
                             <label>Incremento Por Metros</label>
                             <input type="text" class="form-control" formControlName="incrementoCadaMetros"
-                                placeholder="Ej: 10.25" inputmode="decimal" (keydown)="incrementoKeydown($event)"
-                                (input)="incrementoInput($event)" (paste)="incrementoPaste($event)" />
+                                placeholder="10.25" inputmode="decimal" (focus)="onIncrementoFocus()"
+                                (blur)="onIncrementoBlur()" (keypress)="allowDecimal($event)" />
+
                         </div>
 
                         <div class="col-md-6 mt-3">
                             <label>Costo Adicional</label>
-                            <input type="text" class="form-control" formControlName="costoAdicional"
-                                placeholder="Ej: 50.00" inputmode="decimal" (keydown)="costoKeydown($event)"
-                                (input)="costoInput($event)" (paste)="costoPaste($event)" (blur)="costoBlur($event)" />
+                            <input type="text" class="form-control" formControlName="costoAdicional" placeholder="50.00"
+                                inputmode="decimal" (focus)="onCostoFocus()" (blur)="onCostoBlur()"
+                                (keypress)="allowDecimal($event)" />
                         </div>
                     </div>
                     <div class="form-actions mt-4">

@@ -1,0 +1,42 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-header-custom">
+            <div class="icon-wrapper">
+                <i class="fas fa-plus"></i>
+            </div>
+            <div class="header-text">
+                <h5>{{ title }}</h5>
+                <span>Completa la información para generar el registro del taller.</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <form [formGroup]="transaccionForm" class="cliente-form">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6 class="section-title mt-3">Datos Generales</h6>
+                        <div class="mt-4">
+                            <label>Nombre</label>
+                            <input type="text" class="form-control" formControlName="monto" placeholder="Taller GMC" autocomplete="off" />
+                        </div>
+                        <div class="mt-4">
+                            <label>Descripción</label>
+                            <input type="text" class="form-control" formControlName="monto" placeholder="Lugar de mantenimiento" autocomplete="off" />
+                        </div>
+                        <div class="mt-4">
+                            <label>Icono</label>
+                            <input type="text" class="form-control" formControlName="monto" autocomplete="off" />
+                        </div>
+                        <div class="form-actions mt-5">
+                            <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
+                            <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h6 class="section-title mt-3">Seleccione la ubicación del taller</h6>
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
