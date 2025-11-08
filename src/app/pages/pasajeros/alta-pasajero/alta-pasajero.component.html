@@ -16,32 +16,32 @@
                     <div class="col-md-4">
                         <label>Nombre</label>
                         <input type="text" class="form-control" formControlName="nombre"
-                            placeholder="Ej: Sergio">
+                            placeholder="Sergio">
                     </div>
                     <div class="col-md-4">
                         <label>Apellido Paterno</label>
                         <input type="text" class="form-control" formControlName="apellidoPaterno"
-                            placeholder="Ej: Rodríguez">
+                            placeholder="Rodríguez">
                     </div>
                     <div class="col-md-4">
                         <label>Apellido Materno</label>
                         <input type="text" class="form-control" formControlName="apellidoMaterno"
-                            placeholder="Ej: Santos">
+                            placeholder="Santos">
                     </div>
                     <div class="col-md-4 mt-3">
                         <label>Teléfono</label>
-                        <input class="form-control" formControlName="telefono" placeholder="Ej: 5555555555"
+                        <input class="form-control" formControlName="telefono" placeholder="5648762145"
                             maxlength="10" (keypress)="allowOnlyNumbers($event)">
                     </div>
                     <div class="col-md-4 mt-3" *ngIf="showCorreo">
                         <label>Correo</label>
                         <input type="email" class="form-control" formControlName="correo"
-                            placeholder="Ej: contacto@ejemplo.com">
+                            placeholder="contacto@ejemplo.com">
                     </div>
                     <div class="col-md-4 mt-3">
                         <label>Fecha de Nacimiento</label>
                         <input type="date" class="form-control" formControlName="fechaNacimiento"
-                            placeholder="Ej: 02/05/1999">
+                            placeholder="02/05/1999">
                     </div>
                 </div>
                 <div class="form-actions mt-4">

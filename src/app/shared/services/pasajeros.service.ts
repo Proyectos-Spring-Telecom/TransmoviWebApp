@@ -33,6 +33,10 @@ export class PasajerosService {
     return this.http.get(`${environment.API_SECURITY}/pasajeros/list`);
   }
 
+  obtenerPasajeroClienteId(id: number): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/catpasajero/clientes/${id}`);
+  }
+
   agregarPasajero(data: FormData) {
     return this.http.post(`${environment.API_SECURITY}/pasajeros`, data);
   }

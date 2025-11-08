@@ -22,5 +22,12 @@ export class TransaccionesService {
     return this.http.post(environment.API_SECURITY + '/transacciones', data);
   }
 
+  recargaTransaccion(data: any) {
+    return this.http.post(environment.API_SECURITY + '/transacciones/recarga', data);
+  }
+
+  debitoTransaccion(data: any) {
+    return this.http.post(environment.API_SECURITY + '/transacciones/debito', data);
+  }
   
 }

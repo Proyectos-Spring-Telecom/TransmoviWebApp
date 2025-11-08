@@ -27,6 +27,7 @@ export class AltaVehiculoComponent implements OnInit {
   listaDispositivos: any;
   public listaClientes: any;
   public anios: number[] = [];
+  displayCliente = (c: any) => c ? `${c.nombre} ${c.apellidoPaterno ?? ''}`.trim() : '';
 
   constructor(
     private route: Router,

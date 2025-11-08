@@ -15,22 +15,23 @@
                 <div class="row mt-3">
                     <div class="col-md-4">
                         <label>Módulo</label>
-                        <select class="form-control" formControlName="idModulo">
-                            <option [ngValue]="null" disabled>Seleccione un módulo</option>
-                            <option *ngFor="let modulo of listaModulos" [ngValue]="modulo.id">
-                                {{ modulo.nombre }}
-                            </option>
-                        </select>
+                        <dx-select-box class="tm-select w-100" formControlName="idModulo" [items]="listaModulos || []"
+                            [valueExpr]="'id'" [displayExpr]="'nombre'" [searchEnabled]="true" [showClearButton]="true"
+                            [noDataText]="'Sin registros'" placeholder="Seleccione un módulo">
+                            <div *dxTemplate="let m of 'item'">{{ m.nombre }}</div>
+                            <div *dxTemplate="let m of 'field'">{{ m?.nombre }}</div>
+                        </dx-select-box>
                     </div>
+
                     <div class="col-md-4">
                         <label>Nombre</label>
                         <input type="text" class="form-control" formControlName="nombre"
-                            placeholder="Ej: Consultar Administración">
+                            placeholder="Consultar Administración">
                     </div>
                     <div class="col-md-4">
                         <label>Descripción</label>
                         <input type="text" class="form-control" formControlName="descripcion"
-                            placeholder="Ej: Permite visualizar el contenido del módulo">
+                            placeholder="Permite visualizar el contenido del módulo">
                     </div>
                 </div>
                 <div class="form-actions mt-4">

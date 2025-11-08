@@ -439,3 +439,20 @@ $u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
   height: auto;
   display: block;
 }
+/* === Ajuste de imagen en el visor === */
+.pdf-frame {
+  /* centra el contenido y evita “huecos” a la derecha */
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+  max-height: 70vh;
+}
+
+.pdf-image {
+  /* que use todo el ancho disponible sin deformarse */
+  width: 100%;
+  height: auto;
+  max-height: 65vh;      /* deja un margen para el padding/títulos */
+  object-fit: contain;   /* respeta proporciones y ajusta dentro del frame */
+  display: block;
+}

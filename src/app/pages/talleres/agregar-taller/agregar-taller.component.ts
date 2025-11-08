@@ -1,46 +1,36 @@
-import { AfterViewInit, Component, NgZone, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
-import { DispositivosService } from 'src/app/shared/services/dispositivos.service';
-import { MonederosServices } from 'src/app/shared/services/monederos.service';
-import { TransaccionesService } from 'src/app/shared/services/transacciones.service';
+import { TallereService } from 'src/app/shared/services/talleres.service';
 import Swal from 'sweetalert2';
 
-declare const google: any;
-
 @Component({
-  selector: 'app-agregar-transaccion',
-  templateUrl: './agregar-transaccion.component.html',
-  styleUrl: './agregar-transaccion.component.scss',
-  animations: [fadeInUpAnimation],
+  selector: 'app-agregar-taller',
+  templateUrl: './agregar-taller.component.html',
+  styleUrls: ['./agregar-taller.component.scss'],
+  animations: [fadeInUpAnimation]
 })
-export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
+export class AgregarTallerComponent implements OnInit {
   public submitButton: string = 'Guardar';
   public loading: boolean = false;
   public listaModulos: any;
   public transaccionForm: FormGroup;
   public idPermiso: number;
-  public title = 'Generar Transacción';
+  public title = 'Agregar Taller';
   public listaDispositivos: any;
   public listaMonederos: any;
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
-  getSerie = (d: any) => d ? (d.numeroSerie ?? d.numeroserie ?? '') : '';
-
 
   constructor(
     private fb: FormBuilder,
     private route: Router,
-    private transaccionService: TransaccionesService,
-    private dispService: DispositivosService,
-    private moneService: MonederosServices,
+    private tallService: TallereService,
     private zone: NgZone
   ) { }
 
   ngOnInit(): void {
-    this.obtenerDispositivos();
-    this.obtenerMonederos();
     this.initForm();
   }
 
@@ -105,22 +95,6 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
     this.agregar();
   }
 
-  obtenerDispositivos() {
-    this.dispService.obtenerDispositivos().subscribe((response) => {
-      const data = Array.isArray(response?.data) ? response.data : [];
-      this.listaDispositivos = data.length
-        ? data
-        : [{ numeroSerie: 'Sin registros', disabled: true }]; // opción deshabilitada
-    });
-  }
-
-
-
-  obtenerMonederos() {
-    this.moneService.obtenerMonederos().subscribe((response) => {
-      this.listaMonederos = Array.isArray(response?.data) ? response.data : [];
-    });
-  }
 
   agregar() {
     this.submitButton = 'Cargando...';
@@ -170,13 +144,11 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const raw = this.transaccionForm.value;
-    const tipo = (raw?.tipoTransaccion || '').toString().toUpperCase();
 
+    const raw = this.transaccionForm.value;
     const payload = {
       ...raw,
-      transaccion: tipo,
-      tipoTransaccion: tipo,
+      tipoTransaccion: (raw?.tipoTransaccion || '').toString().toUpperCase() || null,
       monto: ((): number | null => {
         const v = raw?.monto;
         if (v === '' || v == null) return null;
@@ -193,29 +165,7 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
       this.transaccionForm.removeControl('id');
     }
 
-    const request$ =
-      tipo === 'RECARGA'
-        ? this.transaccionService.recargaTransaccion(payload)
-        : tipo === 'DEBITO'
-          ? this.transaccionService.debitoTransaccion(payload)
-          : null;
-
-    if (!request$) {
-      this.submitButton = 'Guardar';
-      this.loading = false;
-      Swal.fire({
-        title: '¡Ops!',
-        background: '#002136',
-        text: 'Tipo de transacción no válido. Elige RECARGA o DEBITO.',
-        icon: 'error',
-        confirmButtonColor: '#3085d6',
-        confirmButtonText: 'Confirmar',
-        allowOutsideClick: false
-      });
-      return;
-    }
-
-    request$.subscribe(
+    this.tallService.agregarTaller(payload).subscribe(
       () => {
         this.submitButton = 'Guardar';
         this.loading = false;
@@ -244,7 +194,6 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
       }
     );
   }
-
 
   moneyKeydown(e: KeyboardEvent) {
     const allowed = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'];
@@ -367,11 +316,11 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
           : `Lat: ${latLng.lat().toFixed(6)}, Lng: ${latLng.lng().toFixed(6)}`;
 
       const html = `
-      <div style="font-family: 'Segoe UI', sans-serif; border-radius: 12px; max-width: 250px; word-wrap: break-word; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; line-height: 1.2;">
-        <strong style="font-size: 16px; color: #002136">Punto de Destino</strong>
-        <div style="font-size: 14px; color: #4a4a4a;">${address}</div>
-      </div>
-    `;
+        <div style="font-family: 'Segoe UI', sans-serif; border-radius: 12px; max-width: 250px; word-wrap: break-word; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; line-height: 1.2;">
+          <strong style="font-size: 16px; color: #002136">Punto de Destino</strong>
+          <div style="font-size: 14px; color: #4a4a4a;">${address}</div>
+        </div>
+      `;
       this.infoWindow.setContent(html);
       this.infoWindow.open(this.map, this.marker);
     });
@@ -421,4 +370,5 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
       document.head.appendChild(script);
     });
   }
+
 }

@@ -22,6 +22,7 @@ export class AltaOperadorComponent implements OnInit {
   public listaUsuarios: any;
   public title = 'Agregar Operador';
   public showUsuario: boolean = false;
+  displayUsuario = (it: any) => it ? `${it.nombre} ${it.apellidoPaterno ?? ''}`.trim() : '';
   public idClienteUser: any;
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
@@ -71,6 +72,8 @@ export class AltaOperadorComponent implements OnInit {
       const comprobanteDomicilio = get(raw, ['comprobanteDomicilio', 'ComprobanteDomicilio']);
       const antecedentesNoPenales = get(raw, ['antecedentesNoPenales', 'AntecedentesNoPenales']);
       const licencia = get(raw, ['licencia', 'Licencia']);
+      const examenMedico = get(raw, ['examenMedico', 'ExamenMedico']);
+      const fotoOperador = get(raw, ['fotoOperador', 'FotoOperador']);
 
       const fechaNacimiento = fechaNacimientoRaw
         ? fechaNacimientoRaw.split('T')[0]
@@ -85,6 +88,8 @@ export class AltaOperadorComponent implements OnInit {
         comprobanteDomicilio: comprobanteDomicilio ?? null,
         antecedentesNoPenales: antecedentesNoPenales ?? null,
         licencia: licencia ?? null,
+        examenMedico: examenMedico ?? null,
+  fotoOperador: fotoOperador ?? null,
       });
     });
   }
@@ -114,7 +119,9 @@ export class AltaOperadorComponent implements OnInit {
       antecedentesNoPenales: ['', Validators.required],
       estatus: [1, Validators.required],
       licencia: [1, Validators.required],
-      idUsuario: [null, Validators.required]
+      idUsuario: [null, Validators.required],
+      fotoOperador: [null, Validators.required],   // NUEVO
+      examenMedico: [null, Validators.required],
     });
   }
 
@@ -142,6 +149,8 @@ export class AltaOperadorComponent implements OnInit {
         identificacion: 'Identificación',
         comprobanteDomicilio: 'Comprobante de Domicilio',
         antecedentesNoPenales: 'Antecedente No Penales',
+        fotoOperador: 'Foto del Operador',
+  examenMedico: 'Examen Médico',
       };
 
       const camposFaltantes: string[] = [];
@@ -224,6 +233,8 @@ export class AltaOperadorComponent implements OnInit {
         identificacion: 'Identificación',
         comprobanteDomicilio: 'Comprobante de Domicilio',
         antecedentesNoPenales: 'Antecedente No Penales',
+        fotoOperador: 'Foto del Operador',
+  examenMedico: 'Examen Médico',
       };
 
       const camposFaltantes: string[] = [];
@@ -589,6 +600,139 @@ export class AltaOperadorComponent implements OnInit {
     });
   }
 
+@ViewChild('fotoOperadorFileInput') fotoOperadorFileInput!: ElementRef<HTMLInputElement>;
+@ViewChild('examenMedicoFileInput') examenMedicoFileInput!: ElementRef<HTMLInputElement>;
+
+fotoOperadorPreviewUrl: string | ArrayBuffer | null = null;
+fotoOperadorFileName: string | null = null;
+fotoOperadorDragging = false;
+uploadingFotoOperador = false;
+
+examenMedicoPreview = false; // bandera simple para mostrar “PDF seleccionado”
+examenMedicoFileName: string | null = null;
+examenMedicoDragging = false;
+uploadingExamenMedico = false;
+
+
+openFotoOperadorFilePicker(): void { this.fotoOperadorFileInput.nativeElement.click(); }
+onFotoOperadorDragOver(e: DragEvent) { e.preventDefault(); this.fotoOperadorDragging = true; }
+onFotoOperadorDragLeave(_e: DragEvent) { this.fotoOperadorDragging = false; }
+onFotoOperadorDrop(e: DragEvent) {
+  e.preventDefault();
+  this.fotoOperadorDragging = false;
+  const f = e.dataTransfer?.files?.[0];
+  if (f) this.handleFotoOperadorFile(f);
+}
+onFotoOperadorFileSelected(e: Event) {
+  const f = (e.target as HTMLInputElement).files?.[0];
+  if (f) this.handleFotoOperadorFile(f);
+}
+
+private handleFotoOperadorFile(file: File) {
+  if (!this.isImage(file) || file.size > this.MAX_MB * 1024 * 1024) {
+    this.operadorForm.get('fotoOperador')?.setErrors({ invalid: true });
+    return;
+  }
+
+  this.fotoOperadorFileName = file.name;
+
+  const reader = new FileReader();
+  reader.onload = () => { this.fotoOperadorPreviewUrl = reader.result; };
+  reader.readAsDataURL(file);
+
+  this.operadorForm.patchValue({ fotoOperador: file });
+  this.operadorForm.get('fotoOperador')?.setErrors(null);
+
+  this.uploadFotoOperador(file);
+}
+
+clearFotoOperadorFile(e: Event) {
+  e.stopPropagation();
+  this.fotoOperadorPreviewUrl = null;
+  this.fotoOperadorFileName = null;
+  this.fotoOperadorFileInput.nativeElement.value = '';
+  this.operadorForm.patchValue({ fotoOperador: null });
+  this.operadorForm.get('fotoOperador')?.setErrors({ required: true });
+}
+
+private uploadFotoOperador(file: File): void {
+  if (this.uploadingFotoOperador) return;
+  this.uploadingFotoOperador = true;
+
+  const fd = new FormData();
+  fd.append('file', file, file.name);
+  fd.append('folder', 'operadores');
+  fd.append('idModule', '9');
+
+  this.usuaService.uploadFile(fd).subscribe({
+    next: (res: any) => {
+      const url = this.extractFileUrl(res);
+      if (url) {
+        this.operadorForm.patchValue({ fotoOperador: url });
+      }
+    },
+    error: (err) => { console.error('[UPLOAD][fotoOperador]', err); },
+    complete: () => { this.uploadingFotoOperador = false; },
+  });
+}
+openExamenMedicoFilePicker(): void { this.examenMedicoFileInput.nativeElement.click(); }
+onExamenMedicoDragOver(e: DragEvent) { e.preventDefault(); this.examenMedicoDragging = true; }
+onExamenMedicoDragLeave(_e: DragEvent) { this.examenMedicoDragging = false; }
+onExamenMedicoDrop(e: DragEvent) {
+  e.preventDefault();
+  this.examenMedicoDragging = false;
+  const f = e.dataTransfer?.files?.[0];
+  if (f) this.handleExamenMedicoFile(f);
+}
+onExamenMedicoFileSelected(e: Event) {
+  const f = (e.target as HTMLInputElement).files?.[0];
+  if (f) this.handleExamenMedicoFile(f);
+}
+
+private handleExamenMedicoFile(file: File) {
+  if (!this.isPdf(file) || file.size > this.MAX_MB * 1024 * 1024) {
+    this.operadorForm.get('examenMedico')?.setErrors({ invalid: true });
+    return;
+  }
+
+  this.examenMedicoFileName = file.name;
+  this.examenMedicoPreview = true;
+
+  this.operadorForm.patchValue({ examenMedico: file });
+  this.operadorForm.get('examenMedico')?.setErrors(null);
+
+  this.uploadExamenMedico(file);
+}
+
+clearExamenMedicoFile(e: Event) {
+  e.stopPropagation();
+  this.examenMedicoPreview = false;
+  this.examenMedicoFileName = null;
+  this.examenMedicoFileInput.nativeElement.value = '';
+  this.operadorForm.patchValue({ examenMedico: null });
+  this.operadorForm.get('examenMedico')?.setErrors({ required: true });
+}
+
+private uploadExamenMedico(file: File): void {
+  if (this.uploadingExamenMedico) return;
+  this.uploadingExamenMedico = true;
+
+  const fd = new FormData();
+  fd.append('file', file, file.name);
+  fd.append('folder', 'operadores');
+  fd.append('idModule', '9');
+
+  this.usuaService.uploadFile(fd).subscribe({
+    next: (res: any) => {
+      const url = this.extractFileUrl(res);
+      if (url) {
+        this.operadorForm.patchValue({ examenMedico: url });
+      }
+    },
+    error: (err) => { console.error('[UPLOAD][examenMedico]', err); },
+    complete: () => { this.uploadingExamenMedico = false; },
+  });
+}
 
 
 }

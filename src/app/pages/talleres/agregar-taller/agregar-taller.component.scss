@@ -16,30 +16,15 @@ label {
 }
 
 .form-control {
-  border-radius: 4px;
-  padding: 10px 14px;
-  color: white;
-  background: #1e2832;
-  border-bottom: 1px solid #8996af;
-  transition: all 0.25s ease;
-
-  &:focus {
-    background: #1e2832;
-    border-color: #00836d;
-    box-shadow: 0 0 6px rgba(106, 17, 203, 0.3);
-  }
-}
-
-.form-select {
   border-radius: 10px;
   padding: 10px 14px;
   color: white;
-  background: #1e2832;
+  background: #343845;
   border: 1px solid #2f395a;
   transition: all 0.25s ease;
 
   &:focus {
-    background: #1e2832;
+    background: #343845;
     border-color: #00836d;
     box-shadow: 0 0 6px rgba(106, 17, 203, 0.3);
   }
@@ -230,6 +215,7 @@ div:where(.swal2-container) .swal2-html-container {
 }
 
 #map {
+  position: relative; /* NUEVO: para anclar ::before y evitar recortes */
   width: 100%;
   height: clamp(320px, 48vh, 520px);
   border-radius: 14px;
@@ -253,7 +239,7 @@ div:where(.swal2-container) .swal2-html-container {
       0 10px 26px rgba(0, 0, 0, 0.28);
   }
 
-  /* Fundo sutil superior para legibilidad de controles */
+  /* Fondo sutil superior para legibilidad de controles */
   &::before {
     content: "";
     position: absolute;
@@ -294,72 +280,14 @@ div:where(.swal2-container) .swal2-html-container {
   .gm-style .gm-style-iw-c {
     border-radius: 10px !important;
   }
-}
 
-
-
-
-:host ::ng-deep .tm-range {
-  .dx-daterangebox,
-  .dx-texteditor,
-  .dx-texteditor-input-container,
-  .dx-texteditor-buttons-container { min-height: 42px; }
-
-  .dx-texteditor-input {
-    height: 42px;
-    line-height: 42px;
-    padding: 0 12px;
+  /* NUEVO: evitar que los tiles/íconos se encojan por estilos globales */
+  .gm-style img {
+    max-width: none !important;
   }
 
-  .dx-button .dx-button-content {
-    height: 42px;
-    display: flex;
-    align-items: center;
-  }
-}
-
-
-:host ::ng-deep .tm-select {
-  .dx-selectbox,
-  .dx-texteditor,
-  .dx-texteditor-input-container,
-  .dx-texteditor-buttons-container { min-height: 42px; }
-
-  .dx-texteditor-input {
-    height: 42px;
-    line-height: 42px;
-    padding: 0 12px;
-  }
-
-  .dx-button .dx-button-content {
-    height: 42px;
-    display: flex;
-    align-items: center;
-  }
-}
-
-:host ::ng-deep .tm-date {
-  .dx-datebox,
-  .dx-texteditor,
-  .dx-texteditor-input-container,
-  .dx-texteditor-buttons-container {
-    min-height: 42px;
-    border: none !important;
-    box-shadow: none !important;
-  }
-  .dx-texteditor-input {
-    height: 42px;
-    line-height: 42px;
-    padding: 0 12px;
-    border: none !important;
-    box-shadow: none !important;
-    background: transparent;
-  }
-  .dx-button .dx-button-content {
-    height: 42px;
-    display: flex;
-    align-items: center;
-    border: none !important;
-    box-shadow: none !important;
+  /* NUEVO: pequeñas correcciones de layout en labels internos */
+  .gm-style label {
+    display: inline;
   }
 }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
+import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { ClientesService } from 'src/app/shared/services/clientes.service';
 import { DispositivosService } from 'src/app/shared/services/dispositivos.service';
 import { MonederosServices } from 'src/app/shared/services/monederos.service';
@@ -23,7 +24,10 @@ export class AgregarMonederoComponent implements OnInit {
   public listaClientes: any;
   public listaPasajeros: any;
   public showDatosID = true;
+  public idCliente: any;
   selectedFileName: string = '';
+  displayPasajero = (p: any) => p ? `${p.nombre ?? ''} ${p.apellidoPaterno ?? ''} ${p.apellidoMaterno ?? ''}`.trim() : '';
+  displayCliente = (c: any) => c ? `${c.nombre ?? ''} ${c.apellidoPaterno ?? ''} ${c.apellidoMaterno ?? ''}`.trim() : '';
   previewUrl: string | ArrayBuffer | null = null;
 
   constructor(
@@ -33,8 +37,12 @@ export class AgregarMonederoComponent implements OnInit {
     private activatedRouted: ActivatedRoute,
     private clieService: ClientesService,
     private moneService: MonederosServices,
-    private pasaService: PasajerosService
-  ) { }
+    private pasaService: PasajerosService,
+    private users: AuthenticationService,
+  ) {
+    const user = this.users.getUser();
+    this.idCliente = Number(user.idCliente);
+  }
 
   ngOnInit(): void {
     this.obtenerClientes();
@@ -52,17 +60,19 @@ export class AgregarMonederoComponent implements OnInit {
         saldoCtrl?.updateValueAndValidity();
       }
     });
-
   }
 
   obtenerPasajeros() {
-    this.pasaService.obtenerPasajeros().subscribe((response) => {
+    this.pasaService.obtenerPasajeroClienteId(this.idCliente).subscribe((response) => {
       this.listaPasajeros = (response.data || []).map((c: any) => ({
         ...c,
         id: Number(c?.id ?? c?.Id ?? c?.ID),
       }));
     })
   }
+
+  displayTipoPasajero = (t: any) => t ? `${t.nombre} (${t.cantidad})` : '';
+
 
   obtenerClientes() {
     this.clieService.obtenerClientes().subscribe((response) => {
@@ -102,6 +112,22 @@ export class AgregarMonederoComponent implements OnInit {
     } else {
       this.agregar();
     }
+  }
+
+  onComisionFocus(): void {
+    const c = this.monederoForm.get('saldo');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9.,-]/g, '').replace(',', '.'));
+  }
+
+  onComisionBlur(): void {
+    const c = this.monederoForm.get('saldo');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9.-]/g, '');
+    const num = parseFloat(raw);
+    if (isNaN(num)) { c.setValue(''); return; }
+    c.setValue(`$${num.toFixed(2)}`);
   }
 
   agregar() {

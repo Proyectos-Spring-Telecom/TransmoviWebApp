@@ -9,44 +9,81 @@
         <span>Completa la información para registrar un nuevo vehículo.</span>
       </div>
     </div>
+
     <div class="card-body">
       <form [formGroup]="vehiculosForm" class="cliente-form">
         <h6 class="section-title">Datos del Vehículo</h6>
+
         <div class="row mt-3">
-          <div class="col-md-4 mt-3">
+          <div class="col-12 col-sm-6 col-md-4 mt-3">
             <label>Marca</label>
-            <input type="text" class="form-control" formControlName="marca" placeholder="Ej: Mercedes Benz">
+            <input type="text" class="form-control" formControlName="marca" placeholder="Mercedes Benz">
           </div>
-          <div class="col-md-4 mt-3">
+
+          <div class="col-12 col-sm-6 col-md-4 mt-3">
             <label>Modelo</label>
-            <input type="text" class="form-control" formControlName="modelo" placeholder="Ej: Zafiro">
+            <input type="text" class="form-control" formControlName="modelo" placeholder="Zafiro">
           </div>
-          <div class="col-md-4 mt-3">
+
+          <div class="col-12 col-sm-6 col-md-4 mt-3">
             <label>Año</label>
-            <input maxlength="4" class="form-control" (keypress)="allowOnlyNumbers($event)" formControlName="ano" placeholder="Ej: 2020">
+            <input maxlength="4" class="form-control" (keypress)="allowOnlyNumbers($event)" formControlName="ano"
+              placeholder="2020">
           </div>
-          <div class="col-md-4 mt-3">
+
+          <div class="col-12 col-sm-6 col-md-4 mt-3">
             <label>Placa</label>
-            <input type="text" class="form-control" formControlName="placa" placeholder="Ej: ABC-123">
+            <input type="text" class="form-control" formControlName="placa" placeholder="ABC-123">
           </div>
-          <div class="col-md-4 mt-3">
+
+          <div class="col-12 col-sm-6 col-md-4 mt-3">
             <label>Número Económico</label>
-            <input type="text" class="form-control" formControlName="numeroEconomico" placeholder="Ej: VEH001">
+            <input type="text" class="form-control" formControlName="numeroEconomico" placeholder="VEH001">
           </div>
-          <div class="col-md-4 mt-3">
+          <div class="col-12 col-sm-6 col-md-4 mt-3">
             <label>Cliente</label>
-            <select class="form-control" formControlName="idCliente">
-              <option [ngValue]="null">Seleccione un cliente</option>
-              <option *ngFor="let c of listaClientes" [ngValue]="c.id">
+            <dx-select-box class="tm-select w-100" formControlName="idCliente"
+              [items]="listaClientes || ['Sin registros']" [valueExpr]="'id'" [displayExpr]="displayCliente"
+              [searchEnabled]="true" [showClearButton]="true" placeholder="Seleccione un cliente">
+              <div *dxTemplate="let c of 'item'">
                 {{ c.nombre }} {{ c.apellidoPaterno }}
-              </option>
-            </select>
+              </div>
+            </dx-select-box>
+          </div>
+          <div class="col-12 col-sm-6 col-md-4 mt-3">
+            <label>Kilometraje</label>
+            <input type="text" class="form-control" (keypress)="allowOnlyNumbers($event)" placeholder="120000">
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 mt-3">
+            <label>Tipo de combustible</label>
+            <dx-select-box class="tm-select w-100"
+              [items]="['Gasolina','Diésel','Gas LP','Gas Natural','Eléctrico','Híbrido']" [searchEnabled]="true"
+              [showClearButton]="true" placeholder="Seleccione el tipo">
+            </dx-select-box>
+          </div>
+
+
+          <div class="col-12 col-sm-6 col-md-4 mt-3">
+            <label>Capacidad de combustible (L)</label>
+            <input type="text" class="form-control" (keypress)="allowOnlyNumbers($event)" placeholder="60">
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 mt-3">
+            <label>Pasajeros sentados</label>
+            <input type="text" class="form-control" (keypress)="allowOnlyNumbers($event)" placeholder="12">
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 mt-3">
+            <label>Pasajeros parados</label>
+            <input type="text" class="form-control" (keypress)="allowOnlyNumbers($event)" placeholder="8">
           </div>
 
         </div>
+
         <h6 class="section-title mt-5">Archivos</h6>
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-12 col-sm-6 col-md-4">
             <div class="tc-upload">
               <label>Fotografía</label>
               <div class="tc-preview" *ngIf="fotoPreviewUrl; else fotoTile">
@@ -72,12 +109,13 @@
                 (change)="onFotoFileSelected($event)">
             </div>
           </div>
-          <div class="col-md-4">
+
+          <div class="col-12 col-sm-6 col-md-4">
             <div class="tc-upload">
               <label>Tarjeta de Circulación</label>
               <div class="tc-preview" *ngIf="tcPreviewUrl; else tcTile">
                 <img [src]="tcPreviewUrl" alt="Tarjeta de Circulación" />
-                <div class="file-name" *ngIf="tcFileName">{{ tcFileName }}</div> <!-- NOMBRE -->
+                <div class="file-name" *ngIf="tcFileName">{{ tcFileName }}</div>
                 <div class="tc-actions">
                   <button type="button" class="btn-change" (click)="openTcFilePicker()">Cambiar</button>
                   <button type="button" class="btn-remove" (click)="clearTcFile($event)">
@@ -92,19 +130,20 @@
                   <div class="meta">
                     <div class="title">Arrastra o haz clic para subir la tarjeta</div>
                     <div class="hint">PDF · máx 3 MB</div>
-                    <div class="file-name" *ngIf="tcFileName">{{ tcFileName }}</div> <!-- NOMBRE -->
+                    <div class="file-name" *ngIf="tcFileName">{{ tcFileName }}</div>
                   </div>
                 </div>
               </ng-template>
               <input type="file" #tcFileInput accept=".pdf" hidden (change)="onTcFileSelected($event)">
             </div>
           </div>
-          <div class="col-md-4">
+
+          <div class="col-12 col-sm-6 col-md-4">
             <div class="tc-upload">
               <label>Póliza de Seguro</label>
               <div class="tc-preview" *ngIf="polizaPreviewUrl; else polizaTile">
                 <img [src]="polizaPreviewUrl" alt="Póliza de Seguro" />
-                <div class="file-name" *ngIf="polizaFileName">{{ polizaFileName }}</div> <!-- NOMBRE -->
+                <div class="file-name" *ngIf="polizaFileName">{{ polizaFileName }}</div>
                 <div class="tc-actions">
                   <button type="button" class="btn-change" (click)="openPolizaFilePicker()">Cambiar</button>
                   <button type="button" class="btn-remove" (click)="clearPolizaFile($event)">
@@ -120,19 +159,20 @@
                   <div class="meta">
                     <div class="title">Arrastra o haz clic para subir la póliza</div>
                     <div class="hint">PDF · máx 3 MB</div>
-                    <div class="file-name" *ngIf="polizaFileName">{{ polizaFileName }}</div> <!-- NOMBRE -->
+                    <div class="file-name" *ngIf="polizaFileName">{{ polizaFileName }}</div>
                   </div>
                 </div>
               </ng-template>
               <input type="file" #polizaFileInput accept=".pdf" hidden (change)="onPolizaFileSelected($event)">
             </div>
           </div>
-          <div class="col-md-4">
+
+          <div class="col-12 col-sm-6 col-md-4">
             <div class="tc-upload">
               <label>Permiso / Concesión</label>
               <div class="tc-preview" *ngIf="permisoPreviewUrl; else permisoTile">
                 <img [src]="permisoPreviewUrl" alt="Permiso / Concesión" />
-                <div class="file-name" *ngIf="permisoFileName">{{ permisoFileName }}</div> <!-- NOMBRE -->
+                <div class="file-name" *ngIf="permisoFileName">{{ permisoFileName }}</div>
                 <div class="tc-actions">
                   <button type="button" class="btn-change" (click)="openPermisoFilePicker()">Cambiar</button>
                   <button type="button" class="btn-remove" (click)="clearPermisoFile($event)">
@@ -148,19 +188,20 @@
                   <div class="meta">
                     <div class="title">Arrastra o haz clic para subir el permiso</div>
                     <div class="hint">PDF · máx 3 MB</div>
-                    <div class="file-name" *ngIf="permisoFileName">{{ permisoFileName }}</div> <!-- NOMBRE -->
+                    <div class="file-name" *ngIf="permisoFileName">{{ permisoFileName }}</div>
                   </div>
                 </div>
               </ng-template>
               <input type="file" #permisoFileInput accept=".pdf" hidden (change)="onPermisoFileSelected($event)">
             </div>
           </div>
-          <div class="col-md-4">
+
+          <div class="col-12 col-sm-6 col-md-4">
             <div class="tc-upload">
               <label>Inspección Mecánica</label>
               <div class="tc-preview" *ngIf="inspeccionPreviewUrl; else inspeccionTile">
                 <img [src]="inspeccionPreviewUrl" alt="Inspección Mecánica" />
-                <div class="file-name" *ngIf="inspeccionFileName">{{ inspeccionFileName }}</div> <!-- NOMBRE -->
+                <div class="file-name" *ngIf="inspeccionFileName">{{ inspeccionFileName }}</div>
                 <div class="tc-actions">
                   <button type="button" class="btn-change" (click)="openInspeccionFilePicker()">Cambiar</button>
                   <button type="button" class="btn-remove" (click)="clearInspeccionFile($event)">
@@ -176,15 +217,15 @@
                   <div class="meta">
                     <div class="title">Arrastra o haz clic para subir la inspección</div>
                     <div class="hint">PDF · máx 3 MB</div>
-                    <div class="file-name" *ngIf="inspeccionFileName">{{ inspeccionFileName }}</div> <!-- NOMBRE -->
+                    <div class="file-name" *ngIf="inspeccionFileName">{{ inspeccionFileName }}</div>
                   </div>
                 </div>
               </ng-template>
-              <input type="file" #inspeccionFileInput accept=".pdf" hidden
-                (change)="onInspeccionFileSelected($event)">
+              <input type="file" #inspeccionFileInput accept=".pdf" hidden (change)="onInspeccionFileSelected($event)">
             </div>
           </div>
         </div>
+
         <div class="form-actions mt-4">
           <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
           <button type="button" class="cancel" (click)="regresar()">Cancelar</button>

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { VehiculosRoutingModule } from './vehiculos-routing.module';
 import { ListaVehiculosComponent } from './lista-vehiculos/lista-vehiculos.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DxDataGridModule, DxLoadPanelModule, DxPopupModule } from 'devextreme-angular';
+import { DxDataGridModule, DxLoadPanelModule, DxPopupModule, DxSelectBoxModule } from 'devextreme-angular';
 import { AltaVehiculoComponent } from './alta-vehiculo/alta-vehiculo.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 
@@ -19,7 +19,8 @@ import { SharedModule } from 'src/app/shared/shared.module';
     DxDataGridModule,
     DxLoadPanelModule,
     DxPopupModule,
-    SharedModule
+    SharedModule,
+    DxSelectBoxModule
   ]
 })
 export class VehiculosModule { }

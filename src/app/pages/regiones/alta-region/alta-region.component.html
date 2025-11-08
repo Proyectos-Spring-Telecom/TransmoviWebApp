@@ -15,11 +15,12 @@
                 <div class="row">
                     <div class="col-md-4 mt-1">
                         <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" formControlName="nombre" placeholder="Ej: Centro">
+                        <input type="text" class="form-control" formControlName="nombre" placeholder="Centro">
                     </div>
                     <div class="col-md-4 mt-1">
                         <label for="descripcion" class="form-label">Descripción</label>
-                        <input type="text" class="form-control" formControlName="descripcion" placeholder="Ej: Colonias principales">
+                        <input type="text" class="form-control" formControlName="descripcion"
+                            placeholder="Colonias principales">
                     </div>
                     <div class="col-md-4 mt-1">
                         <label for="idCliente" class="form-label">Cliente</label>
@@ -31,6 +32,12 @@
                         </select>
                     </div>
                 </div>
+                <!-- <div class="row mt-4">
+                    <div class="col-12">
+                        <div id="map"></div>
+                    </div>
+                </div> -->
+
                 <div class="form-actions mt-4">
                     <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
                     <button type="button" class="cancel" (click)="regresar()">Cancelar</button>

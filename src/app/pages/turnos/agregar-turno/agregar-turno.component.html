@@ -28,7 +28,7 @@
                     <div class="col-md-4 mt-3">
                         <label for="idOperador" class="form-label">Operador</label>
                         <select id="idOperador" class="form-select" formControlName="idOperador">
-                            <option value="">Seleccione un operador</option>
+                            <option [ngValue]="null" disabled>Seleccione un operador</option>
                             <option *ngFor="let c of listaOperadores" [ngValue]="c.id">
                                 {{ c.nombreUsuario }} {{ c.apellidoPaternoUsuario || '' }}
                                 {{ c.apellidoMaternoUsuario || '' }}
@@ -40,7 +40,7 @@
                         <label for="idInstalacion" class="form-label">Instalación</label>
                         <select id="idInstalacion" class="form-select" formControlName="idInstalacion"
                             [compareWith]="compareNums">
-                            <option value="">Seleccione una instalación</option>
+                            <option [ngValue]="null" disabled>Seleccione una instalación</option>
                             <option *ngFor="let c of listaInstalaciones" [ngValue]="+c.id">
                                 {{ c?.numeroSerieBlueVox || ' ' }} -
                                 {{ c?.numeroSerieDispositivo || ' ' }} -
@@ -52,7 +52,7 @@
                     <div class="col-md-4 mt-3">
                         <label for="idCliente" class="form-label">Cliente</label>
                         <select id="idCliente" class="form-select" formControlName="idCliente">
-                            <option value="">Seleccione un cliente</option>
+                            <option [ngValue]="null" disabled>Seleccione un cliente</option>
                             <option *ngFor="let c of listaClientes" [ngValue]="c.id">
                                 {{ c.nombre }} {{c.apellidoPaterno || ' ' }}</option>
                         </select>

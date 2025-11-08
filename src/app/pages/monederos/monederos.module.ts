@@ -5,7 +5,7 @@ import { MonederosRoutingModule } from './monederos-routing.module';
 import { ListaMonederosComponent } from './lista-monederos/lista-monederos.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModalModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { DxDataGridModule, DxLoadPanelModule } from 'devextreme-angular';
+import { DxDataGridModule, DxLoadPanelModule, DxSelectBoxModule } from 'devextreme-angular';
 import { AgregarMonederoComponent } from './agregar-monedero/agregar-monedero.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 
@@ -21,7 +21,8 @@ import { SharedModule } from 'src/app/shared/shared.module';
     ReactiveFormsModule,
     DxDataGridModule,
     DxLoadPanelModule,
-    SharedModule
+    SharedModule,
+    DxSelectBoxModule
   ]
 })
 export class MonederosModule { }
