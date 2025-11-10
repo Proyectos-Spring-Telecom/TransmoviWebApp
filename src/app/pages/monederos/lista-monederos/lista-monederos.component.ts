@@ -8,6 +8,7 @@ import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { MonederosServices } from 'src/app/shared/services/monederos.service';
+import { TransaccionesService } from 'src/app/shared/services/transacciones.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -22,7 +23,8 @@ export class ListaMonederosComponent implements OnInit {
   public showFilterRow: boolean;
   public showHeaderFilter: boolean;
   public loadingVisible: boolean = false;
-  public mensajeAgrupar: string = 'Arrastre un encabezado de columna aquí para agrupar por esa columna';
+  public mensajeAgrupar: string =
+    'Arrastre un encabezado de columna aquí para agrupar por esa columna';
   public submitButton: string = 'Aceptar';
   public recargaForm: FormGroup;
   public debitoForm: FormGroup;
@@ -36,7 +38,8 @@ export class ListaMonederosComponent implements OnInit {
   public totalRegistros: number = 0;
   public pageSize: number = 20;
   public totalPaginas: number = 0;
-  @ViewChild(DxDataGridComponent, { static: false }) dataGrid: DxDataGridComponent;
+  @ViewChild(DxDataGridComponent, { static: false })
+  dataGrid: DxDataGridComponent;
   public autoExpandAllGroups: boolean = true;
   isGrouped: boolean = false;
   public paginaActualData: any[] = [];
@@ -47,7 +50,8 @@ export class ListaMonederosComponent implements OnInit {
     private modalService: NgbModal,
     private fb: FormBuilder,
     private route: Router,
-    private permissionsService: NgxPermissionsService
+    private permissionsService: NgxPermissionsService,
+    private transaccionService: TransaccionesService
   ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
@@ -64,7 +68,7 @@ export class ListaMonederosComponent implements OnInit {
 
   actualizarMonederos(idMonedero: number) {
     this.route.navigateByUrl('/monederos/editar-monedero/' + idMonedero);
-  };
+  }
 
   initForm() {
     this.recargaForm = this.fb.group({
@@ -89,70 +93,78 @@ export class ListaMonederosComponent implements OnInit {
   }
 
   agregarMonedero() {
-    this.route.navigateByUrl('/monederos/agregar-monedero')
+    this.route.navigateByUrl('/monederos/agregar-monedero');
   }
 
-obtenerMonederos() {
-  this.loading = true;
-  this.listaMonederos = new CustomStore({
-    key: 'id',
-    load: async (loadOptions: any) => {
-      const take = Number(loadOptions?.take) || this.pageSize || 10;
-      const skip = Number(loadOptions?.skip) || 0;
-      const page = Math.floor(skip / take) + 1;
+  obtenerMonederos() {
+    this.loading = true;
+    this.listaMonederos = new CustomStore({
+      key: 'id',
+      load: async (loadOptions: any) => {
+        const take = Number(loadOptions?.take) || this.pageSize || 10;
+        const skip = Number(loadOptions?.skip) || 0;
+        const page = Math.floor(skip / take) + 1;
 
-      try {
-        const resp: any = await lastValueFrom(
-          this.moneService.obtenerMonederosData(page, take)
-        );
-        this.loading = false;
+        try {
+          const resp: any = await lastValueFrom(
+            this.moneService.obtenerMonederosData(page, take)
+          );
+          this.loading = false;
 
-        const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
-        const meta = resp?.paginated || {};
+          const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
+          const meta = resp?.paginated || {};
 
-        const totalRegistros = toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
-        const paginaActual   = toNum(meta.page) ?? toNum(resp?.page) ?? page;
-        const totalPaginas   = toNum(meta.lastPage) ?? toNum(resp?.pages) ??
-                               Math.max(1, Math.ceil(totalRegistros / take));
+          const totalRegistros =
+            toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
+          const paginaActual = toNum(meta.page) ?? toNum(resp?.page) ?? page;
+          const totalPaginas =
+            toNum(meta.lastPage) ??
+            toNum(resp?.pages) ??
+            Math.max(1, Math.ceil(totalRegistros / take));
 
-        const dataTransformada = rows.map((item: any) => {
-          const nombre = [
-            item?.pasajeroNombre,
-            item?.pasajeroApellidoPaterno,
-            item?.pasajeroApellidoMaterno
-          ].filter(Boolean).join(' ').trim();
+          const dataTransformada = rows.map((item: any) => {
+            const nombre = [
+              item?.pasajeroNombre,
+              item?.pasajeroApellidoPaterno,
+              item?.pasajeroApellidoMaterno,
+            ]
+              .filter(Boolean)
+              .join(' ')
+              .trim();
 
-          return {
-            ...item,
-            // Texto de estatus
-            estatusTexto: item?.estatus === 1 ? 'Activo'
-                         : item?.estatus === 0 ? 'Inactivo'
-                         : null,
-            // Campo que engloba nombre y fallback
-            pasajeroCompleto: nombre || 'sin registro',
-          };
-        });
+            return {
+              ...item,
+              // Texto de estatus
+              estatusTexto:
+                item?.estatus === 1
+                  ? 'Activo'
+                  : item?.estatus === 0
+                  ? 'Inactivo'
+                  : null,
+              // Campo que engloba nombre y fallback
+              pasajeroCompleto: nombre || 'sin registro',
+            };
+          });
 
-        this.totalRegistros  = totalRegistros;
-        this.paginaActual    = paginaActual;
-        this.totalPaginas    = totalPaginas;
-        this.paginaActualData = dataTransformada;
+          this.totalRegistros = totalRegistros;
+          this.paginaActual = paginaActual;
+          this.totalPaginas = totalPaginas;
+          this.paginaActualData = dataTransformada;
 
-        return { data: dataTransformada, totalCount: totalRegistros };
-      } catch (err) {
-        this.loading = false;
-        console.error('Error en la solicitud de datos:', err);
-        return { data: [], totalCount: 0 };
-      }
+          return { data: dataTransformada, totalCount: totalRegistros };
+        } catch (err) {
+          this.loading = false;
+          console.error('Error en la solicitud de datos:', err);
+          return { data: [], totalCount: 0 };
+        }
+      },
+    });
+
+    function toNum(v: any): number | null {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
     }
-  });
-
-  function toNum(v: any): number | null {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : null;
   }
-}
-
 
   onGridOptionChanged(e: any) {
     if (e.fullName !== 'searchPanel.text') return;
@@ -168,7 +180,7 @@ obtenerMonederos() {
     try {
       const colsOpt = grid?.option('columns');
       if (Array.isArray(colsOpt) && colsOpt.length) columnas = colsOpt;
-    } catch { }
+    } catch {}
     if (!columnas.length && grid?.getVisibleColumns) {
       columnas = grid.getVisibleColumns();
     }
@@ -200,14 +212,11 @@ obtenerMonederos() {
               const ddmmyyyy = `${dd}/${mm}/${yyyy}`.toLowerCase();
               if (ddmmyyyy.includes(texto)) return true;
             }
-          } catch { }
+          } catch {}
         }
         return normalizar(v).includes(texto);
       });
-      const extras = [
-        normalizar(row?.id),
-        normalizar(row?.estatusTexto)
-      ];
+      const extras = [normalizar(row?.id), normalizar(row?.estatusTexto)];
 
       return hitEnColumnas || extras.some((s) => s.includes(texto));
     });
@@ -276,12 +285,15 @@ obtenerMonederos() {
 
   crearTransaccionRecarga() {
     const serie = (this.selectedSerie ?? '').toString().trim();
-    const fechaActual = new Date().toISOString();
+    const fechaActual = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+
     this.recargaForm.patchValue({
       numeroSerieMonedero: serie,
-      fechaHora: fechaActual
+      fechaHora: fechaActual,
     });
+
     const formValue = this.recargaForm.value;
+
     if (!formValue?.numeroSerieMonedero) {
       Swal.fire({
         background: '#002136',
@@ -293,8 +305,7 @@ obtenerMonederos() {
       });
       return;
     }
-
-    if (formValue?.Monto <= 0) {
+    if (Number(formValue?.monto) <= 0) {
       Swal.fire({
         background: '#002136',
         title: '¡Error!',
@@ -306,33 +317,62 @@ obtenerMonederos() {
       return;
     }
 
+    const payload = {
+      idTipoTransaccion: 1,
+      monto: Number(
+        parseFloat(
+          String(formValue.monto).toString().replace(',', '.')
+        ).toFixed(2)
+      ),
+      latitud: null,
+      longitud: null,
+      fechaHora: formValue?.fechaHora || fechaActual,
+      numeroSerieMonedero: formValue?.numeroSerieMonedero || serie,
+      numeroSerieDispositivo: null,
+    };
+
     this.loading = true;
     this.submitButton = 'Cargando...';
-    this.moneService.agregarTransacciones(formValue).subscribe(
+
+    this.transaccionService.recargaTransaccion(payload).subscribe(
       (response: any) => {
         this.loading = false;
         this.submitButton = 'Guardar';
         this.ngOnInit();
-        if (response) {
-          this.cerrarModalRecarga();
-          Swal.fire({
-            title: '¡Operación Exitosa!',
-            text: 'Se realizó la recarga de manera correcta.',
-            icon: 'success',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Confirmar',
-            background: '#002136',
-          });
-        } else {
-          console.log('Respuesta inesperada:', response);
-        }
+        this.cerrarModalRecarga();
+        Swal.fire({
+          title: '¡Operación Exitosa!',
+          text: 'Se realizó la recarga de manera correcta.',
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+          background: '#002136',
+        });
       },
-      (error: string) => {
+      (err: any) => {
         this.loading = false;
         this.submitButton = 'Guardar';
+
+        let msg = '';
+        if (typeof err?.error === 'string' && err.error.trim()) msg = err.error;
+        else if (err?.error && typeof err.error === 'object')
+          msg =
+            err.error.message ||
+            err.error.mensaje ||
+            err.error.detail ||
+            err.error.error ||
+            JSON.stringify(err.error);
+        else if (typeof err === 'string' && err.trim()) msg = err;
+        else if (err?.message) msg = err.message;
+        else if (err?.status)
+          msg = `HTTP ${err.status}${
+            err.statusText ? ' - ' + err.statusText : ''
+          }`;
+        else msg = 'Error desconocido';
+
         Swal.fire({
           title: '¡Ops!',
-          text: error,
+          text: String(msg),
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -344,45 +384,102 @@ obtenerMonederos() {
 
   crearTransaccionDebito() {
     const serie = (this.selectedSerie ?? '').toString().trim();
-    const fechaActual = new Date().toISOString();
+    const fechaActual = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+
     this.debitoForm.patchValue({
       IdMonedero: this.selectedTransactionId,
       numeroSerieMonedero: serie,
       fechaHora: fechaActual,
-      tipoTransaccion: 'DEBITO'
+      tipoTransaccion: 'DEBITO',
     });
 
     const formValue = this.debitoForm.value;
 
     if (!formValue?.numeroSerieMonedero) {
-      Swal.fire({ background: '#002136', title: '¡Error!', text: 'No se detectó el número de serie del monedero.', icon: 'error', confirmButtonColor: '#d33', confirmButtonText: 'Aceptar' });
+      Swal.fire({
+        background: '#002136',
+        title: '¡Error!',
+        text: 'No se detectó el número de serie del monedero.',
+        icon: 'error',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Aceptar',
+      });
       return;
     }
-    if (Number(formValue?.Monto) <= 0) {
-      Swal.fire({ background: '#002136', title: '¡Error!', text: 'El monto no puede ser 0 o vacío.', icon: 'error', confirmButtonColor: '#d33', confirmButtonText: 'Aceptar' });
+    if (Number(formValue?.monto) <= 0) {
+      Swal.fire({
+        background: '#002136',
+        title: '¡Error!',
+        text: 'El monto no puede ser 0 o vacío.',
+        icon: 'error',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Aceptar',
+      });
       return;
     }
 
+    const payload = {
+      idTipoTransaccion: 2,
+      monto: Number(
+        parseFloat(
+          String(formValue.monto).toString().replace(',', '.')
+        ).toFixed(2)
+      ),
+      latitud: null,
+      longitud: null,
+      fechaHora: formValue?.fechaHora || fechaActual,
+      numeroSerieMonedero: formValue?.numeroSerieMonedero || serie,
+      numeroSerieDispositivo: null,
+    };
+
     this.loading = true;
     this.submitButton = 'Cargando...';
-    this.moneService.agregarTransacciones(formValue).subscribe(
+
+    this.transaccionService.debitoTransaccion(payload).subscribe(
       (response: any) => {
         this.loading = false;
         this.submitButton = 'Guardar';
         this.ngOnInit();
-        if (response) {
-          this.cerrarModalDebito();
-          Swal.fire({ title: '¡Operación Exitosa!', text: 'Se realizó el débito de manera correcta.', icon: 'success', confirmButtonColor: '#3085d6', confirmButtonText: 'Confirmar', background: '#002136', });
-        } else {
-          console.log('Respuesta inesperada:', response);
-        }
+        this.cerrarModalDebito();
+        Swal.fire({
+          title: '¡Operación Exitosa!',
+          text: 'Se realizó el débito de manera correcta.',
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+          background: '#002136',
+        });
       },
-      (error: string) => {
+      (err: any) => {
         this.loading = false;
         this.submitButton = 'Guardar';
-        Swal.fire({ title: '¡Ops!', text: error, icon: 'error', confirmButtonColor: '#3085d6', confirmButtonText: 'Confirmar', background: '#002136', });
+
+        let msg = '';
+        if (typeof err?.error === 'string' && err.error.trim()) msg = err.error;
+        else if (err?.error && typeof err.error === 'object')
+          msg =
+            err.error.message ||
+            err.error.mensaje ||
+            err.error.detail ||
+            err.error.error ||
+            JSON.stringify(err.error);
+        else if (typeof err === 'string' && err.trim()) msg = err;
+        else if (err?.message) msg = err.message;
+        else if (err?.status)
+          msg = `HTTP ${err.status}${
+            err.statusText ? ' - ' + err.statusText : ''
+          }`;
+        else msg = 'Error desconocido';
+
+        Swal.fire({
+          title: '¡Ops!',
+          text: String(msg),
+          icon: 'error',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+          background: '#002136',
+        });
       }
     );
   }
-
 }

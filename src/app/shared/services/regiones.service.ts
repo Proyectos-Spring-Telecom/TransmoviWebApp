@@ -18,7 +18,7 @@ export class RegionesService {
     return this.http.get(`${environment.API_SECURITY}/regiones/list`);
   }
 
-  agregarRegion(data: FormData) {
+  agregarRegion(data: any) {
     return this.http.post(environment.API_SECURITY + '/regiones', data);
   }
 

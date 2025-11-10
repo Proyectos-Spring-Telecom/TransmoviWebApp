@@ -5,7 +5,7 @@ import { TalleresRoutingModule } from './talleres-routing.module';
 import { ListaTalleresComponent } from './lista-talleres/lista-talleres.component';
 import { AgregarTallerComponent } from './agregar-taller/agregar-taller.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DxDataGridModule, DxLoadPanelModule, DxPopupModule } from 'devextreme-angular';
+import { DxDataGridModule, DxLoadPanelModule, DxPopupModule, DxSelectBoxModule } from 'devextreme-angular';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 
@@ -22,7 +22,8 @@ import { SharedModule } from 'src/app/shared/shared.module';
     DxDataGridModule,
     DxLoadPanelModule,
     DxPopupModule,
-    SharedModule
+    SharedModule,
+    DxSelectBoxModule
   ]
 })
 export class TalleresModule { }

@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DxDataGridComponent } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
 import { NgxPermissionsService } from 'ngx-permissions';
@@ -35,11 +36,16 @@ export class ListaRegionesComponent implements OnInit {
   public listaVehiculos: any;
   public listaClientes: any;
   isGrouped: boolean = false;
+  public selectedRegionId: number | null = null;
+  public selectedRegionNombre: string | null = null;
+  public showRegionMap = false;
+
 
   constructor(
     private router: Router,
     private regiServices: RegionesService,
     private permissionsService: NgxPermissionsService,
+    private modalService: NgbModal
   ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
@@ -49,6 +55,82 @@ export class ListaRegionesComponent implements OnInit {
     this.setupDataSource();
     // this.obtenerListaModulos();
   }
+
+  openGeocercaModal(exlargeModalRegion: any, row: any) {
+    this.selectedRegionId = row?.id ?? null;
+    this.selectedRegionNombre = row?.nombre ?? null;
+
+    const coords = this.extractPolygonCoords(row?.geocerca);
+    this.showRegionMap = coords.length >= 3;
+
+    this.modalService.open(exlargeModalRegion, { size: 'xl', windowClass: 'modal-holder', centered: true });
+
+    if (!this.showRegionMap || this.selectedRegionId == null) return;
+
+    const mapId = `map-region-${this.selectedRegionId}`;
+    setTimeout(() => {
+      this.drawPolygonOnMap(mapId, coords);
+    }, 250);
+  }
+
+  private extractPolygonCoords(geo: any): Array<{ lat: number; lng: number }> {
+    if (!geo) return [];
+
+    if (geo.type === 'FeatureCollection' && Array.isArray(geo.features) && geo.features.length) {
+      return this.extractPolygonCoords(geo.features[0]);
+    }
+
+    if (geo.type === 'Feature' && geo.geometry) {
+      return this.extractPolygonCoords(geo.geometry);
+    }
+
+    if (geo.type?.toLowerCase() === 'polygon' && Array.isArray(geo.coordinates)) {
+      const ring = geo.coordinates[0] || [];
+      return ring
+        .map((p: any) => Array.isArray(p) && p.length >= 2 ? { lat: Number(p[1]), lng: Number(p[0]) } : null)
+        .filter(Boolean) as Array<{ lat: number; lng: number }>;
+    }
+
+    if (Array.isArray(geo)) {
+      return geo
+        .map((p: any) => ({ lat: Number(p?.lat), lng: Number(p?.lng) }))
+        .filter(p => Number.isFinite(p.lat) && Number.isFinite(p.lng));
+    }
+
+    return [];
+  }
+
+  private drawPolygonOnMap(mapId: string, path: Array<{ lat: number; lng: number }>) {
+    const el = document.getElementById(mapId) as HTMLElement | null;
+    if (!el || path.length < 3) return;
+
+    const center = path[0];
+    const map = new google.maps.Map(el, {
+      center,
+      zoom: 14,
+      mapTypeControl: false,
+      streetViewControl: true,
+      fullscreenControl: true,
+    });
+
+    const polygon = new google.maps.Polygon({
+      paths: path,
+      fillColor: '#1E88E5',
+      fillOpacity: 0.15,
+      strokeColor: '#1E88E5',
+      strokeOpacity: 0.9,
+      strokeWeight: 2,
+      editable: false,
+      draggable: false,
+      map,
+      zIndex: 10,
+    });
+
+    const bounds = new google.maps.LatLngBounds();
+    path.forEach(p => bounds.extend(p));
+    map.fitBounds(bounds, { top: 56, right: 56, bottom: 56, left: 56 });
+  }
+
 
   hasPermission(permission: string): boolean {
     return this.permissionsService.getPermission(permission) !== undefined;

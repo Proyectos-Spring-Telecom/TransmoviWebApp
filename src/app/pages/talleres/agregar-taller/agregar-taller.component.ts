@@ -2,6 +2,7 @@ import { Component, NgZone, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
+import { ClientesService } from 'src/app/shared/services/clientes.service';
 import { TallereService } from 'src/app/shared/services/talleres.service';
 import Swal from 'sweetalert2';
 
@@ -9,161 +10,125 @@ import Swal from 'sweetalert2';
   selector: 'app-agregar-taller',
   templateUrl: './agregar-taller.component.html',
   styleUrls: ['./agregar-taller.component.scss'],
-  animations: [fadeInUpAnimation]
+  animations: [fadeInUpAnimation],
 })
 export class AgregarTallerComponent implements OnInit {
   public submitButton: string = 'Guardar';
   public loading: boolean = false;
-  public listaModulos: any;
-  public transaccionForm: FormGroup;
-  public idPermiso: number;
   public title = 'Agregar Taller';
-  public listaDispositivos: any;
-  public listaMonederos: any;
-  selectedFileName: string = '';
-  previewUrl: string | ArrayBuffer | null = null;
+
+  listaClientes: any[] = [];
+  displayCliente = (c: any) =>
+    c
+      ? `${c.nombre || ''} ${c.apellidoPaterno || ''} ${
+          c.apellidoMaterno || ''
+        }`.trim()
+      : '';
+
+  public tallerForm!: FormGroup;
 
   constructor(
     private fb: FormBuilder,
     private route: Router,
     private tallService: TallereService,
-    private zone: NgZone
-  ) { }
+    private zone: NgZone,
+    private clieService: ClientesService
+  ) {}
 
   ngOnInit(): void {
     this.initForm();
+    this.obtenerClientes();
   }
 
-  private montoValidoValidator(control: any) {
-    const v = control?.value;
-    if (v === null || v === undefined || v === '') return null; // que lo marque 'required', no aquí
-    const cleaned = String(v).replace(/[^0-9.,-]/g, '').replace(',', '.');
-    const n = parseFloat(cleaned);
-    return Number.isFinite(n) ? null : { montoInvalido: true };
-  }
-
-
-  initForm() {
-    this.transaccionForm = this.fb.group({
-      tipoTransaccion: [null, Validators.required],
-      monto: [null, [Validators.required, this.montoValidoValidator.bind(this)]],
-      latitud: [null],
-      longitud: [null],
-      fechaHora: [null, Validators.required],
-      numeroSerieMonedero: ['', Validators.required],
-      numeroSerieDispositivo: [null],
+  obtenerClientes() {
+    this.clieService.obtenerClientes().subscribe((response) => {
+      this.listaClientes = (response.data || []).map((c: any) => ({
+        ...c,
+        id: Number(c?.id ?? c?.Id ?? c?.ID),
+      }));
     });
   }
 
-  toDatetimeLocal(isoZ: string | null): string {
-    if (!isoZ) return '';
-    const d = new Date(isoZ);
-    const off = d.getTimezoneOffset();
-    const local = new Date(d.getTime() - off * 60000);
-    return local.toISOString().slice(0, 16);
-  }
-
-  onComisionFocus(): void {
-    const c = this.transaccionForm.get('monto');
-    if (!c) return;
-    const raw = (c.value ?? '').toString();
-    c.setValue(raw.replace(/[^0-9.,-]/g, '').replace(',', '.'));
-  }
-
-  onComisionBlur(): void {
-    const c = this.transaccionForm.get('monto');
-    if (!c) return;
-    const raw = (c.value ?? '').toString().replace(/[^0-9.-]/g, '');
-    const num = parseFloat(raw);
-    if (isNaN(num)) { c.setValue(''); return; }
-    c.setValue(`$${num.toFixed(2)}`);
-  }
-
-
-  toIsoZulu(localStr: string | null): string | null {
-    if (!localStr) return null;
-    return new Date(localStr).toISOString().replace(/\.\d{3}Z$/, 'Z');
+  initForm() {
+    // Estructura alineada al swagger (imagen):
+    // {
+    //  nombre, descripcion, icono, direccion, lat, lng, estatus, idCliente
+    // }
+    this.tallerForm = this.fb.group({
+      idCliente: [null, Validators.required],
+      nombre: ['', Validators.required],
+      descripcion: [''],
+      icono: [''],
+      direccion: [''],
+      lat: [null, Validators.required],
+      lng: [null, Validators.required],
+      estatus: [1, Validators.required],
+    });
   }
 
   submit() {
     this.submitButton = 'Cargando...';
     this.loading = true;
-    if (!this.transaccionForm.get('fechaHora')?.value) {
-      const nowLocal = this.toDatetimeLocal(new Date().toISOString());
-      this.transaccionForm.patchValue({ fechaHora: nowLocal });
-    }
-    this.agregar();
-  }
 
-
-  agregar() {
-    this.submitButton = 'Cargando...';
-    this.loading = true;
-    const etiquetas: Record<string, string> = {
-      tipoTransaccion: 'Tipo de Transacción',
-      monto: 'Monto',
-      fechaHora: 'Fecha y Hora',
-      numeroSerieMonedero: 'N° de Serie de Monedero',
-    };
-    if (this.transaccionForm.invalid) {
+    if (this.tallerForm.invalid) {
       this.submitButton = 'Guardar';
       this.loading = false;
 
+      const etiquetas: Record<string, string> = {
+        idCliente: 'Cliente',
+        nombre: 'Nombre',
+        lat: 'Latitud (seleccione en el mapa)',
+        lng: 'Longitud (seleccione en el mapa)',
+        estatus: 'Estatus',
+      };
+
       const camposFaltantes: string[] = [];
-      Object.keys(this.transaccionForm.controls).forEach((key) => {
-        const control = this.transaccionForm.get(key);
+      Object.keys(this.tallerForm.controls).forEach((key) => {
+        const control = this.tallerForm.get(key);
         if (control?.errors?.['required']) {
           camposFaltantes.push(etiquetas[key] || key);
         }
-        if (key === 'monto' && control?.errors?.['montoInvalido']) {
-          camposFaltantes.push('Monto (formato inválido)');
-        }
       });
 
-      const lista = camposFaltantes.map((campo, i) => `
-      <div style="padding:8px 12px;border-left:4px solid #d9534f;
-                  background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
-        <strong style="color:#b02a37;">${i + 1}. ${campo}</strong>
-      </div>
-    `).join('');
+      const lista = camposFaltantes
+        .map(
+          (campo, i) => `
+        <div style="padding:8px 12px;border-left:4px solid #d9534f;background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
+          <strong style="color:#b02a37;">${i + 1}. ${campo}</strong>
+        </div>
+      `
+        )
+        .join('');
 
       Swal.fire({
         title: '¡Faltan campos obligatorios!',
         background: '#002136',
         html: `
-        <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
-          Los siguientes <strong>campos</strong> están vacíos o con formato inválido.<br>
-          Por favor complétalos antes de continuar:
-        </p>
-        <div style="max-height:350px;overflow-y:auto;">${lista}</div>
-      `,
+          <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
+            Completa los siguientes campos antes de continuar:
+          </p>
+          <div style="max-height:350px;overflow-y:auto;">${lista}</div>
+        `,
         icon: 'error',
         confirmButtonText: 'Entendido',
         customClass: { popup: 'swal2-padding swal2-border' },
       });
+
       return;
     }
 
+    const raw = this.tallerForm.value;
 
-    const raw = this.transaccionForm.value;
     const payload = {
-      ...raw,
-      tipoTransaccion: (raw?.tipoTransaccion || '').toString().toUpperCase() || null,
-      monto: ((): number | null => {
-        const v = raw?.monto;
-        if (v === '' || v == null) return null;
-        const cleaned = String(v).replace(/[^0-9.,-]/g, '').replace(',', '.');
-        const n = parseFloat(cleaned);
-        return Number.isFinite(n) ? +n.toFixed(2) : null;
-      })(),
-      fechaHora: this.toIsoZulu(raw?.fechaHora || null),
-      latitud: this.toNumber6(raw?.latitud),
-      longitud: this.toNumber6(raw?.longitud),
+      nombre: (raw?.nombre ?? '').toString().trim(),
+      descripcion: (raw?.descripcion ?? '').toString().trim(),
+      icono: (raw?.icono ?? '').toString().trim(),
+      direccion: (raw?.direccion ?? '').toString().trim(),
+      lat: this.toNumber6(raw?.lat),
+      lng: this.toNumber6(raw?.lng),
+      estatus: Number(raw?.estatus ?? 1),
+      idCliente: Number(raw?.idCliente),
     };
-
-    if (this.transaccionForm.contains('id')) {
-      this.transaccionForm.removeControl('id');
-    }
 
     this.tallService.agregarTaller(payload).subscribe(
       () => {
@@ -172,7 +137,7 @@ export class AgregarTallerComponent implements OnInit {
         Swal.fire({
           title: '¡Operación Exitosa!',
           background: '#002136',
-          text: 'Se agregó una nueva transacción de manera exitosa.',
+          text: 'Se agregó un nuevo taller de manera exitosa.',
           icon: 'success',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -189,94 +154,17 @@ export class AgregarTallerComponent implements OnInit {
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
-          allowOutsideClick: false
+          allowOutsideClick: false,
         });
       }
     );
   }
 
-  moneyKeydown(e: KeyboardEvent) {
-    const allowed = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'];
-    if (allowed.includes(e.key)) return;
-
-    const input = e.target as HTMLInputElement;
-    const value = input.value || '';
-
-    if (e.key === '.') {
-      if (value.includes('.')) e.preventDefault();
-      return;
-    }
-    if (!/^\d$/.test(e.key)) {
-      e.preventDefault();
-      return;
-    }
-
-    const selStart = input.selectionStart ?? value.length;
-    const selEnd = input.selectionEnd ?? value.length;
-    const newValue = value.slice(0, selStart) + e.key + value.slice(selEnd);
-    const parts = newValue.split('.');
-    if (parts[1] && parts[1].length > 2) e.preventDefault();
-  }
-
-  moneyInput(e: Event) {
-    const input = e.target as HTMLInputElement;
-    let v = (input.value || '').replace(',', '.');
-    v = v.replace(/[^0-9.]/g, '');
-    const firstDot = v.indexOf('.');
-    if (firstDot !== -1) {
-      const before = v.slice(0, firstDot + 1);
-      const after = v.slice(firstDot + 1).replace(/\./g, '');
-      v = before + after;
-    }
-    const parts = v.split('.');
-    if (parts[1]) v = parts[0] + '.' + parts[1].slice(0, 2);
-
-    input.value = v;
-    this.transaccionForm.get('monto')?.setValue(v, { emitEvent: false });
-  }
-
-  moneyPaste(e: ClipboardEvent) {
-    e.preventDefault();
-    const input = e.target as HTMLInputElement;
-    const text = (e.clipboardData?.getData('text') || '').replace(',', '.');
-    let v = text.replace(/[^0-9.]/g, '');
-    const firstDot = v.indexOf('.');
-    if (firstDot !== -1) {
-      const before = v.slice(0, firstDot + 1);
-      const after = v.slice(firstDot + 1).replace(/\./g, '');
-      v = before + after;
-    }
-    const parts = v.split('.');
-    if (parts[1]) v = parts[0] + '.' + parts[1].slice(0, 2);
-    input.value = v;
-    this.transaccionForm.get('monto')?.setValue(v, { emitEvent: false });
-  }
-
-  moneyBlur(e: FocusEvent) {
-    const input = e.target as HTMLInputElement;
-    let v = input.value;
-
-    if (!v) return;
-    if (/^\d+$/.test(v)) {
-      v = v + '.00';
-    } else if (/^\d+\.\d$/.test(v)) {
-      v = v + '0';
-    } else if (/^\d+\.\d{2}$/.test(v)) {
-    } else {
-      v = v.replace(',', '.').replace(/[^0-9.]/g, '');
-      const parts = v.split('.');
-      v = parts[0] + (parts[1] ? '.' + parts[1].slice(0, 2) : '.00');
-      if (/^\d+$/.test(v)) v = v + '.00';
-      if (/^\d+\.\d$/.test(v)) v = v + '0';
-    }
-    input.value = v;
-    this.transaccionForm.get('monto')?.setValue(v, { emitEvent: false });
-  }
-
   regresar() {
-    this.route.navigateByUrl('/transacciones');
+    this.route.navigateByUrl('/talleres');
   }
 
+  // --------- MAPA ---------
   lat: number | null = null;
   lng: number | null = null;
   private map!: any;
@@ -290,40 +178,86 @@ export class AgregarTallerComponent implements OnInit {
   }
 
   private initMap(): void {
-    const center = { lat: 19.2840, lng: -99.6550 };
+    const center = { lat: 19.284, lng: -99.655 };
     const el = document.getElementById('map') as HTMLElement;
     this.map = new google.maps.Map(el, { center, zoom: 14 });
     this.geocoder = new google.maps.Geocoder();
     this.infoWindow = new google.maps.InfoWindow();
+
     this.map.addListener('click', (e: any) => {
       this.zone.run(() => {
-        const lat = e.latLng.lat();
-        const lng = e.latLng.lng();
+        const lat = this.toNumber6(e.latLng.lat());
+        const lng = this.toNumber6(e.latLng.lng());
+
         this.lat = lat;
         this.lng = lng;
-        this.transaccionForm.patchValue({ latitud: lat, longitud: lng });
+
+        // Primero guardamos lat/lng
+        this.tallerForm.patchValue({ lat, lng });
+
+        // Luego resolvemos y guardamos la dirección
+        this.setAddressFromLatLng(e.latLng);
+
         this.placeMarker(e.latLng);
-        this.openInfoAt(e.latLng);
       });
     });
   }
 
-  private openInfoAt(latLng: any): void {
-    this.geocoder.geocode({ location: latLng }, (results: any, status: string) => {
-      let address =
-        status === 'OK' && results && results[0]?.formatted_address
-          ? results[0].formatted_address
-          : `Lat: ${latLng.lat().toFixed(6)}, Lng: ${latLng.lng().toFixed(6)}`;
+  /** Obtiene la dirección y la guarda en el form: direccion */
+  private setAddressFromLatLng(latLng: google.maps.LatLng): void {
+    this.geocoder.geocode(
+      { location: latLng },
+      (results: any, status: string) => {
+        let address = '';
+        if (status === 'OK' && results && results[0]?.formatted_address) {
+          address = results[0].formatted_address;
+        } else {
+          // Fallback si falla el geocoder
+          address = `Lat: ${latLng.lat().toFixed(6)}, Lng: ${latLng
+            .lng()
+            .toFixed(6)}`;
+        }
 
-      const html = `
-        <div style="font-family: 'Segoe UI', sans-serif; border-radius: 12px; max-width: 250px; word-wrap: break-word; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; line-height: 1.2;">
-          <strong style="font-size: 16px; color: #002136">Punto de Destino</strong>
+        // Guarda en el form para que viaje en el payload
+        this.tallerForm.patchValue({ direccion: address });
+
+        // Muestra el InfoWindow (opcional)
+        const html = `
+      <div style="font-family:'Segoe UI',sans-serif;border-radius:12px;max-width:260px;word-wrap:break-word;
+                  box-shadow:0 4px 12px rgba(0,0,0,0.15);background:white;line-height:1.2;">
+        <strong style="font-size:16px;color:#002136">Ubicación seleccionada</strong>
+        <div style="font-size:14px;color:#4a4a4a;">${address}</div>
+      </div>`;
+        this.infoWindow.setContent(html);
+        this.infoWindow.open(this.map, this.marker);
+      }
+    );
+  }
+
+  private reverseGeocodeAndFill(latLng: any): void {
+    this.geocoder.geocode(
+      { location: latLng },
+      (results: any, status: string) => {
+        const address =
+          status === 'OK' && results && results[0]?.formatted_address
+            ? results[0].formatted_address
+            : `Lat: ${latLng.lat().toFixed(6)}, Lng: ${latLng
+                .lng()
+                .toFixed(6)}`;
+
+        // Muestra y guarda la dirección para el payload (campo "direccion")
+        const html = `
+        <div style="font-family: 'Segoe UI', sans-serif; border-radius: 12px; max-width: 260px; word-wrap: break-word; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; line-height: 1.2;">
+          <strong style="font-size: 16px; color: #002136">Ubicación seleccionada</strong>
           <div style="font-size: 14px; color: #4a4a4a;">${address}</div>
         </div>
       `;
-      this.infoWindow.setContent(html);
-      this.infoWindow.open(this.map, this.marker);
-    });
+        this.infoWindow.setContent(html);
+        this.infoWindow.open(this.map, this.marker);
+
+        this.tallerForm.patchValue({ direccion: address });
+      }
+    );
   }
 
   private placeMarker(location: any): void {
@@ -337,8 +271,8 @@ export class AgregarTallerComponent implements OnInit {
           url: 'assets/images/marker.png',
           scaledSize: new google.maps.Size(50, 40),
           origin: new google.maps.Point(0, 0),
-          anchor: new google.maps.Point(20, 40)
-        }
+          anchor: new google.maps.Point(20, 40),
+        },
       });
     }
     this.map.panTo(location);
@@ -357,7 +291,9 @@ export class AgregarTallerComponent implements OnInit {
     return new Promise((resolve, reject) => {
       const scriptId = 'gmaps-sdk';
       if (document.getElementById(scriptId)) {
-        (document.getElementById(scriptId) as HTMLScriptElement).addEventListener('load', () => resolve());
+        (
+          document.getElementById(scriptId) as HTMLScriptElement
+        ).addEventListener('load', () => resolve());
         return;
       }
       const script = document.createElement('script');
@@ -370,5 +306,4 @@ export class AgregarTallerComponent implements OnInit {
       document.head.appendChild(script);
     });
   }
-
 }

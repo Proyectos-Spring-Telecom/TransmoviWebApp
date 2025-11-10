@@ -39,6 +39,18 @@ export class AltaInstalacionComponent implements OnInit {
   listaDipositivos: any[] = [];
   listaBlueVox: any[] = [];
   listaVehiculos: any[] = [];
+  displayCliente = (c: any) =>
+    c ? `${c.nombre || ''} ${c.apellidoPaterno || ''} ${c.apellidoMaterno || ''}`.trim() : '';
+
+  displayDispositivo = (d: any) =>
+    d ? (d.numeroSerie || d.numeroSerieDispositivo || d.serie || d.id) : '';
+
+  displayBluevox = (b: any) =>
+    b ? (b.numeroSerieBlueVox || b.numeroSerie || b.serie || b.id) : '';
+
+  displayVehiculo = (v: any) =>
+    v ? (v.placa || v.placaVehiculo || v.numeroEconomico || v.alias || v.id) : '';
+
 
   idClienteUser!: number;
   idRolUser!: number;

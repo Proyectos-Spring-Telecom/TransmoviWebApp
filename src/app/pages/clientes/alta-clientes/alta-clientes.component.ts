@@ -24,6 +24,8 @@ export class AltaClientesComponent implements OnInit {
   public listaClientes: any[] = [];
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
+  clienteDisplayExpr = (c: any) => c ? `${c.nombre || ''} ${c.apellidoPaterno || ''} ${c.apellidoMaterno || ''}`.trim() : '';
+  tipoPersonaItems = [{ id: 1, text: 'Física' }, { id: 2, text: 'Moral' }];
   // public showRol: any;
 
   constructor(

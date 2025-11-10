@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { DerroterosRoutingModule } from './derroteros-routing.module';
 import { ListaDerroterosComponent } from './lista-derroteros/lista-derroteros.component';
 import { AltaDerroteroComponent } from './alta-derrotero/alta-derrotero.component';
-import { DxDataGridModule, DxLoadPanelModule } from 'devextreme-angular';
+import { DxDataGridModule, DxLoadPanelModule, DxSelectBoxModule } from 'devextreme-angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { GoogleMapsModule } from '@angular/google-maps';
@@ -23,7 +23,8 @@ import { GoogleMapsModule } from '@angular/google-maps';
     DxLoadPanelModule,
     ReactiveFormsModule,
     FormsModule,
-    SharedModule
+    SharedModule,
+    DxSelectBoxModule
   ]
 })
 export class DerroterosModule { }

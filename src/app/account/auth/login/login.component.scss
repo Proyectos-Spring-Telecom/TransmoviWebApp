@@ -65,7 +65,7 @@ $fondo: #2f3547;       // fondo oscuro neutro
     }
 
     .login-btn {
-      width: 100%;
+      width: 60%;
       padding: 0.9rem;
       border: none;
       border-radius: 0.75rem;
@@ -159,4 +159,117 @@ $fondo: #2f3547;       // fondo oscuro neutro
   100% {
       transform: rotate(360deg);
   }
+}
+
+
+::ng-deep .swal2-container .swal2-title {
+    font-size: 24px;
+    font-weight: 200;
+    color: #ffffff;
+}
+
+.swal2-container .swal2-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+::ng-deep div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+/* OTP más compacto */
+.otp-inputs .otp-box {
+  width: 48px;
+  height: 42px;
+  padding: 0;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-radius: 10px;
+  background: #fff;
+  color: #0e2b2f; /* texto oscuro legible */
+  outline: none;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .05s ease;
+}
+
+.otp-inputs .otp-box:focus {
+  border-color: #10b981; /* verde brand */
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, .25);
+  transform: translateY(-1px);
+}
+
+.otp-inputs .otp-box.ng-invalid.ng-touched {
+  border-color: #ef4444; /* rojo error */
+}
+
+/* Responsive: un pelín más chicos en móvil */
+@media (max-width: 480px) {
+  .otp-inputs .otp-box {
+    width: 42px;
+    height: 38px;
+    font-size: 18px;
+  }
+}
+
+/* Botón blanco para reenvío */
+.login-btn--white {
+  background: #ffffff !important;
+  color: #0f766e !important;        /* teal para el texto */
+  border: 1px solid rgba(15, 118, 110, .25);
+  transition: box-shadow .2s ease, transform .05s ease;
+}
+
+.login-btn--white:hover:not(:disabled) {
+  box-shadow: 0 6px 22px rgba(255, 255, 255, .12);
+  transform: translateY(-1px);
+}
+
+.login-btn--white:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+  filter: saturate(.85);
+}
+
+.login-btn--white {
+  background: #ffffff !important;
+  color: #0f766e !important; /* ajusta a tu brand */
+  border: 1px solid rgba(15, 118, 110, .25);
+  transition: box-shadow .2s ease, transform .05s ease;
+}
+.login-btn--white:hover:not(:disabled) {
+  box-shadow: 0 6px 22px rgba(255, 255, 255, .12);
+  transform: translateY(-1px);
+}
+.login-btn--white:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+  filter: saturate(.85);
 }

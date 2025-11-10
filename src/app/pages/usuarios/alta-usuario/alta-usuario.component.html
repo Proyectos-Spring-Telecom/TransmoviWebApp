@@ -15,8 +15,7 @@
         <div class="row">
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2">
             <label>Nombre</label>
-            <input type="text" class="form-control" formControlName="nombre"
-              placeholder="Comercializadora Ejemplo" />
+            <input type="text" class="form-control" formControlName="nombre" placeholder="Comercializadora Ejemplo" />
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2">
             <label>Apellido Paterno</label>
@@ -33,27 +32,24 @@
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2" *ngIf="inputContrasena">
             <label>Correo</label>
-            <input type="email" class="form-control" formControlName="userName"
-              placeholder="contacto@ejemplo.com" />
+            <input type="email" class="form-control" formControlName="userName" placeholder="contacto@ejemplo.com" />
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2">
             <label>Rol</label>
-            <select class="form-select" formControlName="idRol">
-              <option [ngValue]="null" disabled>Seleccione un rol</option>
-              <option *ngFor="let r of listaRoles" [value]="r.id">
-                {{ r.nombre || r.Nombre || ('Rol ' + (r.id || r.Id)) }}
-              </option>
-            </select>
+            <dx-select-box class="tm-select w-100" formControlName="idRol" [dataSource]="listaRoles" [displayExpr]="roleDisplayExpr"
+              [valueExpr]="roleValueExpr" placeholder="Seleccione un rol" [searchEnabled]="true"
+              [showClearButton]="true" [noDataText]="'Sin registros'">
+            </dx-select-box>
           </div>
+
           <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-2">
             <label>Cliente</label>
-            <select class="form-select" formControlName="idCliente">
-              <option [ngValue]="null" disabled>Seleccione un cliente</option>
-              <option *ngFor="let c of listaClientes" [ngValue]="c.id">
-                {{ (c.nombre || '') + ' ' + (c.apellidoPaterno || '') }}
-              </option>
-            </select>
+            <dx-select-box class="tm-select w-100" formControlName="idCliente" [dataSource]="listaClientes" [displayExpr]="clienteDisplayExpr"
+              valueExpr="id" placeholder="Seleccione un cliente" [searchEnabled]="true" [showClearButton]="true"
+              [noDataText]="'Sin registros'">
+            </dx-select-box>
           </div>
+
           <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-2" *ngIf="inputContrasena">
             <label id="pws1">Contraseña</label>
             <div class="password-wrapper">
@@ -104,9 +100,9 @@
             <span *ngIf="usuarioForm.hasError('passwordMismatch') && usuarioForm.get('confirmPassword')?.touched"
               class="text-danger">Las contraseñas no coinciden</span>
           </div>
-          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-2">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-2">
             <div class="tc-upload">
-              <label>Logotipo</label>
+              <label>Imagen Perfil</label>
               <div class="tc-preview" *ngIf="logoPreviewUrl; else logoTile">
                 <img [src]="logoPreviewUrl" alt="Logotipo" />
                 <div class="tc-actions">
