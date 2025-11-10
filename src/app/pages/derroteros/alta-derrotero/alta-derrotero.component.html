@@ -113,54 +113,98 @@
 </ng-template>
 
 <ng-template #exlargeModalForm let-modal>
+  <div>
     <div>
-        <div>
-            <div class="card-header-custom">
-                <div class="icon-wrapper">
-                    <i class="fas fa-plus"></i>
-                </div>
-                <div class="header-text">
-                    <h5>{{titleTarifa}}</h5>
-                    <span>Completa la información para registrar una nueva tarifa.</span>
-                </div>
-            </div>
-            <div class="card-body" style="padding: 20px; background-color: #002136;">
-                <form [formGroup]="tarifaForm" class="cliente-form">
-                    <div class="row">
-                        <div class="col-md-6 mt-3">
-                            <label>Tarifa Base</label>
-                            <input type="text" class="form-control" formControlName="tarifaBase" placeholder="100.00"
-                                inputmode="decimal" (focus)="onTarifaFocus()" (blur)="onTarifaBlur()"
-                                (keypress)="allowDecimal($event)" />
-                        </div>
-                        <div class="col-md-6 mt-3">
-                            <label>Distancia Base Km</label>
-                            <input type="text" class="form-control" formControlName="distanciaBaseKm"
-                                placeholder="120.5" (focus)="onDistanciaFocus()" (blur)="onDistanciaBlur()"
-                                (keypress)="allowDecimal($event)">
-                        </div>
-
-                        <div class="col-md-6 mt-3">
-                            <label>Incremento Por Metros</label>
-                            <input type="text" class="form-control" formControlName="incrementoCadaMetros"
-                                placeholder="10.25" inputmode="decimal" (focus)="onIncrementoFocus()"
-                                (blur)="onIncrementoBlur()" (keypress)="allowDecimal($event)" />
-
-                        </div>
-
-                        <div class="col-md-6 mt-3">
-                            <label>Costo Adicional</label>
-                            <input type="text" class="form-control" formControlName="costoAdicional" placeholder="50.00"
-                                inputmode="decimal" (focus)="onCostoFocus()" (blur)="onCostoBlur()"
-                                (keypress)="allowDecimal($event)" />
-                        </div>
-                    </div>
-                    <div class="form-actions mt-4">
-                        <button type="submit" class="submit" (click)="agregarTarifa()">{{submitButton}}</button>
-                        <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
-                    </div>
-                </form>
-            </div>
+      <div class="card-header-custom">
+        <div class="icon-wrapper">
+          <i class="fas fa-plus"></i>
         </div>
+        <div class="header-text">
+          <h5>{{titleTarifa}}</h5>
+          <span>Completa la información para registrar una nueva tarifa.</span>
+        </div>
+      </div>
+
+      <div class="card-body" style="padding: 20px; background-color: #002136;">
+        <form [formGroup]="tarifaForm" class="cliente-form">
+          <div class="row">
+            <div class="col-12 col-sm-6 col-md-4 mt-3">
+              <label>Tarifa Base</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="tarifaBase"
+                placeholder="100.00"
+                inputmode="decimal"
+                (focus)="onTarifaFocus()"
+                (blur)="onTarifaBlur()"
+                (keypress)="allowDecimal($event)"
+              />
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 mt-3">
+              <label>Distancia Base Km</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="distanciaBaseKm"
+                placeholder="120.5"
+                (focus)="onDistanciaFocus()"
+                (blur)="onDistanciaBlur()"
+                (keypress)="allowDecimal($event)"
+              />
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 mt-3">
+              <label>Incremento Por Metros</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="incrementoCadaMetros"
+                placeholder="10.25"
+                inputmode="decimal"
+                (focus)="onIncrementoFocus()"
+                (blur)="onIncrementoBlur()"
+                (keypress)="allowDecimal($event)"
+              />
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 mt-3">
+              <label>Costo Adicional</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="costoAdicional"
+                placeholder="50.00"
+                inputmode="decimal"
+                (focus)="onCostoFocus()"
+                (blur)="onCostoBlur()"
+                (keypress)="allowDecimal($event)"
+              />
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 mt-3">
+                <label>Tipo Tarifa</label>
+                <dx-select-box
+                    class="tm-select w-100"
+                    formControlName="tipoTarifa"
+                    [dataSource]="tiposTarifa"
+                    valueExpr="id"
+                    displayExpr="nombre"
+                    placeholder="Selecciona un tipo de tarifa"
+                    [searchEnabled]="true"
+                    [showClearButton]="true"
+                    [noDataText]="'Sin registros'">
+                </dx-select-box>
+            </div>
+          </div>
+
+          <div class="form-actions mt-4">
+            <button type="submit" class="submit" (click)="agregarTarifa()">{{ submitButton }}</button>
+            <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 </ng-template>

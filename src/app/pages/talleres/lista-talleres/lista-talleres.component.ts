@@ -12,11 +12,10 @@ import { TallereService } from 'src/app/shared/services/talleres.service';
   selector: 'app-lista-talleres',
   templateUrl: './lista-talleres.component.html',
   styleUrl: './lista-talleres.component.scss',
-  animations: [fadeInUpAnimation]
+  animations: [fadeInUpAnimation],
 })
 export class ListaTalleresComponent implements OnInit {
-
-  listaTransacciones: any;
+  listaTalleres: any;
   isLoading: boolean = false;
   public selectedTransactionId: number | null = null;
   public latSelect: string | null = null;
@@ -28,7 +27,8 @@ export class ListaTalleresComponent implements OnInit {
   public showFilterRow: boolean;
   public showHeaderFilter: boolean;
   public loadingVisible: boolean = false;
-  public mensajeAgrupar: string = "Arrastre un encabezado de columna aquí para agrupar por esa columna"
+  public mensajeAgrupar: string =
+    'Arrastre un encabezado de columna aquí para agrupar por esa columna';
   public loading: boolean = false;
   public loadingMessage: string = 'Cargando...';
   public paginaActual: number = 1;
@@ -39,7 +39,12 @@ export class ListaTalleresComponent implements OnInit {
   public paginaActualData: any[] = [];
   public filtroActivo: string = '';
   public showMap: boolean = false;
-  @ViewChild(DxDataGridComponent, { static: false }) dataGrid: DxDataGridComponent;
+  public selectedTallerId: number | string | null = null;
+  public selectedTallerNombre: string | null = null;
+  public selectedTallerDireccion: string | null = null;
+  public hasLocation = false;
+  @ViewChild(DxDataGridComponent, { static: false })
+  dataGrid: DxDataGridComponent;
 
   constructor(
     private tallService: TallereService,
@@ -52,17 +57,23 @@ export class ListaTalleresComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.setupDataSource();
+    this.obtenerTalleres();
   }
 
   hasPermission(permission: string): boolean {
     return this.permissionsService.getPermission(permission) !== undefined;
   }
 
+  obtenerTalleres(): void {
+    this.tallService.obtenerTalleres().subscribe((response: any) => {
+      this.listaTalleres = response;
+    });
+  }
+
   setupDataSource() {
     this.loading = true;
 
-    this.listaTransacciones = new CustomStore({
+    this.listaTalleres = new CustomStore({
       key: 'id',
       load: async (loadOptions: any) => {
         const take = Number(loadOptions?.take) || this.pageSize || 10;
@@ -80,11 +91,16 @@ export class ListaTalleresComponent implements OnInit {
           const totalRegistros = toNum(meta.total) ?? rows.length;
           const paginaActual = toNum(meta.page) ?? page;
           const totalPaginas =
-            toNum(meta.lastPage) ?? Math.max(1, Math.ceil(totalRegistros / take));
+            toNum(meta.lastPage) ??
+            Math.max(1, Math.ceil(totalRegistros / take));
 
           const dataTransformada = rows.map((x: any) => {
-            const pasajero = [x?.nombrePasajero, x?.apellidoPaternoPasajero, x?.apellidoMaternoPasajero]
-              .filter(v => !!(v && String(v).trim()))
+            const pasajero = [
+              x?.nombrePasajero,
+              x?.apellidoPaternoPasajero,
+              x?.apellidoMaternoPasajero,
+            ]
+              .filter((v) => !!(v && String(v).trim()))
               .join(' ')
               .trim();
 
@@ -102,7 +118,6 @@ export class ListaTalleresComponent implements OnInit {
             };
           });
 
-
           this.totalRegistros = totalRegistros;
           this.paginaActual = paginaActual;
           this.totalPaginas = totalPaginas;
@@ -110,14 +125,14 @@ export class ListaTalleresComponent implements OnInit {
 
           return {
             data: dataTransformada,
-            totalCount: totalRegistros
+            totalCount: totalRegistros,
           };
         } catch (error) {
           this.loading = false;
           console.error('[TRANSACCIONES] Error:', error);
           return { data: [], totalCount: 0 };
         }
-      }
+      },
     });
 
     function toNum(v: any): number | null {
@@ -127,25 +142,120 @@ export class ListaTalleresComponent implements OnInit {
 
     function toMoney(v: any): number | null {
       if (v === null || v === undefined) return null;
-      const s = String(v).replace(',', '.').replace(/[^0-9.-]/g, '');
+      const s = String(v)
+        .replace(',', '.')
+        .replace(/[^0-9.-]/g, '');
       const n = Number(s);
       return Number.isFinite(n) ? Number(n.toFixed(2)) : null;
     }
   }
 
+  openTallerMapa(templateRef: any, row: any) {
+    const lat = Number(row?.Lat ?? row?.lat ?? row?.LAT);
+    const lng = Number(row?.Lng ?? row?.lng ?? row?.LNG);
+
+    this.selectedTallerId = row?.Id ?? row?.id ?? null;
+    this.selectedTallerNombre = row?.Nombre ?? row?.nombre ?? null;
+    this.selectedTallerDireccion = row?.Direccion ?? row?.direccion ?? null;
+
+    this.hasLocation = Number.isFinite(lat) && Number.isFinite(lng);
+
+    this.modalService.open(templateRef, {
+      size: 'xl',
+      windowClass: 'modal-holder',
+      centered: true,
+    });
+
+    if (!this.hasLocation) return;
+
+    const mapId = `map-${this.selectedTallerId}`;
+    setTimeout(
+      () =>
+        this.initTallerMap(lat, lng, mapId, this.selectedTallerDireccion || ''),
+      250
+    );
+  }
+
+  private initTallerMap(
+    lat: number,
+    lng: number,
+    mapId: string,
+    direccion: string
+  ) {
+    const el = document.getElementById(mapId) as HTMLElement | null;
+    if (!el) return;
+
+    const center = { lat: Number(lat), lng: Number(lng) };
+    const map = new google.maps.Map(el, {
+      center,
+      zoom: 16,
+      mapTypeControl: false,
+      streetViewControl: true,
+      fullscreenControl: true,
+    });
+
+    const marker = new google.maps.Marker({
+      position: center,
+      map,
+      title: 'Taller',
+    });
+
+    // MISMO ESTILO QUE RUTAS, título en AZUL y texto = dirección
+    const info = new google.maps.InfoWindow({
+      disableAutoPan: true,
+      maxWidth: 280,
+      content: `
+      <div style="
+        font-family:'Segoe UI',sans-serif;
+        display:inline-block;
+        background:#fff;
+        border-radius:12px;
+        box-shadow:0 4px 12px rgba(0,0,0,.12);
+        padding:8px 12px 6px 12px;
+        line-height:1.3;
+        margin-top:-45px;
+        max-width:240px;
+        white-space:normal;
+        overflow-wrap:break-word;
+        word-wrap:break-word;
+      ">
+        <div style="font-size:14px;color:#2f2f2f;margin:0;">
+          <span style="display:block;color:#1E88E5;font-weight:600;margin-bottom:4px;">
+            Dirección del Taller
+          </span>
+          <span style="display:block;margin:0 0 2px 0;">
+            ${direccion ? direccion : 'Sin dirección disponible'}
+          </span>
+        </div>
+      </div>
+    `,
+    });
+
+    google.maps.event.addListenerOnce(map, 'idle', () => {
+      info.open({ map, anchor: marker });
+
+      // Si el usuario cierra, volvemos a abrir para mantener el comportamiento de Rutas
+      google.maps.event.addListener(info, 'closeclick', () => {
+        info.open({ map, anchor: marker });
+      });
+    });
+  }
 
   onGridOptionChanged(e: any) {
-    if (e.fullName === "searchPanel.text") {
+    if (e.fullName === 'searchPanel.text') {
       this.filtroActivo = e.value || '';
       if (!this.filtroActivo) {
-        this.dataGrid.instance.option('dataSource', this.listaTransacciones);
+        this.dataGrid.instance.option('dataSource', this.listaTalleres);
         return;
       }
       const search = this.filtroActivo.toLowerCase();
-      const dataFiltrada = this.paginaActualData.filter((item: any) =>
-        (item.nombre && item.nombre.toLowerCase().includes(search)) ||
-        (item.descripcion && item.descripcion.toLowerCase().includes(search)) ||
-        (item.modulo?.nombre && item.modulo.nombre.toLowerCase().includes(search))
+      const dataFiltrada = this.paginaActualData.filter(
+        (item: any) =>
+          (item.nombre && item.nombre.toLowerCase().includes(search)) ||
+          (item.descripcion &&
+            item.descripcion.toLowerCase().includes(search)) ||
+          (item.modulo?.nombre &&
+            item.modulo.nombre.toLowerCase().includes(search))
       );
       this.dataGrid.instance.option('dataSource', dataFiltrada);
     }
@@ -160,7 +270,15 @@ export class ListaTalleresComponent implements OnInit {
     console.log('Mostrar información de la transacción con ID:', id);
   }
 
-  centerModal(centerDataModal: any, id: number, latitud: string, longitud: string, fechaHora: string, monto: number, tipoTransaccion: any) {
+  centerModal(
+    centerDataModal: any,
+    id: number,
+    latitud: string,
+    longitud: string,
+    fechaHora: string,
+    monto: number,
+    tipoTransaccion: any
+  ) {
     this.selectedTransactionId = id;
     this.latSelect = latitud;
     this.lngSelect = longitud;
@@ -173,7 +291,8 @@ export class ListaTalleresComponent implements OnInit {
       this.showMap = false;
     }
     this.modalService.open(centerDataModal, {
-      centered: true, windowClass: 'modal-holder',
+      centered: true,
+      windowClass: 'modal-holder',
       backdrop: 'static',
       keyboard: false,
     });
@@ -184,7 +303,10 @@ export class ListaTalleresComponent implements OnInit {
   }
 
   private readonly markerIcon: google.maps.Icon = {
-    url: new URL('assets/images/icons8-marker-48.png', document.baseURI).toString(),
+    url: new URL(
+      'assets/images/icons8-marker-48.png',
+      document.baseURI
+    ).toString(),
     scaledSize: new google.maps.Size(42, 42),
     anchor: new google.maps.Point(21, 42),
   };
@@ -216,7 +338,6 @@ export class ListaTalleresComponent implements OnInit {
   }
 
   agregarTaller() {
-    this.route.navigateByUrl('/talleres/agregar-taller')
+    this.route.navigateByUrl('/talleres/agregar-taller');
   }
-
 }

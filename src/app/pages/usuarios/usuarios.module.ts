@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { UsuariosRoutingModule } from './usuarios-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DxDataGridModule, DxLoadPanelModule } from 'devextreme-angular';
+import { DxDataGridModule, DxLoadPanelModule, DxSelectBoxModule } from 'devextreme-angular';
 import { ListaUsuariosComponent } from './lista-usuarios/lista-usuarios.component';
 import { AltaUsuarioComponent } from './alta-usuario/alta-usuario.component';
 import { SharedModule } from 'src/app/shared/shared.module';
@@ -21,7 +21,8 @@ import { SharedModule } from 'src/app/shared/shared.module';
     ReactiveFormsModule,
     DxDataGridModule,
     DxLoadPanelModule,
-    SharedModule
+    SharedModule,
+    DxSelectBoxModule
   ]
 })
 export class UsuariosModule { }

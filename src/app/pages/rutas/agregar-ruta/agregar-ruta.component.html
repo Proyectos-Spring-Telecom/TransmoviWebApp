@@ -36,8 +36,6 @@
 </div>
 
 <ng-template #exlargeModal let-modal>
-  <div>
-    <div>
       <div class="card-header-custom">
         <div class="icon-wrapper">
           <i class="fas fa-plus"></i>
@@ -47,31 +45,37 @@
           <span>Completa la información para registrar una nueva ruta.</span>
         </div>
       </div>
+
       <div class="card-body" style="padding: 20px; background-color: #002136;">
         <form [formGroup]="rutaForm" class="cliente-form">
           <h6 class="section-titles">Datos Generales</h6>
+
           <div class="row">
-            <div class="col-md-6">
+            <div class="col-12 col-sm-6 col-md-6 mt-3">
               <label>Nombre</label>
-              <input type="text" class="form-control" formControlName="nombre"
-                placeholder="Centro">
+              <input type="text" class="form-control" formControlName="nombre" placeholder="Centro" />
             </div>
-            <div class="col-md-6">
+
+            <div class="col-12 col-sm-6 col-md-6 mt-3">
               <label>Región</label>
-              <select class="form-select" formControlName="idRegion">
-                <option [ngValue]="null">Seleccione una región</option>
-                <option *ngFor="let c of listaRegiones" [ngValue]="c.id">
-                  {{ c.nombre }}
-                </option>
-              </select>
+              <dx-select-box
+                class="tm-select w-100"
+                formControlName="idRegion"
+                [items]="listaRegiones || []"
+                [valueExpr]="'id'"
+                [displayExpr]="'nombre'"
+                [searchEnabled]="true"
+                [showClearButton]="true"
+                placeholder="Seleccione una región"
+                noDataText="Sin registros">
+              </dx-select-box>
             </div>
           </div>
+
           <div class="form-actions mt-4">
-            <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
+            <button type="submit" class="submit" (click)="submit()">{{ submitButton }}</button>
             <button type="button" class="cancel" (click)="cancelarYReiniciar()">Cancelar</button>
           </div>
         </form>
       </div>
-    </div>
-  </div>
 </ng-template>

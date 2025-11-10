@@ -13,7 +13,6 @@ import Swal from 'sweetalert2';
   animations: [fadeInUpAnimation],
 })
 export class AgregarTarifaComponent implements OnInit {
-
   public submitButton: string = 'Guardar';
   public loading: boolean = false;
   public tarifaForm: FormGroup;
@@ -22,17 +21,22 @@ export class AgregarTarifaComponent implements OnInit {
   public listaDerroteros: any[] = [];
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
+  tiposTarifa = [
+    { id: 1, nombre: 'Fija' },
+    { id: 2, nombre: 'Modificable' },
+  ];
+  displayDerrotero = (d: any) => (d ? d.nombreDerrotero : '');
 
   constructor(
     private fb: FormBuilder,
     private tarSerice: TarifasService,
     private activatedRouted: ActivatedRoute,
     private derroService: DerroterosService,
-    private route: Router,
-  ) { }
+    private route: Router
+  ) {}
 
   ngOnInit(): void {
-    this.obtenerDerroteros()
+    this.obtenerDerroteros();
     this.initForm();
     this.activatedRouted.params.subscribe((params) => {
       this.idTarifa = params['idTarifa'];
@@ -46,7 +50,7 @@ export class AgregarTarifaComponent implements OnInit {
   obtenerDerroteros() {
     this.derroService.obtenerDerroteros().subscribe((response) => {
       this.listaDerroteros = response.data;
-    })
+    });
   }
 
   private toNumber(v: any): number | null {
@@ -67,7 +71,10 @@ export class AgregarTarifaComponent implements OnInit {
     if (!c) return;
     const raw = (c.value ?? '').toString().replace(/[^0-9.-]/g, '');
     const num = parseFloat(raw);
-    if (isNaN(num)) { c.setValue(''); return; }
+    if (isNaN(num)) {
+      c.setValue('');
+      return;
+    }
     c.setValue(`$${num.toFixed(2)}`);
   }
 
@@ -83,7 +90,10 @@ export class AgregarTarifaComponent implements OnInit {
     if (!c) return;
     const raw = (c.value ?? '').toString().replace(/[^0-9.-]/g, '');
     const num = parseFloat(raw);
-    if (isNaN(num)) { c.setValue(''); return; }
+    if (isNaN(num)) {
+      c.setValue('');
+      return;
+    }
     c.setValue(`$${num.toFixed(2)}`);
   }
 
@@ -98,7 +108,10 @@ export class AgregarTarifaComponent implements OnInit {
     const c = this.tarifaForm.get('distanciaBaseKm');
     if (!c) return;
     const raw = (c.value ?? '').toString().replace(/[^0-9]/g, '');
-    if (!raw) { c.setValue(''); return; }
+    if (!raw) {
+      c.setValue('');
+      return;
+    }
     c.setValue(`${raw} km`);
   }
 
@@ -113,7 +126,10 @@ export class AgregarTarifaComponent implements OnInit {
     const c = this.tarifaForm.get('incrementoCadaMetros');
     if (!c) return;
     const raw = (c.value ?? '').toString().replace(/[^0-9]/g, '');
-    if (!raw) { c.setValue(''); return; }
+    if (!raw) {
+      c.setValue('');
+      return;
+    }
     c.setValue(`${raw} m`);
   }
 
@@ -125,60 +141,76 @@ export class AgregarTarifaComponent implements OnInit {
   }
 
   // Permitir solo enteros
-allowInteger(event: KeyboardEvent): void {
-  const key = event.key;
-  // permitir controles
-  if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(key)) return;
-  // permitir solo dígitos
-  if (!/^[0-9]$/.test(key)) event.preventDefault();
-}
+  allowInteger(event: KeyboardEvent): void {
+    const key = event.key;
+    // permitir controles
+    if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(key))
+      return;
+    // permitir solo dígitos
+    if (!/^[0-9]$/.test(key)) event.preventDefault();
+  }
 
-// Permitir decimales con un solo punto o coma
-allowDecimal(event: KeyboardEvent): void {
-  const key = event.key;
-  if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(key)) return;
-  const target = event.target as HTMLInputElement;
-  // dígitos
-  if (/^[0-9]$/.test(key)) return;
-  // punto o coma solo una vez
-  if ((key === '.' || key === ',') && !/[.,]/.test(target.value)) return;
-  event.preventDefault();
-}
+  // Permitir decimales con un solo punto o coma
+  allowDecimal(event: KeyboardEvent): void {
+    const key = event.key;
+    if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(key))
+      return;
+    const target = event.target as HTMLInputElement;
+    // dígitos
+    if (/^[0-9]$/.test(key)) return;
+    // punto o coma solo una vez
+    if ((key === '.' || key === ',') && !/[.,]/.test(target.value)) return;
+    event.preventDefault();
+  }
 
-// Parser común para enviar solo números
-private parseNumeric(value: any): number | null {
-  if (value === null || value === undefined) return null;
-  const raw = value.toString().replace(/[^0-9.,-]/g, '').replace(',', '.');
-  const n = parseFloat(raw);
-  return Number.isFinite(n) ? n : null;
-}
+  // Parser común para enviar solo números
+  private parseNumeric(value: any): number | null {
+    if (value === null || value === undefined) return null;
+    const raw = value
+      .toString()
+      .replace(/[^0-9.,-]/g, '')
+      .replace(',', '.');
+    const n = parseFloat(raw);
+    return Number.isFinite(n) ? n : null;
+  }
 
-// Si quieres que el formulario también quede en number antes de enviar:
-private normalizeFormToNumbers(): void {
-  const v = this.tarifaForm.value;
-  this.tarifaForm.patchValue({
-    tarifaBase: this.parseNumeric(v.tarifaBase),
-    distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
-    incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
-    costoAdicional: this.parseNumeric(v.costoAdicional),
-  }, { emitEvent: false });
-}
+  // Si quieres que el formulario también quede en number antes de enviar:
+  private normalizeFormToNumbers(): void {
+    const v = this.tarifaForm.value;
+    this.tarifaForm.patchValue(
+      {
+        tarifaBase: this.parseNumeric(v.tarifaBase),
+        distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
+        incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
+        costoAdicional: this.parseNumeric(v.costoAdicional),
+      },
+      { emitEvent: false }
+    );
+  }
 
   obtenerTarifa() {
     this.tarSerice.obtenerTarifa(this.idTarifa).subscribe({
       next: (response: any) => {
         const data = response?.data;
         const item = Array.isArray(data)
-          ? (data.find((x: any) => x?.id === this.idTarifa) ?? data[0])
+          ? data.find((x: any) => x?.id === this.idTarifa) ?? data[0]
           : data;
 
-        if (!item) { return; }
+        if (!item) {
+          return;
+        }
         const dto = {
           tarifaBase: this.toNumber(item.tarifaBase ?? item.TarifaBase),
-          distanciaBaseKm: this.toNumber(item.distanciaBaseKm ?? item.DistanciaBaseKm),
-          incrementoCadaMetros: this.toNumber(item.incrementoCadaMetros ?? item.IncrementoCadaMetros),
-          costoAdicional: this.toNumber(item.costoAdicional ?? item.CostoAdicional),
-          estatus: (item.estatus ?? item.estatusTarifa ?? 1),
+          distanciaBaseKm: this.toNumber(
+            item.distanciaBaseKm ?? item.DistanciaBaseKm
+          ),
+          incrementoCadaMetros: this.toNumber(
+            item.incrementoCadaMetros ?? item.IncrementoCadaMetros
+          ),
+          costoAdicional: this.toNumber(
+            item.costoAdicional ?? item.CostoAdicional
+          ),
+          estatus: item.estatus ?? item.estatusTarifa ?? 1,
           idDerrotero: item.idDerrotero ?? item.idderrotero ?? null,
         };
 
@@ -186,7 +218,7 @@ private normalizeFormToNumbers(): void {
       },
       error: (e) => {
         console.error('Error obtenerTarifa', e);
-      }
+      },
     });
   }
 
@@ -198,6 +230,7 @@ private normalizeFormToNumbers(): void {
 
   initForm() {
     this.tarifaForm = this.fb.group({
+      tipoTarifa: [null, Validators.required],
       tarifaBase: [null, Validators.required],
       distanciaBaseKm: [null, Validators.required],
       incrementoCadaMetros: [null, Validators.required],
@@ -224,21 +257,64 @@ private normalizeFormToNumbers(): void {
     if (this.tarifaForm.invalid) {
       this.submitButton = 'Guardar';
       this.loading = false;
+
+      const etiquetas: Record<string, string> = {
+        tipoTarifa: 'Tipo Tarifa',
+        tarifaBase: 'Tarifa Base',
+        distanciaBaseKm: 'Distancia Base',
+        incrementoCadaMetros: 'Incremento de Distancia por Metro',
+        costoAdicional: 'Costo por Incremento',
+        estatus: 'Estatus',
+        idDerrotero: 'Derrotero',
+      };
+
+      const faltantes: string[] = [];
+      Object.keys(this.tarifaForm.controls).forEach((key) => {
+        const control = this.tarifaForm.get(key);
+        if (control?.invalid && control.errors?.['required']) {
+          faltantes.push(etiquetas[key] || key);
+        }
+      });
+
+      const lista = faltantes
+        .map(
+          (campo, i) => `
+      <div style="padding:8px 12px;border-left:4px solid #d9534f;background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
+        <strong style="color:#b02a37;">${i + 1}. ${campo}</strong>
+      </div>
+    `
+        )
+        .join('');
+
+      Swal.fire({
+        title: '¡Faltan campos obligatorios!',
+        background: '#002136',
+        html: `
+        <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
+          Completa los siguientes campos antes de continuar:
+        </p>
+        <div style="max-height:350px;overflow-y:auto;">${lista}</div>
+      `,
+        icon: 'error',
+        confirmButtonText: 'Entendido',
+        customClass: { popup: 'swal2-padding swal2-border' },
+      });
       return;
     }
 
     const v = this.tarifaForm.value;
     const payload = {
+      tipoTarifa: this.toNum(v.tipoTarifa),
       tarifaBase: this.parseNumeric(v.tarifaBase),
-    distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
-    incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
-    costoAdicional: this.parseNumeric(v.costoAdicional),
+      distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
+      incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
+      costoAdicional: this.parseNumeric(v.costoAdicional),
       estatus: this.toNum(v.estatus),
       idDerrotero: this.toNum(v.idDerrotero),
     };
 
     this.tarSerice.agregarTarifa(payload).subscribe(
-      (response) => {
+      () => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
@@ -251,7 +327,7 @@ private normalizeFormToNumbers(): void {
         });
         this.regresar();
       },
-      (error) => {
+      () => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
@@ -271,23 +347,65 @@ private normalizeFormToNumbers(): void {
     this.loading = true;
 
     if (this.tarifaForm.invalid) {
-      this.submitButton = 'Guardar';
+      this.submitButton = 'Actualizar';
       this.loading = false;
+
+      const etiquetas: Record<string, string> = {
+        tipoTarifa: 'Tipo Tarifa',
+        tarifaBase: 'Tarifa Base',
+        distanciaBaseKm: 'Distancia Base',
+        incrementoCadaMetros: 'Incremento de Distancia por Metro',
+        costoAdicional: 'Costo por Incremento',
+        estatus: 'Estatus',
+        idDerrotero: 'Derrotero',
+      };
+
+      const faltantes: string[] = [];
+      Object.keys(this.tarifaForm.controls).forEach((key) => {
+        const control = this.tarifaForm.get(key);
+        if (control?.invalid && control.errors?.['required']) {
+          faltantes.push(etiquetas[key] || key);
+        }
+      });
+
+      const lista = faltantes
+        .map(
+          (campo, i) => `
+      <div style="padding:8px 12px;border-left:4px solid #d9534f;background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
+        <strong style="color:#b02a37;">${i + 1}. ${campo}</strong>
+      </div>
+    `
+        )
+        .join('');
+
+      Swal.fire({
+        title: '¡Faltan campos obligatorios!',
+        background: '#002136',
+        html: `
+        <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
+          Completa los siguientes campos antes de continuar:
+        </p>
+        <div style="max-height:350px;overflow-y:auto;">${lista}</div>
+      `,
+        icon: 'error',
+        confirmButtonText: 'Entendido',
+        customClass: { popup: 'swal2-padding swal2-border' },
+      });
       return;
     }
 
     const v = this.tarifaForm.value;
     const payload = {
       tarifaBase: this.parseNumeric(v.tarifaBase),
-    distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
-    incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
-    costoAdicional: this.parseNumeric(v.costoAdicional),
+      distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
+      incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
+      costoAdicional: this.parseNumeric(v.costoAdicional),
       estatus: this.toNum(v.estatus),
       idDerrotero: this.toNum(v.idDerrotero),
     };
 
     this.tarSerice.actualizarTarifa(this.idTarifa, payload).subscribe(
-      (response) => {
+      () => {
         this.submitButton = 'Actualizar';
         this.loading = false;
         Swal.fire({
@@ -300,7 +418,7 @@ private normalizeFormToNumbers(): void {
         });
         this.regresar();
       },
-      (error) => {
+      () => {
         this.submitButton = 'Actualizar';
         this.loading = false;
         Swal.fire({
@@ -320,7 +438,15 @@ private normalizeFormToNumbers(): void {
   }
 
   moneyKeydown(e: KeyboardEvent) {
-    const allowed = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'];
+    const allowed = [
+      'Backspace',
+      'Tab',
+      'ArrowLeft',
+      'ArrowRight',
+      'Delete',
+      'Home',
+      'End',
+    ];
     if (allowed.includes(e.key)) return;
     const input = e.target as HTMLInputElement;
     const value = input.value || '';
@@ -395,7 +521,15 @@ private normalizeFormToNumbers(): void {
   }
 
   costoKeydown(e: KeyboardEvent) {
-    const allowed = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'];
+    const allowed = [
+      'Backspace',
+      'Tab',
+      'ArrowLeft',
+      'ArrowRight',
+      'Delete',
+      'Home',
+      'End',
+    ];
     if (allowed.includes(e.key)) return;
     const input = e.target as HTMLInputElement;
     const value = input.value || '';
@@ -469,7 +603,15 @@ private normalizeFormToNumbers(): void {
   }
 
   incrementoKeydown(e: KeyboardEvent) {
-    const allowed = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'];
+    const allowed = [
+      'Backspace',
+      'Tab',
+      'ArrowLeft',
+      'ArrowRight',
+      'Delete',
+      'Home',
+      'End',
+    ];
     if (allowed.includes(e.key)) return;
     const input = e.target as HTMLInputElement;
     const value = input.value || '';
@@ -493,7 +635,9 @@ private normalizeFormToNumbers(): void {
       v = before + after;
     }
     input.value = v;
-    this.tarifaForm.get('incrementoCadaMetros')?.setValue(v, { emitEvent: false });
+    this.tarifaForm
+      .get('incrementoCadaMetros')
+      ?.setValue(v, { emitEvent: false });
   }
 
   incrementoPaste(e: ClipboardEvent) {
@@ -508,11 +652,21 @@ private normalizeFormToNumbers(): void {
       v = before + after;
     }
     input.value = v;
-    this.tarifaForm.get('incrementoCadaMetros')?.setValue(v, { emitEvent: false });
+    this.tarifaForm
+      .get('incrementoCadaMetros')
+      ?.setValue(v, { emitEvent: false });
   }
 
   distanciaKeydown(e: KeyboardEvent) {
-    const allowed = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'];
+    const allowed = [
+      'Backspace',
+      'Tab',
+      'ArrowLeft',
+      'ArrowRight',
+      'Delete',
+      'Home',
+      'End',
+    ];
     if (allowed.includes(e.key)) return;
     const input = e.target as HTMLInputElement;
     const value = input.value || '';
@@ -553,5 +707,4 @@ private normalizeFormToNumbers(): void {
     input.value = v;
     this.tarifaForm.get('distanciaBaseKm')?.setValue(v, { emitEvent: false });
   }
-
 }

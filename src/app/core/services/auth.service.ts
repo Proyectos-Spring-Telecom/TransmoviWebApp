@@ -148,4 +148,20 @@ export class AuthenticationService extends BaseServicesService {
       )
       .pipe(catchError(this.handleError));
   }
+
+  recuperarAcceso(data: { userName: string }) {
+    return this.http.post<string>(
+      environment.API_SECURITY + '/login/recuperar/confirmacion',
+      data,
+      { responseType: 'text' as 'json' }
+    );
+  }
+
+  reenviarCodigo(payload: { codigo: string }) {
+    return this.http.patch<string>(
+      environment.API_SECURITY + '/login/verify',
+      payload,
+      { responseType: 'text' as 'json' }
+    );
+  }
 }

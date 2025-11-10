@@ -9,9 +9,7 @@
         </div>
         <div class="u-banner__body">
           <h2 class="u-banner__title">Gestión de Talleres</h2>
-          <p class="u-banner__subtitle">
-            Consulta, busca y navega entre los talleres registrados
-          </p>
+          <p class="u-banner__subtitle">Consulta, busca y navega entre los talleres registrados</p>
           <div *appHasPermission="'91'">
             <button class="u-btn u-btn--primary" (click)="agregarTaller()">
               <i class="fas fa-plus"></i>
@@ -20,35 +18,80 @@
           </div>
         </div>
       </div>
+
       <div class="row mt-4">
         <div class="col-lg-12">
           <div class="table-responsive mb-4 col-12 col-lg-12">
-            <dx-data-grid #gridContainer id="gridContainer" [noDataText]="'Sin registros'" [columnHidingEnabled]="true" [showBorders]="'true'"
-              [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="'true'"
-              [dataSource]="listaTransacciones" [keyExpr]="'Id'" [width]="'100%'" [remoteOperations]="{ paging: true }"
-              [paging]="{ pageSize: pageSize }" [pager]="{ 
-                                showPageSizeSelector: true, 
-                                allowedPageSizes: [50], 
-                                showInfo: true,
-                                infoText: 'Página {0} de {1}', 
-                                visible: true 
-                            }" (onPageIndexChanged)=" onPageIndexChanged($event)"
-              (onOptionChanged)="onGridOptionChanged($event)">
+            <dx-data-grid
+              #gridContainer
+              id="gridContainer"
+              [noDataText]="'Sin registros'"
+              [columnHidingEnabled]="true"
+              [showBorders]="'true'"
+              [showColumnLines]="true"
+              [showRowLines]="true"
+              [rowAlternationEnabled]="'true'"
+              [dataSource]="listaTalleres"
+              [keyExpr]="'Id'"
+              [width]="'100%'"
+              [remoteOperations]="{ paging: true }"
+              [paging]="{ pageSize: pageSize }"
+              [pager]="{
+                showPageSizeSelector: true,
+                allowedPageSizes: [50],
+                showInfo: true,
+                infoText: 'Página {0} de {1}',
+                visible: true
+              }"
+            >
               <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
               <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
               <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
               <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
               <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-              <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="200"></dxi-column>
-              <div *dxTemplate="let transaccion of 'Acciones'" class="d-flex gap-3 justify-content-center">
-                <div>
-                  <button type="button" class="btn btn-secondary"
-                    (click)="centerModal(centerDataModal, transaccion.data.id, transaccion.data.latitud, transaccion.data.longitud, transaccion.data.fechaHora, transaccion.data.monto, transaccion.data.tipoTransaccion)"
-                    style="border-radius: 5px;">
-                    <i class="uil uil-map-pin ml-2"></i> Ubicar
-                  </button>
-                </div>
+
+              <!-- Acciones -->
+              <dxi-column caption="Acciones" [width]="180" alignment="center" cellTemplate="acciones"></dxi-column>
+              <div *dxTemplate="let row of 'acciones'" class="d-flex gap-2 justify-content-center">
+                <button type="button" class="btn btn-secondary"
+                        (click)="openTallerMapa(centerDataModal, row.data)">
+                  <i class="uil uil-map-pin ml-2"></i> Ubicar
+                </button>
               </div>
+
+              <dxi-column dataField="Nombre" caption="Nombre" alignment="center" [width]="220"></dxi-column>
+
+              <dxi-column dataField="Descripcion" caption="Descripción" alignment="center"></dxi-column>
+
+              <dxi-column caption="Icono" alignment="center" [width]="120" cellTemplate="iconCell"></dxi-column>
+              <div *dxTemplate="let r of 'iconCell'">
+                <img *ngIf="r.data?.Icono" [src]="r.data.Icono" alt="Icono" style="max-height:36px;max-width:100px;object-fit:contain;">
+                <span *ngIf="!r.data?.Icono">Sin icono</span>
+              </div>
+
+              <dxi-column dataField="Direccion" caption="Dirección" alignment="center" [width]="360" cellTemplate="dirCell"></dxi-column>
+              <div *dxTemplate="let d of 'dirCell'">
+                <div style="white-space:pre-wrap;word-break:break-word;text-align:center">{{ d.data?.Direccion }}</div>
+              </div>
+
+              <dxi-column dataField="nombreCliente" caption="Cliente" alignment="center" [width]="220"></dxi-column>
+
+              <dxi-column dataField="FHRegistro" caption="Fecha Registro" alignment="center" [width]="200" cellTemplate="fhReg"></dxi-column>
+              <div *dxTemplate="let a of 'fhReg'">
+                {{ a.data.FHRegistro | date:'dd/MM/yyyy HH:mm' : '+0000' }}
+              </div>
+
+              <dxi-column dataField="FHActualizacion" caption="Fecha Actualización" alignment="center" [width]="220" cellTemplate="fhAct"></dxi-column>
+              <div *dxTemplate="let a of 'fhAct'">
+                {{ a.data.FHActualizacion | date:'dd/MM/yyyy HH:mm' : '+0000' }}
+              </div>
+
+              <dxi-column dataField="Estatus" caption="Estatus" alignment="center" [width]="130" cellTemplate="estCell"></dxi-column>
+              <div *dxTemplate="let f of 'estCell'">
+                <span *ngIf="f.data.Estatus === 1" class="estatus estatus-activo">Activo</span>
+                <span *ngIf="f.data.Estatus !== 1" class="estatus estatus-inactivo">Inactivo</span>
+              </div>
+
               <dxo-export [enabled]="false" [allowExportSelectedData]="true"
                 [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
               </dxo-export>
@@ -60,40 +103,38 @@
   </div>
 </div>
 
-
+<!-- Modal Mapa -->
 <div class="col-lg-6">
   <ng-template #centerDataModal let-modal>
-    <div class="modal-content p-0" style="background-color: #002b47;">
+    <div class="modal-content p-0" style="background-color:#002b47;">
       <div class="modal-body">
         <div class="card mb-3 shadow-sm">
-          <div class="card-header bg text-white d-flex justify-content-between align-items-center"
-            [ngClass]="(selectedTipoTransaccion || '').toUpperCase() === 'RECARGA' ? 'tx-h--recarga' : 'tx-h--debito'">
-            <div class="d-flex align-items-center gap-2">
-              <i class="fa fa-money"></i>
-              <span>Transacción ID: {{ selectedTransactionId }}</span>
+          <div class="custom-card-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+              <div class="icon-circle"><i class="fa fa-map-signs"></i></div>
+              <span class="ruta-titulo">Taller: {{ selectedTallerNombre }}</span>
             </div>
-            <span class="tx-badge"
-              [ngClass]="(selectedTipoTransaccion || '').toUpperCase() === 'RECARGA' ? 'tx-badge--recarga' : 'tx-badge--debito'">
-              <i class="fa"
-                [ngClass]="(selectedTipoTransaccion || '').toUpperCase() === 'RECARGA' ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
-              <span class="tx-text">{{ (selectedTipoTransaccion || '').toLowerCase() | titlecase }}</span>
-            </span>
+            <div class="header-deco"></div>
           </div>
-          <div class="card-body d-flex flex-column justify-content-center align-items-center text-white">
-            <div class="d-flex justify-content-between w-100 text-white">
-              <div><strong>Fecha:</strong> {{ selectedTransactionDate | date: 'dd-MM-yyyy HH:mm a' }}</div>
-              <div><strong>Monto:</strong> {{ selectedTransactionAmount | currency }}</div>
-            </div>
-            <div class="mt-2" *ngIf="showMap"><span class="textPrimary">Sin ubicaciones</span></div>
+          <!-- <div class="px-3 pt-2 pb-1 text-white" *ngIf="selectedTallerDireccion">
+            <small><strong>Dirección:</strong> {{ selectedTallerDireccion }}</small>
+          </div> -->
+        </div>
+
+        <ng-container *ngIf="hasLocation; else sinUbicacion">
+          <div class="map-container" style="border-radius:10px; overflow:hidden;">
+            <div class="w-100" [style.height.px]="400" [id]="'map-' + selectedTallerId"></div>
           </div>
-        </div>
-        <div *ngIf="!showMap" class="map-container" style="height: 300px; border-radius: 10px; overflow: hidden;">
-          <div id="map" class="w-100 h-100"></div>
-        </div>
+        </ng-container>
+        <ng-template #sinUbicacion>
+          <div class="text-center text-white py-4">Sin ubicación disponible</div>
+        </ng-template>
       </div>
+
       <div class="modal-footer border-top-0 d-flex align-items-center justify-content-center">
         <button type="button" class="btn btn-md w-50 waves-effect waves-light"
-          style="background-color:#f46a6a; color:#fff; border-radius:5px;" (click)="modal.close()">
+                style="background-color:#f46a6a; color:#fff; border-radius:5px;"
+                (click)="modal.close()">
           <i class="fa fa-times"></i>&nbsp;Cerrar
         </button>
       </div>
@@ -101,6 +142,12 @@
   </ng-template>
 </div>
 
-<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
-  [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
+<dx-load-panel #loadPanel
+  shadingColor="rgba(0,0,0,0.4)"
+  [(visible)]="loading"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  [closeOnOutsideClick]="false"
+  [message]="loadingMessage">
 </dx-load-panel>

@@ -1,54 +1,64 @@
 <div [@fadeInUp] class="container-fluid">
-    <div class="card">
-        <div class="card-header-custom">
-            <div class="icon-wrapper">
-                <i class="fas fa-user-circle"></i>
-            </div>
-            <div class="header-text">
-                <h5>{{title}}</h5>
-                <span>Completa la información para registrar un nuevo pasajero.</span>
-            </div>
-        </div>
-        <div class="card-body">
-            <form [formGroup]="pasajeroForm" class="cliente-form">
-                <h6 class="section-title">Datos Personales</h6>
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <label>Nombre</label>
-                        <input type="text" class="form-control" formControlName="nombre"
-                            placeholder="Sergio">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Apellido Paterno</label>
-                        <input type="text" class="form-control" formControlName="apellidoPaterno"
-                            placeholder="Rodríguez">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Apellido Materno</label>
-                        <input type="text" class="form-control" formControlName="apellidoMaterno"
-                            placeholder="Santos">
-                    </div>
-                    <div class="col-md-4 mt-3">
-                        <label>Teléfono</label>
-                        <input class="form-control" formControlName="telefono" placeholder="5648762145"
-                            maxlength="10" (keypress)="allowOnlyNumbers($event)">
-                    </div>
-                    <div class="col-md-4 mt-3" *ngIf="showCorreo">
-                        <label>Correo</label>
-                        <input type="email" class="form-control" formControlName="correo"
-                            placeholder="contacto@ejemplo.com">
-                    </div>
-                    <div class="col-md-4 mt-3">
-                        <label>Fecha de Nacimiento</label>
-                        <input type="date" class="form-control" formControlName="fechaNacimiento"
-                            placeholder="02/05/1999">
-                    </div>
-                </div>
-                <div class="form-actions mt-4">
-                    <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
-                    <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
-                </div>
-            </form>
-        </div>
+  <div class="card">
+    <div class="card-header-custom">
+      <div class="icon-wrapper">
+        <i class="fas fa-user-circle"></i>
+      </div>
+      <div class="header-text">
+        <h5>{{ title }}</h5>
+        <span>Completa la información para registrar un nuevo pasajero.</span>
+      </div>
     </div>
+
+    <div class="card-body">
+      <form [formGroup]="pasajeroForm" class="cliente-form">
+        <h6 class="section-title">Datos Personales</h6>
+
+        <div class="row mt-3">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Nombre</label>
+            <input type="text" class="form-control" formControlName="nombre" placeholder="Sergio" />
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Apellido Paterno</label>
+            <input type="text" class="form-control" formControlName="apellidoPaterno" placeholder="Rodríguez" />
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Apellido Materno</label>
+            <input type="text" class="form-control" formControlName="apellidoMaterno" placeholder="Santos" />
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Teléfono</label>
+            <input class="form-control" formControlName="telefono" placeholder="5648762145" maxlength="10" (keypress)="allowOnlyNumbers($event)" />
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3" *ngIf="showCorreo">
+            <label>Correo</label>
+            <input type="email" class="form-control" formControlName="correo" placeholder="contacto@ejemplo.com" />
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Fecha de Nacimiento</label>
+            <dx-date-box
+              class="tm-select w-100"
+              formControlName="fechaNacimiento"
+              type="date"
+              [useMaskBehavior]="true"
+              [showClearButton]="true"
+              displayFormat="dd/MM/yyyy"
+              placeholder="02/05/1999">
+            </dx-date-box>
+          </div>
+        </div>
+
+        <div class="form-actions mt-4">
+          <button type="submit" class="submit" (click)="submit()">{{ submitButton }}</button>
+          <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>

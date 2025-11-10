@@ -14,10 +14,9 @@ declare const google: any;
   selector: 'app-alta-region',
   templateUrl: './alta-region.component.html',
   styleUrls: ['./alta-region.component.scss'],
-  animations: [fadeInUpAnimation]
+  animations: [fadeInUpAnimation],
 })
 export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
-  // ====== UI / FORM ======
   public submitButton: string = 'Guardar';
   public loading: boolean = false;
   public regionesForm: FormGroup;
@@ -30,28 +29,24 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
   listaVehiculos: any[] = [];
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
+  displayCliente = (c: any) =>
+    c ? `${c.nombre || ''} ${c.apellidoPaterno || ''}`.trim() : '';
 
   public idClienteUser!: number;
   public idRolUser!: number;
-  get isAdmin(): boolean { return this.idRolUser === 1; }
+  get isAdmin(): boolean {
+    return this.idRolUser === 1;
+  }
 
-  // ====== GOOGLE MAPS ======
   private static mapsLoading?: Promise<void>;
   private map?: any;
   private resizeObserver?: ResizeObserver;
   private drawingManager?: any;
   private polygon?: any;
 
-  private readonly defaultCenter = { lat: 19.432608, lng: -99.133209 };
-  private readonly defaultZoom = 12;
-
-  /**
-   * CAMINO A (inyectar desde el componente): coloca aquí una API key válida y
-   * asegura que NO tienes script de Maps en index.html.
-   * CAMINO B (cargar en index.html): deja esto como '' y en tu index.html usa:
-   * https://maps.googleapis.com/maps/api/js?key=TU_KEY&libraries=drawing&v=weekly
-   */
-  private readonly googleMapsApiKey = ''; // <-- A: pon tu key | B: déjalo vacío
+  private readonly defaultCenter = { lat: 19.2826, lng: -99.6557 };
+  private readonly defaultZoom = 13;
+  private readonly googleMapsApiKey = '';
 
   constructor(
     private fb: FormBuilder,
@@ -60,19 +55,18 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
     private activatedRouted: ActivatedRoute,
     private route: Router,
     private clieService: ClientesService,
-    private users: AuthenticationService,
+    private users: AuthenticationService
   ) {
     const user = this.users.getUser();
     this.idClienteUser = Number(user?.idCliente);
     this.idRolUser = Number(user?.rol?.id);
   }
 
-  // ========================== LIFECYCLE ==========================
   ngOnInit(): void {
     this.initForm();
     this.obtenerClientes();
 
-    this.activatedRouted.params.subscribe(params => {
+    this.activatedRouted.params.subscribe((params) => {
       this.idRegion = Number(params['idRegion']);
       if (this.idRegion) {
         this.title = 'Actualizar Región';
@@ -90,18 +84,19 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
         await this.initMap();
         this.observeResize();
 
-        // Si la librería drawing no está, muestro alerta y salgo
         if (!(window as any).google?.maps?.drawing) {
           console.warn('[GMAPS] La librería drawing NO está cargada.');
-          this.toast('No se cargó la librería de dibujo. Revisa que el script tenga &libraries=drawing.', 'warning');
+          this.toast(
+            'No se cargó la librería de dibujo. Revisa que el script tenga &libraries=drawing.',
+            'warning'
+          );
           return;
         }
 
         this.initDrawing();
-        this.addDrawControl();   // botón “Dibujar geocerca”
-        this.addClearControl();  // botón “Borrar geocerca”
+        this.addDrawControl();
+        this.addClearControl();
 
-        // Si ya hay polígono en el form (edición), dibújalo
         const path = this.regionesForm.get('geocerca')?.value;
         if (Array.isArray(path) && path.length >= 3) {
           this.drawPolygonFromPath(path);
@@ -117,7 +112,6 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  /** Imprime en consola el path actual del polígono con lat/lng y GeoJSON */
   private logPolygonPath(source: string = 'update'): void {
     if (!this.polygon) {
       console.warn('[Geocerca]', source, '— sin polígono');
@@ -131,33 +125,36 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
     }));
 
     console.group(`[Geocerca] ${source}`);
-    console.table(coords);                         // tabla bonita
-    console.log('coords array:', coords);          // arreglo simple [{lat,lng}]
-    // GeoJSON (cierra el anillo repitiendo el primer punto al final)
+    console.table(coords);
+    console.log('coords array:', coords);
     const geojson = {
       type: 'Polygon',
       coordinates: [
-        [...coords.map(c => [c.lng, c.lat]), coords.length ? [coords[0].lng, coords[0].lat] : []]
+        [
+          ...coords.map((c) => [c.lng, c.lat]),
+          coords.length ? [coords[0].lng, coords[0].lat] : [],
+        ],
       ],
     };
     console.log('GeoJSON Polygon:', geojson);
     console.groupEnd();
   }
 
-
   ngOnDestroy(): void {
     this.resizeObserver?.disconnect();
     this.resizeObserver = undefined;
   }
 
-  // ========================== FORM ==========================
   initForm() {
     this.regionesForm = this.fb.group({
       estatus: [1, Validators.required],
       nombre: ['', Validators.required],
       descripcion: ['', Validators.required],
-      idCliente: [this.isAdmin ? null : this.idClienteUser, Validators.required],
-      // geocerca: [[]],
+      idCliente: [
+        this.isAdmin ? null : this.idClienteUser,
+        Validators.required,
+      ],
+      geocerca: [[]],
     });
 
     if (!this.isAdmin) {
@@ -165,7 +162,9 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private normalizeId<T extends { id: any }>(arr: T[] = []): (T & { id: number })[] {
+  private normalizeId<T extends { id: any }>(
+    arr: T[] = []
+  ): (T & { id: number })[] {
     return arr.map((x: any) => ({ ...x, id: Number(x.id) }));
   }
 
@@ -173,39 +172,69 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
     this.clieService.obtenerClientes().subscribe((response: any) => {
       this.listaClientes = this.normalizeId(response?.data || []);
       if (!this.isAdmin) {
-        this.regionesForm.get('idCliente')?.setValue(this.idClienteUser, { emitEvent: false });
+        this.regionesForm
+          .get('idCliente')
+          ?.setValue(this.idClienteUser, { emitEvent: false });
       }
     });
+  }
+
+  private extractPathFromGeo(gx: any): Array<{ lat: number; lng: number }> {
+    if (!gx) return [];
+
+    if (
+      gx.type === 'FeatureCollection' &&
+      Array.isArray(gx.features) &&
+      gx.features.length
+    ) {
+      const geom = gx.features[0]?.geometry;
+      return this.extractPathFromGeo(geom);
+    }
+
+    if (gx.type === 'Feature' && gx.geometry) {
+      return this.extractPathFromGeo(gx.geometry);
+    }
+
+    if (gx.type === 'Polygon' && Array.isArray(gx.coordinates)) {
+      const ring = gx.coordinates[0] || [];
+      return ring
+        .map((p: any) =>
+          Array.isArray(p) && p.length >= 2
+            ? { lat: Number(p[1]), lng: Number(p[0]) }
+            : null
+        )
+        .filter(Boolean) as Array<{ lat: number; lng: number }>;
+    }
+
+    if (Array.isArray(gx)) {
+      return gx
+        .map((p: any) => ({ lat: Number(p?.lat), lng: Number(p?.lng) }))
+        .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
+    }
+
+    return [];
   }
 
   obtenerRegion() {
     this.regiService.obtenerRegion(this.idRegion).subscribe({
       next: (response: any) => {
-        const data = Array.isArray(response?.data) ? response.data[0] : response?.data;
+        const data = Array.isArray(response?.data)
+          ? response.data[0]
+          : response?.data;
         if (!data) return;
 
         const idCliSrv = Number(
-          (data as any)?.idCliente ??
-          (data as any)?.idCliente2?.id ??
-          null
+          (data as any)?.idCliente ?? (data as any)?.idCliente2?.id ?? null
         );
 
-        const gx: any =
+        const gxAny: any =
           (data as any)?.geocerca ??
           (data as any)?.poligono ??
           (data as any)?.polygon ??
           (data as any)?.coordenadas ??
           null;
 
-        let path: Array<{ lat: number; lng: number }> = [];
-        if (Array.isArray(gx) && gx.length) {
-          path = gx.map((p: any) => ({ lat: Number(p.lat), lng: Number(p.lng) }))
-            .filter(p => Number.isFinite(p.lat) && Number.isFinite(p.lng));
-        } else if (gx?.type === 'Polygon' && Array.isArray(gx.coordinates)) {
-          const ring = gx.coordinates[0] || [];
-          path = ring.map((arr: any[]) => ({ lat: Number(arr[1]), lng: Number(arr[0]) }))
-            .filter(p => Number.isFinite(p.lat) && Number.isFinite(p.lng));
-        }
+        const path = this.extractPathFromGeo(gxAny);
 
         this.regionesForm.patchValue(
           {
@@ -229,9 +258,7 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
           this.regionesForm.get('idCliente')?.enable({ onlySelf: true });
         }
       },
-      error: (err) => {
-        console.error('Error al obtener región:', err);
-      },
+      error: (err) => console.error('Error al obtener región:', err),
     });
   }
 
@@ -245,91 +272,6 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // submit() {
-  //   this.submitButton = 'Cargando...';
-  //   this.loading = true;
-
-  //   if (this.regionesForm.invalid) {
-  //     this.submitButton = this.idRegion ? 'Actualizar' : 'Guardar';
-  //     this.loading = false;
-
-  //     const etiquetas: any = { nombre: 'Nombre', descripcion: 'Descripción', idCliente: 'Cliente' };
-  //     const camposFaltantes: string[] = [];
-  //     Object.keys(this.regionesForm.controls).forEach(key => {
-  //       const control = this.regionesForm.get(key);
-  //       if (control?.invalid && control.errors?.['required']) {
-  //         camposFaltantes.push(etiquetas[key] || key);
-  //       }
-  //     });
-
-  //     const lista = camposFaltantes.map((campo, i) => `
-  //     <div style="padding:8px 12px;border-left:4px solid #d9534f;background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
-  //       <strong style="color:#b02a37;">${i + 1}. ${campo}</strong>
-  //     </div>
-  //   `).join('');
-
-  //     Swal.fire({
-  //       title: '¡Faltan campos obligatorios!',
-  //       background: '#002136',
-  //       html: `
-  //       <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
-  //         Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
-  //         Por favor complétalos antes de continuar:
-  //       </p>
-  //       <div style="max-height:350px;overflow-y:auto;">${lista}</div>
-  //     `,
-  //       icon: 'error',
-  //       confirmButtonText: 'Entendido',
-  //       customClass: { popup: 'swal2-padding swal2-border' }
-  //     });
-  //     return;
-  //   }
-
-  //   const raw = this.regionesForm.getRawValue();
-
-  //   const geocerca = Array.isArray(raw.geocerca)
-  //     ? raw.geocerca
-  //       .filter((p: any) => Number.isFinite(p?.lat) && Number.isFinite(p?.lng))
-  //       .map((p: any) => ({ lat: Number(Number(p.lat).toFixed(6)), lng: Number(Number(p.lng).toFixed(6)) }))
-  //     : [];
-
-  //   const payload = {
-  //     nombre: raw.nombre,
-  //     descripcion: raw.descripcion,
-  //     geocerca,
-  //     estatus: raw.estatus,
-  //     idCliente: raw.idCliente
-  //   };
-
-  //   const geojson = geocerca.length >= 3 ? {
-  //     type: 'Polygon',
-  //     coordinates: [[
-  //       ...geocerca.map((p: any) => [p.lng, p.lat]),
-  //       [geocerca[0].lng, geocerca[0].lat]
-  //     ]]
-  //   } : null;
-
-  //   this.logPreview(payload, geojson);
-
-  //   Swal.fire({
-  //     title: 'Vista previa',
-  //     background: '#002136',
-  //     html: `
-  //     <div style="text-align:left;color:#e5e5e5;font-size:13px">
-  //       <div><b>Modo:</b> <span style="color:#ffd166">PREVIEW (no se envía al servidor)</span></div>
-  //       <div style="margin-top:8px"><b>Abre la consola</b> para ver el payload completo y GeoJSON.</div>
-  //     </div>
-  //   `,
-  //     icon: 'info',
-  //     confirmButtonText: 'OK'
-  //   });
-
-  //   this.submitButton = this.idRegion ? 'Actualizar' : 'Guardar';
-  //   this.loading = false;
-
-  // }
-
-  /** Muestra en consola lo que se enviaría (payload y geojson) */
   private logPreview(payload: any, geojson: any) {
     console.groupCollapsed(
       `%c PAYLOAD LISTO PARA ENVÍO ${this.idRegion ? '(UPDATE)' : '(CREATE)'}`,
@@ -338,7 +280,11 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log('payload:', payload);
 
     if (Array.isArray(payload?.geocerca)) {
-      const tabla = payload.geocerca.map((p: any, i: number) => ({ index: i + 1, lat: p.lat, lng: p.lng }));
+      const tabla = payload.geocerca.map((p: any, i: number) => ({
+        index: i + 1,
+        lat: p.lat,
+        lng: p.lng,
+      }));
       console.table(tabla);
     } else {
       console.log('geocerca: []');
@@ -352,57 +298,29 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
     console.groupEnd();
   }
 
-
-agregar() {
+  agregar() {
     this.submitButton = 'Cargando...';
     this.loading = true;
+
     if (this.regionesForm.invalid) {
       this.submitButton = 'Guardar';
       this.loading = false;
-      const etiquetas: any = {
-        nombre: 'Nombre',
-        descripcion: 'Descripción',
-        idCliente: 'Cliente'
-      };
-
-      const camposFaltantes: string[] = [];
-      Object.keys(this.regionesForm.controls).forEach(key => {
-        const control = this.regionesForm.get(key);
-        if (control?.invalid && control.errors?.['required']) {
-          camposFaltantes.push(etiquetas[key] || key);
-        }
-      });
-
-      const lista = camposFaltantes.map((campo, index) => `
-              <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
-                          background: #caa8a8; text-align: center; margin-bottom: 8px;
-                          border-radius: 4px;">
-                <strong style="color: #b02a37;">${index + 1}. ${campo}</strong>
-              </div>
-            `).join('');
-
-      Swal.fire({
-        title: '¡Faltan campos obligatorios!',
-        background: '#002136',
-        html: `
-                <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
-                  Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
-                  Por favor complétalos antes de continuar:
-                </p>
-                <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
-              `,
-        icon: 'error',
-        confirmButtonText: 'Entendido',
-        customClass: {
-          popup: 'swal2-padding swal2-border'
-        }
-      });
       return;
     }
-    this.regionesForm.removeControl('id');
-    const payload = this.regionesForm.getRawValue();
-    this.regiService.agregarRegion(payload).subscribe(
-      (response) => {
+
+    const raw = this.regionesForm.getRawValue();
+    const featureCollection = this.buildFeatureCollectionFromForm();
+
+    const payload = {
+      nombre: raw.nombre,
+      descripcion: raw.descripcion,
+      geocerca: featureCollection,
+      estatus: raw.estatus,
+      idCliente: raw.idCliente,
+    };
+
+    this.regiService.agregarRegion(payload).subscribe({
+      next: () => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
@@ -415,69 +333,91 @@ agregar() {
         });
         this.regresar();
       },
-      (error) => {
+      error: (error) => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: error,
+          text: String(error),
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
         });
+      },
+    });
+  }
+
+  private buildFeatureCollectionFromForm() {
+    let path: Array<{ lat: number; lng: number }> = [];
+    if (this.polygon) {
+      path = this.polygon
+        .getPath()
+        .getArray()
+        .map((ll: any) => ({
+          lat: Number(ll.lat()),
+          lng: Number(ll.lng()),
+        }));
+    } else {
+      path = Array.isArray(this.regionesForm.get('geocerca')?.value)
+        ? this.regionesForm.get('geocerca')!.value
+        : [];
+    }
+
+    const cleaned = path
+      .map((p) => ({ lat: Number(p.lat), lng: Number(p.lng) }))
+      .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
+
+    const ring: number[][] = cleaned.map((p) => [p.lng, p.lat]);
+    if (ring.length >= 3) {
+      const first = ring[0];
+      const last = ring[ring.length - 1];
+      if (!first || !last || first[0] !== last[0] || first[1] !== last[1]) {
+        ring.push([first[0], first[1]]);
       }
-    );
+    }
+
+    return {
+      type: 'FeatureCollection',
+      features:
+        cleaned.length >= 3
+          ? [
+              {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                  type: 'Polygon',
+                  coordinates: [ring],
+                },
+              },
+            ]
+          : [],
+    };
   }
 
   actualizar() {
     this.submitButton = 'Cargando...';
     this.loading = true;
+
     if (this.regionesForm.invalid) {
-      this.submitButton = 'Guardar';
+      this.submitButton = 'Actualizar';
       this.loading = false;
-      const etiquetas: any = {
-        nombre: 'Nombre',
-        descripcion: 'Descripción',
-        idCliente: 'Cliente'
-      };
-
-      const camposFaltantes: string[] = [];
-      Object.keys(this.regionesForm.controls).forEach(key => {
-        const control = this.regionesForm.get(key);
-        if (control?.invalid && control.errors?.['required']) {
-          camposFaltantes.push(etiquetas[key] || key);
-        }
-      });
-
-      const lista = camposFaltantes.map((campo, index) => `
-              <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
-                          background: #caa8a8; text-align: center; margin-bottom: 8px;
-                          border-radius: 4px;">
-                <strong style="color: #b02a37;">${index + 1}. ${campo}</strong>
-              </div>
-            `).join('');
-
-      Swal.fire({
-        title: '¡Faltan campos obligatorios!',
-        background: '#002136',
-        html: `
-                <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
-                  Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
-                  Por favor complétalos antes de continuar:
-                </p>
-                <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
-              `,
-        icon: 'error',
-        confirmButtonText: 'Entendido',
-        customClass: {
-          popup: 'swal2-padding swal2-border'
-        }
-      });
+      return;
     }
-    const payload = this.regionesForm.getRawValue();
-    this.regiService.actualizarRegion(this.idRegion, payload).subscribe(
-      (response) => {
+
+    const raw = this.regionesForm.getRawValue();
+    const featureCollection = this.buildFeatureCollectionFromForm();
+
+    const payload = {
+      nombre: raw.nombre,
+      descripcion: raw.descripcion,
+      geocerca: featureCollection,
+      estatus: raw.estatus,
+      idCliente: raw.idCliente,
+    };
+
+    this.regiService.actualizarRegion(this.idRegion, payload).subscribe({
+      next: () => {
         this.submitButton = 'Actualizar';
         this.loading = false;
         Swal.fire({
@@ -490,7 +430,7 @@ agregar() {
         });
         this.regresar();
       },
-      (error) => {
+      error: () => {
         this.submitButton = 'Actualizar';
         this.loading = false;
         Swal.fire({
@@ -501,41 +441,46 @@ agregar() {
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
         });
-      }
-    );
+      },
+    });
   }
 
   regresar() {
     this.route.navigateByUrl('/regiones');
   }
 
-  // ========================== MAP CORE ==========================
   private loadGoogleMaps(): Promise<void> {
-    // Ya cargado (con drawing)
-    if ((window as any).google?.maps?.Map && (window as any).google?.maps?.drawing) {
+    if (
+      (window as any).google?.maps?.Map &&
+      (window as any).google?.maps?.drawing
+    ) {
       return Promise.resolve();
     }
 
-    // ¿Existe un script previo (p.ej., en index.html)?
     const existing =
       document.querySelector<HTMLScriptElement>('script[data-gmaps="js"]') ||
-      Array.from(document.getElementsByTagName('script'))
-        .find(s => s.src.includes('maps.googleapis.com/maps/api/js')) as HTMLScriptElement | undefined;
+      (Array.from(document.getElementsByTagName('script')).find((s) =>
+        s.src.includes('maps.googleapis.com/maps/api/js')
+      ) as HTMLScriptElement | undefined);
 
     if (existing) {
-      // Si ya hay script, esperamos su carga
       if ((window as any).google?.maps) return Promise.resolve();
       return new Promise<void>((resolve, reject) => {
         existing.addEventListener('load', () => resolve());
-        existing.addEventListener('error', () => reject(new Error('No se pudo cargar Google Maps')));
+        existing.addEventListener('error', () =>
+          reject(new Error('No se pudo cargar Google Maps'))
+        );
       });
     }
 
-    // Inyección controlada (CAMINO A)
     if (!AltaRegionComponent.mapsLoading) {
       AltaRegionComponent.mapsLoading = new Promise<void>((resolve, reject) => {
         if (!this.googleMapsApiKey) {
-          reject(new Error('Falta API key de Google Maps o el script no está en index.html'));
+          reject(
+            new Error(
+              'Falta API key de Google Maps o el script no está en index.html'
+            )
+          );
           return;
         }
         const script = document.createElement('script');
@@ -544,7 +489,8 @@ agregar() {
         script.async = true;
         script.defer = true;
         script.onload = () => resolve();
-        script.onerror = () => reject(new Error('No se pudo cargar Google Maps'));
+        script.onerror = () =>
+          reject(new Error('No se pudo cargar Google Maps'));
         document.head.appendChild(script);
       });
     }
@@ -553,7 +499,7 @@ agregar() {
 
   private getMapElement(): HTMLElement | null {
     const el = document.getElementById('map');
-    return (el instanceof HTMLElement) ? el : null;
+    return el instanceof HTMLElement ? el : null;
   }
 
   private async initMap(): Promise<void> {
@@ -562,7 +508,10 @@ agregar() {
     if (!el) return;
 
     if (!(window as any).google?.maps?.Map) {
-      this.showMapsErrorOverlay('Google Maps no ha cargado', 'Revisa la API key o las restricciones del referer.');
+      this.showMapsErrorOverlay(
+        'Google Maps no ha cargado',
+        'Revisa la API key o las restricciones del referer.'
+      );
       return;
     }
 
@@ -595,7 +544,6 @@ agregar() {
     this.resizeObserver.observe(el);
   }
 
-  // ========================== DRAWING ==========================
   private initDrawing(): void {
     if (!this.map) return;
     if (!(window as any).google?.maps?.drawing) return;
@@ -623,27 +571,42 @@ agregar() {
 
     this.drawingManager.setMap(this.map);
 
-    // Logs de depuración: verás en consola cuando entras/sales de dibujo
-    google.maps.event.addListener(this.drawingManager, 'drawingmode_changed', () => {
-      const mode = this.drawingManager.getDrawingMode();
-      console.log('[Drawing] modo:', mode);
-    });
+    google.maps.event.addListener(
+      this.drawingManager,
+      'drawingmode_changed',
+      () => {
+        const mode = this.drawingManager.getDrawingMode();
+        console.log('[Drawing] modo:', mode);
+      }
+    );
 
-    google.maps.event.addListener(this.drawingManager, 'polygoncomplete', (poly: any) => {
-      if (this.polygon) this.polygon.setMap(null);
-      this.polygon = poly;
-      this.polygon.setEditable(true);
+    google.maps.event.addListener(
+      this.drawingManager,
+      'polygoncomplete',
+      (poly: any) => {
+        if (this.polygon) this.polygon.setMap(null);
+        this.polygon = poly;
+        this.polygon.setEditable(true);
 
-      const path = this.polygon.getPath();
-      path.addListener('insert_at', () => { this.syncPolygonToForm(); this.logPolygonPath('insert_at'); });
-      path.addListener('set_at', () => { this.syncPolygonToForm(); this.logPolygonPath('set_at'); });
-      path.addListener('remove_at', () => { this.syncPolygonToForm(); this.logPolygonPath('remove_at'); });
+        const path = this.polygon.getPath();
+        path.addListener('insert_at', () => {
+          this.syncPolygonToForm();
+          this.logPolygonPath('insert_at');
+        });
+        path.addListener('set_at', () => {
+          this.syncPolygonToForm();
+          this.logPolygonPath('set_at');
+        });
+        path.addListener('remove_at', () => {
+          this.syncPolygonToForm();
+          this.logPolygonPath('remove_at');
+        });
 
-      this.syncPolygonToForm();
-      this.logPolygonPath('polygoncomplete');   // <<< NUEVO
-      this.drawingManager.setDrawingMode(null);
-    });
-
+        this.syncPolygonToForm();
+        this.logPolygonPath('polygoncomplete');
+        this.drawingManager.setDrawingMode(null);
+      }
+    );
   }
 
   private syncPolygonToForm(): void {
@@ -651,17 +614,18 @@ agregar() {
       this.regionesForm.get('geocerca')?.setValue([]);
       return;
     }
-    const path: any[] = this.polygon.getPath().getArray().map((ll: any) => ({
-      lat: ll.lat(),
-      lng: ll.lng(),
-    }));
+    const path: any[] = this.polygon
+      .getPath()
+      .getArray()
+      .map((ll: any) => ({
+        lat: ll.lat(),
+        lng: ll.lng(),
+      }));
     this.regionesForm.get('geocerca')?.setValue(path, { emitEvent: false });
     this.regionesForm.get('geocerca')?.markAsDirty();
 
-    // >>> NUEVO: log en consola
     this.logPolygonPath('sync');
   }
-
 
   private drawPolygonFromPath(path: Array<{ lat: number; lng: number }>): void {
     if (!this.map || !Array.isArray(path) || path.length < 3) return;
@@ -699,7 +663,6 @@ agregar() {
     this.map.fitBounds(bounds);
   }
 
-  // ========================== MAP CONTROLS ==========================
   private addDrawControl(): void {
     if (!this.map) return;
 
@@ -727,13 +690,13 @@ agregar() {
       this.regionesForm.get('geocerca')?.markAsDirty();
 
       if (this.drawingManager && (window as any).google?.maps?.drawing) {
-        this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
+        this.drawingManager.setDrawingMode(
+          google.maps.drawing.OverlayType.POLYGON
+        );
       }
 
-      // >>> NUEVO:
       this.logPolygonPath('cleared');
     };
-
 
     controlDiv.appendChild(btn);
     this.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(controlDiv);
@@ -766,7 +729,9 @@ agregar() {
       this.regionesForm.get('geocerca')?.markAsDirty();
 
       if (this.drawingManager && (window as any).google?.maps?.drawing) {
-        this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
+        this.drawingManager.setDrawingMode(
+          google.maps.drawing.OverlayType.POLYGON
+        );
       }
       console.log('[UI] Geocerca borrada.');
     };
@@ -776,7 +741,6 @@ agregar() {
     this.logPolygonPath('cleared');
   }
 
-  // ========================== OVERLAYS / TOAST ==========================
   private showMapsErrorOverlay(title: string, detail: string) {
     const el = this.getMapElement();
     if (!el) return;
@@ -797,9 +761,13 @@ agregar() {
     `;
   }
 
-  private toast(text: string, type: 'success' | 'warning' | 'error' | 'info' = 'info') {
+  private toast(
+    text: string,
+    type: 'success' | 'warning' | 'error' | 'info' = 'info'
+  ) {
     Swal.fire({
-      title: type === 'error' ? '¡Ops!' : type === 'warning' ? 'Atención' : 'Aviso',
+      title:
+        type === 'error' ? '¡Ops!' : type === 'warning' ? 'Atención' : 'Aviso',
       background: '#002136',
       text,
       icon: type,
