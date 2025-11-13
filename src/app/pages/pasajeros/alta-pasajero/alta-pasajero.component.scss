@@ -354,3 +354,84 @@ div:where(.swal2-container) .swal2-html-container {
     box-shadow: none !important;
   }
 }
+
+
+:host ::ng-deep .tm-range {
+
+  .dx-daterangebox,
+  .dx-texteditor,
+  .dx-texteditor-input-container,
+  .dx-texteditor-buttons-container {
+    min-height: 41px;
+  }
+
+  .dx-texteditor-input {
+    height: 41px;
+    line-height: 41px;
+    padding: 0 12px;
+  }
+
+  .dx-button .dx-button-content {
+    height: 41px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+
+:host ::ng-deep .tm-select {
+
+  .dx-selectbox,
+  .dx-texteditor,
+  .dx-texteditor-input-container,
+  .dx-texteditor-buttons-container {
+    min-height: 41px;
+  }
+
+  .dx-texteditor-input {
+    height: 41px;
+    line-height: 41px;
+    padding: 0 12px;
+  }
+
+  .dx-button .dx-button-content {
+    height: 41px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+:host ::ng-deep .tm-date {
+
+  .dx-datebox,
+  .dx-texteditor,
+  .dx-texteditor-input-container,
+  .dx-texteditor-buttons-container {
+    min-height: 41px;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .dx-texteditor-input {
+    height: 41px;
+    line-height: 41px;
+    padding: 0 12px;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent;
+  }
+
+  .dx-button .dx-button-content {
+    height: 41px;
+    display: flex;
+    align-items: center;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+.pw-hint, .match-hint { font-size: 12px; margin-top: 6px; display: flex; gap: 6px; align-items: center; }
+.ok  { color: #3adb76; }   /* verde */
+.bad { color: #ff6b6b; }   /* rojo  */
+.eyeButton { position: absolute; right: 12px; top: 38px; cursor: pointer; color: #a1a1a1; }
+.input-group { position: relative; }

@@ -381,3 +381,11 @@ div:where(.swal2-container) .swal2-html-container {
     box-shadow: none !important;
   }
 }
+
+
+:host ::ng-deep .gm-ui-hover-effect {
+  display: none !important;
+}
+:host ::ng-deep .gm-style-iw-c {
+  padding-right: 0 !important;
+}

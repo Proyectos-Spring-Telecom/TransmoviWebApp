@@ -65,7 +65,7 @@ export class PasajerosService {
     return this.http.post(
       `${environment.API_SECURITY}/login/pasajero/registro`,
       data,
-      { observe: 'response', responseType: 'text' } // <- fuerza texto crudo
+      { observe: 'response', responseType: 'text' }
     );
   }
 
@@ -86,5 +86,9 @@ export class PasajerosService {
 
   datosUsuarioPasajero(idUsuario: number): Observable<any> {
     return this.http.get<any>(`${environment.API_SECURITY}/pasajeros/main/${idUsuario}`);
+  }
+
+  obtenerTipoPasajeroCliente(idCliente: number): Observable<any> {
+    return this.http.get<any>(`${environment.API_SECURITY}/catpasajerp/clientes/${idCliente}`);
   }
 }

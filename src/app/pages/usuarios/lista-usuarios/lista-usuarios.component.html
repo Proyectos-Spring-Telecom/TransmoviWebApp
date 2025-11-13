@@ -32,32 +32,50 @@
                                 showInfo: true,
                                 infoText: 'Página {0} de {1}', 
                                 visible: true 
-                            }" (onPageIndexChanged)=" onPageIndexChanged($event)" (onOptionChanged)="onGridOptionChanged($event)">
+                            }" (onPageIndexChanged)=" onPageIndexChanged($event)"
+                            (onOptionChanged)="onGridOptionChanged($event)">
                             <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
                             <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
+                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]"
+                                [showInfo]="true"></dxo-pager>
                             <!-- <dxi-column dataField="Logotipo" caption="Logotipo" alignment="center" cellTemplate="cellTemplate">
                                 <ng-template *dxTemplate="let d of 'cellTemplate'">
                                     <img [src]="d.data.Logotipo" alt="Logo" width="50">
                                 </ng-template>
                             </dxi-column> -->
-                            <dxi-column *appHasPermission="['7', '8']" caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="150"></dxi-column>
-                            <dxi-column dataField="FotoPerfil" caption="Imagen" cellTemplate="imagen" [width]="200" alignment="center">
+                            <dxi-column *appHasPermission="['7', '8']" caption="Acciones" cellTemplate="Acciones"
+                                alignment="center" [width]="150"></dxi-column>
+                            <dxi-column dataField="FotoPerfil" caption="Imagen" cellTemplate="imagen" [width]="200"
+                                alignment="center">
                                 <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
                             </dxi-column>
-                            <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center" dataType="string"></dxi-column>
-                            <dxi-column dataField="Telefono" caption="Teléfono" alignment="center" dataType="string"></dxi-column>
-                            <dxi-column dataField="UserName" caption="Correo Electrónico" alignment="center" dataType="string"></dxi-column>
-                            <dxi-column dataField="RolNombre" caption="Rol" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center"
+                                dataType="string"></dxi-column>
+                            <dxi-column dataField="Telefono" caption="Teléfono" alignment="center"
+                                dataType="string"></dxi-column>
+                            <dxi-column dataField="UserName" caption="Correo Electrónico" alignment="center"
+                                dataType="string"></dxi-column>
+                            <dxi-column caption="Cliente" alignment="center" cellTemplate="clien"
+                                [visible]="showCliente">
+                                <div *dxTemplate="let f of 'clien'">
+                                    {{ f.data.clienteNombre || ' ' }}
+                                    {{ f.data.clienteApellidoPaterno || ' ' }}
+                                    {{ f.data.clienteApellidoMaterno || ' ' }}
+                                </div>
+                            </dxi-column>
+
+                            <dxi-column dataField="RolNombre" caption="Rol" alignment="center"
+                                dataType="string"></dxi-column>
                             <div *dxTemplate="let data of 'imagen'" style="text-align: center;">
                                 <img *ngIf="data.value" style="max-width: 100px;" [src]="data.value" />
                                 <img *ngIf="data.value == null" style="max-width: 100px;"
                                     src="https://analitica-video.s3.us-east-1.amazonaws.com/Usuarios/user.png" />
                             </div>
-                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" dataType="string" cellTemplate="est">
+                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" dataType="string"
+                                cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
                                     <span *ngIf="toNum(f.data.estatus) === 1" class="estatus estatus-activo">
                                         Activo

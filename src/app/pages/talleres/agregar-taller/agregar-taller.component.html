@@ -14,7 +14,6 @@
                 <div class="row">
                     <div class="col-md-4">
                         <h6 class="section-title mt-3">Datos Generales</h6>
-
                         <div class="mt-4">
                             <label for="idCliente" class="form-label">Cliente</label>
                             <dx-select-box id="idCliente" class="tm-select w-100" formControlName="idCliente"
@@ -23,31 +22,21 @@
                                 placeholder="Seleccione un cliente">
                             </dx-select-box>
                         </div>
-
                         <div class="mt-4">
                             <label for="nombreTaller">Nombre</label>
                             <input id="nombreTaller" type="text" class="form-control" formControlName="nombre"
                                 placeholder="Taller GMC" autocomplete="off" />
                         </div>
-
                         <div class="mt-4">
                             <label for="descripcionTaller">Descripción</label>
                             <input id="descripcionTaller" type="text" class="form-control" formControlName="descripcion"
                                 placeholder="Lugar de mantenimiento" autocomplete="off" />
                         </div>
-
-                        <div class="mt-4">
-                            <label for="iconoTaller">Icono</label>
-                            <input id="iconoTaller" type="text" class="form-control" formControlName="icono"
-                                autocomplete="off" />
-                        </div>
-
                         <div class="form-actions mt-5">
                             <button type="submit" class="submit" style="width: 150px;">{{ submitButton }}</button>
                             <button type="button" class="cancel" (click)="regresar()" style="width: 150px;">Cancelar</button>
                         </div>
                     </div>
-
                     <div class="col-md-8">
                         <h6 class="section-title mt-3">Seleccione la ubicación del taller</h6>
                         <div id="map"></div>

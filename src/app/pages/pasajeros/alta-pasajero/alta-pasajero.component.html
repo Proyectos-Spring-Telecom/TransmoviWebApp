@@ -32,7 +32,8 @@
 
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Teléfono</label>
-            <input class="form-control" formControlName="telefono" placeholder="5648762145" maxlength="10" (keypress)="allowOnlyNumbers($event)" />
+            <input class="form-control" formControlName="telefono" placeholder="5648762145" maxlength="10"
+              (keypress)="allowOnlyNumbers($event)" />
           </div>
 
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3" *ngIf="showCorreo">
@@ -42,15 +43,74 @@
 
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Fecha de Nacimiento</label>
-            <dx-date-box
-              class="tm-select w-100"
-              formControlName="fechaNacimiento"
-              type="date"
-              [useMaskBehavior]="true"
-              [showClearButton]="true"
-              displayFormat="dd/MM/yyyy"
-              placeholder="02/05/1999">
+            <dx-date-box class="tm-select w-100" formControlName="fechaNacimiento" type="date" [useMaskBehavior]="true"
+              [showClearButton]="true" displayFormat="dd/MM/yyyy" placeholder="02/05/1999">
             </dx-date-box>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>CURP</label>
+            <input type="text" class="form-control" formControlName="curp" placeholder="ABCD900101HDFRRL09"
+              maxlength="18" />
+          </div>
+
+          <div *ngIf="showInputsNoUpdate" class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Número de Serie de Monedero</label>
+            <input type="text" class="form-control" formControlName="numeroSerieMonedero" placeholder="MON-0001" />
+          </div>
+
+
+          <div *ngIf="showInputsNoUpdate" class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Tipo Pasajero</label>
+            <dx-select-box class="tm-select w-100" formControlName="idTipoPasajero" [dataSource]="listaTipoPasajero"
+              displayExpr="nombre" valueExpr="id" [searchEnabled]="true" [showClearButton]="true"
+              [noDataText]="'Sin registros'" placeholder="Seleccione">
+            </dx-select-box>
+          </div>
+
+          <div *ngIf="showInputsNoUpdate" class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Contraseña</label>
+            <input [type]="type" class="form-control" id="passwordHash" formControlName="passwordHash"
+              placeholder="Ej.: P@ssw0rd." autocomplete="new-password" (focus)="pwFocused = true"
+              (blur)="pwFocused = false" />
+
+            <button type="button" class="eyeButton"
+              style="color:#a1a1a1; position:absolute; right:10px; top:38px; background:transparent; border:0; cursor:pointer;"
+              (click)="myFunctionPasswordCurrent()"
+              [attr.aria-label]="type === 'password' ? 'Mostrar contraseña' : 'Ocultar contraseña'">
+              <i class="fas" [ngClass]="type === 'password' ? 'fa-eye' : 'fa-eye-slash'"></i>
+            </button>
+            <div *ngIf="showPwHint" class="pw-hint" [class.ok]="pwAllOk" [class.bad]="!pwAllOk"
+              [@fadeOnChange]="pwGuideKey" [@fadeInOut] aria-live="polite" style="margin-top:8px;">
+              <i class="fa" [ngClass]="pwAllOk ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+              {{ pwGuideText }}
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-2">
+            <div class="tc-upload">
+              <label>Documentación</label>
+              <div class="tc-preview" *ngIf="docPreviewUrl; else docTile">
+                <img [src]="docPreviewUrl" alt="Documentación" />
+                <div class="tc-actions">
+                  <button type="button" class="btn-change" (click)="openDocFilePicker()">Cambiar</button>
+                  <button type="button" class="btn-remove" (click)="clearDocFile($event)">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              <ng-template #docTile>
+                <div class="tc-tile" (click)="openDocFilePicker()" (dragover)="onDocDragOver($event)"
+                  (dragleave)="onDocDragLeave($event)" (drop)="onDocDrop($event)" [class.dragging]="docDragging">
+                  <div class="circle"><i class="fas fa-file-upload"></i></div>
+                  <div class="meta">
+                    <div class="title">Arrastra o haz clic para subir documentación</div>
+                    <div class="hint">JPG/PNG/PDF/DOC/XLS · máx 3 MB</div>
+                  </div>
+                </div>
+              </ng-template>
+            </div>
+            <input type="file" #docFileInput accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx" hidden
+              (change)="onDocFileSelected($event)" />
           </div>
         </div>
 

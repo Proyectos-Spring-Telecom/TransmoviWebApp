@@ -1,6 +1,6 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { ClientesService } from 'src/app/shared/services/clientes.service';
 import { TallereService } from 'src/app/shared/services/talleres.service';
@@ -16,12 +16,12 @@ export class AgregarTallerComponent implements OnInit {
   public submitButton: string = 'Guardar';
   public loading: boolean = false;
   public title = 'Agregar Taller';
+  public idTaller: number;
 
   listaClientes: any[] = [];
   displayCliente = (c: any) =>
     c
-      ? `${c.nombre || ''} ${c.apellidoPaterno || ''} ${
-          c.apellidoMaterno || ''
+      ? `${c.nombre || ''} ${c.apellidoPaterno || ''} ${c.apellidoMaterno || ''
         }`.trim()
       : '';
 
@@ -32,12 +32,97 @@ export class AgregarTallerComponent implements OnInit {
     private route: Router,
     private tallService: TallereService,
     private zone: NgZone,
-    private clieService: ClientesService
-  ) {}
+    private clieService: ClientesService,
+    private activatedRouted: ActivatedRoute,
+  ) { }
+
+  obtenerTallerId() {
+  this.tallService.obtenerTaller(this.idTaller).subscribe((response: any) => {
+    // Normaliza la respuesta (puede venir en data o plano)
+    const raw = response?.data ?? response ?? {};
+    const t = Array.isArray(raw) ? raw[0] : raw;
+
+    const lat = this.toNumber6(t?.lat);
+    const lng = this.toNumber6(t?.lng);
+    const direccion = (t?.direccion ?? '').toString();
+
+    // Rellena el formulario
+    this.tallerForm.patchValue({
+      idCliente: Number(t?.idCliente ?? t?.idcliente ?? t?.IdCliente ?? null),
+      nombre: (t?.nombre ?? '').toString(),
+      descripcion: (t?.descripcion ?? '').toString(),
+      direccion: direccion,
+      lat,
+      lng,
+      estatus: Number(t?.estatus ?? 1),
+    });
+
+    // Muestra la ubicación inicial en el mapa (si hay coords)
+    if (lat != null && lng != null) {
+      this.mostrarUbicacionEnMapa(lat, lng, direccion);
+    }
+  });
+}
+
+private async esperarMapaListo(): Promise<void> {
+  if (this.map && this.geocoder && this.infoWindow) return;
+  await new Promise<void>((resolve) => {
+    const int = setInterval(() => {
+      if (this.map && this.geocoder && this.infoWindow) {
+        clearInterval(int);
+        resolve();
+      }
+    }, 50);
+    // seguridad por si tarda mucho
+    setTimeout(() => { clearInterval(int); resolve(); }, 3000);
+  });
+}
+
+private async mostrarUbicacionEnMapa(lat: number, lng: number, direccion?: string) {
+  await this.esperarMapaListo();
+
+  const latLng = new google.maps.LatLng(lat, lng);
+
+  // Actualiza estado local y formulario
+  this.lat = lat;
+  this.lng = lng;
+  this.tallerForm.patchValue({ lat, lng });
+
+  // Coloca marcador y centra
+  this.placeMarker(latLng);
+  this.map.setZoom(16);
+  this.map.panTo(latLng);
+
+  // Muestra InfoWindow: si no hay dirección, hace geocoding
+  if (direccion && direccion.trim()) {
+    const html = `
+      <div style="font-family:'Segoe UI',sans-serif;border-radius:12px;max-width:260px;word-wrap:break-word;
+                  box-shadow:0 4px 12px rgba(0,0,0,0.15);background:white;line-height:1.2;">
+        <strong style="font-size:16px;color:#002136">Ubicación seleccionada</strong>
+        <div style="font-size:14px;color:#4a4a4a;">${direccion}</div>
+      </div>`;
+    this.infoWindow.setContent(html);
+    this.infoWindow.open(this.map, this.marker);
+  } else {
+    // Si no vino dirección, la resuelve y también la guarda en el form
+    this.setAddressFromLatLng(latLng);
+  }
+}
+
+
 
   ngOnInit(): void {
     this.initForm();
     this.obtenerClientes();
+    this.activatedRouted.params.subscribe(
+      (params) => {
+        this.idTaller = params['idTaller'];
+        if (this.idTaller) {
+          this.title = 'Actualizar Taller';
+          this.obtenerTallerId();
+        }
+      }
+    )
   }
 
   obtenerClientes() {
@@ -57,72 +142,67 @@ export class AgregarTallerComponent implements OnInit {
     this.tallerForm = this.fb.group({
       idCliente: [null, Validators.required],
       nombre: ['', Validators.required],
-      descripcion: [''],
-      icono: [''],
+      descripcion: ['', Validators.required],
       direccion: [''],
       lat: [null, Validators.required],
       lng: [null, Validators.required],
       estatus: [1, Validators.required],
     });
   }
-
   submit() {
     this.submitButton = 'Cargando...';
     this.loading = true;
 
+    // Validación y mensajes
     if (this.tallerForm.invalid) {
       this.submitButton = 'Guardar';
       this.loading = false;
 
-      const etiquetas: Record<string, string> = {
-        idCliente: 'Cliente',
-        nombre: 'Nombre',
-        lat: 'Latitud (seleccione en el mapa)',
-        lng: 'Longitud (seleccione en el mapa)',
-        estatus: 'Estatus',
-      };
+      const c = this.tallerForm.controls;
+      const faltantes: string[] = [];
 
-      const camposFaltantes: string[] = [];
-      Object.keys(this.tallerForm.controls).forEach((key) => {
-        const control = this.tallerForm.get(key);
-        if (control?.errors?.['required']) {
-          camposFaltantes.push(etiquetas[key] || key);
-        }
-      });
+      if (c['idCliente']?.errors?.['required']) faltantes.push('Cliente');
+      if (c['nombre']?.errors?.['required']) faltantes.push('Nombre');
+      if (c['descripcion']?.errors?.['required']) faltantes.push('Descripción');
 
-      const lista = camposFaltantes
-        .map(
-          (campo, i) => `
-        <div style="padding:8px 12px;border-left:4px solid #d9534f;background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
-          <strong style="color:#b02a37;">${i + 1}. ${campo}</strong>
-        </div>
-      `
-        )
-        .join('');
+      const faltaLat = c['lat']?.errors?.['required'];
+      const faltaLng = c['lng']?.errors?.['required'];
+      if (faltaLat || faltaLng) faltantes.push('Ubicación del Taller');
 
-      Swal.fire({
-        title: '¡Faltan campos obligatorios!',
-        background: '#002136',
-        html: `
+      const unicos = Array.from(new Set(faltantes));
+
+      if (unicos.length) {
+        const lista = unicos
+          .map(
+            (campo, i) => `
+          <div style="padding:8px 12px;border-left:4px solid #d9534f;background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
+            <strong style="color:#b02a37;">${i + 1}. ${campo}</strong>
+          </div>`
+          )
+          .join('');
+
+        Swal.fire({
+          title: '¡Faltan campos obligatorios!',
+          background: '#002136',
+          html: `
           <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
             Completa los siguientes campos antes de continuar:
           </p>
           <div style="max-height:350px;overflow-y:auto;">${lista}</div>
         `,
-        icon: 'error',
-        confirmButtonText: 'Entendido',
-        customClass: { popup: 'swal2-padding swal2-border' },
-      });
-
-      return;
+          icon: 'error',
+          confirmButtonText: 'Entendido',
+          customClass: { popup: 'swal2-padding swal2-border' },
+        });
+        return;
+      }
     }
 
+    // Construcción de payload (alineado al swagger que mostraste)
     const raw = this.tallerForm.value;
-
     const payload = {
       nombre: (raw?.nombre ?? '').toString().trim(),
       descripcion: (raw?.descripcion ?? '').toString().trim(),
-      icono: (raw?.icono ?? '').toString().trim(),
       direccion: (raw?.direccion ?? '').toString().trim(),
       lat: this.toNumber6(raw?.lat),
       lng: this.toNumber6(raw?.lng),
@@ -130,35 +210,71 @@ export class AgregarTallerComponent implements OnInit {
       idCliente: Number(raw?.idCliente),
     };
 
-    this.tallService.agregarTaller(payload).subscribe(
-      () => {
-        this.submitButton = 'Guardar';
-        this.loading = false;
-        Swal.fire({
-          title: '¡Operación Exitosa!',
-          background: '#002136',
-          text: 'Se agregó un nuevo taller de manera exitosa.',
-          icon: 'success',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Confirmar',
-        });
-        this.regresar();
-      },
-      (error: string) => {
-        this.submitButton = 'Guardar';
-        this.loading = false;
-        Swal.fire({
-          title: '¡Ops!',
-          background: '#002136',
-          text: `${error}`,
-          icon: 'error',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Confirmar',
-          allowOutsideClick: false,
-        });
-      }
-    );
+    // Decidir entre Agregar vs Actualizar
+    if (this.idTaller) {
+      // ACTUALIZAR
+      this.tallService.actualizarTaller(this.idTaller, payload).subscribe(
+        () => {
+          this.submitButton = 'Guardar';
+          this.loading = false;
+          Swal.fire({
+            title: '¡Operación Exitosa!',
+            background: '#002136',
+            text: 'Se actualizó el taller de manera exitosa.',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Confirmar',
+          });
+          this.regresar();
+        },
+        (error: any) => {
+          this.submitButton = 'Guardar';
+          this.loading = false;
+          Swal.fire({
+            title: '¡Ops!',
+            background: '#002136',
+            text: `${error}`,
+            icon: 'error',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Confirmar',
+            allowOutsideClick: false,
+          });
+        }
+      );
+    } else {
+      // AGREGAR
+      this.tallService.agregarTaller(payload).subscribe(
+        () => {
+          this.submitButton = 'Guardar';
+          this.loading = false;
+          Swal.fire({
+            title: '¡Operación Exitosa!',
+            background: '#002136',
+            text: 'Se agregó un nuevo taller de manera exitosa.',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Confirmar',
+          });
+          this.regresar();
+        },
+        (error: any) => {
+          this.submitButton = 'Guardar';
+          this.loading = false;
+          Swal.fire({
+            title: '¡Ops!',
+            background: '#002136',
+            text: `${error}`,
+            icon: 'error',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Confirmar',
+            allowOutsideClick: false,
+          });
+        }
+      );
+    }
   }
+
+
 
   regresar() {
     this.route.navigateByUrl('/talleres');
@@ -192,10 +308,8 @@ export class AgregarTallerComponent implements OnInit {
         this.lat = lat;
         this.lng = lng;
 
-        // Primero guardamos lat/lng
         this.tallerForm.patchValue({ lat, lng });
 
-        // Luego resolvemos y guardamos la dirección
         this.setAddressFromLatLng(e.latLng);
 
         this.placeMarker(e.latLng);
@@ -203,7 +317,6 @@ export class AgregarTallerComponent implements OnInit {
     });
   }
 
-  /** Obtiene la dirección y la guarda en el form: direccion */
   private setAddressFromLatLng(latLng: google.maps.LatLng): void {
     this.geocoder.geocode(
       { location: latLng },
@@ -212,16 +325,13 @@ export class AgregarTallerComponent implements OnInit {
         if (status === 'OK' && results && results[0]?.formatted_address) {
           address = results[0].formatted_address;
         } else {
-          // Fallback si falla el geocoder
           address = `Lat: ${latLng.lat().toFixed(6)}, Lng: ${latLng
             .lng()
             .toFixed(6)}`;
         }
 
-        // Guarda en el form para que viaje en el payload
         this.tallerForm.patchValue({ direccion: address });
 
-        // Muestra el InfoWindow (opcional)
         const html = `
       <div style="font-family:'Segoe UI',sans-serif;border-radius:12px;max-width:260px;word-wrap:break-word;
                   box-shadow:0 4px 12px rgba(0,0,0,0.15);background:white;line-height:1.2;">
@@ -242,10 +352,9 @@ export class AgregarTallerComponent implements OnInit {
           status === 'OK' && results && results[0]?.formatted_address
             ? results[0].formatted_address
             : `Lat: ${latLng.lat().toFixed(6)}, Lng: ${latLng
-                .lng()
-                .toFixed(6)}`;
+              .lng()
+              .toFixed(6)}`;
 
-        // Muestra y guarda la dirección para el payload (campo "direccion")
         const html = `
         <div style="font-family: 'Segoe UI', sans-serif; border-radius: 12px; max-width: 260px; word-wrap: break-word; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; line-height: 1.2;">
           <strong style="font-size: 16px; color: #002136">Ubicación seleccionada</strong>

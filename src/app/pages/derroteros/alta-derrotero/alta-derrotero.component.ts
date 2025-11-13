@@ -131,9 +131,9 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
   public idTarifa: number;
   public titleTarifa = 'Agregar Tarifa';
   tiposTarifa = [
-    { id: 1, nombre: 'Fija' },
-    { id: 2, nombre: 'Modificable' },
-  ];
+  { id: 0, nombre: 'Incremental' },
+  { id: 1, nombre: 'Estacionaria' }
+];
 
   constructor(
     private modalService: NgbModal,
@@ -177,7 +177,7 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
 
   initForm() {
     this.tarifaForm = this.fb.group({
-      tipoTarifa : [null, Validators.required],
+      tipoTarifa: [null, Validators.required],
       tarifaBase: [null, Validators.required],
       distanciaBaseKm: [null, Validators.required],
       incrementoCadaMetros: [null, Validators.required],
@@ -1449,18 +1449,19 @@ private normalizeFormToNumbers(): void {
     }
 
     const v = this.tarifaForm.value;
-    const payload = {
-      tipoTarifa: this.toNum(v.tipoTarifa),
-      tarifaBase: this.parseNumeric(v.tarifaBase),
-      distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
-      incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
-      costoAdicional: this.parseNumeric(v.costoAdicional),
-      estatus: this.toNum(v.estatus),
-      idDerrotero: this.toNum(v.idDerrotero),
-    };
+const payload = {
+  tipoTarifa: this.toNum(v.tipoTarifa),
+  tarifaBase: this.parseNumeric(v.tarifaBase),
+  distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
+  incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
+  costoAdicional: this.parseNumeric(v.costoAdicional),
+  estatus: this.toNum(v.estatus),
+  idDerrotero: this.toNum(v.idDerrotero),
+};
 
     const etiquetasNum: Record<string, string> = {
       tarifaBase: 'Tarifa Base',
+      tipoTarifa: 'Tipo Tarifa',
       distanciaBaseKm: 'Distancia Base KM',
       incrementoCadaMetros: 'Incremento por cada 100 m adicionales',
       costoAdicional: 'Costo Adicional',

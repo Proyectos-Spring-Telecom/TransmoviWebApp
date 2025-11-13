@@ -171,9 +171,7 @@ export enum Permiso {
 
   /* #region Extras / Pruebas */
   Consultar_Monitoreo = "101",
-  Prueba_Modulos = "101",
   /* #endregion */
-
 
   /* #region Reportes */
   Consultar_Reportes = "104",

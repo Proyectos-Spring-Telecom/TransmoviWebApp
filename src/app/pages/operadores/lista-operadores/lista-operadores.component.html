@@ -44,14 +44,14 @@
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
                             <dxi-column *appHasPermission="['35', '36']" caption="Acciones" cellTemplate="Acciones"
                                 alignment="center" [width]="150"></dxi-column>
-                            <dxi-column caption="Licencia de Conducir" [width]="150" alignment="center"
+                            <!-- <dxi-column caption="Licencia de Conducir" [width]="150" alignment="center"
                                 [allowSorting]="false" [allowFiltering]="false" cellTemplate="licen"></dxi-column>
                             <div *dxTemplate="let f of 'licen'">
                                 <button type="button" class="btn btn-info btn-sm" style="border-radius: 5px;"
                                     (click)="previsualizar(f?.data?.licencia, 'Licencia de Conducir', f?.data)">
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
-                            </div>
+                            </div> -->
                             <dxi-column caption="Identificación" [width]="150" alignment="center" [allowSorting]="false"
                                 [allowFiltering]="false" cellTemplate="ident"></dxi-column>
                             <div *dxTemplate="let f of 'ident'">
@@ -78,15 +78,35 @@
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
                             </div>
-                            <dxi-column dataField="numeroLicencia" caption="Número de Licencia" [width]="150"
-                                alignment="center" dataType="string"></dxi-column>
                             <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center" dataType="string"
                                 [width]="320"></dxi-column>
                             <dxi-column dataField="userNameUsuario" caption="Correo Electrónico" alignment="center"
                                 dataType="string"></dxi-column>
                             <dxi-column dataField="telefonoUsuario" caption="Teléfono" alignment="center"
                                 dataType="string"></dxi-column>
-                            <dxi-column dataField="" caption="Vigencias" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="licencias" caption="Vigencias" alignment="center"
+                                cellTemplate="vigencias">
+                                <div *dxTemplate="let a of 'vigencias'">
+                                    <ng-container *ngIf="validLicencias(a.data?.licencias).length; else sinLic">
+                                        <!-- HTML: reemplaza el div del *ngFor por esto -->
+                                        <div *ngFor="let lic of validLicencias(a.data.licencias)" class="vig-card"
+                                            [ngClass]="vigenciaClase(lic)">
+                                            <div style="font-weight:600;">
+                                                {{'Tipo Licencia:' + ' ' + lic.nombreTipoLicencia}}
+                                            </div>
+                                            <div>Categoría: {{ lic.nombreCategoriaLicencia }}</div>
+                                            <div>N° Licencia: {{ lic.numeroLicencia || '—' }}</div>
+                                            <div>
+                                                Exp: {{ lic.fechaExpedicion | date:'dd/MM/yyyy' : '+0000' }}
+                                                • Venc: {{ lic.fechaVencimiento | date:'dd/MM/yyyy' : '+0000' }}
+                                            </div>
+                                        </div>
+
+                                    </ng-container>
+                                    <ng-template #sinLic>Sin licencias</ng-template>
+                                </div>
+                            </dxi-column>
+
                             <dxi-column dataField="FechaNacimientoTexto" caption="Fecha de Nacimiento"
                                 alignment="center" dataType="string" [width]="150"></dxi-column>
                             <dxi-column dataField="EstatusTexto" caption="Estatus" alignment="center" dataType="string"
@@ -100,7 +120,6 @@
                             <dxi-column dataField="DocumentoIdentificacionTexto" [visible]="false"></dxi-column>
                             <dxi-column dataField="DocumentoComprobanteTexto" [visible]="false"></dxi-column>
                             <dxi-column dataField="DocumentoAntecedentesTexto" [visible]="false"></dxi-column>
-
                             <dxo-export [enabled]="false" [allowExportSelectedData]="true" [texts]="{ exportAll: 'Exportar todos los datos a Excel', 
                                 exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
                             </dxo-export>
@@ -112,15 +131,19 @@
                                     </button>
                                 </div>
                                 <div *appHasPermission="'36'">
-                                    <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones"
+                                    <button *ngIf="row.data.estatusOperador === 0" id="pinButton" class="btnAcciones"
                                         (click)="activar(row.data)">
                                         <i class="fa fa-arrow-up"></i>
                                     </button>
-                                    <button *ngIf="row.data.estatus === 1" id="deleteButton" class="btnAcciones"
+                                    <button *ngIf="row.data.estatusOperador === 1" id="deleteButton" class="btnAcciones"
                                         (click)="desactivar(row.data)">
                                         <i class="fa fa-arrow-down"></i>
                                     </button>
                                 </div>
+                                <button id="pinButtonBlue" class="btnAcciones"
+                                    (click)="openOperadorModal(operadorLicModal, row.data)">
+                                    <i class="fa fa-plus"></i>
+                                </button>
                             </div>
                         </dx-data-grid>
                     </div>
@@ -133,6 +156,135 @@
 <dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
     [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
 </dx-load-panel>
+
+<!-- Nuevo modal con NgbModal -->
+<ng-template #operadorLicModal let-modal>
+    <div class="modal-content p-0" style="background-color:#002b47;">
+        <div class="modal-body">
+            <div class="card-header-custom">
+                <div class="icon-wrapper">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <div class="header-text">
+                    <h5>{{ 'Agregar Licencia para:' + ' ' + selOperadorNombre }}</h5>
+                    <span>Completa la información para registrar un nuevo permiso.</span>
+                </div>
+            </div>
+
+            <div>
+                <form [formGroup]="licenciaForm" class="cliente-form">
+
+                    <div class="row mt-3">
+
+                        <div class="col-md-4 mt-3">
+                            <label>N° Licencia</label>
+                            <input type="text" class="form-control" formControlName="numeroLicencia"
+                                placeholder="ABC12345XYZ">
+                        </div>
+
+                        <div class="col-md-4 mt-3">
+                            <label>Fecha Expedición - Fecha Vencimiento</label>
+                            <dx-date-range-box class="tm-range" [displayFormat]="'dd/MM/yyyy'" [labelMode]="'hidden'"
+                                [showClearButton]="true" [startDatePlaceholder]="'dd/mm/aaaa'"
+                                [endDatePlaceholder]="'dd/mm/aaaa'" [openOnFieldClick]="true"
+                                [startDate]="vigencia.start" [endDate]="vigencia.end"
+                                (onValueChanged)="onRangoVigenciaChanged($event)">
+                            </dx-date-range-box>
+
+
+                        </div>
+
+                        <div class="col-md-4 mt-3">
+                            <label>Tipo de Licencia</label>
+                            <dx-select-box class="tm-select w-100" formControlName="idTipoLicencia"
+                                [dataSource]="listaTipoLicencia || []" valueExpr="idCatTipoLicencia"
+                                displayExpr="nombreCatTipoLicencia" [searchEnabled]="true" [showClearButton]="true"
+                                [noDataText]="'Sin registros'" placeholder="Seleccione un tipo">
+                            </dx-select-box>
+                        </div>
+
+                        <div class="col-md-4 mt-3">
+                            <label>Categoría de Licencia</label>
+                            <dx-select-box class="tm-select w-100" formControlName="idCategoriaLicencia"
+                                [dataSource]="listaCategoriaLicencia || []" valueExpr="idCategoriaLicencia"
+                                displayExpr="nombreCategoriaLicencia" [searchEnabled]="true" [showClearButton]="true"
+                                [noDataText]="'Sin registros'" placeholder="Seleccione una categoría">
+                            </dx-select-box>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 mt-3">
+                            <div class="tc-upload">
+                                <label>Licencia</label>
+                                <div class="tc-preview" *ngIf="licenciaPreviewUrl; else licenciaTile">
+                                    <img [src]="licenciaPreviewUrl" alt="Licencia" />
+                                    <div class="file-name" *ngIf="licenciaFileName">{{ licenciaFileName }}</div>
+                                    <div class="tc-actions">
+                                        <button type="button" class="btn-change"
+                                            (click)="openLicFilePicker(licenciaFileInput)">
+                                            Cambiar
+                                        </button>
+                                        <button type="button" class="btn-remove" (click)="clearLicFile($event)">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <ng-template #licenciaTile>
+                                    <div class="tc-tile" (click)="openLicFilePicker(licenciaFileInput)"
+                                        (dragover)="onLicDragOver($event)" (dragleave)="onLicDragLeave($event)"
+                                        (drop)="onLicDrop($event)" [class.dragging]="licenciaDragging">
+                                        <div class="circle"><i class="fas fa-id-badge"></i></div>
+                                        <div class="meta">
+                                            <div class="title">Arrastra o haz clic</div>
+                                            <div class="hint">PDF o imagen · máx 3 MB</div>
+                                            <div class="file-name" *ngIf="licenciaFileName">{{ licenciaFileName }}</div>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                                <input type="file" #licenciaFileInput accept=".pdf,image/*" hidden
+                                    (change)="onLicFileSelected($event)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions mt-4">
+                        <button type="submit" class="submit" (click)="submit(modal)">{{ submitButton }}</button>
+
+                        <button type="button" class="cancel" style="margin-left: 3%;"
+                            (click)="modal.close()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</ng-template>
+
+<!-- Modal Mapa -->
+<div class="col-lg-6">
+    <ng-template #centerDataModal let-modal>
+        <div class="modal-content p-0" style="background-color:#002b47;">
+            <div class="modal-body">
+                <div class="card mb-3 shadow-sm">
+                    <div class="custom-card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-circle"><i class="fa fa-map-signs"></i></div>
+                            <span class="ruta-titulo">Taller: {{ selectedTallerNombre }}</span>
+                        </div>
+                        <div class="header-deco"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer border-top-0 d-flex align-items-center justify-content-center">
+                <button type="button" class="btn btn-md w-50 waves-effect waves-light"
+                    style="background-color:#f46a6a; color:#fff; border-radius:5px;" (click)="modal.close()">
+                    <i class="fa fa-times"></i>&nbsp;Cerrar
+                </button>
+            </div>
+        </div>
+    </ng-template>
+</div>
+
+
 
 <dx-popup [visible]="pdfPopupVisible" [showTitle]="true" title="Documentación" [dragEnabled]="true"
     [closeOnOutsideClick]="false" [width]="pdfPopupWidth" [height]="'auto'" [showCloseButton]="true"
@@ -170,7 +322,8 @@
         <ng-template #pdfErrorTpl>
             <div class="pdf-error-card">
                 <h4>📄 No pudimos previsualizar el PDF o Imagen</h4>
-                <p>{{ pdfErrorMsg || 'El archivo no está disponible, el tipo de contenido no es PDF o fue bloqueado por el navegador (CORS).' }}</p>
+                <p>{{ pdfErrorMsg || 'El archivo no está disponible, el tipo de contenido no es PDF o fue bloqueado por
+                    el navegador (CORS).' }}</p>
             </div>
         </ng-template>
     </div>
