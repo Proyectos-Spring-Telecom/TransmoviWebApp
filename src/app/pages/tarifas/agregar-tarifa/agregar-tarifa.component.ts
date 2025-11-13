@@ -21,9 +21,9 @@ export class AgregarTarifaComponent implements OnInit {
   public listaDerroteros: any[] = [];
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
-  tiposTarifa = [
-    { id: 1, nombre: 'Fija' },
-    { id: 2, nombre: 'Modificable' },
+  listaTipoTarifa = [
+    { id: 0, nombre: 'Estacionaria' },
+    { id: 1, nombre: 'Incremental' },
   ];
   displayDerrotero = (d: any) => (d ? d.nombreDerrotero : '');
 
@@ -189,38 +189,35 @@ export class AgregarTarifaComponent implements OnInit {
   }
 
   obtenerTarifa() {
-    this.tarSerice.obtenerTarifa(this.idTarifa).subscribe({
-      next: (response: any) => {
-        const data = response?.data;
-        const item = Array.isArray(data)
-          ? data.find((x: any) => x?.id === this.idTarifa) ?? data[0]
-          : data;
+  this.tarSerice.obtenerTarifa(this.idTarifa).subscribe({
+    next: (response: any) => {
+      const data = response?.data;
+      const item = Array.isArray(data)
+        ? data.find((x: any) => Number(x?.id) === Number(this.idTarifa)) ?? data[0]
+        : data;
+      if (!item) return;
 
-        if (!item) {
-          return;
-        }
-        const dto = {
-          tarifaBase: this.toNumber(item.tarifaBase ?? item.TarifaBase),
-          distanciaBaseKm: this.toNumber(
-            item.distanciaBaseKm ?? item.DistanciaBaseKm
-          ),
-          incrementoCadaMetros: this.toNumber(
-            item.incrementoCadaMetros ?? item.IncrementoCadaMetros
-          ),
-          costoAdicional: this.toNumber(
-            item.costoAdicional ?? item.CostoAdicional
-          ),
-          estatus: item.estatus ?? item.estatusTarifa ?? 1,
-          idDerrotero: item.idDerrotero ?? item.idderrotero ?? null,
-        };
+      const tipoTarifa = this.toNumber(
+        item.tipoTarifa ?? item.TipoTarifa ?? item.idTipoTarifa ?? item.IdTipoTarifa
+      );
 
-        this.tarifaForm.patchValue(dto, { emitEvent: false });
-      },
-      error: (e) => {
-        console.error('Error obtenerTarifa', e);
-      },
-    });
-  }
+      const dto = {
+        tipoTarifa: tipoTarifa,
+        tarifaBase: this.toNumber(item.tarifaBase ?? item.TarifaBase),
+        distanciaBaseKm: this.toNumber(item.distanciaBaseKm ?? item.DistanciaBaseKm),
+        incrementoCadaMetros: this.toNumber(item.incrementoCadaMetros ?? item.IncrementoCadaMetros),
+        costoAdicional: this.toNumber(item.costoAdicional ?? item.CostoAdicional),
+        estatus: this.toNumber(item.estatus ?? item.estatusTarifa) ?? 1,
+        idDerrotero: this.toNumber(item.idDerrotero ?? item.idderrotero),
+      };
+
+      this.tarifaForm.patchValue(dto, { emitEvent: false });
+    },
+    error: (e) => {
+      console.error('Error obtenerTarifa', e);
+    },
+  });
+}
 
   private toNum(v: any): number {
     if (v === null || v === undefined) return NaN;

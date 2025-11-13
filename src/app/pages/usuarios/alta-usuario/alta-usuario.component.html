@@ -36,17 +36,17 @@
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2">
             <label>Rol</label>
-            <dx-select-box class="tm-select w-100" formControlName="idRol" [dataSource]="listaRoles" [displayExpr]="roleDisplayExpr"
-              [valueExpr]="roleValueExpr" placeholder="Seleccione un rol" [searchEnabled]="true"
-              [showClearButton]="true" [noDataText]="'Sin registros'">
+            <dx-select-box class="tm-select w-100" formControlName="idRol" [dataSource]="listaRoles"
+              [displayExpr]="roleDisplayExpr" [valueExpr]="roleValueExpr" placeholder="Seleccione un rol"
+              [searchEnabled]="true" [showClearButton]="true" [noDataText]="'Sin registros'">
             </dx-select-box>
           </div>
 
           <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-2">
             <label>Cliente</label>
-            <dx-select-box class="tm-select w-100" formControlName="idCliente" [dataSource]="listaClientes" [displayExpr]="clienteDisplayExpr"
-              valueExpr="id" placeholder="Seleccione un cliente" [searchEnabled]="true" [showClearButton]="true"
-              [noDataText]="'Sin registros'">
+            <dx-select-box class="tm-select w-100" formControlName="idCliente" [dataSource]="listaClientes"
+              [displayExpr]="clienteDisplayExpr" valueExpr="id" placeholder="Seleccione un cliente"
+              [searchEnabled]="true" [showClearButton]="true" [noDataText]="'Sin registros'">
             </dx-select-box>
           </div>
 
@@ -135,17 +135,27 @@
           <div class="mp-grid">
             <div class="mp-card" *ngFor="let modulo of listaModulos; trackBy: trackModulo">
               <div class="mp-ch">
-                <div class="mp-ct">
-                  <div class="mp-av">{{ (modulo?.nombre || 'M') | slice: 0:1 }}</div>
-                  <div class="mp-ctxt">
-                    <h5 class="text-truncate" [title]="modulo?.nombre">{{ modulo?.nombre }}</h5>
-                    <small class="text-muted text-truncate" [title]="modulo?.descripcion || ''">
-                      {{ modulo?.descripcion || 'Sin descripción' }}
-                    </small>
-                  </div>
-                </div>
-                <div class="mp-badge">{{ modulo?.permisos?.length || 0 }}</div>
-              </div>
+    <div class="mp-ct">
+      <div class="mp-av">{{ (modulo?.nombre || 'M') | slice: 0:1 }}</div>
+      <div class="mp-ctxt">
+        <h5 class="text-truncate" [title]="modulo?.nombre">{{ modulo?.nombre }}</h5>
+        <small class="text-muted text-truncate" [title]="modulo?.descripcion || ''">
+          {{ modulo?.descripcion || 'Sin descripción' }}
+        </small>
+      </div>
+    </div>
+    <div class="perm-switch">
+      <label class="sw">
+        <input
+  type="checkbox"
+  [checked]="isModuloCompleto(modulo)"
+  (change)="onToggleModulo(modulo, $any($event.target).checked)"
+/>
+
+        <span class="sl"></span>
+      </label>
+    </div>
+  </div>
               <div class="mp-cb" *ngIf="modulo?.permisos?.length; else noPerms">
                 <div class="perm-list">
                   <div class="perm-row" *ngFor="let permiso of modulo.permisos; trackBy: trackPermiso">
@@ -156,8 +166,9 @@
                     </div>
                     <div class="perm-switch">
                       <label class="sw">
-                        <input type="checkbox" [checked]="isPermisoAsignado(permiso?.id)"
+                        <input type="checkbox" [checked]="isPermisoAsignado(permiso?.idPermiso ?? permiso?.id)"
                           (change)="onToggle(permiso, $any($event.target).checked)" />
+
                         <span class="sl"></span>
                       </label>
                     </div>

@@ -5,6 +5,7 @@ import CustomStore from 'devextreme/data/custom_store';
 import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
+import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { UsuariosService } from 'src/app/shared/services/usuario.service';
 import Swal from 'sweetalert2';
 
@@ -35,10 +36,17 @@ export class ListaUsuariosComponent implements OnInit {
   public pageSize: number = 20;
   public totalPaginas: number = 0;
   public registros: any[] = [];
+  public showCliente: any
 
-  constructor(private usuService: UsuariosService, private route: Router, private permissionsService: NgxPermissionsService,) {
-    this.showFilterRow = true;
-    this.showHeaderFilter = true;
+  constructor(private usuService: UsuariosService, private route: Router, private permissionsService: NgxPermissionsService,
+    private users: AuthenticationService,
+  ) {
+    const user = this.users.getUser();
+this.showFilterRow = true;
+this.showHeaderFilter = true;
+
+// true solo cuando el nombre del rol sea 'SA'
+this.showCliente = user?.rol?.nombre === 'SA';
   }
 
   ngOnInit(): void {

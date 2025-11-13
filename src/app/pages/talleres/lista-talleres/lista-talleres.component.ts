@@ -7,6 +7,7 @@ import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { TallereService } from 'src/app/shared/services/talleres.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-lista-talleres',
@@ -57,7 +58,7 @@ export class ListaTalleresComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.obtenerTalleres();
+    this.setupDataSource();
   }
 
   hasPermission(permission: string): boolean {
@@ -74,7 +75,7 @@ export class ListaTalleresComponent implements OnInit {
     this.loading = true;
 
     this.listaTalleres = new CustomStore({
-      key: 'id',
+      key: 'Id', // <- que coincida con el keyExpr del grid
       load: async (loadOptions: any) => {
         const take = Number(loadOptions?.take) || this.pageSize || 10;
         const skip = Number(loadOptions?.skip) || 0;
@@ -94,29 +95,21 @@ export class ListaTalleresComponent implements OnInit {
             toNum(meta.lastPage) ??
             Math.max(1, Math.ceil(totalRegistros / take));
 
-          const dataTransformada = rows.map((x: any) => {
-            const pasajero = [
-              x?.nombrePasajero,
-              x?.apellidoPaternoPasajero,
-              x?.apellidoMaternoPasajero,
-            ]
-              .filter((v) => !!(v && String(v).trim()))
-              .join(' ')
-              .trim();
-
-            return {
-              id: x?.id ?? null,
-              tipoTransaccion: x?.tipoTransaccion ?? null,
-              monto: toMoney(x?.monto),
-              latitud: x?.latitud ?? null,
-              longitud: x?.longitud ?? null,
-              fechaHora: x?.fechaHora ?? null,
-              fhRegistro: x?.fhRegistro ?? null,
-              numeroSerieMonedero: x?.numeroSerieMonedero ?? null,
-              numeroSerieDispositivo: x?.numeroSerieDispositivo ?? null,
-              pasajero: pasajero || 'sin registro',
-            };
-          });
+          // 👇 AQUÍ transformamos pero conservando los nombres que usan las columnas
+          const dataTransformada = rows.map((x: any) => ({
+            Id: Number(x?.Id ?? x?.id ?? x?.ID ?? null),
+            Nombre: x?.Nombre ?? x?.nombre ?? null,
+            Descripcion: x?.Descripcion ?? x?.descripcion ?? null,
+            Direccion: x?.Direccion ?? x?.direccion ?? null,
+            Icono: x?.Icono ?? x?.icono ?? null,
+            Lat: x?.Lat ?? x?.lat ?? null,
+            Lng: x?.Lng ?? x?.lng ?? null,
+            Estatus: toNum(x?.Estatus ?? x?.estatus),
+            IdCliente: Number(x?.IdCliente ?? x?.idCliente ?? null),
+            FHRegistro: x?.FHRegistro ?? x?.fhRegistro ?? null,
+            FHActualizacion: x?.FHActualizacion ?? x?.fhActualizacion ?? null,
+            nombreCliente: x?.nombreCliente ?? x?.NombreCliente ?? null,
+          }));
 
           this.totalRegistros = totalRegistros;
           this.paginaActual = paginaActual;
@@ -129,7 +122,7 @@ export class ListaTalleresComponent implements OnInit {
           };
         } catch (error) {
           this.loading = false;
-          console.error('[TRANSACCIONES] Error:', error);
+          console.error('[TALLERES] Error:', error);
           return { data: [], totalCount: 0 };
         }
       },
@@ -139,16 +132,8 @@ export class ListaTalleresComponent implements OnInit {
       const n = Number(v);
       return Number.isFinite(n) ? n : null;
     }
-
-    function toMoney(v: any): number | null {
-      if (v === null || v === undefined) return null;
-      const s = String(v)
-        .replace(',', '.')
-        .replace(/[^0-9.-]/g, '');
-      const n = Number(s);
-      return Number.isFinite(n) ? Number(n.toFixed(2)) : null;
-    }
   }
+
 
   openTallerMapa(templateRef: any, row: any) {
     const lat = Number(row?.Lat ?? row?.lat ?? row?.LAT);
@@ -240,6 +225,10 @@ export class ListaTalleresComponent implements OnInit {
       });
     });
   }
+
+  actualizarTaller(idTaller: number) {
+    this.route.navigateByUrl('/talleres/editar-taller/' + idTaller);
+  };
 
   onGridOptionChanged(e: any) {
     if (e.fullName === 'searchPanel.text') {
@@ -339,5 +328,87 @@ export class ListaTalleresComponent implements OnInit {
 
   agregarTaller() {
     this.route.navigateByUrl('/talleres/agregar-taller');
+  }
+
+  activar(rowData: any) {
+    Swal.fire({
+      title: '¡Activar!',
+      html: `¿Está seguro que requiere activar el taller: <strong>${rowData.Nombre}</strong>?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar',
+      background: '#002136',
+    }).then((result) => {
+      if (result.value) {
+        this.tallService.activarTaller(rowData.Id).subscribe(
+          () => {
+            Swal.fire({
+              title: '¡Confirmación Realizada!',
+              html: `El taller ha sido activado.`,
+              icon: 'success',
+              background: '#002136',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'Confirmar',
+            });
+            this.obtenerTalleres();
+            this.dataGrid.instance.refresh();
+          },
+          (error) => {
+            Swal.fire({
+              title: '¡Ops!',
+              html: error.error,
+              icon: 'error',
+              background: '#002136',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'Confirmar',
+            });
+          }
+        );
+      }
+    });
+  }
+
+  desactivar(rowData: any) {
+    Swal.fire({
+      title: '¡Desactivar!',
+      html: `¿Está seguro que requiere desactivar el taller: <strong>${rowData.Nombre}</strong>?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar',
+      background: '#002136',
+    }).then((result) => {
+      if (result.value) {
+        this.tallService.desactivarTaller(rowData.Id).subscribe(
+          () => {
+            Swal.fire({
+              title: '¡Confirmación Realizada!',
+              html: `El taller ha sido desactivado.`,
+              icon: 'success',
+              background: '#002136',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'Confirmar',
+            });
+            this.obtenerTalleres();
+            this.dataGrid.instance.refresh();
+          },
+          (error) => {
+            Swal.fire({
+              title: '¡Ops!',
+              html: error.error,
+              icon: 'error',
+              background: '#002136',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'Confirmar',
+            });
+          }
+        );
+      }
+    });
   }
 }

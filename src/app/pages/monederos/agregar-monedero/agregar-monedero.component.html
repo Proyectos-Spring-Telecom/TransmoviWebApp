@@ -28,43 +28,46 @@
                     </div>
 
                     <div class="col-12 col-sm-6 col-md-4 mt-3">
-                        <label>Pasajero</label>
-                        <dx-select-box class="tm-select w-100" formControlName="idPasajero"
-                            [items]="listaPasajeros || []" [valueExpr]="'id'" [displayExpr]="displayPasajero"
-                            [searchEnabled]="true" [showClearButton]="true" [noDataText]="'Sin registros'"
-                            placeholder="Seleccione un pasajero">
-                            <div *dxTemplate="let p of 'item'">
-                                {{ displayPasajero(p) }}
-                            </div>
-                            <div *dxTemplate="let p of 'field'">
-                                {{ displayPasajero(p) }}
-                            </div>
-                        </dx-select-box>
-                    </div>
+  <label>Cliente</label>
+  <dx-select-box
+    class="tm-select w-100"
+    formControlName="idCliente"
+    [items]="listaClientes || []"
+    [valueExpr]="'id'"
+    [displayExpr]="displayCliente"
+    [searchEnabled]="true"
+    [showClearButton]="true"
+    [noDataText]="'Sin registros'"
+    placeholder="Seleccione un cliente"
+    (onValueChanged)="onClienteChange($event)"
+  >
+    <div *dxTemplate="let c of 'item'">
+      {{ displayCliente(c) }}
+    </div>
+    <div *dxTemplate="let c of 'field'">
+      {{ displayCliente(c) }}
+    </div>
+  </dx-select-box>
+</div>
 
-                    <div class="col-12 col-sm-6 col-md-4 mt-3">
-                        <label>Cliente</label>
-                        <dx-select-box class="tm-select w-100" formControlName="idCliente" [items]="listaClientes || []"
-                            [valueExpr]="'id'" [displayExpr]="displayCliente" [searchEnabled]="true"
-                            [showClearButton]="true" [noDataText]="'Sin registros'" placeholder="Seleccione un cliente">
-                            <div *dxTemplate="let c of 'item'">
-                                {{ displayCliente(c) }}
-                            </div>
-                            <div *dxTemplate="let c of 'field'">
-                                {{ displayCliente(c) }}
-                            </div>
-                        </dx-select-box>
-                    </div>
-                    <div class="col-12 col-sm-6 col-md-4 mt-3">
-                        <label>Tipo de Pasajero</label>
-                        <dx-select-box class="tm-select w-100" formControlName="tipoPasajero"
-                            [items]="listaPasajeros || []" [valueExpr]="'idTipoPasajero'"
-                            [displayExpr]="displayTipoPasajero" [searchEnabled]="true" [showClearButton]="true"
-                            [noDataText]="'Sin registros'" placeholder="Seleccione un tipo">
-                            <div *dxTemplate="let t of 'item'">{{ displayTipoPasajero(t) }}</div>
-                            <div *dxTemplate="let t of 'field'">{{ displayTipoPasajero(t) }}</div>
-                        </dx-select-box>
-                    </div>
+<div class="col-12 col-sm-6 col-md-4 mt-3">
+  <label>Tipo de Pasajero</label>
+  <dx-select-box
+    class="tm-select w-100"
+    formControlName="idTipoPasajero"
+    [items]="listaPasajeros || []"
+    [valueExpr]="'id'"
+    [displayExpr]="displayTipoPasajero"
+    [searchEnabled]="true"
+    [showClearButton]="true"
+    [noDataText]="'Sin registros'"
+    placeholder="Seleccione un tipo"
+  >
+    <div *dxTemplate="let t of 'item'">{{ displayTipoPasajero(t) }}</div>
+    <div *dxTemplate="let t of 'field'">{{ displayTipoPasajero(t) }}</div>
+  </dx-select-box>
+</div>
+
 
 
                 </div>

@@ -18,7 +18,7 @@ export class OperadoresService {
     return this.http.get(`${environment.API_SECURITY}/operadores/list`);
   }
 
-  agregarOperador(data: FormData) {
+  agregarOperador(data: any) {
     return this.http.post(environment.API_SECURITY + '/operadores', data);
   }
 
@@ -41,5 +41,17 @@ export class OperadoresService {
     return this.http.patch(url, body, { responseType: 'text' }).pipe(
       catchError(error => throwError(() => error))
     );
+  }
+
+  obtenerCaregoriasLicencia(): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/catcategorialicencia/list`);
+  }
+
+  obtenerTiposLicencia(): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/cattipolicencia/list`);
+  }
+
+  agregarLicencia(data: any) {
+    return this.http.post(environment.API_SECURITY + '/licencias', data);
   }
 }

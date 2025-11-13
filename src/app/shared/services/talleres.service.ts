@@ -34,18 +34,20 @@ export class TallereService {
   }
 
   actualizarTaller(idTaller: number, saveForm: any): Observable<any> {
-    return this.http.put(
-      `${environment.API_SECURITY}/talleres/` + idTaller,
+    return this.http.patch(
+      `${environment.API_SECURITY}/talleres/${idTaller}`,
       saveForm
     );
   }
 
   private apiUrl = `${environment.API_SECURITY}/talleres`;
-  updateEstatus(id: number, estatus: number): Observable<string> {
-    const url = `${this.apiUrl}/${id}/estatus`;
-    const body = { estatus };
-    return this.http
-      .patch(url, body, { responseType: 'text' })
-      .pipe(catchError((error) => throwError(() => error)));
+
+  activarTaller(id: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/activar/${id}`, null, { responseType: 'text' as 'json' });
   }
+
+  desactivarTaller(id: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/desactivar/${id}`, null, { responseType: 'text' as 'json' });
+  }
+
 }

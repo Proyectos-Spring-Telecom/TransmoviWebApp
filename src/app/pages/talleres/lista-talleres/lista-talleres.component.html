@@ -22,28 +22,16 @@
       <div class="row mt-4">
         <div class="col-lg-12">
           <div class="table-responsive mb-4 col-12 col-lg-12">
-            <dx-data-grid
-              #gridContainer
-              id="gridContainer"
-              [noDataText]="'Sin registros'"
-              [columnHidingEnabled]="true"
-              [showBorders]="'true'"
-              [showColumnLines]="true"
-              [showRowLines]="true"
-              [rowAlternationEnabled]="'true'"
-              [dataSource]="listaTalleres"
-              [keyExpr]="'Id'"
-              [width]="'100%'"
-              [remoteOperations]="{ paging: true }"
-              [paging]="{ pageSize: pageSize }"
-              [pager]="{
+            <dx-data-grid #gridContainer id="gridContainer" [noDataText]="'Sin registros'" [columnHidingEnabled]="true"
+              [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="'true'"
+              [dataSource]="listaTalleres" [keyExpr]="'Id'" [width]="'100%'" [remoteOperations]="{ paging: true }"
+              [paging]="{ pageSize: pageSize }" [pager]="{
                 showPageSizeSelector: true,
                 allowedPageSizes: [50],
                 showInfo: true,
                 infoText: 'Página {0} de {1}',
                 visible: true
-              }"
-            >
+              }">
               <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
               <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
               <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
@@ -53,40 +41,58 @@
               <!-- Acciones -->
               <dxi-column caption="Acciones" [width]="180" alignment="center" cellTemplate="acciones"></dxi-column>
               <div *dxTemplate="let row of 'acciones'" class="d-flex gap-2 justify-content-center">
-                <button type="button" class="btn btn-secondary"
-                        (click)="openTallerMapa(centerDataModal, row.data)">
-                  <i class="uil uil-map-pin ml-2"></i> Ubicar
+                <div>
+                  <button valueExpr="id" id="actualizarButton" class="btnAcciones"
+                    (click)="actualizarTaller(row.data.Id)">
+                    <i class="fa fa-edit"></i>
+                  </button>
+                </div>
+                <button id="pinButtonBlue" class="btnAcciones" (click)="openTallerMapa(centerDataModal, row.data)">
+                  <i class="fa fa-map-pin"></i>
                 </button>
+                <div>
+                  <button *ngIf="row.data.Estatus === 0" id="pinButton" class="btnAcciones" (click)="activar(row.data)">
+                    <i class="fa fa-arrow-up"></i>
+                  </button>
+                  <button *ngIf="row.data.Estatus === 1" id="deleteButton" class="btnAcciones"
+                    (click)="desactivar(row.data)">
+                    <i class="fa fa-arrow-down"></i>
+                  </button>
+                </div>
               </div>
 
               <dxi-column dataField="Nombre" caption="Nombre" alignment="center" [width]="220"></dxi-column>
 
               <dxi-column dataField="Descripcion" caption="Descripción" alignment="center"></dxi-column>
 
-              <dxi-column caption="Icono" alignment="center" [width]="120" cellTemplate="iconCell"></dxi-column>
+              <!-- <dxi-column caption="Icono" alignment="center" [width]="120" cellTemplate="iconCell"></dxi-column>
               <div *dxTemplate="let r of 'iconCell'">
                 <img *ngIf="r.data?.Icono" [src]="r.data.Icono" alt="Icono" style="max-height:36px;max-width:100px;object-fit:contain;">
                 <span *ngIf="!r.data?.Icono">Sin icono</span>
-              </div>
+              </div> -->
 
-              <dxi-column dataField="Direccion" caption="Dirección" alignment="center" [width]="360" cellTemplate="dirCell"></dxi-column>
+              <dxi-column dataField="Direccion" caption="Dirección" alignment="center" [width]="360"
+                cellTemplate="dirCell"></dxi-column>
               <div *dxTemplate="let d of 'dirCell'">
                 <div style="white-space:pre-wrap;word-break:break-word;text-align:center">{{ d.data?.Direccion }}</div>
               </div>
 
               <dxi-column dataField="nombreCliente" caption="Cliente" alignment="center" [width]="220"></dxi-column>
 
-              <dxi-column dataField="FHRegistro" caption="Fecha Registro" alignment="center" [width]="200" cellTemplate="fhReg"></dxi-column>
+              <dxi-column dataField="FHRegistro" caption="Fecha Registro" alignment="center" [width]="200"
+                cellTemplate="fhReg"></dxi-column>
               <div *dxTemplate="let a of 'fhReg'">
                 {{ a.data.FHRegistro | date:'dd/MM/yyyy HH:mm' : '+0000' }}
               </div>
 
-              <dxi-column dataField="FHActualizacion" caption="Fecha Actualización" alignment="center" [width]="220" cellTemplate="fhAct"></dxi-column>
+              <dxi-column dataField="FHActualizacion" caption="Fecha Actualización" alignment="center" [width]="220"
+                cellTemplate="fhAct"></dxi-column>
               <div *dxTemplate="let a of 'fhAct'">
                 {{ a.data.FHActualizacion | date:'dd/MM/yyyy HH:mm' : '+0000' }}
               </div>
 
-              <dxi-column dataField="Estatus" caption="Estatus" alignment="center" [width]="130" cellTemplate="estCell"></dxi-column>
+              <dxi-column dataField="Estatus" caption="Estatus" alignment="center" [width]="130"
+                cellTemplate="estCell"></dxi-column>
               <div *dxTemplate="let f of 'estCell'">
                 <span *ngIf="f.data.Estatus === 1" class="estatus estatus-activo">Activo</span>
                 <span *ngIf="f.data.Estatus !== 1" class="estatus estatus-inactivo">Inactivo</span>
@@ -133,8 +139,7 @@
 
       <div class="modal-footer border-top-0 d-flex align-items-center justify-content-center">
         <button type="button" class="btn btn-md w-50 waves-effect waves-light"
-                style="background-color:#f46a6a; color:#fff; border-radius:5px;"
-                (click)="modal.close()">
+          style="background-color:#f46a6a; color:#fff; border-radius:5px;" (click)="modal.close()">
           <i class="fa fa-times"></i>&nbsp;Cerrar
         </button>
       </div>
@@ -142,12 +147,6 @@
   </ng-template>
 </div>
 
-<dx-load-panel #loadPanel
-  shadingColor="rgba(0,0,0,0.4)"
-  [(visible)]="loading"
-  [showIndicator]="true"
-  [showPane]="true"
-  [shading]="true"
-  [closeOnOutsideClick]="false"
-  [message]="loadingMessage">
+<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
+  [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
 </dx-load-panel>

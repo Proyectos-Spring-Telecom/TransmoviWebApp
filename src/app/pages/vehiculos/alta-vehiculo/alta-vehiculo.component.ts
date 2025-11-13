@@ -9,6 +9,26 @@ import { UsuariosService } from 'src/app/shared/services/usuario.service';
 import { VehiculosService } from 'src/app/shared/services/vehiculos.service';
 import Swal from 'sweetalert2';
 
+type VehiculoPayload = {
+  marca: string;
+  modelo: string;
+  ano: number;
+  placa: string;
+  numeroEconomico: string;
+  tarjetaCirculacion: string;
+  polizaSeguro: string;
+  permisoConcesion: string;
+  inspeccionMecanica: string;
+  foto: string;
+  pasajerosSentados: number;
+  pasajerosParados: number;
+  estatus: number;
+  idCliente: number;
+  km: number;
+  idCombustible: number;
+  capacidadLitros: number;
+};
+
 @Component({
   selector: 'app-alta-vehiculo',
   templateUrl: './alta-vehiculo.component.html',
@@ -47,9 +67,9 @@ export class AltaVehiculoComponent implements OnInit {
       this.anios.push(y);
     }
     this.obtenerOperadores();
-    this.obtenerDispositivos();
     this.obtenerClientes()
     this.initForm();
+    this.obtenerTipoCombustible()
     this.activatedRouted.params.subscribe((params) => {
       this.idVehiculo = params['idVehiculo'];
       if (this.idVehiculo) {
@@ -66,27 +86,6 @@ export class AltaVehiculoComponent implements OnInit {
         id: Number(c?.id ?? c?.Id ?? c?.ID),
       }));
     });
-  }
-
-
-  obtenerDispositivos() {
-    this.loading = true;
-    this.disposService.obtenerDispositivos().subscribe(
-      (res: any) => {
-        setTimeout(() => {
-          this.loading = false;
-        }, 2000);
-        if (Array.isArray(res.dispositivos)) {
-          this.listaDispositivos = res.dispositivos.sort((a, b) => b.Id - a.Id);
-        } else {
-          console.error('El formato de datos recibido no es el esperado.');
-        }
-      },
-      (error) => {
-        this.loading = false;
-        console.error('Error al obtener dispositivos:', error);
-      }
-    );
   }
 
   obtenerOperadores() {
@@ -112,47 +111,89 @@ export class AltaVehiculoComponent implements OnInit {
     );
   }
 
-obtenerVehiculoID() {
-  this.vehiService.obtenerVehiculo(this.idVehiculo).subscribe((response: any) => {
-    const raw = Array.isArray(response?.data)
-      ? response.data[0]
-      : response?.vehiculo ?? response?.data ?? response ?? {};
+  // propiedades
+  listaCombustibles: Array<{ id: number; nombre: string }> = [];
+  private combustibleNombreTmp: string | null = null;
 
-    const get = (o: any, keys: string[]) => {
-      for (const k of keys) if (o?.[k] !== undefined && o?.[k] !== null) return o[k];
-      return null;
-    };
+  // util
+  private findCombustibleIdByName(n: string | null): number | null {
+    if (!n) return null;
+    const hit = this.listaCombustibles.find(c => c.nombre?.toString().trim().localeCompare(n.toString().trim(), undefined, { sensitivity: 'base' }) === 0);
+    return hit ? Number(hit.id) : null;
+  }
 
-    const marca = get(raw, ['marca', 'Marca']);
-    const modelo = get(raw, ['modelo', 'Modelo']);
-    const ano = get(raw, ['ano', 'año', 'Ano', 'Año']);
-    const placa = get(raw, ['placa', 'Placa']);
-    const numeroEconomico = get(raw, ['numeroEconomico', 'NumeroEconomico']);
-    const tarjetaCirculacion = get(raw, ['tarjetaCirculacion', 'TarjetaCirculacion']);
-    const polizaSeguro = get(raw, ['polizaSeguro', 'PolizaSeguro']);
-    const permisoConcesion = get(raw, ['permisoConcesion', 'PermisoConcesion']);
-    const inspeccionMecanica = get(raw, ['inspeccionMecanica', 'InspeccionMecanica']);
-    const foto = get(raw, ['foto', 'Foto']);
-    const est = get(raw, ['estatus', 'Estatus']);
-    const idCli = get(raw, ['idCliente', 'idcliente', 'IdCliente', 'IDCliente']);
+  obtenerTipoCombustible() {
+    this.vehiService.obtenerCombustibles().subscribe((response) => {
+      this.listaCombustibles = (response?.data || []).map((c: any) => ({
+        id: Number(c?.id ?? c?.Id ?? c?.ID),
+        nombre: c?.nombre ?? c?.Nombre ?? ''
+      }));
 
-    this.vehiculosForm.patchValue({
-      marca: marca ?? '',
-      modelo: modelo ?? '',
-      ano: ano ?? '',
-      placa: placa ?? '',
-      numeroEconomico: numeroEconomico ?? '',
-      tarjetaCirculacion: tarjetaCirculacion ?? '',
-      polizaSeguro: polizaSeguro ?? '',
-      permisoConcesion: permisoConcesion ?? '',
-      inspeccionMecanica: inspeccionMecanica ?? '',
-      foto: foto ?? null,
-      estatus: est != null && !Number.isNaN(Number(est)) ? Number(est) : 1,
-      idCliente: idCli != null && idCli !== '' ? Number(idCli) : null,
+      if (!this.vehiculosForm?.get('idCombustible')?.value) {
+        const mapped = this.findCombustibleIdByName(this.combustibleNombreTmp);
+        if (mapped != null) this.vehiculosForm.patchValue({ idCombustible: mapped });
+      }
     });
-  });
-}
+  }
 
+  obtenerVehiculoID() {
+    this.vehiService.obtenerVehiculo(this.idVehiculo).subscribe((response: any) => {
+      const raw = Array.isArray(response?.data)
+        ? response.data[0]
+        : response?.vehiculo ?? response?.data ?? response ?? {};
+
+      const get = (o: any, keys: string[]) => {
+        for (const k of keys) if (o?.[k] !== undefined && o?.[k] !== null) return o[k];
+        return null;
+      };
+
+      const marca = get(raw, ['marca', 'Marca']);
+      const modelo = get(raw, ['modelo', 'Modelo']);
+      const ano = get(raw, ['ano', 'año', 'Ano', 'Año']);
+      const placa = get(raw, ['placa', 'Placa']);
+      const numeroEconomico = get(raw, ['numeroEconomico', 'NumeroEconomico']);
+      const tarjetaCirculacion = get(raw, ['tarjetaCirculacion', 'TarjetaCirculacion']);
+      const polizaSeguro = get(raw, ['polizaSeguro', 'PolizaSeguro']);
+      const permisoConcesion = get(raw, ['permisoConcesion', 'PermisoConcesion']);
+      const inspeccionMecanica = get(raw, ['inspeccionMecanica', 'InspeccionMecanica']);
+      const foto = get(raw, ['foto', 'Foto']);
+      const est = get(raw, ['estatus', 'Estatus']);
+      const idCli = get(raw, ['idCliente', 'idcliente', 'IdCliente', 'IDCliente']);
+
+      const pasajerosSentados = get(raw, ['pasajerosSentados', 'PasajerosSentados']);
+      const pasajerosParados = get(raw, ['pasajerosParados', 'PasajerosParados']);
+      const km = get(raw, ['km', 'KM', 'Km']);
+      const idCombustible = get(raw, ['idCombustible', 'IdCombustible', 'idcombustible']);
+      const capacidadLitros = get(raw, ['capacidadLitros', 'CapacidadLitros']);
+      const combustibleNombre = get(raw, ['nombre', 'Nombre', 'tipoCombustible', 'TipoCombustible']);
+
+      this.vehiculosForm.patchValue({
+        marca: marca ?? '',
+        modelo: modelo ?? '',
+        ano: ano ?? '',
+        placa: placa ?? '',
+        numeroEconomico: numeroEconomico ?? '',
+        tarjetaCirculacion: tarjetaCirculacion ?? '',
+        polizaSeguro: polizaSeguro ?? '',
+        permisoConcesion: permisoConcesion ?? '',
+        inspeccionMecanica: inspeccionMecanica ?? '',
+        foto: foto ?? '',
+        pasajerosSentados: pasajerosSentados != null ? Number(pasajerosSentados) : null,
+        pasajerosParados: pasajerosParados != null ? Number(pasajerosParados) : null,
+        km: km != null ? Number(km) : null,
+        idCombustible: idCombustible != null ? Number(idCombustible) : null,
+        capacidadLitros: capacidadLitros != null ? Number(capacidadLitros) : null,
+        estatus: est != null && !Number.isNaN(Number(est)) ? Number(est) : 1,
+        idCliente: idCli != null && idCli !== '' ? Number(idCli) : null,
+      });
+
+      if (!idCombustible) {
+        this.combustibleNombreTmp = combustibleNombre ?? null;
+        const mapped = this.findCombustibleIdByName(this.combustibleNombreTmp);
+        if (mapped != null) this.vehiculosForm.patchValue({ idCombustible: mapped });
+      }
+    });
+  }
 
   initForm() {
     this.vehiculosForm = this.fb.group({
@@ -166,12 +207,47 @@ obtenerVehiculoID() {
       permisoConcesion: ['', Validators.required],
       inspeccionMecanica: ['', Validators.required],
       foto: ['', Validators.required],
+      pasajerosSentados: [null, Validators.required],
+      pasajerosParados: [null, Validators.required],
+      km: [null, Validators.required],
+      idCombustible: [null, Validators.required],
+      capacidadLitros: [null, Validators.required],
       estatus: [1, Validators.required],
       idCliente: [null, Validators.required],
-      // idOperador: ['', Validators.required],
-      // idDispositivo: ['', Validators.required],
     });
   }
+
+  allowOnlyNumbersCombustible(e: KeyboardEvent) {
+    const input = e.target as HTMLInputElement;
+    const key = e.key;
+    const editKeys = [
+      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+      'ArrowLeft', 'ArrowRight', 'Home', 'End'
+    ];
+    if (editKeys.includes(key)) return;
+    if ((e.ctrlKey || e.metaKey) && ['a', 'c', 'v', 'x'].includes(key.toLowerCase())) return;
+    if (key === '.') {
+      if (input.value.includes('.')) e.preventDefault();
+      return;
+    }
+    if (!/^\d$/.test(key)) e.preventDefault();
+  }
+
+  onPasteDecimal(e: ClipboardEvent) {
+    const text = e.clipboardData?.getData('text') ?? '';
+    if (!/^\d*\.?\d*$/.test(text)) e.preventDefault();
+  }
+
+  sanitizeDecimal(e: Event) {
+    const input = e.target as HTMLInputElement;
+    let v = (input.value || '').replace(/[^\d.]/g, '');
+    const firstDot = v.indexOf('.');
+    if (firstDot !== -1) {
+      v = v.slice(0, firstDot + 1) + v.slice(firstDot + 1).replace(/\./g, '');
+    }
+    input.value = v;
+  }
+
 
   submit() {
     this.submitButton = 'Cargando...';
@@ -183,24 +259,62 @@ obtenerVehiculoID() {
     }
   }
 
+
+  private normalizeNumber(v: any): number {
+    // Soporta string con decimales; si viene vacío, regresa NaN (Angular marcará invalidez si es requerido)
+    return typeof v === 'number' ? v : Number(String(v ?? '').toString().replace(/,/g, ''));
+  }
+
+  private buildPayloadFromForm(): VehiculoPayload {
+    const raw = this.vehiculosForm.getRawValue();
+
+    return {
+      marca: (raw.marca ?? '').trim(),
+      modelo: (raw.modelo ?? '').trim(),
+      ano: this.normalizeNumber(raw.ano),
+      placa: (raw.placa ?? '').trim(),
+      numeroEconomico: (raw.numeroEconomico ?? '').trim(),
+      tarjetaCirculacion: (raw.tarjetaCirculacion ?? '').trim(),
+      polizaSeguro: (raw.polizaSeguro ?? '').trim(),
+      permisoConcesion: (raw.permisoConcesion ?? '').trim(),
+      inspeccionMecanica: (raw.inspeccionMecanica ?? '').trim(),
+      foto: (raw.foto ?? '').trim(),
+      pasajerosSentados: Math.trunc(this.normalizeNumber(raw.pasajerosSentados)),
+      pasajerosParados: Math.trunc(this.normalizeNumber(raw.pasajerosParados)),
+      estatus: Math.trunc(this.normalizeNumber(raw.estatus ?? 1)) || 1,
+      idCliente: Math.trunc(this.normalizeNumber(raw.idCliente)),
+      km: this.normalizeNumber(raw.km),
+      idCombustible: Math.trunc(this.normalizeNumber(raw.idCombustible)),
+      capacidadLitros: this.normalizeNumber(raw.capacidadLitros),
+    };
+  }
+
   agregar() {
     this.submitButton = 'Cargando...';
     this.loading = true;
+
     if (this.vehiculosForm.invalid) {
       this.submitButton = 'Guardar';
       this.loading = false;
+
       const etiquetas: any = {
         marca: 'Marca',
         modelo: 'Modelo',
         ano: 'Año',
         placa: 'Placa',
-        idCliente: 'Cliente',
-        foto: 'Foto del Vehículo',
         numeroEconomico: 'Número Económico',
         tarjetaCirculacion: 'Tarjeta de Circulación',
         polizaSeguro: 'Póliza de Seguro',
         permisoConcesion: 'Permiso de Concesión',
         inspeccionMecanica: 'Inspección Mecánica',
+        foto: 'Foto del Vehículo',
+        pasajerosSentados: 'Pasajeros sentados',
+        pasajerosParados: 'Pasajeros parados',
+        estatus: 'Estatus',
+        idCliente: 'Cliente',
+        km: 'Kilometraje',
+        idCombustible: 'Tipo de combustible',
+        capacidadLitros: 'Capacidad de combustible (L)',
       };
 
       const camposFaltantes: string[] = [];
@@ -211,60 +325,72 @@ obtenerVehiculoID() {
         }
       });
 
-      const lista = camposFaltantes
-        .map(
-          (campo, index) => `
-          <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
-                      background: #caa8a8; text-align: center; margin-bottom: 8px;
-                      border-radius: 4px;">
-            <strong style="color: #b02a37;">${index + 1}. ${campo}</strong>
-          </div>
-        `
-        )
-        .join('');
+      const lista = camposFaltantes.map((campo, i) => `
+      <div style="padding:8px 12px;border-left:4px solid #d9534f;background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
+        <strong style="color:#b02a37;">${i + 1}. ${campo}</strong>
+      </div>
+    `).join('');
 
       Swal.fire({
         title: '¡Faltan campos obligatorios!',
         background: '#002136',
         html: `
-            <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
-              Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
-              Por favor complétalos antes de continuar:
-            </p>
-            <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
-          `,
+        <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
+          Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
+          Por favor complétalos antes de continuar:
+        </p>
+        <div style="max-height:350px;overflow-y:auto;">${lista}</div>
+      `,
         icon: 'error',
         confirmButtonText: 'Entendido',
-        customClass: {
-          popup: 'swal2-padding swal2-border',
-        },
+        customClass: { popup: 'swal2-padding swal2-border' },
       });
       return;
     }
+
     this.vehiculosForm.removeControl('id');
     const raw = this.vehiculosForm.getRawValue();
-    const payload = { ...raw, ano: Number(raw.ano) };
+    const payload = {
+      marca: (raw.marca ?? '').trim(),
+      modelo: (raw.modelo ?? '').trim(),
+      ano: Number(raw.ano),
+      placa: (raw.placa ?? '').trim(),
+      numeroEconomico: (raw.numeroEconomico ?? '').trim(),
+      tarjetaCirculacion: (raw.tarjetaCirculacion ?? '').trim(),
+      polizaSeguro: (raw.polizaSeguro ?? '').trim(),
+      permisoConcesion: (raw.permisoConcesion ?? '').trim(),
+      inspeccionMecanica: (raw.inspeccionMecanica ?? '').trim(),
+      foto: (raw.foto ?? '').trim(),
+      pasajerosSentados: parseInt(raw.pasajerosSentados, 10),
+      pasajerosParados: parseInt(raw.pasajerosParados, 10),
+      estatus: parseInt(raw.estatus ?? 1, 10),
+      idCliente: parseInt(raw.idCliente, 10),
+      km: Number(raw.km),
+      idCombustible: parseInt(raw.idCombustible, 10),
+      capacidadLitros: Number(raw.capacidadLitros),
+    };
+
     this.vehiService.agregarVehiculo(payload).subscribe(
-      (response) => {
+      () => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
           title: '¡Operación Exitosa!',
           background: '#002136',
-          text: `Se agregó un nuevo vehículo de manera exitosa.`,
+          text: 'Se agregó un nuevo vehículo de manera exitosa.',
           icon: 'success',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
         });
         this.regresar();
       },
-      (error) => {
+      () => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: `Ocurrió un error al agregar el vehículo.`,
+          text: 'Ocurrió un error al agregar el vehículo.',
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -276,21 +402,29 @@ obtenerVehiculoID() {
   actualizar() {
     this.submitButton = 'Cargando...';
     this.loading = true;
+
     if (this.vehiculosForm.invalid) {
-      this.submitButton = 'Guardar';
+      this.submitButton = 'Actualizar';
       this.loading = false;
+
       const etiquetas: any = {
         marca: 'Marca',
         modelo: 'Modelo',
         ano: 'Año',
         placa: 'Placa',
-        idCliente: 'Cliente',
-        foto: 'Foto del Vehículo',
         numeroEconomico: 'Número Económico',
         tarjetaCirculacion: 'Tarjeta de Circulación',
         polizaSeguro: 'Póliza de Seguro',
         permisoConcesion: 'Permiso de Concesión',
         inspeccionMecanica: 'Inspección Mecánica',
+        foto: 'Foto del Vehículo',
+        pasajerosSentados: 'Pasajeros sentados',
+        pasajerosParados: 'Pasajeros parados',
+        estatus: 'Estatus',
+        idCliente: 'Cliente',
+        km: 'Kilometraje',
+        idCombustible: 'Tipo de combustible',
+        capacidadLitros: 'Capacidad de combustible (L)',
       };
 
       const camposFaltantes: string[] = [];
@@ -301,64 +435,77 @@ obtenerVehiculoID() {
         }
       });
 
-      const lista = camposFaltantes
-        .map(
-          (campo, index) => `
-          <div style="padding: 8px 12px; border-left: 4px solid #d9534f;
-                      background: #caa8a8; text-align: center; margin-bottom: 8px;
-                      border-radius: 4px;">
-            <strong style="color: #b02a37;">${index + 1}. ${campo}</strong>
-          </div>
-        `
-        )
-        .join('');
+      const lista = camposFaltantes.map((campo, i) => `
+      <div style="padding:8px 12px;border-left:4px solid #d9534f;background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
+        <strong style="color:#b02a37;">${i + 1}. ${campo}</strong>
+      </div>
+    `).join('');
 
       Swal.fire({
         title: '¡Faltan campos obligatorios!',
         background: '#002136',
         html: `
-            <p style="text-align: center; font-size: 15px; margin-bottom: 16px; color: white">
-              Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
-              Por favor complétalos antes de continuar:
-            </p>
-            <div style="max-height: 350px; overflow-y: auto;">${lista}</div>
-          `,
+        <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
+          Los siguientes <strong>campos obligatorios</strong> están vacíos.<br>
+          Por favor complétalos antes de continuar:
+        </p>
+        <div style="max-height:350px;overflow-y:auto;">${lista}</div>
+      `,
         icon: 'error',
         confirmButtonText: 'Entendido',
-        customClass: {
-          popup: 'swal2-padding swal2-border',
-        },
+        customClass: { popup: 'swal2-padding swal2-border' },
       });
+      return;
     }
+
     const raw = this.vehiculosForm.getRawValue();
-    const payload = { ...raw, ano: Number(raw.ano) };
+    const payload = {
+      marca: (raw.marca ?? '').trim(),
+      modelo: (raw.modelo ?? '').trim(),
+      ano: Number(raw.ano),
+      placa: (raw.placa ?? '').trim(),
+      numeroEconomico: (raw.numeroEconomico ?? '').trim(),
+      tarjetaCirculacion: (raw.tarjetaCirculacion ?? '').trim(),
+      polizaSeguro: (raw.polizaSeguro ?? '').trim(),
+      permisoConcesion: (raw.permisoConcesion ?? '').trim(),
+      inspeccionMecanica: (raw.inspeccionMecanica ?? '').trim(),
+      foto: (raw.foto ?? '').trim(),
+      pasajerosSentados: parseInt(raw.pasajerosSentados, 10),
+      pasajerosParados: parseInt(raw.pasajerosParados, 10),
+      estatus: parseInt(raw.estatus ?? 1, 10),
+      idCliente: parseInt(raw.idCliente, 10),
+      km: Number(raw.km),
+      idCombustible: parseInt(raw.idCombustible, 10),
+      capacidadLitros: Number(raw.capacidadLitros),
+    };
+
     this.vehiService.actualizarVehiculo(this.idVehiculo, payload).subscribe(
-        (response) => {
-          this.submitButton = 'Actualizar';
-          this.loading = false;
-          Swal.fire({
-            title: '¡Operación Exitosa!',
-            background: '#002136',
-            text: `Los datos del vehículo se actualizaron correctamente.`,
-            icon: 'success',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Confirmar',
-          });
-          this.regresar();
-        },
-        (error) => {
-          this.submitButton = 'Actualizar';
-          this.loading = false;
-          Swal.fire({
-            title: '¡Ops!',
-            background: '#002136',
-            text: `Ocurrió un error al actualizar el vehículo.`,
-            icon: 'error',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Confirmar',
-          });
-        }
-      );
+      () => {
+        this.submitButton = 'Actualizar';
+        this.loading = false;
+        Swal.fire({
+          title: '¡Operación Exitosa!',
+          background: '#002136',
+          text: 'Los datos del vehículo se actualizaron correctamente.',
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+        this.regresar();
+      },
+      () => {
+        this.submitButton = 'Actualizar';
+        this.loading = false;
+        Swal.fire({
+          title: '¡Ops!',
+          background: '#002136',
+          text: 'Ocurrió un error al actualizar el vehículo.',
+          icon: 'error',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+      }
+    );
   }
 
   regresar() {

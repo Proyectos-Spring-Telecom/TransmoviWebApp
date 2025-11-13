@@ -175,50 +175,63 @@ export class AltaUsuarioComponent implements OnInit {
   private _pendingIdRol: number | null = null;
 
   obtenerUsuarioID() {
-    this.usuaService
-      .obtenerUsuario(this.idUsuario)
-      .subscribe((response: any) => {
-        const data = response?.data ?? {};
-        const usuarios = Array.isArray(data?.usuario)
-          ? data.usuario
-          : Array.isArray(data?.usuarios)
-          ? data.usuarios
-          : data?.usuario
-          ? [data.usuario]
-          : [];
-        const u = usuarios[0] ?? {};
+  this.usuaService.obtenerUsuario(this.idUsuario).subscribe((response: any) => {
+    const data = response?.data ?? {};
+    const usuarios = Array.isArray(data?.usuario)
+      ? data.usuario
+      : Array.isArray(data?.usuarios)
+      ? data.usuarios
+      : data?.usuario
+      ? [data.usuario]
+      : [];
+    const u = usuarios[0] ?? {};
 
-        const idRolNum = u?.idRol != null ? Number(u.idRol) : null;
+    const idRolNum = u?.idRol != null ? Number(u.idRol) : null;
 
-        this.usuarioForm.patchValue({
-          userName: u?.userName ?? '',
-          telefono: u?.telefono ?? '',
-          nombre: u?.nombre ?? '',
-          apellidoPaterno: u?.apellidoPaterno ?? '',
-          apellidoMaterno: u?.apellidoMaterno ?? '',
-          fotoPerfil:
-            u?.fotoPerfil ?? this.usuarioForm.get('fotoPerfil')?.value,
-          estatus: Number(u?.estatus ?? 1),
-          idRol: idRolNum, // <-- numérico
-          idCliente: u?.idCliente != null ? Number(u.idCliente) : null,
-          permisosIds: this.permisosIds,
-        });
+    const permisosRaw = Array.isArray(data?.permiso) ? data.permiso : [];
+    this.permisosIds = permisosRaw
+      .map((x: any) => Number(x?.idPermiso))
+      .filter((n: any) => Number.isFinite(n));
 
-        // si los roles aún no están cargados, guarda el valor para aplicarlo cuando lleguen
-        if (!this.listaRoles || this.listaRoles.length === 0) {
-          this._pendingIdRol = idRolNum;
-        }
-      });
+    this.usuarioForm.patchValue({
+      userName: u?.userName ?? '',
+      telefono: u?.telefono ?? '',
+      nombre: u?.nombre ?? '',
+      apellidoPaterno: u?.apellidoPaterno ?? '',
+      apellidoMaterno: u?.apellidoMaterno ?? '',
+      fotoPerfil: u?.fotoPerfil ?? this.usuarioForm.get('fotoPerfil')?.value,
+      estatus: Number(u?.estatus ?? 1),
+      idRol: idRolNum,
+      idCliente: u?.idCliente != null ? Number(u.idCliente) : null,
+      permisosIds: this.permisosIds,
+    });
+
+    if (!this.listaRoles || this.listaRoles.length === 0) {
+      this._pendingIdRol = idRolNum;
+    }
+
+    this.applyAssignedPermsToModules();
+  });
+}
+
+isModuloCompleto(modulo: any): boolean {
+  const perms = modulo?.permisos || [];
+  if (!perms.length) return false;
+  return perms.every((p: any) => this.isPermisoAsignado(p?.id));
+}
+
+onToggleModulo(modulo: any, checked: boolean) {
+  const perms = modulo?.permisos || [];
+  for (const p of perms) {
+    this.onToggle(p, checked);
   }
+}
 
-  isPermisoAsignado(id: any): boolean {
-    const nid = this.getPermisoId({ idPermiso: id, id });
-    return (
-      nid !== null &&
-      Array.isArray(this.permisosIds) &&
-      this.permisosIds.includes(nid)
-    );
-  }
+
+isPermisoAsignado(id: any): boolean {
+  const nid = Number(id);
+  return Array.isArray(this.permisosIds) && this.permisosIds.includes(nid);
+}
 
   private applyAssignedPermsToModules(): void {
     if (!Array.isArray(this.listaModulos)) return;
@@ -489,13 +502,13 @@ export class AltaUsuarioComponent implements OnInit {
         });
         this.regresar();
       },
-      error: () => {
+      error: (error: any) => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: `Ocurrió un error al agregar el usuario.`,
+          text: error.error,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',

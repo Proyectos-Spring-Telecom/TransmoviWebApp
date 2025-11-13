@@ -24,7 +24,6 @@ export class AgregarMonederoComponent implements OnInit {
   public listaClientes: any;
   public listaPasajeros: any;
   public showDatosID = true;
-  public idCliente: any;
   selectedFileName: string = '';
   displayPasajero = (p: any) => p ? `${p.nombre ?? ''} ${p.apellidoPaterno ?? ''} ${p.apellidoMaterno ?? ''}`.trim() : '';
   displayCliente = (c: any) => c ? `${c.nombre ?? ''} ${c.apellidoPaterno ?? ''} ${c.apellidoMaterno ?? ''}`.trim() : '';
@@ -41,7 +40,6 @@ export class AgregarMonederoComponent implements OnInit {
     private users: AuthenticationService,
   ) {
     const user = this.users.getUser();
-    this.idCliente = Number(user.idCliente);
   }
 
   ngOnInit(): void {
@@ -62,43 +60,57 @@ export class AgregarMonederoComponent implements OnInit {
     });
   }
 
-  obtenerPasajeros() {
-    this.pasaService.obtenerPasajeroClienteId(this.idCliente).subscribe((response) => {
-      this.listaPasajeros = (response.data || []).map((c: any) => ({
-        ...c,
-        id: Number(c?.id ?? c?.Id ?? c?.ID),
-      }));
-    })
+idCliente: number | null = null;
+
+obtenerPasajeros() {
+  if (!this.idCliente) {
+    this.listaPasajeros = [];
+    return;
   }
 
-  displayTipoPasajero = (t: any) => t ? `${t.nombre} (${t.cantidad})` : '';
+  this.pasaService.obtenerPasajeroClienteId(this.idCliente).subscribe((response) => {
+    this.listaPasajeros = (response.data || []).map((c: any) => ({
+      ...c,
+      id: Number(c?.id ?? c?.Id ?? c?.ID),
+    }));
+  });
+}
 
+obtenerClientes() {
+  this.clieService.obtenerClientes().subscribe((response) => {
+    this.listaClientes = (response.data || []).map((c: any) => ({
+      ...c,
+      id: Number(c?.id ?? c?.Id ?? c?.ID),
+    }));
+  });
+}
 
-  obtenerClientes() {
-    this.clieService.obtenerClientes().subscribe((response) => {
-      this.listaClientes = (response.data || []).map((c: any) => ({
-        ...c,
-        id: Number(c?.id ?? c?.Id ?? c?.ID),
-      }));
-    });
-  }
+onClienteChange(e: any) {
+  this.idCliente = e?.value ?? null;
+  this.monederoForm.get('tipoPasajero')?.reset();
+  this.obtenerPasajeros();
+}
+
+  displayTipoPasajero = (t: any) => t ? `${t.nombre}` : '';
+
 
   obtenerMonedero() {
     this.moneService.obtenerMonedero(this.idMonedero).subscribe((response) => {
       this.monederoForm.patchValue({
         numeroSerie: response.data.numeroSerie,
-        idPasajero: Number(response.data.idPasajero),
         idCliente: Number(response.data.idCliente),
         // saldo: Number(response.data.saldo)
       });
     })
   }
+  
 
   initForm() {
     this.monederoForm = this.fb.group({
       numeroSerie: ['', Validators.required],
       saldo: [null, Validators.required],
       estatus: [1, Validators.required],
+      idTipoPasajero: [null],
       idPasajero: [null],
       idCliente: [null, Validators.required],
     });
@@ -218,13 +230,13 @@ export class AgregarMonederoComponent implements OnInit {
         });
         this.regresar();
       },
-      (error) => {
+      (error: any) => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: `Ocurrió un error al agregar el monedero.`,
+          text: error.error,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -315,13 +327,13 @@ export class AgregarMonederoComponent implements OnInit {
         });
         this.regresar();
       },
-      (error) => {
+      (error: any) => {
         this.submitButton = 'Actualizar';
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: `Ocurrió un error al actualizar el monedero.`,
+          text: error.error,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
