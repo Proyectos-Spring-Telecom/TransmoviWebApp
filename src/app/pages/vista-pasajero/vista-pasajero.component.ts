@@ -18,7 +18,7 @@ export class VistaPasajeroComponent implements OnInit {
   loadingTx = false;
   paginaActualTx = 1;
   totalRegistrosTx = 0;
-  pageSizeTx = 5;
+  pageSizeTx = 14;
   totalPaginasTx = 0;
   paginaActualDataTx: any[] = [];
   filtroActivoTx = '';
@@ -26,7 +26,7 @@ export class VistaPasajeroComponent implements OnInit {
   loadingMone = false;
   paginaActualM = 1;
   totalRegistrosM = 0;
-  pageSizeM = 5;
+  pageSizeM = 14;
   totalPaginasM = 0;
   paginaActualDataM: any[] = [];
   filtroActivoM = '';
@@ -57,9 +57,18 @@ export class VistaPasajeroComponent implements OnInit {
   showNombreCliente: any;
   showApellidoPaternoCliente: any;
   showApellidoMaternoCliente: any;
+  mesActualLabel = '';
 
   saldo = 9876.33;
   informacion: any
+
+  private obtenerNombreMesActual(): string {
+    const meses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    return meses[new Date().getMonth()];
+  }
 
   constructor(
     private users: AuthenticationService,
@@ -67,19 +76,31 @@ export class VistaPasajeroComponent implements OnInit {
     private moneService: MonederosServices,
     private pasjService: PasajerosService
   ) {
-    const sanitize = (value: any): string => (value && value !== 'null' ? value : '');
+    this.mesActualLabel = this.obtenerNombreMesActual();
+    const sanitize = (value: any): string => {
+      if (value === null || value === undefined) return '';
+      const str = String(value).trim();
+      return str && str.toLowerCase() !== 'null' ? str : '';
+    };
+
     const user = this.users.getUser();
-    this.showNombre = sanitize(user.nombre);
-    this.showApellidoPaterno = sanitize(user.apellidoPaterno);
-    this.showApellidoMaterno = sanitize(user.apellidoMaterno);
+    this.showNombre = sanitize(user?.nombre);
+    this.showApellidoPaterno = sanitize(user?.apellidoPaterno);
+    this.showApellidoMaterno = sanitize(user?.apellidoMaterno);
     this.showCreacion = this.formatFechaCreacion(user?.fechaCreacion);
     this.ultimoLogin = this.formatFechaCreacion(user?.ultimoLogin);
-    this.showTelefono = user.telefono == null || user.telefono === 'null' ? 'Sin registro' : user.telefono;
+    const tel = user?.telefono;
+    this.showTelefono =
+      tel === null ||
+      tel === undefined ||
+      String(tel).trim().toLowerCase() === 'null'
+        ? 'Sin registro'
+        : String(tel).trim();
     this.showCorreo = user.userName;
     this.showId = user.id;
-    this.showNombreCliente = user.nombreCliente;
-    this.showApellidoPaternoCliente = user.apellidoPaternoCliente;
-    this.showApellidoMaternoCliente = user.apellidoMaternoCliente
+    this.showNombreCliente = sanitize(user?.nombreCliente);
+    this.showApellidoPaternoCliente = sanitize(user?.apellidoPaternoCliente);
+    this.showApellidoMaternoCliente = sanitize(user?.apellidoMaternoCliente);
   }
 
   private formatFechaCreacion(raw: any): string {
@@ -164,7 +185,7 @@ export class VistaPasajeroComponent implements OnInit {
   setupMonederosDataSource() {
     this.loadingMone = true;
 
-    const PAGE_SIZE = this.pageSizeM || 5;
+    const PAGE_SIZE = this.pageSizeM || 14;
 
     this.listaMonederos = new CustomStore({
       key: 'id',

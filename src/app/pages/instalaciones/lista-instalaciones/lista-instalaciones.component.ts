@@ -102,7 +102,7 @@ export class ListaInstalacionesComponent implements OnInit {
           (error) => {
             Swal.fire({
               title: '¡Ops!',
-              html: `${error}`,
+              html: error.error,
               icon: 'error',
               background: '#002136',
               confirmButtonColor: '#3085d6',
@@ -144,7 +144,7 @@ export class ListaInstalacionesComponent implements OnInit {
           (error) => {
             Swal.fire({
               title: '¡Ops!',
-              html: `${error}`,
+              html: error.error,
               icon: 'error',
               background: '#002136',
               confirmButtonColor: '#3085d6',

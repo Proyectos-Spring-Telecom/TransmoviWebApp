@@ -78,6 +78,13 @@
                       </span>
                   </div>
               </dxi-column>
+              <dxi-column caption="Cliente" alignment="center" cellTemplate="nomCliente">
+                                <div *dxTemplate="let re of 'nomCliente'">
+                                    {{ re.data?.nombreCliente }}
+                                    {{ re.data?.apellidoPaternoCliente || '' }}
+                                    {{ re.data?.apellidoMaternoCliente || '' }}
+                                </div>
+                            </dxi-column>
               <dxo-export [enabled]="false" [allowExportSelectedData]="true"
                 [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
               </dxo-export>

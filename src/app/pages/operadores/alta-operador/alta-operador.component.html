@@ -21,15 +21,15 @@
                     </div>
 
                     <div class="col-12 col-sm-6 col-md-4 mt-3">
-  <label>Fecha Nacimiento</label>
-  <dx-date-box
-    class="tm-date w-100"
-    formControlName="fechaNacimiento"
-    [displayFormat]="'dd/MM/yyyy'"
-    [showClearButton]="true"
-    [openOnFieldClick]="true">
-  </dx-date-box>
-</div>
+                    <label>Fecha Nacimiento</label>
+                    <dx-date-box
+                        class="tm-date w-100"
+                        formControlName="fechaNacimiento"
+                        [displayFormat]="'dd/MM/yyyy'"
+                        [showClearButton]="true"
+                        [openOnFieldClick]="true">
+                    </dx-date-box>
+                    </div>
 
 
                     <div class="col-12 col-sm-6 col-md-4 mt-3">
@@ -37,7 +37,7 @@
                         <dx-select-box class="tm-select w-100" formControlName="idUsuario"
                             [items]="listaUsuarios || ['Sin registros']" [valueExpr]="'id'"
                             [noDataText]="'Sin registros'" [displayExpr]="displayUsuario" [searchEnabled]="true"
-                            [showClearButton]="true" [disabled]="showUsuario"
+                            [showClearButton]="true"
                             placeholder="Seleccione un usuario operador">
                             <div *dxTemplate="let d of 'item'">
                                 {{ d.nombre }} {{ d.apellidoPaterno }}

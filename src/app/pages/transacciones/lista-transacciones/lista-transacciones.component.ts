@@ -101,8 +101,13 @@ export class ListaTransaccionesComponent implements OnInit {
               numeroSerieMonedero: x?.numeroSerieMonedero ?? null,
               numeroSerieDispositivo: x?.numeroSerieDispositivo ?? null,
               pasajero: pasajero || 'sin registro',
+
+              nombreCliente: x?.nombreCliente ?? null,
+              apellidoPaternoCliente: x?.apellidoPaternoCliente ?? null,
+              apellidoMaternoCliente: x?.apellidoMaternoCliente ?? null,
             };
           });
+
 
 
           this.totalRegistros = totalRegistros;
@@ -134,7 +139,6 @@ export class ListaTransaccionesComponent implements OnInit {
       return Number.isFinite(n) ? Number(n.toFixed(2)) : null;
     }
   }
-
 
   onGridOptionChanged(e: any) {
     if (e.fullName === "searchPanel.text") {

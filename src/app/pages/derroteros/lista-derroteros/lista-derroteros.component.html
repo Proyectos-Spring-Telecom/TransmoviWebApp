@@ -67,6 +67,13 @@
                 </div>
               </dxi-column>
               <dxi-column dataField="nombreRegionInicio" caption="Nombre Región" alignment="center"></dxi-column>
+              <dxi-column caption="Cliente" alignment="center" cellTemplate="nomCliente">
+                                <div *dxTemplate="let re of 'nomCliente'">
+                                    {{ re.data?.nombreCliente }}
+                                    {{ re.data?.apellidoPaternoCliente || '' }}
+                                    {{ re.data?.apellidoMaternoCliente || '' }}
+                                </div>
+                            </dxi-column>
               <!-- <dxi-column dataField="nombreRegionFin" caption="Nombre Región Fin" [width]="200"
                 alignment="center"></dxi-column> -->
               <dxo-export [enabled]="false" [allowExportSelectedData]="true"

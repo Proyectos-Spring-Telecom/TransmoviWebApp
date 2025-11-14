@@ -45,13 +45,6 @@
                             <dxi-column *appHasPermission="['63', '64']" caption="Acciones" cellTemplate="Acciones" alignment="center"></dxi-column>
                             <dxi-column dataField="nombre" caption="Nombre Región" alignment="center"></dxi-column>
                             <dxi-column dataField="descripcion" caption="Descripción" alignment="center"></dxi-column>
-                            <dxi-column caption="Cliente" alignment="center" cellTemplate="nomCliente">
-                                <div *dxTemplate="let re of 'nomCliente'">
-                                    {{ re.data?.nombreCliente }}
-                                    {{ re.data?.apellidoPaternoCliente || '' }}
-                                    {{ re.data?.apellidoMaternoCliente || '' }}
-                                </div>
-                            </dxi-column>
                             <dxi-column dataField="fechaCreacion" caption="Fecha Creación" alignment="center"
                                 cellTemplate="fechCreaci">
                                 <div *dxTemplate="let a of 'fechCreaci'">
@@ -73,6 +66,13 @@
                                     <span *ngIf="f.data.estatus !== 1" class="estatus estatus-inactivo">
                                         Inactivo
                                     </span>
+                                </div>
+                            </dxi-column>
+                            <dxi-column caption="Cliente" alignment="center" cellTemplate="nomCliente">
+                                <div *dxTemplate="let re of 'nomCliente'">
+                                    {{ re.data?.nombreCliente }}
+                                    {{ re.data?.apellidoPaternoCliente || '' }}
+                                    {{ re.data?.apellidoMaternoCliente || '' }}
                                 </div>
                             </dxi-column>
                             <dxo-export [enabled]="false" [allowExportSelectedData]="true"

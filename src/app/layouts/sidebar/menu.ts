@@ -116,6 +116,7 @@ export const MENU: MenuItem[] = [
         id: 20,
         label: 'Centro de Pagos',
         icon: 'uil-refresh',
+        permiso: Permiso.Listado_Transacciones,
         subItems: [
             {
                 id: 16,
@@ -196,12 +197,14 @@ export const MENU: MenuItem[] = [
     {
         id: 20,
         label: 'Gestión Vehícular',
+        permiso: Permiso.Consultar_Mantenimiento,
         icon: 'uil-wrench',
         subItems: [
             {
                 id: 16,
                 label: 'Mantenimiento',
                 icon: 'uil-apps',
+                link: '/mantenimientos'
             },
             {
                 id: 16,
@@ -230,6 +233,7 @@ export const MENU: MenuItem[] = [
     {
         id: 115,
         label: 'Reportes',
+        permiso: Permiso.Consultar_Reportes,
         isTitle: true
     },
     {
@@ -268,12 +272,13 @@ export const MENU: MenuItem[] = [
         permiso: Permiso.Consultar_Reportes,
     },
 
-    // {
-    //     id: 13,
-    //     label: 'Pasajero',
-    //     icon: 'uil-user',
-    //     link: '/vista-pasajero',
-    // },
+    {
+        id: 13,
+        label: 'Pasajero',
+        icon: 'uil-user',
+        permiso: Permiso.Perfil_Pasajero,
+        link: '/vista-pasajero',
+    },
     // {
     //     id: 115,
     //     label: 'MENUITEMS.PRUEBACOMPONENTCERRAR.TEXT',

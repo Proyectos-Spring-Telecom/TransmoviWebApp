@@ -384,13 +384,13 @@ export class AltaVehiculoComponent implements OnInit {
         });
         this.regresar();
       },
-      () => {
+      (error: any) => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: 'Ocurrió un error al agregar el vehículo.',
+          text: error.error,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -493,13 +493,13 @@ export class AltaVehiculoComponent implements OnInit {
         });
         this.regresar();
       },
-      () => {
+      (error: any) => {
         this.submitButton = 'Actualizar';
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: 'Ocurrió un error al actualizar el vehículo.',
+          text: error.error,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',

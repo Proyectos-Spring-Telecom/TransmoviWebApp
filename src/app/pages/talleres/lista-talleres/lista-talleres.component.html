@@ -77,8 +77,7 @@
                 <div style="white-space:pre-wrap;word-break:break-word;text-align:center">{{ d.data?.Direccion }}</div>
               </div>
 
-              <dxi-column dataField="nombreCliente" caption="Cliente" alignment="center" [width]="220"></dxi-column>
-
+              
               <dxi-column dataField="FHRegistro" caption="Fecha Registro" alignment="center" [width]="200"
                 cellTemplate="fhReg"></dxi-column>
               <div *dxTemplate="let a of 'fhReg'">
@@ -97,6 +96,7 @@
                 <span *ngIf="f.data.Estatus === 1" class="estatus estatus-activo">Activo</span>
                 <span *ngIf="f.data.Estatus !== 1" class="estatus estatus-inactivo">Inactivo</span>
               </div>
+              <dxi-column dataField="nombreCliente" caption="Cliente" alignment="center" [width]="220"></dxi-column>
 
               <dxo-export [enabled]="false" [allowExportSelectedData]="true"
                 [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">

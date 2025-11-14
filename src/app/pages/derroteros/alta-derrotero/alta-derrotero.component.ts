@@ -185,6 +185,72 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
       estatus: [1, Validators.required],
       idDerrotero: [null, Validators.required],
     });
+
+    const campos = ['tarifaBase', 'distanciaBaseKm', 'incrementoCadaMetros', 'costoAdicional'];
+    campos.forEach(nombre => {
+      this.tarifaForm.get(nombre)?.disable({ emitEvent: false });
+    });
+
+    const tipoCtrl = this.tarifaForm.get('tipoTarifa');
+    if (tipoCtrl) {
+      tipoCtrl.valueChanges.subscribe(v => this.actualizarCamposPorTipoTarifa(v));
+    }
+  }
+
+  private actualizarCamposPorTipoTarifa(tipo: any): void {
+    let tipoNum: number;
+
+    if (tipo !== null && typeof tipo === 'object') {
+      tipoNum = this.toNum(
+        (tipo as any).id ??
+        (tipo as any).Id ??
+        (tipo as any).value ??
+        (tipo as any).valor
+      );
+    } else {
+      tipoNum = this.toNum(tipo);
+    }
+
+    const tarifaBaseCtrl        = this.tarifaForm.get('tarifaBase');
+    const distanciaBaseCtrl     = this.tarifaForm.get('distanciaBaseKm');
+    const incrementoMetrosCtrl  = this.tarifaForm.get('incrementoCadaMetros');
+    const costoAdicionalCtrl    = this.tarifaForm.get('costoAdicional');
+
+    if (!tarifaBaseCtrl || !distanciaBaseCtrl || !incrementoMetrosCtrl || !costoAdicionalCtrl) {
+      return;
+    }
+
+    if (tipoNum === 0) {
+      tarifaBaseCtrl.enable({ emitEvent: false });
+
+      distanciaBaseCtrl.disable({ emitEvent: false });
+      distanciaBaseCtrl.setValue(null, { emitEvent: false });
+
+      incrementoMetrosCtrl.disable({ emitEvent: false });
+      incrementoMetrosCtrl.setValue(null, { emitEvent: false });
+
+      costoAdicionalCtrl.disable({ emitEvent: false });
+      costoAdicionalCtrl.setValue(null, { emitEvent: false });
+
+    } else if (tipoNum === 1) {
+      tarifaBaseCtrl.enable({ emitEvent: false });
+      distanciaBaseCtrl.enable({ emitEvent: false });
+      incrementoMetrosCtrl.enable({ emitEvent: false });
+      costoAdicionalCtrl.enable({ emitEvent: false });
+
+    } else {
+      tarifaBaseCtrl.disable({ emitEvent: false });
+      tarifaBaseCtrl.setValue(null, { emitEvent: false });
+
+      distanciaBaseCtrl.disable({ emitEvent: false });
+      distanciaBaseCtrl.setValue(null, { emitEvent: false });
+
+      incrementoMetrosCtrl.disable({ emitEvent: false });
+      incrementoMetrosCtrl.setValue(null, { emitEvent: false });
+
+      costoAdicionalCtrl.disable({ emitEvent: false });
+      costoAdicionalCtrl.setValue(null, { emitEvent: false });
+    }
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -1400,7 +1466,7 @@ private normalizeFormToNumbers(): void {
     this.tarifaForm.get('distanciaBaseKm')?.setValue(v, { emitEvent: false });
   }
 
-  agregarTarifa(): void {
+  agregarTarifa() {
     this.submitButton = 'Cargando...';
     this.loading = true;
 
@@ -1409,11 +1475,11 @@ private normalizeFormToNumbers(): void {
       this.loading = false;
 
       const etiquetas: Record<string, string> = {
-        tarifaBase: 'Tarifa Base',
         tipoTarifa: 'Tipo Tarifa',
-        distanciaBaseKm: 'Distancia Base KM',
-        incrementoCadaMetros: 'Incremento por cada 100 m adicionales',
-        costoAdicional: 'Costo Adicional',
+        tarifaBase: 'Tarifa Base',
+        distanciaBaseKm: 'Distancia Base',
+        incrementoCadaMetros: 'Incremento de Distancia por Metro',
+        costoAdicional: 'Costo por Incremento',
         estatus: 'Estatus',
         idDerrotero: 'Derrotero',
       };
@@ -1449,17 +1515,19 @@ private normalizeFormToNumbers(): void {
     }
 
     const v = this.tarifaForm.value;
+    const tipoTarifaNum = this.toNum(v.tipoTarifa);
+    const esEstacionaria = tipoTarifaNum === 0;
+
 const payload = {
-  tipoTarifa: this.toNum(v.tipoTarifa),
+  tipoTarifa: tipoTarifaNum,
   tarifaBase: this.parseNumeric(v.tarifaBase),
-  distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
-  incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
-  costoAdicional: this.parseNumeric(v.costoAdicional),
+  distanciaBaseKm: esEstacionaria ? null : this.parseNumeric(v.distanciaBaseKm),
+  incrementoCadaMetros: esEstacionaria ? null : this.parseNumeric(v.incrementoCadaMetros),
+  costoAdicional: esEstacionaria ? null : this.parseNumeric(v.costoAdicional),
   estatus: this.toNum(v.estatus),
   idDerrotero: this.toNum(v.idDerrotero),
 };
-
-    const etiquetasNum: Record<string, string> = {
+const etiquetasNum: Record<string, string> = {
       tarifaBase: 'Tarifa Base',
       tipoTarifa: 'Tipo Tarifa',
       distanciaBaseKm: 'Distancia Base KM',
@@ -1513,13 +1581,13 @@ const payload = {
           confirmButtonText: 'Confirmar',
         });
       },
-      () => {
+      (error: any) => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: `Ocurrió un error al agregar la tarifa.`,
+          text: error.error,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -1533,4 +1601,9 @@ const payload = {
     if (typeof v === 'string') v = v.replace(',', '.').trim();
     return Number(v);
   }
+
+  listaTipoTarifa = [
+    { id: 0, nombre: 'Estacionaria' },
+    { id: 1, nombre: 'Incremental' },
+  ];
 }

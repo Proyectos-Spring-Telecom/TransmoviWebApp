@@ -1,244 +1,220 @@
 <div [@fadeInUp]>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="wallet-view container-fluid">
-                    <div class="row align-items-stretch">
-                        <div class="col-12 col-xxl-4 order-1 order-xxl-1 d-flex">
-                            <div class="card wallet-panel flex-fill h-100" style="background-color: #002136;">
-                                <div class="panel-head d-flex justify-content-between align-items-center">
-                                    <div class="title d-flex align-items-center gap-2">
-                                        <span class="dot"></span>
-                                        <span>Bitacora de Pasajero</span>
-                                    </div>
-                                    <button class="btn btn-primary btn-sm pill">
-                                        <i class="fa fa-dollar-sign me-1"></i>Recargar
-                                    </button>
-                                </div>
-
-                                <div class="panel-body mt-4">
-                                    <div class="balance d-flex align-items-center">
-                                        <div class="balance-icon">
-                                            <i class="fa fa-wallet"></i>
-                                        </div>
-                                        <div class="ms-3">
-                                            <div class="label">Saldo</div>
-                                            <div class="amount">{{ informacion.SaldoTotal | currency:'$' }}</div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row g-3 mt-4">
-                                        <div class="col-12 col-sm-6">
-                                            <div class="mini-card">
-                                                <div class="mini-icon">
-                                                    <i class="fa fa-coins"></i>
-                                                </div>
-                                                <div class="mini-label">Gasto de Octubre</div>
-                                                <div class="mini-value"> {{(informacion.TotalDebitosUltimoMes | currency: '$') || (0 |  currency:'$')}} </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-6">
-                                            <div class="mini-card">
-                                                <div class="mini-icon alt">
-                                                    <i class="fa fa-money"></i>
-                                                </div>
-                                                <div class="mini-label">Última recarga</div>
-                                                <div class="mini-value">{{(informacion.UltimaRecarga | currency: '$') || 'Sin recargas' }} </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="d-flex gap-3 mt-4">
-                                        <button class="btn btn-warning w-50 pill"><i
-                                                class="fa fa-id-badge me-1"></i>Extravío</button>
-                                        <button class="btn btn-danger w-50 pill"><i
-                                                class="fa fa-trash me-1"></i>Eliminar</button>
-                                    </div>
-
-                                    <div class="panel-head mt-5">
-                                        <div class="title d-flex align-items-center gap-2">
-                                            <span class="dot"></span>
-                                            <span>Transacciones</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="info-list">
-                                        <div class="info-row">
-                                            <span class="info-key">Nombre:</span>
-                                            <span class="info-val fw-semibold"> {{showNombre || ' '}}
-                                                {{showApellidoPaterno || ' '}} {{showApellidoMaterno || ' '}} </span>
-                                        </div>
-                                        <div class="info-row">
-                                            <span class="info-key">Registro:</span>
-                                            <span class="info-val fw-semibold"> {{showCreacion}} </span>
-                                        </div>
-                                        <div class="info-row">
-                                            <span class="info-key">N° Monedero:</span>
-                                            <span class="info-val fw-semibold">{{informacion.Monederos}}</span>
-                                        </div>
-                                        <div class="info-row">
-                                            <span class="info-key">Cliente:</span>
-                                            <span class="info-val fw-semibold"> {{showNombreCliente}} {{showApellidoPaternoCliente || ' '}} {{showApellidoMaternoCliente || ' '}} </span>
-                                        </div>
-                                        <div class="info-row">
-                                            <span class="info-key">Estatus:</span>
-                                            <span class="badge-status success">Activo</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-xxl-8 order-2 order-xxl-2 d-flex">
-                            <div class="card grids-card flex-fill h-100 d-flex flex-column"
-                                style="background-color: #002136; display: flex; align-items: center; justify-content: center;">
-                                <div class="grids-body d-flex flex-column">
-                                    <div class="panel-head">
-                                        <div class="title d-flex align-items-center gap-2">
-                                            <span class="dot"></span>
-                                            <span>Transacciones</span>
-                                        </div>
-                                    </div>
-                                    <div class="grid-wrap">
-                                        <dx-data-grid class="dx-dark grid-responsive" id="gridTransacciones"
-                                            #gridTransacciones [dataSource]="listaTransacciones" [keyExpr]="'id'"
-                                            [columnHidingEnabled]="true" [showBorders]="true" [showColumnLines]="true"
-                                            [showRowLines]="true" [rowAlternationEnabled]="true"
-                                            [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSizeTx }"
-                                            [pager]="{
-                                                allowedPageSizes: [],
-                                                showPageSizeSelector: true,
-                                                showInfo: true,
-                                                infoText: 'Página {0} de {1}',
-                                                visible: true
-                                            }" (onPageIndexChanged)="onPageIndexChangedTransacciones($event)"
-                                            (onOptionChanged)="onGridOptionChangedTransacciones($event)">
-                                            <dxo-search-panel [visible]="false" [width]="200"
-                                                placeholder="Buscar..."></dxo-search-panel>
-                                            <dxo-group-panel [emptyPanelText]="mensajeAgruparTx"
-                                                [visible]="false"></dxo-group-panel>
-                                            <dxo-filter-row [visible]="showFilterRowTx"></dxo-filter-row>
-                                            <dxo-header-filter [visible]="showHeaderFilterTx"></dxo-header-filter>
-                                            <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-
-                                            <dxi-column dataField="fhRegistro" caption="Fecha" alignment="center"
-                                                cellTemplate="fecActiTx"></dxi-column>
-                                            <dxi-column dataField="monto" caption="Monto" alignment="center"
-                                                cellTemplate="saldTx"></dxi-column>
-                                            <dxi-column dataField="tipoTransaccion" caption="Tipo Transacción"
-                                                alignment="center" cellTemplate="estTx"></dxi-column>
-                                            <dxi-column dataField="numeroSerieMonedero" caption="N° Serie de Monedero"
-                                                alignment="center"></dxi-column>
-
-                                            <div *dxTemplate="let a of 'fecActiTx'">
-                                                {{ a.data.fhRegistro | date:'dd/MM/yyyy HH:mm' : '+0000' }}
-                                            </div>
-                                            <div *dxTemplate="let f of 'saldTx'">
-                                                {{ f.data.monto | currency:'$' }}
-                                            </div>
-                                            <div *dxTemplate="let f of 'estTx'">
-                                                <span *ngIf="f.data.tipoTransaccion === 'RECARGA'"
-                                                    class="estatus estatus-activo">
-                                                    <i class="fa fa-arrow-up"></i> Recarga
-                                                </span>
-                                                <span *ngIf="f.data.tipoTransaccion === 'DEBITO'"
-                                                    class="estatus estatus-inactivo">
-                                                    <i class="fa fa-arrow-down"></i> Débito
-                                                </span>
-                                            </div>
-                                            <div *dxTemplate="let f of 'numDisposiTx'">
-                                                <span *ngIf="f.data.numeroSerieDispositivo === null">Sin recarga</span>
-                                                <span *ngIf="f.data.numeroSerieDispositivo">{{
-                                                    f.data.numeroSerieDispositivo }}</span>
-                                            </div>
-
-                                            <dxo-export [enabled]="false" [allowExportSelectedData]="true"
-                                                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
-                                            </dxo-export>
-                                        </dx-data-grid>
-                                    </div>
-                                    <div class="panel-head mt-3">
-                                        <div class="title d-flex align-items-center gap-2">
-                                            <span class="dot"></span>
-                                            <span>Monederos</span>
-                                        </div>
-                                    </div>
-                                    <div class="grid-wrap">
-                                        <dx-data-grid id="gridMonederos" #gridMonederos [dataSource]="listaMonederos"
-                                            [keyExpr]="'id'" [columnHidingEnabled]="true" [showBorders]="true"
-                                            [showColumnLines]="true" [showRowLines]="true"
-                                            [rowAlternationEnabled]="true" [remoteOperations]="{ paging: true }"
-                                            [paging]="{ pageSize: pageSizeM }" [pager]="{
-                                                showPageSizeSelector: false,
-                                                allowedPageSizes: [5],
-                                                showInfo: true,
-                                                infoText: 'Página {0} de {1}',
-                                                visible: true
-                                            }" (onPageIndexChanged)="onPageIndexChangedMonederos($event)"
-                                            (onOptionChanged)="onGridOptionChangedMonederos($event)">
-                                            <dxo-search-panel [visible]="true" [width]="200"
-                                                placeholder="Buscar..."></dxo-search-panel>
-                                            <dxo-group-panel [emptyPanelText]="mensajeAgruparM"
-                                                [visible]="true"></dxo-group-panel>
-                                            <dxo-filter-row [visible]="showFilterRowM"></dxo-filter-row>
-                                            <dxo-header-filter [visible]="showHeaderFilterM"></dxo-header-filter>
-                                            <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-
-                                            <dxi-column dataField="numeroSerie" caption="NumeroSerie"
-                                                alignment="center"></dxi-column>
-                                            <dxi-column dataField="fechaActivacion" caption="Fecha Activación"
-                                                alignment="center" cellTemplate="fecActi">
-                                                <div *dxTemplate="let a of 'fecActi'">
-                                                    {{ a.data.fechaActivacion | date: 'dd/MM/yyyy' : '+0000' }}
-                                                </div>
-                                            </dxi-column>
-                                            <dxi-column dataField="saldo" caption="Saldo" alignment="center"
-                                                dataType="string" cellTemplate="sald">
-                                                <div *dxTemplate="let f of 'sald' ">
-                                                    {{f.data.saldo | currency: '$'}}
-                                                </div>
-                                            </dxi-column>
-
-                                            <div *dxTemplate="let a of 'fecActiM'">
-                                                {{ a.data.fechaActivacion | date:'dd/MM/yyyy' : '+0000' }}
-                                            </div>
-
-                                            <div *dxTemplate="let monedero of 'AccionesM'"
-                                                class="d-flex gap-3 justify-content-center">
-                                                <div *appHasPermission="'79'">
-                                                    <button valueExpr="id" id="actualizarButton" class="btnAcciones"
-                                                        (click)="actualizarMonederos(monedero.data.id)">
-                                                        <i class="fa fa-edit"></i>
-                                                    </button>
-                                                </div>
-                                                <div>
-                                                    <button
-                                                        (click)="centerModalRecarga(centerDataModalRecarga, monedero.data.id, monedero.data.numeroSerie, monedero.data.saldo, monedero.data.idCliente, monedero.data.idPasajero)"
-                                                        class="btnAcciones btnRecargar" type="button" placement="top"
-                                                        role="button">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                                <div>
-                                                    <button [disabled]="monedero.data.saldo === 0"
-                                                        (click)="centerModalDebito(centerDataModalDebito, monedero.data.id, monedero.data.numeroSerie, monedero.data.saldo, monedero.data.idCliente, monedero.data.idPasajero)"
-                                                        class="btnAcciones btnDebito" type="button" placement="top"
-                                                        role="button">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <dxo-export [enabled]="false" [allowExportSelectedData]="true"
-                                                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
-                                            </dxo-export>
-                                        </dx-data-grid>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="wallet-view container-fluid">
+          <div class="row align-items-stretch">
+            <div class="col-12 col-xxl-4 order-1 order-xxl-1 d-flex">
+              <div class="card wallet-panel flex-fill h-100" style="background-color: #002136;">
+                <div class="panel-head d-flex justify-content-between align-items-center">
+                  <div class="title d-flex align-items-center gap-2">
+                    <span class="dot"></span>
+                    <span>Bitacora de Pasajero</span>
+                  </div>
+                  <button class="btn btn-primary btn-sm pill">
+                    <i class="fa fa-dollar-sign me-1"></i>Recargar
+                  </button>
                 </div>
+
+                <div class="panel-body mt-4">
+                  <div class="balance d-flex align-items-center">
+                    <div class="balance-icon">
+                      <i class="fa fa-wallet"></i>
+                    </div>
+                    <div class="ms-3">
+                      <div class="label">Saldo</div>
+                      <div class="amount">{{ informacion.SaldoTotal | currency:'$' }}</div>
+                    </div>
+                  </div>
+
+                  <div class="row g-3 mt-4">
+                    <div class="col-12 col-sm-6">
+                      <div class="mini-card">
+                        <div class="mini-icon">
+                          <i class="fa fa-coins"></i>
+                        </div>
+                        <div class="mini-label">Gasto de {{ mesActualLabel }}</div>
+                        <div class="mini-value">
+                          {{ (informacion.TotalDebitosUltimoMes | currency: '$') || (0 | currency:'$') }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                      <div class="mini-card">
+                        <div class="mini-icon alt">
+                          <i class="fa fa-money"></i>
+                        </div>
+                        <div class="mini-label">Última recarga</div>
+                        <div class="mini-value">
+                          {{ (informacion.UltimaRecarga | currency: '$') || 'Sin recargas' }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="d-flex gap-3 mt-4">
+                    <button class="btn btn-warning w-50 pill">
+                      <i class="fa fa-id-badge me-1"></i>Extravío
+                    </button>
+                    <button class="btn btn-danger w-50 pill">
+                      <i class="fa fa-trash me-1"></i>Eliminar
+                    </button>
+                  </div>
+
+                  <div class="panel-head mt-5">
+                    <div class="title d-flex align-items-center gap-2">
+                      <span class="dot"></span>
+                      <span>Transacciones</span>
+                    </div>
+                  </div>
+
+                  <div class="info-list">
+                    <div class="info-row">
+                      <span class="info-key">Nombre:</span>
+                      <span class="info-val fw-semibold">
+                        {{ showNombre || ' ' }} {{ showApellidoPaterno || ' ' }} {{ showApellidoMaterno || ' ' }}
+                      </span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-key">Registro:</span>
+                      <span class="info-val fw-semibold">{{ showCreacion }}</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-key">N° Monedero:</span>
+                      <span class="info-val fw-semibold">{{ informacion.Monederos }}</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-key">Cliente:</span>
+                      <span class="info-val fw-semibold">
+                        {{ showNombreCliente }} {{ showApellidoPaternoCliente }} {{ showApellidoMaternoCliente }}
+                      </span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-key">Estatus:</span>
+                      <span class="badge-status success">Activo</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <div class="col-12 col-xxl-8 order-2 order-xxl-2 d-flex">
+              <div
+                class="card grids-card flex-fill h-100 d-flex flex-column"
+                style="background-color: #002136; display: flex; align-items: center; justify-content: center;"
+              >
+                <div class="grids-body d-flex flex-column">
+                  <div class="panel-head">
+                    <div class="title d-flex align-items-center gap-0">
+                      <span class="dot"></span>
+                      <span>Transacciones</span>
+                    </div>
+                  </div>
+                  <div class="grid-wrap">
+                    <dx-data-grid
+                      class="dx-dark grid-responsive"
+                      id="gridTransacciones"
+                      #gridTransacciones
+                      [dataSource]="listaTransacciones"
+                      [keyExpr]="'id'"
+                      [columnHidingEnabled]="true"
+                      [showBorders]="true"
+                      [showColumnLines]="true"
+                      [showRowLines]="true"
+                      [rowAlternationEnabled]="true"
+                      [remoteOperations]="{ paging: true }"
+                      [paging]="{ pageSize: pageSizeTx }"
+                      [pager]="{
+                        allowedPageSizes: [],
+                        showPageSizeSelector: true,
+                        showInfo: true,
+                        infoText: 'Página {0} de {1}',
+                        visible: true
+                      }"
+                      (onPageIndexChanged)="onPageIndexChangedTransacciones($event)"
+                      (onOptionChanged)="onGridOptionChangedTransacciones($event)"
+                    >
+                      <dxo-search-panel
+                        [visible]="false"
+                        [width]="200"
+                        placeholder="Buscar..."
+                      ></dxo-search-panel>
+                      <dxo-group-panel
+                        [emptyPanelText]="mensajeAgruparTx"
+                        [visible]="false"
+                      ></dxo-group-panel>
+                      <dxo-filter-row [visible]="showFilterRowTx"></dxo-filter-row>
+                      <dxo-header-filter [visible]="showHeaderFilterTx"></dxo-header-filter>
+                      <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
+
+                      <dxi-column
+                        dataField="fhRegistro"
+                        caption="Fecha"
+                        alignment="center"
+                        cellTemplate="fecActiTx"
+                      ></dxi-column>
+                      <dxi-column
+                        dataField="monto"
+                        caption="Monto"
+                        alignment="center"
+                        cellTemplate="saldTx"
+                      ></dxi-column>
+                      <dxi-column
+                        dataField="tipoTransaccion"
+                        caption="Tipo Transacción"
+                        alignment="center"
+                        cellTemplate="estTx"
+                      ></dxi-column>
+                      <dxi-column
+                        dataField="numeroSerieMonedero"
+                        caption="N° Serie de Monedero"
+                        alignment="center"
+                      ></dxi-column>
+
+                      <div *dxTemplate="let a of 'fecActiTx'">
+                        {{ a.data.fhRegistro | date: 'dd/MM/yyyy HH:mm' : '+0000' }}
+                      </div>
+                      <div *dxTemplate="let f of 'saldTx'">
+                        {{ f.data.monto | currency: '$' }}
+                      </div>
+                      <div *dxTemplate="let f of 'estTx'">
+                        <span
+                          *ngIf="f.data.tipoTransaccion === 'RECARGA'"
+                          class="estatus estatus-activo"
+                        >
+                          <i class="fa fa-arrow-up"></i> Recarga
+                        </span>
+                        <span
+                          *ngIf="f.data.tipoTransaccion === 'DEBITO'"
+                          class="estatus estatus-inactivo"
+                        >
+                          <i class="fa fa-arrow-down"></i> Débito
+                        </span>
+                      </div>
+                      <div *dxTemplate="let f of 'numDisposiTx'">
+                        <span *ngIf="f.data.numeroSerieDispositivo === null">Sin recarga</span>
+                        <span *ngIf="f.data.numeroSerieDispositivo">
+                          {{ f.data.numeroSerieDispositivo }}
+                        </span>
+                      </div>
+
+                      <dxo-export
+                        [enabled]="false"
+                        [allowExportSelectedData]="true"
+                        [texts]="{
+                          exportAll: 'Exportar todos los datos a Excel',
+                          exportSelectedRows: 'Exportar filas seleccionadas a Excel'
+                        }"
+                      >
+                      </dxo-export>
+                    </dx-data-grid>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>

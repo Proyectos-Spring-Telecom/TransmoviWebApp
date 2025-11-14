@@ -128,6 +128,13 @@
       <div class="card-body" style="padding: 20px; background-color: #002136;">
         <form [formGroup]="tarifaForm" class="cliente-form">
           <div class="row">
+                        <div class="col-12 col-sm-6 col-md-4 mt-3">
+  <label>Tipo Tarifa</label>
+<dx-select-box class="tm-select w-100" formControlName="tipoTarifa" [dataSource]="listaTipoTarifa"
+              displayExpr="nombre" valueExpr="id" [searchEnabled]="true" [showClearButton]="true"
+              [noDataText]="'Sin registros'" placeholder="Selecciona un tipo de tarifa">
+            </dx-select-box>
+</div>
             <div class="col-12 col-sm-6 col-md-4 mt-3">
               <label>Tarifa Base</label>
               <input
@@ -182,22 +189,6 @@
                 (keypress)="allowDecimal($event)"
               />
             </div>
-
-            <div class="col-12 col-sm-6 col-md-4 mt-3">
-  <label>Tipo Tarifa</label>
-  <dx-select-box
-    class="tm-select w-100"
-    formControlName="tipoTarifa"
-    [dataSource]="tiposTarifa"
-    valueExpr="id"
-    displayExpr="nombre"
-    placeholder="Selecciona un tipo de tarifa"
-    [searchEnabled]="false"
-    [showClearButton]="true"
-    [noDataText]="'Sin registros'">
-  </dx-select-box>
-</div>
-
           </div>
 
           <div class="form-actions mt-4">

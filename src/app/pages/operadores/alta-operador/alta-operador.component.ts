@@ -21,7 +21,6 @@ export class AltaOperadorComponent implements OnInit {
   public idOperador: number;
   public listaUsuarios: any;
   public title = 'Agregar Operador';
-  public showUsuario: boolean = false;
   displayUsuario = (it: any) => it ? `${it.nombre} ${it.apellidoPaterno ?? ''}`.trim() : '';
   public idClienteUser: any;
   public listaCategorias: any;
@@ -123,7 +122,6 @@ export class AltaOperadorComponent implements OnInit {
     };
   }
 
-
   obtenerOperadorID() {
     this.operService.obtenerOperador(this.idOperador).subscribe((response: any) => {
       const raw = Array.isArray(response?.data)
@@ -131,34 +129,51 @@ export class AltaOperadorComponent implements OnInit {
         : response?.operador ?? response?.data ?? response ?? {};
 
       const get = (o: any, keys: string[]) => {
-        for (const k of keys) if (o?.[k] !== undefined && o?.[k] !== null) return o[k];
+        for (const k of keys) {
+          const v = o?.[k];
+          if (v !== undefined && v !== null) return v;
+        }
         return null;
       };
 
-      const numeroLicencia = get(raw, ['numeroLicencia', 'NumeroLicencia']);
+      const licArr = get(raw, ['licencias', 'Licencias']);
+      const lic = Array.isArray(licArr) && licArr.length ? licArr[0] : {};
+
       const fechaNacimientoRaw = get(raw, ['fechaNacimiento', 'FechaNacimiento']);
+      const fechaNacimiento = fechaNacimientoRaw ? String(fechaNacimientoRaw).split('T')[0] : null;
+
+      const fechaExpedicionRaw = get(lic, ['fechaExpedicion', 'FechaExpedicion']);
+      const fechaVencimientoRaw = get(lic, ['fechaVencimiento', 'FechaVencimiento']);
+      const fechaExpedicion = fechaExpedicionRaw ? String(fechaExpedicionRaw).split('T')[0] : null;
+      const fechaVencimiento = fechaVencimientoRaw ? String(fechaVencimientoRaw).split('T')[0] : null;
+
+      const numeroLicencia = get(lic, ['numeroLicencia', 'NumeroLicencia']) ?? get(raw, ['numeroLicencia', 'NumeroLicencia']);
+      const idTipoLicencia = get(lic, ['idTipoLicencia', 'IdTipoLicencia']);
+      const idCategoriaLicencia = get(lic, ['idCategoriaLicencia', 'IdCategoriaLicencia']);
+
       const idUsuario = get(raw, ['idUsuario', 'IdUsuario']);
-      const estatus = get(raw, ['estatus', 'Estatus']);
+      const estatus = get(raw, ['estatusOperador', 'estatus', 'EstatusOperador', 'Estatus']);
+
       const identificacion = get(raw, ['identificacion', 'Identificacion']);
       const comprobanteDomicilio = get(raw, ['comprobanteDomicilio', 'ComprobanteDomicilio']);
       const antecedentesNoPenales = get(raw, ['antecedentesNoPenales', 'AntecedentesNoPenales']);
-      const licencia = get(raw, ['licencia', 'Licencia']);
-      const examenMedico = get(raw, ['examenMedico', 'ExamenMedico']);
-      const fotoOperador = get(raw, ['fotoOperador', 'FotoOperador']);
-
-      const fechaNacimiento = fechaNacimientoRaw
-        ? fechaNacimientoRaw.split('T')[0]
-        : null;
+      const licenciaUrl = get(lic, ['licencia', 'Licencia']) ?? get(raw, ['licencia', 'Licencia']);
+      const examenMedico = get(raw, ['certificadoMedico', 'CertificadoMedico', 'examenMedico', 'ExamenMedico']);
+      const fotoOperador = get(raw, ['fotoOperador', 'FotoOperador', 'foto', 'Foto']);
 
       this.operadorForm.patchValue({
         numeroLicencia: numeroLicencia ?? '',
         fechaNacimiento,
+        fechaExpedicion,
+        fechaVencimiento,
+        idTipoLicencia: idTipoLicencia != null ? Number(idTipoLicencia) : null,
+        idCategoriaLicencia: idCategoriaLicencia != null ? Number(idCategoriaLicencia) : null,
         idUsuario: idUsuario != null ? Number(idUsuario) : null,
         estatus: estatus != null ? Number(estatus) : 1,
         identificacion: identificacion ?? null,
         comprobanteDomicilio: comprobanteDomicilio ?? null,
         antecedentesNoPenales: antecedentesNoPenales ?? null,
-        licencia: licencia ?? null,
+        licencia: licenciaUrl ?? null,
         examenMedico: examenMedico ?? null,
         fotoOperador: fotoOperador ?? null,
       });
@@ -169,9 +184,15 @@ export class AltaOperadorComponent implements OnInit {
     this.usuaService.obtenerUsuariosRolOperador(this.idClienteUser).subscribe((response) => {
       this.listaUsuarios = (response.data || []).map((c: any) => ({
         ...c,
-        id: Number(c?.id ?? c?.Id ?? c?.ID),
+        id: Number(
+          c?.idUsuario ??
+          c?.IdUsuario ??
+          c?.id ??
+          c?.Id ??
+          c?.ID
+        ),
       }));
-    })
+    });
   }
 
   allowOnlyNumbers(event: KeyboardEvent): void {
