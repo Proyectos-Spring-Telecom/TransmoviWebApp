@@ -112,11 +112,17 @@
                             <dxi-column dataField="EstatusTexto" caption="Estatus" alignment="center" dataType="string"
                                 [width]="150" cellTemplate="est"></dxi-column>
                             <div *dxTemplate="let f of 'est'">
-                                <span *ngIf="(f.data.EstatusNumber ?? f.data.estatus) === 1"
+                                <span *ngIf="(f.data.estatusOperador ?? f.data.estatus) === 1"
                                     class="estatus estatus-activo">Activo</span>
-                                <span *ngIf="(f.data.EstatusNumber ?? f.data.estatus) !== 1"
+                                <span *ngIf="(f.data.estatusOperador ?? f.data.estatus) !== 1"
                                     class="estatus estatus-inactivo">Inactivo</span>
                             </div>
+                            <dxi-column caption="Cliente" alignment="center" cellTemplate="clien">
+                                <div *dxTemplate="let f of 'clien'">
+                                    {{ f.data.nombreCliente || ' ' }} {{ f.data.apellidoPaternocliente || ' ' }} {{
+                                    f.data.apellidoMaternocliente || ' ' }}
+                                </div>
+                            </dxi-column>
                             <dxi-column dataField="DocumentoIdentificacionTexto" [visible]="false"></dxi-column>
                             <dxi-column dataField="DocumentoComprobanteTexto" [visible]="false"></dxi-column>
                             <dxi-column dataField="DocumentoAntecedentesTexto" [visible]="false"></dxi-column>

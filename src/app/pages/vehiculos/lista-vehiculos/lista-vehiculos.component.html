@@ -76,6 +76,9 @@
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
                             </div>
+                            <dxi-column dataField="estadoActual" caption="Estado Vehículo" alignment="center"
+                                dataType="string" cellTemplate="estadoVeh">
+                            </dxi-column>
                             <dxi-column dataField="marca" caption="Marca" alignment="center"
                                 dataType="string"></dxi-column>
                             <dxi-column dataField="modelo" caption="Modelo" alignment="center"
@@ -85,12 +88,6 @@
                                 dataType="string"></dxi-column>
                             <dxi-column dataField="numeroEconomico" caption="N° Económico" alignment="center"
                                 dataType="string"></dxi-column>
-                            <dxi-column caption="Cliente" alignment="center" cellTemplate="clien">
-                                <div *dxTemplate="let f of 'clien'">
-                                    {{ f.data.nombreCliente || ' ' }} {{ f.data.apellidoPaternocliente || ' ' }} {{
-                                    f.data.apellidoMaternocliente || ' ' }}
-                                </div>
-                            </dxi-column>
                             <dxi-column dataField="estatus" caption="Estatus" alignment="center" dataType="string"
                                 cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
@@ -102,6 +99,23 @@
                                     </span>
                                 </div>
                             </dxi-column>
+                            <dxi-column caption="Cliente" alignment="center" cellTemplate="clien">
+                                <div *dxTemplate="let f of 'clien'">
+                                    {{ f.data.nombreCliente || ' ' }} {{ f.data.apellidoPaternocliente || ' ' }} {{
+                                    f.data.apellidoMaternocliente || ' ' }}
+                                </div>
+                            </dxi-column>
+                            <div *dxTemplate="let cell of 'estadoVeh'">
+                                <ng-container [ngSwitch]="cell.value">
+                                    <div *ngSwitchCase="0" class="estatus estatus-inactivo">Inactivo</div>
+                                    <div *ngSwitchCase="1" class="estatus estatus-disponible">Disponible</div>
+                                    <div *ngSwitchCase="2" class="estatus estatus-asignado">Instalado</div>
+                                    <div *ngSwitchCase="3" class="estatus estatus-mantenimiento">En Mantenimiento</div>
+                                    <div *ngSwitchCase="4" class="estatus estatus-danado">Dañado</div>
+                                    <div *ngSwitchCase="5" class="estatus estatus-retirado">Retirado</div>
+                                    <div *ngSwitchDefault class="estatus estatus-inactivo">Inactivo</div>
+                                </ng-container>
+                            </div>
                             <div *dxTemplate="let data of 'imagen'" style="text-align: center;">
                                 <img *ngIf="data.value" style="max-width: 100px;" [src]="data.value" />
                                 <img *ngIf="data.value == null" style="max-width: 70px;"

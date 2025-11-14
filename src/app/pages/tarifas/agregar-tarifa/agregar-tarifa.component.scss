@@ -308,3 +308,22 @@ div:where(.swal2-container) .swal2-html-container {
     cursor: pointer;
     height: 44px;
 }
+
+.cliente-form .form-control:disabled,
+.cliente-form .form-control[disabled] {
+  background-color: #1b2430;   // un poco más oscuro
+  border-color: #3a4a5f;
+  color: #8b9bb5;
+  opacity: 0.7;
+}
+
+.cliente-form .form-control:disabled::placeholder,
+.cliente-form .form-control[disabled]::placeholder {
+  color: #6f7b92;
+}
+
+.cliente-form .form-control:disabled:focus,
+.cliente-form .form-control[disabled]:focus {
+  box-shadow: none;
+  outline: none;
+}

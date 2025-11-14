@@ -59,11 +59,6 @@
                                     {{'N° de Placa: ' + t.data.placaVehiculo}}
                                 </div>
                             </dxi-column>
-                            <dxi-column caption="Cliente" alignment="center" cellTemplate="instalClient">
-                                <div *dxTemplate="let i of 'instalClient'">
-                                    {{i.data.nombreCliente}} {{i.data.apellidoPaternoCliente || ' '}} {{i.data.apellidoMaternoCliente|| ' '}}
-                                </div>
-                            </dxi-column>
                             <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
                                     <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
@@ -72,6 +67,11 @@
                                     <span *ngIf="f.data.estatus !== 1" class="estatus estatus-inactivo">
                                         Inactivo
                                     </span>
+                                </div>
+                            </dxi-column>
+                            <dxi-column caption="Cliente" alignment="center" cellTemplate="instalClient">
+                                <div *dxTemplate="let i of 'instalClient'">
+                                    {{i.data.nombreCliente}} {{i.data.apellidoPaternoCliente || ' '}} {{i.data.apellidoMaternoCliente|| ' '}}
                                 </div>
                             </dxi-column>
                             <dxo-export [enabled]="false" [allowExportSelectedData]="true"

@@ -7,6 +7,8 @@ import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { DispositivosService } from 'src/app/shared/services/dispositivos.service';
 import Swal from 'sweetalert2';
+declare const DevExpress: any;
+
 
 @Component({
   selector: 'app-lista-dispositivos',
@@ -123,7 +125,7 @@ export class ListaDispositivosComponent implements OnInit {
     try {
       const colsOpt = grid?.option('columns');
       if (Array.isArray(colsOpt) && colsOpt.length) columnas = colsOpt;
-    } catch {}
+    } catch { }
     if (!columnas.length && grid?.getVisibleColumns) {
       columnas = grid.getVisibleColumns();
     }
@@ -208,7 +210,7 @@ export class ListaDispositivosComponent implements OnInit {
             Swal.fire({
               title: '¡Ops!',
               background: '#002136',
-              html: `Error al intentar eliminar el dispositivo.`,
+              html: error.error,
               icon: 'error',
               showCancelButton: false,
             })
@@ -249,7 +251,7 @@ export class ListaDispositivosComponent implements OnInit {
           (error) => {
             Swal.fire({
               title: '¡Ops!',
-              html: `${error}`,
+              html: error.error,
               icon: 'error',
               background: '#002136',
               confirmButtonColor: '#3085d6',
@@ -291,7 +293,7 @@ export class ListaDispositivosComponent implements OnInit {
           (error) => {
             Swal.fire({
               title: '¡Ops!',
-              html: `${error}`,
+              html: error.error,
               icon: 'error',
               background: '#002136',
               confirmButtonColor: '#3085d6',
@@ -302,5 +304,104 @@ export class ListaDispositivosComponent implements OnInit {
       }
     });
     // console.log('Desactivar:', rowData);
+  }
+
+  async abrirModalCambioEstado(dispositivo: any) {
+    const { value: estadoSeleccionado } = await Swal.fire({
+      title: `Cambiar estado del dispositivo: ${dispositivo?.numeroSerie ?? ''}`,
+      icon: 'question',
+      html: `
+      <div style="text-align:left">
+        <label style="
+          display:block;
+          margin:12px 0 6px;
+          font-size:12.5px;
+          font-weight:600;
+          color:#9fb0c3;">
+          Selecciona el nuevo estado
+        </label>
+        <select id="estado-select" class="swal2-input" style="height:auto">
+          <option value="" selected disabled>Selecciona el estado del componente</option>
+          <option value="0">Inactivo</option>
+          <option value="1">Disponible</option>
+          <option value="3">En Mantenimiento</option>
+          <option value="4">Dañado</option>
+          <option value="5">Retirado</option>
+        </select>
+      </div>
+    `,
+      background: '#0e1621',
+      color: '#e9eef5',
+      showCancelButton: true,
+      confirmButtonText: 'Aceptar',
+      cancelButtonText: 'Cancelar',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showCloseButton: false,
+
+      focusConfirm: false,
+      didOpen: () => {
+        const popup = Swal.getPopup();
+        if (!popup) return;
+
+        popup.style.border = '1px solid #213041';
+        popup.style.borderRadius = '14px';
+        popup.style.padding = '22px';
+        popup.style.width = 'min(520px,92vw)';
+        popup.style.boxShadow = '0 18px 50px rgba(0,0,0,.45)';
+
+        const selectEl = document.getElementById('estado-select') as HTMLSelectElement | null;
+        if (selectEl) {
+          selectEl.style.width = '100%';
+          selectEl.style.background = '#0b121b';
+          selectEl.style.color = '#e9eef5';
+          selectEl.style.borderRadius = '10px';
+          selectEl.style.padding = '10px 12px';
+          selectEl.style.height = '44px';
+          selectEl.style.transition =
+            'border-color .15s ease, box-shadow .15s ease, background .15s ease';
+          selectEl.style.border = '1px solid transparent';
+          selectEl.style.outline = 'none';
+          selectEl.style.boxShadow = 'none';
+        }
+      },
+      preConfirm: () => {
+        const estadoEl = document.getElementById('estado-select') as HTMLSelectElement | null;
+        const estadoStr = estadoEl?.value ?? '';
+        if (!estadoStr) {
+          Swal.showValidationMessage('Selecciona un estado');
+          return false as any;
+        }
+
+        return Number(estadoStr);
+      }
+    });
+    if (estadoSeleccionado == null) return;
+    this.disService.actualizarEstadoDispositivo(dispositivo.id, estadoSeleccionado)
+      .subscribe(
+        () => {
+          Swal.fire({
+            title: '¡Cambio realizado!',
+            html: `El estado del dispositivo ha sido actualizado.`,
+            icon: 'success',
+            background: '#002136',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Confirmar',
+          });
+
+          this.obtenerDispositivos();
+          this.dataGrid.instance.refresh();
+        },
+        (error) => {
+          Swal.fire({
+            title: '¡Ops!',
+            html: error.error,
+            icon: 'error',
+            background: '#002136',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Confirmar',
+          });
+        }
+      );
   }
 }

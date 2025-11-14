@@ -189,35 +189,103 @@ export class AgregarTarifaComponent implements OnInit {
   }
 
   obtenerTarifa() {
-  this.tarSerice.obtenerTarifa(this.idTarifa).subscribe({
-    next: (response: any) => {
-      const data = response?.data;
-      const item = Array.isArray(data)
-        ? data.find((x: any) => Number(x?.id) === Number(this.idTarifa)) ?? data[0]
-        : data;
-      if (!item) return;
+    this.tarSerice.obtenerTarifa(this.idTarifa).subscribe({
+      next: (response: any) => {
+        const data = response?.data;
 
-      const tipoTarifa = this.toNumber(
-        item.tipoTarifa ?? item.TipoTarifa ?? item.idTipoTarifa ?? item.IdTipoTarifa
+        const item = Array.isArray(data)
+          ? data.find((x: any) => Number(x?.id) === Number(this.idTarifa)) ?? data[0]
+          : data;
+
+        if (!item) return;
+
+        const tipoTarifa = this.toNumber(
+          item.tipoTarifa ??
+          item.TipoTarifa ??
+          item.idTipoTarifa ??
+          item.IdTipoTarifa
+        );
+
+        const dto = {
+          tipoTarifa: tipoTarifa,
+          tarifaBase: this.toNumber(item.tarifaBase ?? item.TarifaBase),
+          distanciaBaseKm: this.toNumber(item.distanciaBaseKm ?? item.DistanciaBaseKm),
+          incrementoCadaMetros: this.toNumber(item.incrementoCadaMetros ?? item.IncrementoCadaMetros),
+          costoAdicional: this.toNumber(item.costoAdicional ?? item.CostoAdicional),
+          estatus: this.toNumber(item.estatus ?? item.estatusTarifa) ?? 1,
+          idDerrotero: this.toNumber(item.idDerrotero ?? item.idderrotero),
+        };
+
+        this.tarifaForm.patchValue(dto, { emitEvent: false });
+
+        this.actualizarCamposPorTipoTarifa(dto.tipoTarifa);
+
+        const derroteroCtrl = this.tarifaForm.get('idDerrotero');
+        if (derroteroCtrl && dto.idDerrotero != null && !isNaN(dto.idDerrotero)) {
+          derroteroCtrl.disable({ emitEvent: false });
+        }
+      },
+      error: (e) => {
+        console.error('Error obtenerTarifa', e);
+      },
+    });
+  }
+
+  private actualizarCamposPorTipoTarifa(tipo: any): void {
+    let tipoNum: number;
+
+    if (tipo !== null && typeof tipo === 'object') {
+      tipoNum = this.toNum(
+        (tipo as any).id ??
+        (tipo as any).Id ??
+        (tipo as any).value ??
+        (tipo as any).valor
       );
+    } else {
+      tipoNum = this.toNum(tipo);
+    }
 
-      const dto = {
-        tipoTarifa: tipoTarifa,
-        tarifaBase: this.toNumber(item.tarifaBase ?? item.TarifaBase),
-        distanciaBaseKm: this.toNumber(item.distanciaBaseKm ?? item.DistanciaBaseKm),
-        incrementoCadaMetros: this.toNumber(item.incrementoCadaMetros ?? item.IncrementoCadaMetros),
-        costoAdicional: this.toNumber(item.costoAdicional ?? item.CostoAdicional),
-        estatus: this.toNumber(item.estatus ?? item.estatusTarifa) ?? 1,
-        idDerrotero: this.toNumber(item.idDerrotero ?? item.idderrotero),
-      };
+    const tarifaBaseCtrl        = this.tarifaForm.get('tarifaBase');
+    const distanciaBaseCtrl     = this.tarifaForm.get('distanciaBaseKm');
+    const incrementoMetrosCtrl  = this.tarifaForm.get('incrementoCadaMetros');
+    const costoAdicionalCtrl    = this.tarifaForm.get('costoAdicional');
 
-      this.tarifaForm.patchValue(dto, { emitEvent: false });
-    },
-    error: (e) => {
-      console.error('Error obtenerTarifa', e);
-    },
-  });
-}
+    if (!tarifaBaseCtrl || !distanciaBaseCtrl || !incrementoMetrosCtrl || !costoAdicionalCtrl) {
+      return;
+    }
+
+    if (tipoNum === 0) {
+      tarifaBaseCtrl.enable({ emitEvent: false });
+
+      distanciaBaseCtrl.disable({ emitEvent: false });
+      distanciaBaseCtrl.setValue(null, { emitEvent: false });
+
+      incrementoMetrosCtrl.disable({ emitEvent: false });
+      incrementoMetrosCtrl.setValue(null, { emitEvent: false });
+
+      costoAdicionalCtrl.disable({ emitEvent: false });
+      costoAdicionalCtrl.setValue(null, { emitEvent: false });
+
+    } else if (tipoNum === 1) {
+      tarifaBaseCtrl.enable({ emitEvent: false });
+      distanciaBaseCtrl.enable({ emitEvent: false });
+      incrementoMetrosCtrl.enable({ emitEvent: false });
+      costoAdicionalCtrl.enable({ emitEvent: false });
+
+    } else {
+      tarifaBaseCtrl.disable({ emitEvent: false });
+      tarifaBaseCtrl.setValue(null, { emitEvent: false });
+
+      distanciaBaseCtrl.disable({ emitEvent: false });
+      distanciaBaseCtrl.setValue(null, { emitEvent: false });
+
+      incrementoMetrosCtrl.disable({ emitEvent: false });
+      incrementoMetrosCtrl.setValue(null, { emitEvent: false });
+
+      costoAdicionalCtrl.disable({ emitEvent: false });
+      costoAdicionalCtrl.setValue(null, { emitEvent: false });
+    }
+  }
 
   private toNum(v: any): number {
     if (v === null || v === undefined) return NaN;
@@ -235,6 +303,16 @@ export class AgregarTarifaComponent implements OnInit {
       estatus: [1, Validators.required],
       idDerrotero: [null, Validators.required],
     });
+
+    const campos = ['tarifaBase', 'distanciaBaseKm', 'incrementoCadaMetros', 'costoAdicional'];
+    campos.forEach(nombre => {
+      this.tarifaForm.get(nombre)?.disable({ emitEvent: false });
+    });
+
+    const tipoCtrl = this.tarifaForm.get('tipoTarifa');
+    if (tipoCtrl) {
+      tipoCtrl.valueChanges.subscribe(v => this.actualizarCamposPorTipoTarifa(v));
+    }
   }
 
   submit() {
@@ -300,12 +378,15 @@ export class AgregarTarifaComponent implements OnInit {
     }
 
     const v = this.tarifaForm.value;
+    const tipoTarifaNum = this.toNum(v.tipoTarifa);
+    const esEstacionaria = tipoTarifaNum === 0;
+
     const payload = {
-      tipoTarifa: this.toNum(v.tipoTarifa),
+      tipoTarifa: tipoTarifaNum,
       tarifaBase: this.parseNumeric(v.tarifaBase),
-      distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
-      incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
-      costoAdicional: this.parseNumeric(v.costoAdicional),
+      distanciaBaseKm: esEstacionaria ? null : this.parseNumeric(v.distanciaBaseKm),
+      incrementoCadaMetros: esEstacionaria ? null : this.parseNumeric(v.incrementoCadaMetros),
+      costoAdicional: esEstacionaria ? null : this.parseNumeric(v.costoAdicional),
       estatus: this.toNum(v.estatus),
       idDerrotero: this.toNum(v.idDerrotero),
     };
@@ -324,13 +405,13 @@ export class AgregarTarifaComponent implements OnInit {
         });
         this.regresar();
       },
-      () => {
+      (error: any) => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: `Ocurrió un error al agregar la tarifa.`,
+          text: error.error,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -391,12 +472,16 @@ export class AgregarTarifaComponent implements OnInit {
       return;
     }
 
-    const v = this.tarifaForm.value;
+    const v = this.tarifaForm.getRawValue();      // incluye idDerrotero aunque esté disabled
+    const tipoTarifaNum = this.toNum(v.tipoTarifa);
+    const esEstacionaria = tipoTarifaNum === 0;
+
     const payload = {
+      tipoTarifa: tipoTarifaNum,                                 // ✅ AHORA SÍ SE MANDA EN UPDATE
       tarifaBase: this.parseNumeric(v.tarifaBase),
-      distanciaBaseKm: this.parseNumeric(v.distanciaBaseKm),
-      incrementoCadaMetros: this.parseNumeric(v.incrementoCadaMetros),
-      costoAdicional: this.parseNumeric(v.costoAdicional),
+      distanciaBaseKm: esEstacionaria ? null : this.parseNumeric(v.distanciaBaseKm),
+      incrementoCadaMetros: esEstacionaria ? null : this.parseNumeric(v.incrementoCadaMetros),
+      costoAdicional: esEstacionaria ? null : this.parseNumeric(v.costoAdicional),
       estatus: this.toNum(v.estatus),
       idDerrotero: this.toNum(v.idDerrotero),
     };
@@ -415,13 +500,13 @@ export class AgregarTarifaComponent implements OnInit {
         });
         this.regresar();
       },
-      () => {
+      (error: any) => {
         this.submitButton = 'Actualizar';
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: `Ocurrió un error al actualizar el tarifa.`,
+          text: error.error,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',

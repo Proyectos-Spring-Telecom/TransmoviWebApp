@@ -1,0 +1,269 @@
+.total-registros-label {
+  font-size: 16px; 
+  font-weight: bold; 
+  color: #f7fb06; 
+  padding: 8px 15px; 
+  border-radius: 5px; 
+  background-color: #515237; 
+  display: inline-block; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+.data {
+  min-width: 1000px;
+}
+.header-dispositivos {
+  text-align: center;
+  background-color: #00836d;
+  padding: 20px;
+}
+
+.header-dispositivos i {
+  font-size: 30px;
+  color: #09fa3a;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.titulo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.subtitulo {
+  font-size: 14px;
+  color: #fff;
+  margin-top: 5px;
+}
+
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  background-color: #002136;
+}
+
+::ng-deep .dx-searchbox .dx-texteditor-input {
+  --radii: 2.0em;
+  cursor: pointer;
+  min-height: 38px;
+  font-size: var(--size, 14px);
+  font-weight: 500;
+  transition: 0.8s;
+  background-size: 280% auto;
+  background-color: #0a66c2;
+  border: none;
+}
+
+::ng-deep .dx-searchbox .dx-texteditor-input:hover {
+  background-position: right top;
+}
+
+::ng-deep .dx-searchbox .dx-texteditor-input:is(:focus, :focus-visible, :active) {
+  outline: none;
+  box-shadow:
+      0 0 0 0px var(--btn-bg-color),
+      0 0 0 0px var(--btn-bg-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dx-searchbox .dx-texteditor-input {
+      transition: linear;
+  }
+}
+
+::ng-deep .dx-icon-clear:before {
+  color: white;
+}
+
+::ng-deep .dx-icon-search:before {
+  color: white !important;
+}
+
+::ng-deep .dx-searchbox .dx-placeholder::before,
+.dx-searchbox .dx-texteditor-input,
+.dx-searchbox.dx-editor-underlined .dx-texteditor-buttons-container+.dx-texteditor-input-container .dx-texteditor-input,
+.dx-searchbox.dx-editor-underlined .dx-texteditor-input {
+  padding-inline-start: 34px;
+  color: white;
+}
+
+
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  border: none;
+  background-color: #002136;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dx-searchbox .dx-texteditor-input {
+      transition: linear;
+  }
+}
+
+
+
+.button-18 {
+  margin-top: 1%;
+  align-items: center;
+  background-color: #0A66C2;
+  border: 0;
+  border-radius: 100px;
+  box-sizing: border-box;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  justify-content: center;
+  line-height: 20px;
+  width: 20%;
+  height: 40%;
+  min-width: 0px;
+  overflow: hidden;
+  padding: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+  touch-action: manipulation;
+  transition: background-color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, box-shadow 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+}
+
+.button-18:hover,
+.button-18:focus { 
+  background-color: #16437E;
+  color: #ffffff;
+}
+
+.button-18:active {
+  background: #09223b;
+  color: rgb(255, 255, 255, .7);
+}
+
+.button-18:disabled { 
+  cursor: not-allowed;
+  background: rgba(0, 0, 0, .08);
+  color: rgba(0, 0, 0, .3);
+}
+
+
+::ng-deep .swal2-container .swal2-title {
+    font-size: 24px;
+    font-weight: 200;
+    color: #ffffff;
+}
+
+.swal2-container .swal2-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+::ng-deep div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+
+
+
+$mtto-accent: #4ade80; // color del nombre del apartado
+
+/* Ocultar completamente la barra/indicator de DevExtreme */
+:host ::ng-deep .mtto-tabs .dx-tabs-indicator {
+  display: none !important;
+}
+
+/* Aplica estilos dentro del componente */
+:host ::ng-deep .mtto-tabs.dx-tabs {
+  padding: 12px 18px 6px;
+  border-radius: 5px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+/* contenedor interno de los tabs */
+:host ::ng-deep .mtto-tabs .dx-tabs-wrapper {
+  justify-content: flex-start;
+  gap: 6px;
+}
+
+/* TAB normal */
+:host ::ng-deep .mtto-tabs .dx-tab {
+  position: relative;
+  min-width: 150px;
+  padding: 10px 18px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #9ca3af; // gris
+  text-transform: none;
+  letter-spacing: 0.01em;
+  border: 0;
+  transition: all 0.2s ease;
+}
+
+/* ícono dentro del tab */
+:host ::ng-deep .mtto-tabs .dx-tab .dx-icon {
+  font-size: 18px;
+  margin-right: 8px;
+  color: #9ca3af; // mismo gris que el texto cuando no está seleccionado
+}
+
+/* texto del tab */
+:host ::ng-deep .mtto-tabs .dx-tab .dx-tab-text {
+  line-height: 1;
+}
+
+/* hover */
+:host ::ng-deep .mtto-tabs .dx-tab.dx-state-hover:not(.dx-tab-selected) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(148, 163, 184, 0.4);
+}
+
+/* TAB seleccionado */
+:host ::ng-deep .mtto-tabs .dx-tab.dx-tab-selected {
+  color: $mtto-accent; // texto verde
+  box-shadow:
+    0 0 0 1px rgba(74, 222, 128, 0.45),  // borde suave verde
+    0 0 18px rgba(74, 222, 128, 0.6);    // sombra verde
+}
+
+/* icono del tab seleccionado */
+:host ::ng-deep .mtto-tabs .dx-tab.dx-tab-selected .dx-icon {
+  color: $mtto-accent;
+}
+
+
+::ng-deep .dx-tabs-styling-mode-secondary.dx-tab-indicator-position-bottom .dx-tab.dx-tab-selected .dx-tab-content::after, .dx-tabs-styling-mode-secondary.dx-tab-indicator-position-bottom .dx-tab.dx-tab-selected.dx-state-focused .dx-tab-content::after, .dx-tabs-styling-mode-secondary.dx-tab-indicator-position-top .dx-tab.dx-tab-selected .dx-tab-content::after, .dx-tabs-styling-mode-secondary.dx-tab-indicator-position-top .dx-tab.dx-tab-selected.dx-state-focused .dx-tab-content::after {
+    background-color: none;
+}
