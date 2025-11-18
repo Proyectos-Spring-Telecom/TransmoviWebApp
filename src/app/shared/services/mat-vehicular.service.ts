@@ -18,7 +18,7 @@ export class MantenimientoVehicularService {
     return this.http.get(`${environment.API_SECURITY}/mantenimiento-vehicular/list`);
   }
 
-  agregarMatVehicular(data: FormData) {
+  agregarMatVehicular(data: any) {
     return this.http.post(environment.API_SECURITY + '/mantenimiento-vehicular', data);
   }
 

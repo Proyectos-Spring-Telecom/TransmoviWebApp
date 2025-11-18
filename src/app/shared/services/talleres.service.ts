@@ -16,7 +16,7 @@ export class TallereService {
   }
 
   obtenerTalleres(): Observable<any> {
-    return this.http.get(`${environment.API_SECURITY}/talleres`);
+    return this.http.get(`${environment.API_SECURITY}/talleres/list`);
   }
 
   agregarTaller(data: any) {

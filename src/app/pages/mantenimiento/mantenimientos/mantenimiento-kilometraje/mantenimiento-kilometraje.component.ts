@@ -10,10 +10,11 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-mantenimiento-kilometraje',
   templateUrl: './mantenimiento-kilometraje.component.html',
-  styleUrl: './mantenimiento-kilometraje.component.scss'
+  styleUrl: './mantenimiento-kilometraje.component.scss',
 })
 export class MantenimientoKilometrajeComponent {
-  public mensajeAgrupar: string = 'Arrastre un encabezado de columna aquí para agrupar por esa columna';
+  public mensajeAgrupar: string =
+    'Arrastre un encabezado de columna aquí para agrupar por esa columna';
   public listaManKilometraje: any;
   public showFilterRow: boolean;
   public showHeaderFilter: boolean;
@@ -24,17 +25,17 @@ export class MantenimientoKilometrajeComponent {
   public totalRegistros: number = 0;
   public pageSize: number = 20;
   public totalPaginas: number = 0;
-  @ViewChild(DxDataGridComponent, { static: false }) dataGrid: DxDataGridComponent;
+  @ViewChild(DxDataGridComponent, { static: false })
+  dataGrid: DxDataGridComponent;
   public autoExpandAllGroups: boolean = true;
   isGrouped: boolean = false;
   public paginaActualData: any[] = [];
   public filtroActivo: string = '';
 
-
   constructor(
     private router: Router,
     private manteKilome: MantenimientoKilometrosService,
-    private permissionsService: NgxPermissionsService,
+    private permissionsService: NgxPermissionsService
   ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
@@ -57,18 +58,22 @@ export class MantenimientoKilometrajeComponent {
     });
   }
 
-  agregarModulo() {
-    this.router.navigateByUrl('/modulos/agregar-modulo');
+  agregarManKilometraje() {
+    this.router.navigateByUrl(
+      '/mantenimientos/agregar-mantenimiento-kilometraje'
+    );
   }
 
-  actualizarModulo(idModulo: Number) {
-    this.router.navigateByUrl('/modulos/editar-modulo/' + idModulo);
+  actualizarKilometraje(idManKilometraje: number) {
+    this.router.navigateByUrl(
+      '/mantenimientos/editar-mantenimiento-kilometraje/' + idManKilometraje
+    );
   }
 
   activar(rowData: any) {
     Swal.fire({
       title: '¡Activar!',
-      html: `¿Está seguro que requiere activar el módulo: <strong>${rowData.nombre}</strong>?`,
+      html: `¿Está seguro que requiere activar el registro del kilometraje: <strong>${rowData.id}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -78,30 +83,29 @@ export class MantenimientoKilometrajeComponent {
       background: '#002136',
     }).then((result) => {
       if (result.value) {
-        this.manteKilome.updateEstatus(rowData.id, 1).subscribe(
+        this.manteKilome.activar(rowData.id).subscribe(
           (response) => {
             Swal.fire({
               title: '¡Confirmación Realizada!',
-              html: `El módulo ha sido activado.`,
+              html: `El registro de kilometraje ha sido activado.`,
               icon: 'success',
               background: '#002136',
               confirmButtonColor: '#3085d6',
               confirmButtonText: 'Confirmar',
-            })
+            });
 
             this.setupDataSource();
             this.dataGrid.instance.refresh();
-            // this.obtenerlistaManVehicular();
           },
-          (error) => {
+          (error: any) => {
             Swal.fire({
               title: '¡Ops!',
-              html: `${error}`,
+              html: error.error,
               icon: 'error',
               background: '#002136',
               confirmButtonColor: '#3085d6',
               confirmButtonText: 'Confirmar',
-            })
+            });
           }
         );
       }
@@ -111,7 +115,7 @@ export class MantenimientoKilometrajeComponent {
   desactivar(rowData: any) {
     Swal.fire({
       title: '¡Desactivar!',
-      html: `¿Está seguro que requiere desactivar el módulo: <strong>${rowData.nombre}</strong>?`,
+      html: `¿Está seguro que requiere desactivar el registro del kilometraje: <strong>${rowData.id}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -121,34 +125,32 @@ export class MantenimientoKilometrajeComponent {
       background: '#002136',
     }).then((result) => {
       if (result.value) {
-        this.manteKilome.updateEstatus(rowData.id, 0).subscribe(
+        this.manteKilome.desactivar(rowData.id).subscribe(
           (response) => {
             Swal.fire({
               title: '¡Confirmación Realizada!',
-              html: `El módulo ha sido desactivado.`,
+              html: `El registro del kilometraje ha sido desactivado.`,
               icon: 'success',
               background: '#002136',
               confirmButtonColor: '#3085d6',
               confirmButtonText: 'Confirmar',
-            })
+            });
             this.setupDataSource();
             this.dataGrid.instance.refresh();
-            // this.obtenerlistaManVehicular();
           },
-          (error) => {
+          (error: any) => {
             Swal.fire({
               title: '¡Ops!',
-              html: `${error}`,
+              html: error.error,
               icon: 'error',
               background: '#002136',
               confirmButtonColor: '#3085d6',
               confirmButtonText: 'Confirmar',
-            })
+            });
           }
         );
       }
     });
-    // console.log('Desactivar:', rowData);
   }
 
   onPageIndexChanged(e: any) {
@@ -175,14 +177,9 @@ export class MantenimientoKilometrajeComponent {
           const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
           const meta = resp?.paginated || {};
           const totalRegistros =
-            toNum(meta.total) ??
-            toNum(resp?.total) ??
-            rows.length;
+            toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
 
-          const paginaActual =
-            toNum(meta.page) ??
-            toNum(resp?.page) ??
-            page;
+          const paginaActual = toNum(meta.page) ?? toNum(resp?.page) ?? page;
 
           const totalPaginas =
             toNum(meta.lastPage) ??
@@ -192,8 +189,11 @@ export class MantenimientoKilometrajeComponent {
           const dataTransformada = rows.map((item: any) => ({
             ...item,
             estatusTexto:
-              item?.estatus === 1 ? 'Activo' :
-                item?.estatus === 0 ? 'Inactivo' : null
+              item?.estatus === 1
+                ? 'Activo'
+                : item?.estatus === 0
+                ? 'Inactivo'
+                : null,
           }));
 
           this.totalRegistros = totalRegistros;
@@ -203,14 +203,14 @@ export class MantenimientoKilometrajeComponent {
 
           return {
             data: dataTransformada,
-            totalCount: totalRegistros
+            totalCount: totalRegistros,
           };
         } catch (err) {
           this.loading = false;
           console.error('Error en la solicitud de datos:', err);
           return { data: [], totalCount: 0 };
         }
-      }
+      },
     });
 
     function toNum(v: any): number | null {
@@ -234,7 +234,7 @@ export class MantenimientoKilometrajeComponent {
     try {
       const colsOpt = grid?.option('columns');
       if (Array.isArray(colsOpt) && colsOpt.length) columnas = colsOpt;
-    } catch { }
+    } catch {}
     if (!columnas.length && grid?.getVisibleColumns) {
       columnas = grid.getVisibleColumns();
     }
@@ -252,11 +252,10 @@ export class MantenimientoKilometrajeComponent {
       return String(val).toLowerCase();
     };
     const dataFiltrada = (this.paginaActualData || []).filter((row: any) => {
-      const hitEnColumnas = dataFields.some((df) => normalizar(row?.[df]).includes(texto));
-      const extras = [
-        normalizar(row?.id),
-        normalizar(row?.estatusTexto)
-      ];
+      const hitEnColumnas = dataFields.some((df) =>
+        normalizar(row?.[df]).includes(texto)
+      );
+      const extras = [normalizar(row?.id), normalizar(row?.estatusTexto)];
 
       return hitEnColumnas || extras.some((s) => s.includes(texto));
     });
@@ -289,6 +288,4 @@ export class MantenimientoKilometrajeComponent {
     this.dataGrid.instance.refresh();
     this.isGrouped = false;
   }
-
-
 }

@@ -1,0 +1,79 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-header-custom">
+            <div class="icon-wrapper">
+                <i class="fas fa-plus"></i>
+            </div>
+            <div class="header-text">
+                <h5>{{ title }}</h5>
+                <span>Completa la información para registrar un nuevo permiso.</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <form [formGroup]="manCombustibleForm" class="cliente-form">
+                <h6 class="section-title">Datos Generales</h6>
+                <div class="row mt-3">
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+                        <label>Instalación</label>
+                        <dx-select-box class="tm-select w-100" formControlName="idInstalacion"
+                            [items]="listaInstalaciones || []" valueExpr="id" [displayExpr]="displayInstalacion"
+                            [searchEnabled]="true" [showClearButton]="true" [noDataText]="'Sin registros'"
+                            placeholder="Seleccione una instalación">
+                        </dx-select-box>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+                        <label>Tipo de combustible</label>
+                        <dx-select-box class="tm-select w-100" formControlName="idTipoCombustible" [items]="listaCombustibles"
+                            valueExpr="id" displayExpr="nombre" [searchEnabled]="true" [showClearButton]="true"
+                            [noDataText]="'Sin registros'" placeholder="Seleccione un tipo de combustible">
+                        </dx-select-box>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+  <label>Operador</label>
+  <dx-select-box
+    class="tm-select w-100"
+    formControlName="idOperador"
+    [items]="listaOperadores"
+    valueExpr="id"
+    displayExpr="nombreCompleto"
+    [searchEnabled]="true"
+    [showClearButton]="true"
+    [noDataText]="'Sin registros'"
+    placeholder="Seleccione un operador">
+  </dx-select-box>
+</div>
+
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+                        <label>Cantidad de combustible</label>
+                        <input type="number" inputmode="decimal" class="form-control"
+                            formControlName="cantidadCombustible" placeholder="Ej. 50.5">
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+                        <label>Precio del combustible</label>
+                        <input type="number" inputmode="decimal" class="form-control"
+                            formControlName="precioCombustible" placeholder="Ej. 1520.75">
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+                        <label>Kilometraje</label>
+                        <input type="number" inputmode="decimal" class="form-control" formControlName="kilometraje"
+                            placeholder="Ej. 15000.5">
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+                        <label>Fecha y hora</label>
+                        <dx-date-box class="tm-select w-100" formControlName="fechaHora" type="datetime"
+                            placeholder="15/11/2025 15:30" [showClearButton]="true">
+                        </dx-date-box>
+                    </div>
+                </div>
+                <div class="form-actions mt-4">
+                    <button type="submit" class="submit" (click)="submit()">
+                        {{ submitButton }}
+                    </button>
+                    <button type="button" class="cancel" (click)="regresar()">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

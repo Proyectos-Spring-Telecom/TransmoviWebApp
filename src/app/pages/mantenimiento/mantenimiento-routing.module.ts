@@ -4,35 +4,39 @@ import { ListaMantenimientoComponent } from './lista-mantenimiento/lista-manteni
 import { MantenimientoVehicularComponent } from './mantenimientos/mantenimiento-vehicular/mantenimiento-vehicular.component';
 import { MantenimientoCombustibleComponent } from './mantenimientos/mantenimiento-combustible/mantenimiento-combustible.component';
 import { MantenimientoKilometrajeComponent } from './mantenimientos/mantenimiento-kilometraje/mantenimiento-kilometraje.component';
+import { AgregarVehicularComponent } from './mantenimientos/mantenimiento-vehicular/agregar-vehicular/agregar-vehicular.component';
+import { AgregarKilometrajeComponent } from './mantenimientos/mantenimiento-kilometraje/agregar-kilometraje/agregar-kilometraje.component';
+import { AgregarCombustibleComponent } from './mantenimientos/mantenimiento-combustible/agregar-combustible/agregar-combustible.component';
 
 const routes: Routes = [
   {
     path: '',
     component: ListaMantenimientoComponent,
-    children: [
-      {
-        path: 'vehicular',
-        component: MantenimientoVehicularComponent
-      },
-      {
-        path: 'combustible',
-        component: MantenimientoCombustibleComponent
-      },
-      {
-        path: 'kilometraje',
-        component: MantenimientoKilometrajeComponent
-      },
-      {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'vehicular'
-      }
-    ]
+  },
+  {
+    path: 'agregar-mantenimiento-vehicular',
+    component: AgregarVehicularComponent,
+  },
+  {
+    path: 'agregar-mantenimiento-kilometraje',
+    component: AgregarKilometrajeComponent,
+  },
+  {
+    path: 'agregar-mantenimiento-combustible',
+    component: AgregarCombustibleComponent,
+  },
+  {
+    path: 'editar-mantenimiento-kilometraje/:idManKilometraje',
+    component: AgregarKilometrajeComponent,
+  },
+  {
+    path: 'editar-mantenimiento-combustible/:idManCombustible',
+    component: AgregarCombustibleComponent,
   },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class MantenimientoRoutingModule { }
+export class MantenimientoRoutingModule {}
