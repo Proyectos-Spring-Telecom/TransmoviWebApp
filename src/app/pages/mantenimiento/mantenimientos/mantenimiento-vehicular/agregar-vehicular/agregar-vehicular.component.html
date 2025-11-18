@@ -1,0 +1,90 @@
+<div [@fadeInUp] class="container-fluid">
+  <div class="card">
+    <div class="card-header-custom">
+      <div class="icon-wrapper">
+        <i class="fas fa-plus"></i>
+      </div>
+      <div class="header-text">
+        <h5>{{ title }}</h5>
+        <span>Completa la información para registrar un nuevo permiso.</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="manVehicularForm" class="cliente-form">
+        <h6 class="section-title">Datos Generales</h6>
+
+        <div class="row mt-3">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Instalación</label>
+            <dx-select-box class="tm-select w-100" formControlName="idInstalacion" [items]="listaInstalaciones || []"
+              valueExpr="id" [displayExpr]="displayInstalacion" [searchEnabled]="true" [showClearButton]="true"
+              [noDataText]="'Sin registros'" placeholder="Seleccione una instalación">
+            </dx-select-box>
+          </div>
+
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Referencia</label>
+            <dx-select-box class="tm-select w-100" formControlName="idReferencia" [items]="listaReferenciasServicios"
+              [valueExpr]="'id'" [displayExpr]="'nombre'" [searchEnabled]="true" [showClearButton]="true"
+              [noDataText]="'Sin registros'" placeholder="Seleccione una referencia">
+            </dx-select-box>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Taller</label>
+            <dx-select-box class="tm-select w-100" formControlName="idTaller" [items]="listaTalleres" [valueExpr]="'Id'"
+              [displayExpr]="'Nombre'" [searchEnabled]="true" [showClearButton]="true" [noDataText]="'Sin registros'"
+              placeholder="Seleccione un taller">
+            </dx-select-box>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Fecha inicio del servicio</label>
+            <dx-date-box class="tm-select w-100" formControlName="fechaInicio" type="datetime" [showClearButton]="true">
+            </dx-date-box>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Fecha final del servicio</label>
+            <dx-date-box class="tm-select w-100" formControlName="fechaFinal" type="datetime" [showClearButton]="true">
+            </dx-date-box>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Costo</label>
+            <input inputmode="decimal" (focus)="onTarifaFocus()" (blur)="onTarifaBlur()"
+              (keypress)="allowOnlyNumbers($event)" type="text" class="form-control" formControlName="costo"
+              placeholder="Ingrese el costo">
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Encargado</label>
+            <input type="text" class="form-control" formControlName="encargado" placeholder="Nombre del encargado">
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Descripción del servicio</label>
+            <input type="text" class="form-control" formControlName="servicioDescripcion"
+              placeholder="Descripción del servicio">
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Nota del servicio</label>
+            <textarea class="form-control" formControlName="notaServicio" rows="3"
+              placeholder="Notas adicionales del servicio"></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions mt-4">
+          <button type="submit" class="submit" (click)="submit()">
+            {{ submitButton }}
+          </button>
+          <button type="button" class="cancel" (click)="regresar()">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

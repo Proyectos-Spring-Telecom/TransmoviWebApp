@@ -1,0 +1,77 @@
+<div [@fadeInUp] class="container-fluid">
+  <div class="card">
+    <div class="card-header-custom">
+      <div class="icon-wrapper">
+        <i class="fas fa-plus"></i>
+      </div>
+      <div class="header-text">
+        <h5>{{ title }}</h5>
+        <span>Completa la información para registrar un nuevo permiso.</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="manKilometrajeForm" class="cliente-form">
+        <h6 class="section-title">Datos Generales</h6>
+        <div class="row mt-3">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Instalación</label>
+            <dx-select-box
+              class="tm-select w-100"
+              formControlName="idInstalacion"
+              [items]="listaInstalaciones || []"
+              valueExpr="id"
+              [displayExpr]="displayInstalacion"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [noDataText]="'Sin registros'"
+              placeholder="Seleccione una instalación">
+            </dx-select-box>
+          </div>
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Kilometraje inicial</label>
+            <input
+              type="number"
+              inputmode="decimal"
+              class="form-control"
+              formControlName="kmInicial"
+              placeholder="10000.5">
+          </div>
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Kilometraje deseado</label>
+            <input
+              type="number"
+              inputmode="decimal"
+              class="form-control"
+              formControlName="kmDeseado"
+              placeholder="15000">
+          </div>
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Periodo (km)</label>
+            <input
+              type="number"
+              inputmode="decimal"
+              class="form-control"
+              formControlName="periodo"
+              placeholder="5000">
+          </div>
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Año</label>
+            <input
+              type="number"
+              class="form-control"
+              formControlName="anio"
+              placeholder="2024">
+          </div>
+        </div>
+        <div class="form-actions mt-4">
+          <button type="submit" class="submit" (click)="submit()">
+            {{ submitButton }}
+          </button>
+          <button type="button" class="cancel" (click)="regresar()">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

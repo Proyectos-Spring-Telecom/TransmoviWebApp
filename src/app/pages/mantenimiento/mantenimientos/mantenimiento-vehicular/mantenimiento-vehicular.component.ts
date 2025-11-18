@@ -58,8 +58,8 @@ export class MantenimientoVehicularComponent {
     });
   }
 
-  agregarModulo() {
-    this.router.navigateByUrl('/modulos/agregar-modulo');
+  agregarManVehicular() {
+    this.router.navigateByUrl('/mantenimientos/agregar-mantenimiento-vehicular');
   }
 
   actualizarModulo(idModulo: Number) {

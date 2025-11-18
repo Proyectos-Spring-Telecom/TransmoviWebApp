@@ -18,7 +18,7 @@ export class MantenimientoKilometrosService {
     return this.http.get(`${environment.API_SECURITY}/mantenimiento-kilometraje/list`);
   }
 
-  agregarMatKilometraje(data: FormData) {
+  agregarMatKilometraje(data: any) {
     return this.http.post(environment.API_SECURITY + '/mantenimiento-kilometraje', data);
   }
 
@@ -31,15 +31,25 @@ export class MantenimientoKilometrosService {
   }
 
   actualizarMatKilometraje(idKilometraje: number, saveForm: any): Observable<any> {
-    return this.http.put(`${environment.API_SECURITY}/mantenimiento-kilometraje/` + idKilometraje, saveForm);
+    return this.http.patch(
+      `${environment.API_SECURITY}/mantenimiento-kilometraje/${idKilometraje}`,
+      saveForm
+    );
   }
 
   private apiUrl = `${environment.API_SECURITY}/mantenimiento-kilometraje`;
-  updateEstatus(id: number, estatus: number): Observable<string> {
-    const url = `${this.apiUrl}/${id}/estatus`;
-    const body = { estatus };
-    return this.http.patch(url, body, { responseType: 'text' }).pipe(
+  activar(id: number): Observable<string> {
+    const url = `${this.apiUrl}/${id}/activar`;
+    return this.http.patch(url, null, { responseType: 'text' }).pipe(
       catchError(error => throwError(() => error))
     );
   }
+
+  desactivar(id: number): Observable<string> {
+    const url = `${this.apiUrl}/${id}/desactivar`;
+    return this.http.patch(url, null, { responseType: 'text' }).pipe(
+      catchError(error => throwError(() => error))
+    );
+  }
+
 }
