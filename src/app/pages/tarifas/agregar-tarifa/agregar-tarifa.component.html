@@ -1,60 +1,73 @@
 <div [@fadeInUp] class="container-fluid">
-    <div class="card">
-        <div class="card-header-custom">
-            <div class="icon-wrapper">
-                <i class="fas fa-plus"></i>
-            </div>
-            <div class="header-text">
-                <h5>{{ title }}</h5>
-                <span>Completa la información para registrar una nueva tarifa.</span>
-            </div>
-        </div>
-        <div class="card-body">
-            <form [formGroup]="tarifaForm" class="cliente-form">
-                <h6 class="section-title">Datos Generales</h6>
-                <div class="row">
-                    <div class="col-md-4 mt-3">
-                        <label>Derroteros</label>
-                        <select class="form-control" formControlName="idDerrotero">
-                            <option [ngValue]="null" disabled>Seleccione un derrotero</option>
-                            <option *ngFor="let data of listaDerroteros" [ngValue]="data.id">
-                                {{ data.nombreDerrotero }}
-                            </option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 mt-3">
-                        <label>Tarifa Base</label>
-                        <input type="text" class="form-control" formControlName="tarifaBase" placeholder="Ej: 100.00"
-                            inputmode="decimal" (keydown)="moneyKeydown($event)" (input)="moneyInput($event)"
-                            (paste)="moneyPaste($event)" (blur)="moneyBlur($event)" />
-                    </div>
-
-                    <div class="col-md-4 mt-3">
-                        <label>Distancia</label>
-                        <input type="text" class="form-control" formControlName="distanciaBaseKm"
-                            placeholder="Ej: 120.5" inputmode="decimal" (keydown)="distanciaKeydown($event)"
-                            (input)="distanciaInput($event)" (paste)="distanciaPaste($event)" />
-                    </div>
-
-                    <div class="col-md-4 mt-3">
-                        <label>Incremento Por Metro</label>
-                        <input type="text" class="form-control" formControlName="incrementoCadaMetros"
-                            placeholder="Ej: 10.25" inputmode="decimal" (keydown)="incrementoKeydown($event)"
-                            (input)="incrementoInput($event)" (paste)="incrementoPaste($event)" />
-                    </div>
-
-                    <div class="col-md-4 mt-3">
-                        <label>Costo Adicional</label>
-                        <input type="text" class="form-control" formControlName="costoAdicional" placeholder="Ej: 50.00"
-                            inputmode="decimal" (keydown)="costoKeydown($event)" (input)="costoInput($event)"
-                            (paste)="costoPaste($event)" (blur)="costoBlur($event)" />
-                    </div>
-                </div>
-                <div class="form-actions mt-4">
-                    <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
-                    <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
-                </div>
-            </form>
-        </div>
+  <div class="card">
+    <div class="card-header-custom">
+      <div class="icon-wrapper">
+        <i class="fas fa-plus"></i>
+      </div>
+      <div class="header-text">
+        <h5>{{ title }}</h5>
+        <span>Completa la información para registrar una nueva tarifa.</span>
+      </div>
     </div>
+
+    <div class="card-body">
+      <form [formGroup]="tarifaForm" class="cliente-form">
+        <h6 class="section-title">Datos Generales</h6>
+
+        <div class="row">
+          <!-- Derroteros (12) -->
+          <div class="col-12 col-sm-12 col-md-12 mt-3">
+            <label>Derroteros</label>
+            <dx-select-box class="tm-select w-100" formControlName="idDerrotero"
+              [dataSource]="listaDerroteros || ['Sin registros']" valueExpr="id" displayExpr="nombreDerrotero"
+              placeholder="Seleccione un derrotero" [searchEnabled]="true" [showClearButton]="true"
+              [noDataText]="'Sin registros'">
+            </dx-select-box>
+          </div>
+
+          <!-- Resto en 6 / 6 -->
+          <div class="col-12 col-sm-4 col-md-4 mt-3">
+            <label>Tipo Tarifa</label>
+            <dx-select-box class="tm-select w-100" formControlName="tipoTarifa" [dataSource]="listaTipoTarifa"
+              displayExpr="nombre" valueExpr="id" [searchEnabled]="true" [showClearButton]="true"
+              [noDataText]="'Sin registros'" placeholder="Selecciona un tipo de tarifa">
+            </dx-select-box>
+
+          </div>
+
+          <div class="col-12 col-sm-4 col-md-4 mt-3">
+            <label>Tarifa Base</label>
+            <input type="text" class="form-control" formControlName="tarifaBase" placeholder="100.00"
+              inputmode="decimal" (focus)="onTarifaFocus()" (blur)="onTarifaBlur()"
+              (keypress)="allowOnlyNumbers($event)" />
+          </div>
+
+          <div class="col-12 col-sm-4 col-md-4 mt-3">
+            <label>Distancia Base</label>
+            <input type="text" class="form-control" formControlName="distanciaBaseKm" placeholder="120.5"
+              (focus)="onDistanciaFocus()" (blur)="onDistanciaBlur()" (keypress)="allowOnlyNumbers($event)" />
+          </div>
+
+          <div class="col-12 col-sm-4 col-md-4 mt-3">
+            <label>Incremento de Distancia por Metro</label>
+            <input type="text" class="form-control" formControlName="incrementoCadaMetros" placeholder="10.25"
+              inputmode="decimal" (focus)="onIncrementoFocus()" (blur)="onIncrementoBlur()"
+              (keypress)="allowOnlyNumbers($event)" />
+          </div>
+
+          <div class="col-12 col-sm-4 col-md-4 mt-3">
+            <label>Costo por Incremento</label>
+            <input type="text" class="form-control" formControlName="costoAdicional" placeholder="50.00"
+              inputmode="decimal" (focus)="onCostoFocus()" (blur)="onCostoBlur()"
+              (keypress)="allowOnlyNumbers($event)" />
+          </div>
+        </div>
+
+        <div class="form-actions mt-4">
+          <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
+          <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>

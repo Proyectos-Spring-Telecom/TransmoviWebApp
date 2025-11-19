@@ -1,50 +1,56 @@
 <div [@fadeInUp] class="container-fluid">
-    <div class="card">
-        <div class="card-header-custom">
-            <div class="icon-wrapper">
-                <i class="fas fa-plus"></i>
-            </div>
-            <div class="header-text">
-                <h5>{{ title }}</h5>
-                <span>Completa la información para registrar un nuevo dispositivo.</span>
-                
-            </div>
+  <div class="card">
+    <div class="card-header-custom">
+      <div class="icon-wrapper">
+        <i class="fas fa-plus"></i>
+      </div>
+      <div class="header-text">
+        <h5>{{ title }}</h5>
+        <span>Completa la información para registrar un nuevo dispositivo.</span>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <form [formGroup]="dispositivoForm" class="cliente-form">
+        <h6 class="section-title">Datos Generales</h6>
+
+        <div class="row mt-3">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Número de Serie</label>
+            <input type="text" class="form-control" formControlName="numeroSerie" placeholder="41f170e5dafc640e" />
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Marca</label>
+            <input type="text" class="form-control" formControlName="marca" placeholder="Zebra" />
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Módelo</label>
+            <input type="text" class="form-control" formControlName="modelo" placeholder="ZQ520" />
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
+            <label>Cliente</label>
+            <dx-select-box
+              class="tm-select w-100"
+              formControlName="idCliente"
+              [dataSource]="listaClientes"
+              [displayExpr]="clienteDisplayExpr"
+              valueExpr="id"
+              placeholder="Seleccione un cliente"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [noDataText]="'Sin registros'">
+            </dx-select-box>
+          </div>
         </div>
 
-        <div class="card-body">
-            <form [formGroup]="dispositivoForm" class="cliente-form">
-                <h6 class="section-title">Datos Generales</h6>
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <label>Número de Serie</label>
-                        <input type="text" class="form-control" formControlName="numeroSerie"
-                            placeholder="Ej: 41f170e5dafc640e">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Marca</label>
-                        <input type="text" class="form-control" formControlName="marca"
-                            placeholder="Ej: Zebra">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Módelo</label>
-                        <input type="text" class="form-control" formControlName="modelo"
-                            placeholder="Ej: ZQ520">
-                    </div>
-                    <div class="col-md-4 mt-3">
-                        <label>Cliente</label>
-                        <select class="form-control" formControlName="idCliente" [disabled]="!isAdmin">
-                            <option [ngValue]="null" disabled>Seleccione un cliente</option>
-                            <option *ngFor="let cliente of listaClientes" [ngValue]="cliente.id">
-                                {{ cliente.nombre }} {{ cliente.apellidoPaterno }} {{ cliente.apellidoMaterno }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-actions mt-4">
-                    <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
-                    <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
-                </div>
-            </form>
+        <div class="form-actions mt-4">
+          <button type="submit" class="submit" (click)="submit()">{{ submitButton }}</button>
+          <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
         </div>
+      </form>
     </div>
+  </div>
 </div>

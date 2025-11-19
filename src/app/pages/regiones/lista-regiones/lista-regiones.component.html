@@ -45,13 +45,6 @@
                             <dxi-column *appHasPermission="['63', '64']" caption="Acciones" cellTemplate="Acciones" alignment="center"></dxi-column>
                             <dxi-column dataField="nombre" caption="Nombre Región" alignment="center"></dxi-column>
                             <dxi-column dataField="descripcion" caption="Descripción" alignment="center"></dxi-column>
-                            <dxi-column caption="Cliente" alignment="center" cellTemplate="nomCliente">
-                                <div *dxTemplate="let re of 'nomCliente'">
-                                    {{ re.data?.nombreCliente }}
-                                    {{ re.data?.apellidoPaternoCliente || '' }}
-                                    {{ re.data?.apellidoMaternoCliente || '' }}
-                                </div>
-                            </dxi-column>
                             <dxi-column dataField="fechaCreacion" caption="Fecha Creación" alignment="center"
                                 cellTemplate="fechCreaci">
                                 <div *dxTemplate="let a of 'fechCreaci'">
@@ -75,6 +68,13 @@
                                     </span>
                                 </div>
                             </dxi-column>
+                            <dxi-column caption="Cliente" alignment="center" cellTemplate="nomCliente">
+                                <div *dxTemplate="let re of 'nomCliente'">
+                                    {{ re.data?.nombreCliente }}
+                                    {{ re.data?.apellidoPaternoCliente || '' }}
+                                    {{ re.data?.apellidoMaternoCliente || '' }}
+                                </div>
+                            </dxi-column>
                             <dxo-export [enabled]="false" [allowExportSelectedData]="true"
                                 [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
                             </dxo-export>
@@ -95,6 +95,12 @@
                                         <i class="fa fa-arrow-down"></i>
                                     </button>
                                 </div>
+                                <div>
+                                    <button id="pinButtonBlue" class="btnAcciones"
+                                        (click)="openGeocercaModal(exlargeModalRegion, row.data)">
+                                        <i class="fa fa-map-pin"></i>
+                                    </button>
+                                </div>
                             </div>
                         </dx-data-grid>
                     </div>
@@ -107,3 +113,34 @@
 <dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
     [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
 </dx-load-panel>
+
+<div class="col-lg-6">
+  <ng-template #exlargeModalRegion let-modal>
+    <div class="modal-content p-0" style="background-color:#002b47;">
+      <div class="modal-body">
+        <div class="card mb-3 shadow-sm">
+          <div class="custom-card-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+              <div class="icon-circle">
+                <i class="fa fa-map-signs"></i>
+              </div>
+              <span class="ruta-titulo">Región: {{ selectedRegionNombre }}</span>
+            </div>
+            <div class="header-deco"></div>
+          </div>
+        </div>
+
+        <div *ngIf="showRegionMap" class="map-container" style="border-radius:10px; overflow:hidden;">
+          <div class="w-100" [style.height.px]="500" [id]="'map-region-' + selectedRegionId"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer border-top-0 d-flex align-items-center justify-content-center">
+        <button type="button" class="btn btn-md w-25 waves-effect waves-light"
+          style="background-color:#f46a6a; color:#fff; border-radius:5px;" (click)="modal.close()">
+          <i class="fa fa-times"></i>&nbsp;Cerrar
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</div>

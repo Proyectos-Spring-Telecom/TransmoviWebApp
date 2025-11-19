@@ -52,6 +52,8 @@ export class AltaModuloComponent implements OnInit {
           descripcion: response.data.descripcion,
           idModulo: response.data.idModulo,
         });
+      }, (error: any) => {
+        console.log(error.error)
       }
     );
   }

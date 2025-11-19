@@ -1,0 +1,32 @@
+<div [@fadeInUp] class="container-fluid">
+  <div class="card">
+    <div class="card-body">
+      <div class="u-banner">
+        <div class="u-banner__icon">
+          <div class="u-icon">
+            <i class="fas fa-location-arrow"></i>
+          </div>
+        </div>
+        <div class="u-banner__body">
+          <h2 class="u-banner__title">Gestión Vehícular</h2>
+          <p class="u-banner__subtitle">
+            Administra y consulta los mantenimientos de tus unidades:
+            servicios vehiculares, control de combustible y registros de kilometraje.
+          </p>
+        </div>
+      </div>
+      <div class="row mt-5">
+        <div class="col-lg-12">
+          <dx-tabs class="mtto-tabs" [items]="tabs" displayExpr="text" [selectedIndex]="selectedTabIndex"
+            (onItemClick)="onTabClick($event)">
+          </dx-tabs>
+          <div class="mt-2">
+            <app-mantenimiento-vehicular *ngIf="selectedTab === 'vehicular'" [@fadeInUp]> </app-mantenimiento-vehicular>
+            <app-mantenimiento-combustible *ngIf="selectedTab === 'combustible'" [@fadeInUp]> </app-mantenimiento-combustible>
+            <app-mantenimiento-kilometraje *ngIf="selectedTab === 'kilometraje'" [@fadeInUp]> </app-mantenimiento-kilometraje>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

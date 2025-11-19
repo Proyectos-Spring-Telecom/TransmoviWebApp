@@ -1,4 +1,427 @@
 .total-registros-label {
+  font-size: 16px; 
+  font-weight: bold; 
+  color: #f7fb06; 
+  padding: 8px 15px; 
+  border-radius: 5px; 
+  background-color: #515237; 
+  display: inline-block; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+.data {
+  min-width: 1000px;
+}
+.header-dispositivos {
+  text-align: center;
+  background-color: #00836d;
+  padding: 20px;
+}
+
+.header-dispositivos i {
+  font-size: 30px;
+  color: #09fa3a;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.titulo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.subtitulo {
+  font-size: 14px;
+  color: #fff;
+  margin-top: 5px;
+}
+
+::ng-deep .swal2-container .swal2-title {
+    font-size: 24px;
+    font-weight: 200;
+    color: #ffffff;
+}
+
+.swal2-container .swal2-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+::ng-deep div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+div:where(.swal2-container) .swal2-html-container {
+    z-index: 1;
+    justify-content: center;
+    margin: 1em 1.6em .3em;
+    padding: 0;
+    overflow: auto;
+    color: #c8c8c8;
+    font-size: 1.125em;
+    font-weight: normal;
+    line-height: normal;
+    text-align: center;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+
+
+::ng-deep .dx-searchbox .dx-texteditor-input {
+  --radii: 2.0em;
+  cursor: pointer;
+  min-height: 38px;
+  font-size: var(--size, 14px);
+  font-weight: 500;
+  transition: 0.8s;
+  background-size: 280% auto;
+  background-color: #0a66c2;
+  border: none;
+}
+
+::ng-deep .dx-searchbox .dx-texteditor-input:hover {
+  background-position: right top;
+}
+
+::ng-deep .dx-searchbox .dx-texteditor-input:is(:focus, :focus-visible, :active) {
+  outline: none;
+  box-shadow:
+      0 0 0 0px var(--btn-bg-color),
+      0 0 0 0px var(--btn-bg-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dx-searchbox .dx-texteditor-input {
+      transition: linear;
+  }
+}
+
+::ng-deep .dx-icon-clear:before {
+  color: white;
+}
+
+::ng-deep .dx-icon-search:before {
+  color: white !important;
+}
+
+::ng-deep .dx-searchbox .dx-placeholder::before,
+.dx-searchbox .dx-texteditor-input,
+.dx-searchbox.dx-editor-underlined .dx-texteditor-buttons-container+.dx-texteditor-input-container .dx-texteditor-input,
+.dx-searchbox.dx-editor-underlined .dx-texteditor-input {
+  padding-inline-start: 34px;
+  color: white;
+}
+
+.button-18 {
+  margin-top: 1%;
+  align-items: center;
+  background-color: #0A66C2;
+  border: 0;
+  border-radius: 100px;
+  box-sizing: border-box;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  justify-content: center;
+  line-height: 20px;
+  width: 20%;
+  height: 40%;
+  min-width: 0px;
+  overflow: hidden;
+  padding: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+  touch-action: manipulation;
+  transition: background-color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, box-shadow 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+}
+
+.button-18:hover,
+.button-18:focus { 
+  background-color: #16437E;
+  color: #ffffff;
+}
+
+.button-18:active {
+  background: #09223b;
+  color: rgb(255, 255, 255, .7);
+}
+
+.button-18:disabled { 
+  cursor: not-allowed;
+  background: rgba(0, 0, 0, .08);
+  color: rgba(0, 0, 0, .3);
+}
+
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  border: none;
+  background-color: #002136;
+}
+
+#map {
+  width: 100%;
+  height: 700px; // el que tú quieras
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+
+$u-bg: #0b2633;
+$u-card: #0f3a43;
+$u-card-2: #0f544f;
+$u-text: #eaf6f8;
+$u-muted: #a7c6cc;
+$u-accent: #4ade80;
+$u-primary: #3b82f6;
+$u-primary-2: #0a66c2;
+$u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+.ruta-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: center;
+
+  padding: 1.2rem 1.5rem;
+  border-radius: 14px;
+  color: $u-text;
+  background:
+    radial-gradient(1000px 200px at 0% 0%, rgba(255, 255, 255, .06), transparent 40%),
+    linear-gradient(135deg, $u-card, $u-card-2);
+  box-shadow: $u-shadow;
+  border: 1px solid rgba(255, 255, 255, .06);
+  transition: border-color .25s ease, transform .25s ease;
+
+  .fa {
+    font-size: 1.2rem;
+    color: #fff; // icono destacado en amarillo
+  }
+
+  .fw-bold {
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .btn-close-white {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.2);
+      color: #ffd166;
+    }
+  }
+}
+
+
+/* reduce el padding interno del InfoWindow */
+::ng-deep .gm-style .gm-style-iw-c {
+  padding: 6px 8px !important;
+  border-radius: 12px !important;
+}
+
+/* evita scroll y espacios raros */
+::ng-deep .gm-style .gm-style-iw-d {
+  overflow: visible !important;
+}
+
+/* opcional: afina la “colita” del globo para que no deje hueco */
+::ng-deep .gm-style .gm-style-iw-tc {
+  margin-top: -4px; /* ajusta si lo ves necesario */
+}
+
+
+.custom-card-header {
+  position: relative;
+  background: linear-gradient(135deg, #034a91, #0a66c2);
+  padding: 0.8rem 1.2rem;
+  border-radius: 12px 12px 0 0;
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+
+  .icon-circle {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.25);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.25);
+    }
+  }
+
+  .ruta-titulo {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  .header-deco {
+    position: absolute;
+    bottom: -4px;
+    left: 15px;
+    width: 50px;
+    height: 4px;
+    border-radius: 2px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  }
+}
+
+
+
+:host ::ng-deep .tm-range {
+
+  .dx-daterangebox,
+  .dx-texteditor,
+  .dx-texteditor-input-container,
+  .dx-texteditor-buttons-container {
+    min-height: 41px;
+  }
+
+  .dx-texteditor-input {
+    height: 41px;
+    line-height: 41px;
+    padding: 0 12px;
+  }
+
+  .dx-button .dx-button-content {
+    height: 41px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+
+:host ::ng-deep .tm-select {
+
+  .dx-selectbox,
+  .dx-texteditor,
+  .dx-texteditor-input-container,
+  .dx-texteditor-buttons-container {
+    min-height: 41px;
+  }
+
+  .dx-texteditor-input {
+    height: 41px;
+    line-height: 41px;
+    padding: 0 12px;
+  }
+
+  .dx-button .dx-button-content {
+    height: 41px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+:host ::ng-deep .tm-date {
+
+  .dx-datebox,
+  .dx-texteditor,
+  .dx-texteditor-input-container,
+  .dx-texteditor-buttons-container {
+    min-height: 41px;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .dx-texteditor-input {
+    height: 41px;
+    line-height: 41px;
+    padding: 0 12px;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent;
+  }
+
+  .dx-button .dx-button-content {
+    height: 41px;
+    display: flex;
+    align-items: center;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+.form-control {
+  border-radius: 4px;
+  padding: 10px 14px;
+  color: white;
+  background: #1e2832;
+  border-bottom: 1px solid #8996af;
+  transition: all 0.25s ease;
+
+  &:focus {
+    background: #1e2832;
+    border-color: #00836d;
+    box-shadow: 0 0 6px rgba(106, 17, 203, 0.3);
+  }
+}
+
+.form-select {
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: white;
+  background: #1e2832;
+  border: 1px solid #2f395a;
+  transition: all 0.25s ease;
+
+  &:focus {
+    background: #1e2832;
+    border-color: #00836d;
+    box-shadow: 0 0 6px rgba(106, 17, 203, 0.3);
+  }
+}
+
+::ng-deep .dx-texteditor.dx-editor-outlined {
+    background-color: #1e2832;
+    border-radius: 4px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #414b5f #414b5f #8996af;
+    height: 41px;
+}
+
+
+.total-registros-label {
   font-size: 16px;
   font-weight: bold;
   color: #f7fb06;
@@ -439,3 +862,51 @@ $u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
   height: auto;
   display: block;
 }
+/* === Ajuste de imagen en el visor === */
+.pdf-frame {
+  /* centra el contenido y evita “huecos” a la derecha */
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+  max-height: 70vh;
+}
+
+.pdf-image {
+  /* que use todo el ancho disponible sin deformarse */
+  width: 100%;
+  height: auto;
+  max-height: 65vh;      /* deja un margen para el padding/títulos */
+  object-fit: contain;   /* respeta proporciones y ajusta dentro del frame */
+  display: block;
+}
+
+
+:host ::ng-deep .modal-holder .modal-dialog {
+  max-width: 1100px;
+}
+
+:host ::ng-deep .modal-holder .modal-content {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+:host ::ng-deep .modal-holder .modal-header,
+:host ::ng-deep .modal-holder .modal-footer {
+  display: none;
+}
+
+:host ::ng-deep .modal-holder .modal-body {
+  padding: 0;
+}
+
+:host ::ng-deep .modal-backdrop.show {
+  background: #000;
+  opacity: .6;
+}
+
+/* SCSS */
+.vig-card { padding:6px 8px; border-radius:6px; margin-bottom:6px; color:#fff; }
+.vig-rojo { background:#4a1b1b; border-left:4px solid #e74c3c; }
+.vig-amarillo { background:#4a3e19; border-left:4px solid #f1c40f; }
+.vig-verde { background:#0b2a40; border-left:4px solid #2ecc71; }

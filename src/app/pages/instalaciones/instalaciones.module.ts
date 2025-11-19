@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { InstalacionesRoutingModule } from './instalaciones-routing.module';
 import { ListaInstalacionesComponent } from './lista-instalaciones/lista-instalaciones.component';
 import { AltaInstalacionComponent } from './alta-instalacion/alta-instalacion.component';
-import { DxDataGridModule, DxLoadPanelModule } from 'devextreme-angular';
+import { DxDataGridModule, DxLoadPanelModule, DxSelectBoxModule } from 'devextreme-angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 
@@ -21,7 +21,8 @@ import { SharedModule } from 'src/app/shared/shared.module';
     DxLoadPanelModule,
     ReactiveFormsModule,
     FormsModule,
-    SharedModule
+    SharedModule,
+    DxSelectBoxModule
   ]
 })
 export class InstalacionesModule { }

@@ -15,46 +15,42 @@
         <div class="row">
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2">
             <label>Nombre</label>
-            <input type="text" class="form-control" formControlName="nombre"
-              placeholder="Ej: Comercializadora Ejemplo" />
+            <input type="text" class="form-control" formControlName="nombre" placeholder="Comercializadora Ejemplo" />
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2">
             <label>Apellido Paterno</label>
-            <input type="text" class="form-control" formControlName="apellidoPaterno" placeholder="Ej: Rodríguez" />
+            <input type="text" class="form-control" formControlName="apellidoPaterno" placeholder="Rodríguez" />
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2">
             <label>Apellido Materno</label>
-            <input type="text" class="form-control" formControlName="apellidoMaterno" placeholder="Ej: Santos" />
+            <input type="text" class="form-control" formControlName="apellidoMaterno" placeholder="Santos" />
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2">
             <label>Teléfono</label>
             <input maxlength="10" (keypress)="allowOnlyNumbers($event)" class="form-control" formControlName="telefono"
-              placeholder="Ej: 5555555555" />
+              placeholder="5555555555" />
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2" *ngIf="inputContrasena">
             <label>Correo</label>
-            <input type="email" class="form-control" formControlName="userName"
-              placeholder="Ej: contacto@ejemplo.com" />
+            <input type="email" class="form-control" formControlName="userName" placeholder="contacto@ejemplo.com" />
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2">
             <label>Rol</label>
-            <select class="form-control" formControlName="idRol">
-              <option [ngValue]="null" disabled>Seleccione un rol</option>
-              <option *ngFor="let r of listaRoles" [value]="r.id">
-                {{ r.nombre || r.Nombre || ('Rol ' + (r.id || r.Id)) }}
-              </option>
-            </select>
+            <dx-select-box class="tm-select w-100" formControlName="idRol" [dataSource]="listaRoles"
+              [displayExpr]="roleDisplayExpr" [valueExpr]="roleValueExpr" placeholder="Seleccione un rol"
+              [searchEnabled]="true" [showClearButton]="true" [noDataText]="'Sin registros'">
+            </dx-select-box>
           </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2">
+
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-2">
             <label>Cliente</label>
-            <select class="form-control" formControlName="idCliente">
-              <option [ngValue]="null">Seleccione un cliente</option>
-              <option *ngFor="let c of listaClientes" [ngValue]="c.id">
-                {{ (c.nombre || '') + ' ' + (c.apellidoPaterno || '') }}
-              </option>
-            </select>
+            <dx-select-box class="tm-select w-100" formControlName="idCliente" [dataSource]="listaClientes"
+              [displayExpr]="clienteDisplayExpr" valueExpr="id" placeholder="Seleccione un cliente"
+              [searchEnabled]="true" [showClearButton]="true" [noDataText]="'Sin registros'">
+            </dx-select-box>
           </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2" *ngIf="inputContrasena">
+
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-2" *ngIf="inputContrasena">
             <label id="pws1">Contraseña</label>
             <div class="password-wrapper">
               <input (keyup)="onPasswordInput($event)" [type]="type" autocomplete="new-password" class="form-control"
@@ -89,7 +85,7 @@
               </p>
             </div>
           </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2" *ngIf="inputContrasena">
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-2" *ngIf="inputContrasena">
             <label id="pws2">Confirmar Contraseña</label>
             <div class="password-wrapper">
               <input [type]="typeConfirm" class="form-control" placeholder="******" formControlName="confirmPassword"
@@ -104,9 +100,9 @@
             <span *ngIf="usuarioForm.hasError('passwordMismatch') && usuarioForm.get('confirmPassword')?.touched"
               class="text-danger">Las contraseñas no coinciden</span>
           </div>
-          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-2">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-2">
             <div class="tc-upload">
-              <label>Logotipo</label>
+              <label>Imagen Perfil</label>
               <div class="tc-preview" *ngIf="logoPreviewUrl; else logoTile">
                 <img [src]="logoPreviewUrl" alt="Logotipo" />
                 <div class="tc-actions">
@@ -139,17 +135,27 @@
           <div class="mp-grid">
             <div class="mp-card" *ngFor="let modulo of listaModulos; trackBy: trackModulo">
               <div class="mp-ch">
-                <div class="mp-ct">
-                  <div class="mp-av">{{ (modulo?.nombre || 'M') | slice: 0:1 }}</div>
-                  <div class="mp-ctxt">
-                    <h5 class="text-truncate" [title]="modulo?.nombre">{{ modulo?.nombre }}</h5>
-                    <small class="text-muted text-truncate" [title]="modulo?.descripcion || ''">
-                      {{ modulo?.descripcion || 'Sin descripción' }}
-                    </small>
-                  </div>
-                </div>
-                <div class="mp-badge">{{ modulo?.permisos?.length || 0 }}</div>
-              </div>
+    <div class="mp-ct">
+      <div class="mp-av">{{ (modulo?.nombre || 'M') | slice: 0:1 }}</div>
+      <div class="mp-ctxt">
+        <h5 class="text-truncate" [title]="modulo?.nombre">{{ modulo?.nombre }}</h5>
+        <small class="text-muted text-truncate" [title]="modulo?.descripcion || ''">
+          {{ modulo?.descripcion || 'Sin descripción' }}
+        </small>
+      </div>
+    </div>
+    <div class="perm-switch">
+      <label class="sw">
+        <input
+  type="checkbox"
+  [checked]="isModuloCompleto(modulo)"
+  (change)="onToggleModulo(modulo, $any($event.target).checked)"
+/>
+
+        <span class="sl"></span>
+      </label>
+    </div>
+  </div>
               <div class="mp-cb" *ngIf="modulo?.permisos?.length; else noPerms">
                 <div class="perm-list">
                   <div class="perm-row" *ngFor="let permiso of modulo.permisos; trackBy: trackPermiso">
@@ -160,8 +166,9 @@
                     </div>
                     <div class="perm-switch">
                       <label class="sw">
-                        <input type="checkbox" [checked]="isPermisoAsignado(permiso?.id)"
+                        <input type="checkbox" [checked]="isPermisoAsignado(permiso?.idPermiso ?? permiso?.id)"
                           (change)="onToggle(permiso, $any($event.target).checked)" />
+
                         <span class="sl"></span>
                       </label>
                     </div>

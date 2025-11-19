@@ -44,6 +44,8 @@ const routes: Routes = [
   { path: 'turnos', loadChildren: () => import('./turnos/turnos.module').then(m => m.TurnosModule)},
   { path: 'vista-pasajero', loadChildren: () => import('./vista-pasajero/vista-pasajero.module').then(m => m.VistaPasajeroModule)},
   { path: 'reportes', loadChildren: () => import('./reportes/reportes.module').then(m => m.ReportesModule)},
+  { path: 'talleres', loadChildren: () => import('./talleres/talleres.module').then(m => m.TalleresModule)},
+  { path: 'mantenimientos', loadChildren: () => import('./mantenimiento/mantenimiento.module').then(m => m.MantenimientoModule)},
 ];
 
 @NgModule({

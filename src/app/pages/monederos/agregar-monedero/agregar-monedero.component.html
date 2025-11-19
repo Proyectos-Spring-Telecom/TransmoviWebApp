@@ -13,37 +13,65 @@
         <div class="card-body">
             <form [formGroup]="monederoForm" class="cliente-form">
                 <h6 class="section-title">Datos Generales</h6>
+
                 <div class="row">
-                    <div class="col-md-3 mt-3">
+                    <div class="col-12 col-sm-6 col-md-4 mt-3">
                         <label>Número de Serie</label>
                         <input type="text" class="form-control" formControlName="numeroSerie"
-                            placeholder="Ej: 41f170e5dafc640e">
+                            placeholder="41f170e5dafc640e">
                     </div>
-                    <div class="col-md-3 mt-3" *ngIf="showDatosID">
+
+                    <div class="col-12 col-sm-6 col-md-4 mt-3" *ngIf="showDatosID">
                         <label>Saldo</label>
-                        <input type="text" class="form-control" formControlName="saldo" placeholder="Ej 100.00"
-                            inputmode="decimal" (keydown)="moneyKeydown($event)" (input)="moneyInput($event)"
-                            (paste)="moneyPaste($event)" (blur)="moneyBlur($event)" />
+                        <input type="text" class="form-control" formControlName="saldo" placeholder="100.00"
+                            inputmode="decimal" (focus)="onComisionFocus()" (blur)="onComisionBlur()" />
                     </div>
-                    <div class="col-md-3 mt-3">
-                        <label>Pasajero</label>
-                        <select class="form-control" formControlName="idPasajero">
-                            <option [ngValue]="null" disabled>Seleccione un pasajero</option>
-                            <option *ngFor="let pasajeros of listaPasajeros" [ngValue]="pasajeros.id">
-                                {{ pasajeros.nombre }} {{ pasajeros.apellidoPaterno }} {{ pasajeros.apellidoMaterno }}
-                            </option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 mt-3">
-                        <label>Cliente</label>
-                        <select class="form-control" formControlName="idCliente">
-                            <option [ngValue]="null" disabled>Seleccione un cliente</option>
-                            <option *ngFor="let cliente of listaClientes" [ngValue]="cliente.id">
-                                {{ cliente.nombre }} {{ cliente.apellidoPaterno }} {{ cliente.apellidoMaterno }}
-                            </option>
-                        </select>
-                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-4 mt-3">
+  <label>Cliente</label>
+  <dx-select-box
+    class="tm-select w-100"
+    formControlName="idCliente"
+    [items]="listaClientes || []"
+    [valueExpr]="'id'"
+    [displayExpr]="displayCliente"
+    [searchEnabled]="true"
+    [showClearButton]="true"
+    [noDataText]="'Sin registros'"
+    placeholder="Seleccione un cliente"
+    (onValueChanged)="onClienteChange($event)"
+  >
+    <div *dxTemplate="let c of 'item'">
+      {{ displayCliente(c) }}
+    </div>
+    <div *dxTemplate="let c of 'field'">
+      {{ displayCliente(c) }}
+    </div>
+  </dx-select-box>
+</div>
+
+<div class="col-12 col-sm-6 col-md-4 mt-3">
+  <label>Tipo de Pasajero</label>
+  <dx-select-box
+    class="tm-select w-100"
+    formControlName="idTipoPasajero"
+    [items]="listaPasajeros || []"
+    [valueExpr]="'id'"
+    [displayExpr]="displayTipoPasajero"
+    [searchEnabled]="true"
+    [showClearButton]="true"
+    [noDataText]="'Sin registros'"
+    placeholder="Seleccione un tipo"
+  >
+    <div *dxTemplate="let t of 'item'">{{ displayTipoPasajero(t) }}</div>
+    <div *dxTemplate="let t of 'field'">{{ displayTipoPasajero(t) }}</div>
+  </dx-select-box>
+</div>
+
+
+
                 </div>
+
                 <div class="form-actions mt-4">
                     <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
                     <button type="button" class="cancel" (click)="regresar()">Cancelar</button>

@@ -26,6 +26,9 @@ export class AltaUsuarioComponent implements OnInit {
   public listaRoles: any;
   public listaClientes: any;
 
+  clienteDisplayExpr = (c: any) =>
+    c ? `${c.nombre || ''} ${c.apellidoPaterno || ''}`.trim() : '';
+
   type = 'password';
   minCaracteres = false;
   maxCaracteres = false;
@@ -45,7 +48,7 @@ export class AltaUsuarioComponent implements OnInit {
     private permService: PermisosService,
     private rolService: RolesService,
     private clienService: ClientesService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.obtenerClientes();
@@ -117,9 +120,25 @@ export class AltaUsuarioComponent implements OnInit {
     });
   }
 
+  roleValueExpr = 'id';
+  roleDisplayExpr = (r: any) =>
+    r ? r.rolNombre ?? r.nombre ?? r.name ?? '' : '';
+
   obtenerRoles() {
     this.rolService.obtenerRoles().subscribe((response) => {
-      this.listaRoles = (response as any)?.data ?? response;
+      const raw = (response as any)?.data ?? response ?? [];
+      this.listaRoles = (raw as any[]).map((r) => ({
+        // id numérico, sin ambigüedad
+        id: Number(r?.id ?? r?.Id ?? r?.idRol ?? r?.IDROL),
+        // nombre visible robusto
+        nombre: r?.rolNombre ?? r?.nombre ?? r?.name ?? '',
+      }));
+
+      // si ya teníamos un idRol del usuario antes de que llegaran los roles, re-aplícalo
+      if (this._pendingIdRol != null) {
+        this.usuarioForm.patchValue({ idRol: this._pendingIdRol });
+        this._pendingIdRol = null;
+      }
     });
   }
 
@@ -153,65 +172,66 @@ export class AltaUsuarioComponent implements OnInit {
     this.usuarioForm.patchValue({ permisosIds: this.permisosIds });
   }
 
+  private _pendingIdRol: number | null = null;
+
   obtenerUsuarioID() {
-    this.usuaService.obtenerUsuario(this.idUsuario).subscribe((response: any) => {
-      console.log('[USUARIO][RAW]', response);
+  this.usuaService.obtenerUsuario(this.idUsuario).subscribe((response: any) => {
+    const data = response?.data ?? {};
+    const usuarios = Array.isArray(data?.usuario)
+      ? data.usuario
+      : Array.isArray(data?.usuarios)
+      ? data.usuarios
+      : data?.usuario
+      ? [data.usuario]
+      : [];
+    const u = usuarios[0] ?? {};
 
-      const data = response?.data ?? {};
+    const idRolNum = u?.idRol != null ? Number(u.idRol) : null;
 
-      const usuarios = Array.isArray(data?.usuario)
-        ? data.usuario
-        : Array.isArray(data?.usuarios)
-          ? data.usuarios
-          : data?.usuario
-            ? [data.usuario]
-            : [];
+    const permisosRaw = Array.isArray(data?.permiso) ? data.permiso : [];
+    this.permisosIds = permisosRaw
+      .map((x: any) => Number(x?.idPermiso))
+      .filter((n: any) => Number.isFinite(n));
 
-      const u = usuarios[0] ?? {};
-
-      const perms = Array.isArray(data?.permiso)
-        ? data.permiso
-        : Array.isArray(data?.permisos)
-          ? data.permisos
-          : [];
-
-      this.permisosIds = Array.from(
-        new Set(
-          (perms || [])
-            .filter((p: any) => Number(p?.estatus) === 1)
-            .map((p: any) => this.getPermisoId(p))
-            .filter((n: any): n is number => Number.isFinite(n))
-        )
-      );
-
-      this.usuarioForm.patchValue({ permisosIds: this.permisosIds });
-      this.applyAssignedPermsToModules?.();
-
-      this.usuarioForm.patchValue({
-        userName: u?.userName ?? '',
-        telefono: u?.telefono ?? '',
-        nombre: u?.nombre ?? '',
-        apellidoPaterno: u?.apellidoPaterno ?? '',
-        apellidoMaterno: u?.apellidoMaterno ?? '',
-        fotoPerfil: u?.fotoPerfil ?? this.usuarioForm.get('fotoPerfil')?.value,
-        estatus: Number(u?.estatus ?? 1),
-        idRol: u?.idRol != null ? Number(u.idRol) : null,
-        idCliente: u?.idCliente != null ? Number(u.idCliente) : null,
-        permisosIds: this.permisosIds,
-      });
-
+    this.usuarioForm.patchValue({
+      userName: u?.userName ?? '',
+      telefono: u?.telefono ?? '',
+      nombre: u?.nombre ?? '',
+      apellidoPaterno: u?.apellidoPaterno ?? '',
+      apellidoMaterno: u?.apellidoMaterno ?? '',
+      fotoPerfil: u?.fotoPerfil ?? this.usuarioForm.get('fotoPerfil')?.value,
+      estatus: Number(u?.estatus ?? 1),
+      idRol: idRolNum,
+      idCliente: u?.idCliente != null ? Number(u.idCliente) : null,
+      permisosIds: this.permisosIds,
     });
+
+    if (!this.listaRoles || this.listaRoles.length === 0) {
+      this._pendingIdRol = idRolNum;
+    }
+
+    this.applyAssignedPermsToModules();
+  });
+}
+
+isModuloCompleto(modulo: any): boolean {
+  const perms = modulo?.permisos || [];
+  if (!perms.length) return false;
+  return perms.every((p: any) => this.isPermisoAsignado(p?.id));
+}
+
+onToggleModulo(modulo: any, checked: boolean) {
+  const perms = modulo?.permisos || [];
+  for (const p of perms) {
+    this.onToggle(p, checked);
   }
+}
 
 
-  isPermisoAsignado(id: any): boolean {
-    const nid = this.getPermisoId({ idPermiso: id, id });
-    return (
-      nid !== null &&
-      Array.isArray(this.permisosIds) &&
-      this.permisosIds.includes(nid)
-    );
-  }
+isPermisoAsignado(id: any): boolean {
+  const nid = Number(id);
+  return Array.isArray(this.permisosIds) && this.permisosIds.includes(nid);
+}
 
   private applyAssignedPermsToModules(): void {
     if (!Array.isArray(this.listaModulos)) return;
@@ -263,7 +283,8 @@ export class AltaUsuarioComponent implements OnInit {
   logoDragging = false;
   private logoFile: File | null = null;
 
-  private readonly DEFAULT_AVATAR_URL = 'https://transmovi.s3.us-east-2.amazonaws.com/imagenes/user_default.png';
+  private readonly DEFAULT_AVATAR_URL =
+    'https://transmovi.s3.us-east-2.amazonaws.com/imagenes/user_default.png';
   private readonly MAX_MB = 3;
   private readonly S3_FOLDER = 'usuarios';
   private readonly S3_ID_MODULE = 2;
@@ -441,7 +462,8 @@ export class AltaUsuarioComponent implements OnInit {
       return;
     }
 
-    const { confirmPassword, idCliente, idRol, permisosIds, ...rest } = this.usuarioForm.value;
+    const { confirmPassword, idCliente, idRol, permisosIds, ...rest } =
+      this.usuarioForm.value;
 
     const toNumOrNull = (v: any) =>
       v === null || v === undefined || v === '' ? null : Number(v);
@@ -455,7 +477,7 @@ export class AltaUsuarioComponent implements OnInit {
 
     const fotoValue = this.usuarioForm.get('fotoPerfil')?.value;
     payload.fotoPerfil =
-      (typeof fotoValue === 'string' && fotoValue.trim())
+      typeof fotoValue === 'string' && fotoValue.trim()
         ? fotoValue
         : 'https://transmovi.s3.us-east-2.amazonaws.com/imagenes/user_default.png';
 
@@ -480,13 +502,13 @@ export class AltaUsuarioComponent implements OnInit {
         });
         this.regresar();
       },
-      error: () => {
+      error: (error: any) => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: `Ocurrió un error al agregar el usuario.`,
+          text: error.error,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -494,7 +516,6 @@ export class AltaUsuarioComponent implements OnInit {
       },
     });
   }
-
 
   actualizar() {
     if (this.loading) return;

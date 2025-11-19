@@ -40,16 +40,6 @@
               <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
               <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
               <dxi-column *appHasPermission="['67']" caption="Acciones" cellTemplate="acciones" [width]="160" alignment="center"></dxi-column>
-              <dxi-column dataField="estatusRuta" caption="Estatus" alignment="center" dataType="string" cellTemplate="est">
-                  <div *dxTemplate="let f of 'est'">
-                      <span *ngIf="f.data.estatusRuta === 1" class="estatus estatus-activo">
-                          Activo
-                      </span>
-                      <span *ngIf="f.data.estatusRuta !== 1" class="estatus estatus-inactivo">
-                          Inactiva
-                      </span>
-                  </div>
-              </dxi-column>
               <dxi-column dataField="nombre" caption="Nombre" alignment="center" [width]="250"></dxi-column>
               <dxi-column dataField="nombreInicio" caption="Punto Inicio" [width]="300" alignment="center" cellTemplate="cell">
                 <div *dxTemplate="let data of 'cell'">
@@ -78,6 +68,23 @@
               </dxi-column>
               <dxi-column dataField="nombreRegion" caption="Nombre Región" [width]="200" alignment="center"></dxi-column>
               <dxi-column dataField="descripcionRegion" caption="Descripción" alignment="center"></dxi-column>
+              <dxi-column dataField="estatusRuta" caption="Estatus" alignment="center" dataType="string" cellTemplate="est">
+                  <div *dxTemplate="let f of 'est'">
+                      <span *ngIf="f.data.estatusRuta === 1" class="estatus estatus-activo">
+                          Activo
+                      </span>
+                      <span *ngIf="f.data.estatusRuta !== 1" class="estatus estatus-inactivo">
+                          Inactiva
+                      </span>
+                  </div>
+              </dxi-column>
+              <dxi-column caption="Cliente" alignment="center" cellTemplate="nomCliente">
+                                <div *dxTemplate="let re of 'nomCliente'">
+                                    {{ re.data?.nombreCliente }}
+                                    {{ re.data?.apellidoPaternoCliente || '' }}
+                                    {{ re.data?.apellidoMaternoCliente || '' }}
+                                </div>
+                            </dxi-column>
               <dxo-export [enabled]="false" [allowExportSelectedData]="true"
                 [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
               </dxo-export>

@@ -24,7 +24,9 @@ export class AltaClientesComponent implements OnInit {
   public listaClientes: any[] = [];
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
-  public showRol: any;
+  clienteDisplayExpr = (c: any) => c ? `${c.nombre || ''} ${c.apellidoPaterno || ''} ${c.apellidoMaterno || ''}`.trim() : '';
+  tipoPersonaItems = [{ id: 1, text: 'Física' }, { id: 2, text: 'Moral' }];
+  // public showRol: any;
 
   constructor(
     private fb: FormBuilder,
@@ -35,12 +37,12 @@ export class AltaClientesComponent implements OnInit {
     private usuaService: UsuariosService,
     private users: AuthenticationService,
   ) {
-    const user = this.users.getUser();
-    if(user.rol.nombre == 'SA' ){
-      this.showRol = true;
-    } else {
-      this.showRol = false;
-    }
+    // const user = this.users.getUser();
+    // if(user.rol.nombre == 'SA' ){
+    //   this.showRol = true;
+    // } else {
+    //   this.showRol = false;
+    // }
   }
 
   ngOnInit(): void {
@@ -96,7 +98,7 @@ export class AltaClientesComponent implements OnInit {
         actaConstitutiva: d.actaConstitutiva ?? null,
       });
       this.originalDocs = {
-        logotipo: d.logotipo ?? '',
+        logotipo: (d.logotipo && String(d.logotipo).trim()) ? d.logotipo : this.DEFAULT_LOGO_URL,
         constanciaSituacionFiscal: d.constanciaSituacionFiscal ?? '',
         comprobanteDomicilio: d.comprobanteDomicilio ?? '',
         actaConstitutiva: d.actaConstitutiva ?? '',
@@ -177,7 +179,7 @@ export class AltaClientesComponent implements OnInit {
       rfc: ['', Validators.required],
       tipoPersona: [null, Validators.required],
       estatus: [1, Validators.required],
-      logotipo: [null, Validators.required],
+      logotipo: [this.DEFAULT_LOGO_URL],
       constanciaSituacionFiscal: [null, Validators.required],
       comprobanteDomicilio: [null, Validators.required],
       actaConstitutiva: [null, Validators.required],
@@ -192,7 +194,7 @@ export class AltaClientesComponent implements OnInit {
       calle: ['', Validators.required],
       entreCalles: [null],
       numeroExterior: ['', Validators.required],
-      numeroInterior: [''],
+      numeroInterior: [null],
       cp: ['', Validators.required],
       nombreEncargado: ['', Validators.required],
       telefonoEncargado: ['', Validators.required],
@@ -217,26 +219,15 @@ export class AltaClientesComponent implements OnInit {
 
     const tipo = Number(this.clienteForm.get('tipoPersona')?.value ?? null);
     if (tipo === 1) {
-      this.clienteForm
-        .get('apellidoPaterno')
-        ?.setValidators([Validators.required]);
-      this.clienteForm
-        .get('apellidoMaterno')
-        ?.setValidators([Validators.required]);
+      this.clienteForm.get('apellidoPaterno')?.setValidators([Validators.required]);
+      this.clienteForm.get('apellidoMaterno')?.setValidators([Validators.required]);
     } else if (tipo === 2) {
       this.clienteForm.get('apellidoPaterno')?.clearValidators();
       this.clienteForm.get('apellidoMaterno')?.clearValidators();
-      this.clienteForm.patchValue({
-        apellidoPaterno: null,
-        apellidoMaterno: null,
-      });
+      this.clienteForm.patchValue({ apellidoPaterno: null, apellidoMaterno: null });
     }
-    this.clienteForm
-      .get('apellidoPaterno')
-      ?.updateValueAndValidity({ emitEvent: false });
-    this.clienteForm
-      .get('apellidoMaterno')
-      ?.updateValueAndValidity({ emitEvent: false });
+    this.clienteForm.get('apellidoPaterno')?.updateValueAndValidity({ emitEvent: false });
+    this.clienteForm.get('apellidoMaterno')?.updateValueAndValidity({ emitEvent: false });
 
     if (this.clienteForm.invalid) {
       this.submitButton = 'Guardar';
@@ -246,7 +237,6 @@ export class AltaClientesComponent implements OnInit {
         rfc: 'RFC',
         tipoPersona: 'Tipo de Persona',
         estatus: 'Estatus',
-        logotipo: 'Logotipo',
         constanciaSituacionFiscal: 'Constancia de Situación Fiscal',
         comprobanteDomicilio: 'Comprobante de Domicilio',
         actaConstitutiva: 'Acta Constitutiva',
@@ -301,11 +291,16 @@ export class AltaClientesComponent implements OnInit {
       });
       return;
     }
+
     if (this.clienteForm.contains('id')) this.clienteForm.removeControl('id');
     const v = this.clienteForm.value;
     const payload = {
       ...v,
       tipoPersona: v.tipoPersona != null ? Number(v.tipoPersona) : null,
+      logotipo:
+        typeof v.logotipo === 'string' && v.logotipo.trim()
+          ? v.logotipo.trim()
+          : this.DEFAULT_LOGO_URL,
     };
 
     this.clieService.agregarCliente(payload).subscribe(
@@ -322,13 +317,13 @@ export class AltaClientesComponent implements OnInit {
         });
         this.regresar();
       },
-      () => {
+      (error: any) => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: 'Ocurrió un error al agregar el cliente.',
+          text: error.error,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -336,6 +331,7 @@ export class AltaClientesComponent implements OnInit {
       }
     );
   }
+
 
   actualizar() {
     this.submitButton = 'Cargando...';
@@ -361,7 +357,6 @@ export class AltaClientesComponent implements OnInit {
         rfc: 'RFC',
         tipoPersona: 'Tipo de Persona',
         estatus: 'Estatus',
-        logotipo: 'Logotipo',
         constanciaSituacionFiscal: 'Constancia de Situación Fiscal',
         comprobanteDomicilio: 'Comprobante de Domicilio',
         actaConstitutiva: 'Acta Constitutiva',
@@ -432,7 +427,7 @@ export class AltaClientesComponent implements OnInit {
           const payload = {
             ...v,
             tipoPersona: v.tipoPersona != null ? Number(v.tipoPersona) : null,
-            logotipo: u.logotipo,
+            logotipo: (u.logotipo && String(u.logotipo).trim()) ? u.logotipo : this.DEFAULT_LOGO_URL,
             constanciaSituacionFiscal: u.constanciaSituacionFiscal,
             comprobanteDomicilio: u.comprobanteDomicilio,
             actaConstitutiva: u.actaConstitutiva,
@@ -496,6 +491,11 @@ export class AltaClientesComponent implements OnInit {
     return v instanceof File;
   }
 
+  private readonly MAX_LOGO_MB = 5; 
+
+  private readonly DEFAULT_LOGO_URL =
+    'https://transmovi.s3.us-east-2.amazonaws.com/logos/Logo_TransMovi_2x1-removebg-preview.png';
+
   @ViewChild('logoFileInput') logoFileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('csfFileInput') csfFileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('compDomFileInput') compDomFileInput!: ElementRef<HTMLInputElement>;
@@ -541,9 +541,10 @@ export class AltaClientesComponent implements OnInit {
 
   private isAllowedLogo(file: File): boolean {
     const okType = this.isImage(file) || this.isPdf(file) || this.isOffice(file);
-    const okSize = file.size <= this.MAX_MB * 1024 * 1024;
+    const okSize = file.size <= this.MAX_LOGO_MB * 1024 * 1024;
     return okType && okSize;
   }
+
   private isAllowedDoc(file: File): boolean {
     const okType = this.isPdf(file);
     const okSize = file.size <= this.MAX_MB * 1024 * 1024;
@@ -587,19 +588,34 @@ export class AltaClientesComponent implements OnInit {
     e.stopPropagation();
     this.logoPreviewUrl = null;
     this.logoFileInput.nativeElement.value = '';
-    this.clienteForm.patchValue({ logotipo: this.DEFAULT_AVATAR_URL });
+    this.clienteForm.patchValue({ logotipo: this.DEFAULT_LOGO_URL });
     this.clienteForm.get('logotipo')?.setErrors(null);
   }
+
   private handleLogoFile(file: File) {
     if (!this.isAllowedLogo(file)) {
-      this.clienteForm.get('logotipo')?.setErrors({ invalid: true });
+      const tooLarge = file.size > this.MAX_LOGO_MB * 1024 * 1024;
+      if (tooLarge) {
+        this.clienteForm.get('logotipo')?.setErrors({ maxSize: true });
+        Swal.fire({
+          title: 'Archivo demasiado grande',
+          text: `El logotipo no debe exceder ${this.MAX_LOGO_MB} MB.`,
+          icon: 'warning',
+          confirmButtonText: 'Entendido',
+          background: '#002136',
+        });
+      } else {
+        this.clienteForm.get('logotipo')?.setErrors({ invalid: true });
+      }
       return;
     }
+
     this.loadPreview(file, (url) => (this.logoPreviewUrl = url));
     this.clienteForm.patchValue({ logotipo: file });
     this.clienteForm.get('logotipo')?.setErrors(null);
     this.uploadLogo(file);
   }
+
   private uploadingLogo = false;
   private uploadLogo(file: File): void {
     if (this.uploadingLogo) return;
@@ -859,7 +875,7 @@ export class AltaClientesComponent implements OnInit {
     fd.append('idModule', '1');
     return fd;
   }
-  
+
   private resolveUrlForField(field: keyof typeof this.originalDocs, value: any) {
     if (this.isFileLike(value)) {
       return this.usuaService.uploadFile(this.buildFD(value)).pipe(

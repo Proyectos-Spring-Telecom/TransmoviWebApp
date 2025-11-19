@@ -17,8 +17,18 @@ export class ErrorInterceptor implements HttpInterceptor {
                 location.reload();
             }
 
-            const error = err.error.message || err.statusText;
-            return throwError(error);
-        }));
+            const backendMessage =
+                err.error?.message 
+                err.error?.error 
+                err.message 
+                err.statusText 
+                'Error desconocido';
+
+            return throwError(() => ({
+                status: err.status,
+                message: backendMessage,
+                error: err.error,
+            }));
+        }))
     }
 }

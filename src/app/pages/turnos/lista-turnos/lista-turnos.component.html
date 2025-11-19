@@ -12,12 +12,12 @@
                     <p class="u-banner__subtitle">
                         Consulta, busca y navega entre tus turnos registrados
                     </p>
-                    <div *appHasPermission="'54'">
+                    <!-- <div *appHasPermission="'54'">
                         <button class="u-btn u-btn--primary" (click)="agregarTurno()">
                             <i class="fas fa-plus"></i>
                             <span>Agregar Turno</span>
                         </button>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div class="row mt-4">
@@ -42,7 +42,7 @@
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column *appHasPermission="['55', '56']" caption="Acciones" cellTemplate="Acciones" alignment="center"></dxi-column>
+                            <!-- <dxi-column *appHasPermission="['55', '56']" caption="Acciones" cellTemplate="Acciones" alignment="center"></dxi-column> -->
                             <dxi-column dataField="inicio" caption="Inicio del Turno" cellTemplate="fechaInicioData" alignment="center">
                                 <div *dxTemplate="let rf of 'fechaInicioData'">
                                     {{ rf.data.inicio | date:'dd/MM/yyyy HH:mm' : '+0000' }}

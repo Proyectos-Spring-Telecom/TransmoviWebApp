@@ -1,0 +1,48 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-header-custom">
+            <div class="icon-wrapper">
+                <i class="fas fa-plus"></i>
+            </div>
+            <div class="header-text">
+                <h5>{{ title }}</h5>
+                <span>Completa la información para generar el registro del taller.</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <form [formGroup]="tallerForm" class="cliente-form" (ngSubmit)="submit()">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6 class="section-title mt-3">Datos Generales</h6>
+                        <div class="mt-4">
+                            <label for="idCliente" class="form-label">Cliente</label>
+                            <dx-select-box id="idCliente" class="tm-select w-100" formControlName="idCliente"
+                                [dataSource]="listaClientes" [displayExpr]="displayCliente" valueExpr="id"
+                                [searchEnabled]="true" [showClearButton]="true" [noDataText]="'Sin registros'"
+                                placeholder="Seleccione un cliente">
+                            </dx-select-box>
+                        </div>
+                        <div class="mt-4">
+                            <label for="nombreTaller">Nombre</label>
+                            <input id="nombreTaller" type="text" class="form-control" formControlName="nombre"
+                                placeholder="Taller GMC" autocomplete="off" />
+                        </div>
+                        <div class="mt-4">
+                            <label for="descripcionTaller">Descripción</label>
+                            <input id="descripcionTaller" type="text" class="form-control" formControlName="descripcion"
+                                placeholder="Lugar de mantenimiento" autocomplete="off" />
+                        </div>
+                        <div class="form-actions mt-5">
+                            <button type="submit" class="submit" style="width: 150px;">{{ submitButton }}</button>
+                            <button type="button" class="cancel" (click)="regresar()" style="width: 150px;">Cancelar</button>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h6 class="section-title mt-3">Seleccione la ubicación del taller</h6>
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

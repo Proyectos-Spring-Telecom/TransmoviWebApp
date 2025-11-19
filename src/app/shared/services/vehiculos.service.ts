@@ -47,7 +47,7 @@ export class VehiculosService {
   }
 
 
-  agregarVehiculo(data: FormData) {
+  agregarVehiculo(data: any) {
     return this.http.post(environment.API_SECURITY + '/vehiculos', data);
   }
 
@@ -70,5 +70,9 @@ export class VehiculosService {
     return this.http.patch(url, body, { responseType: 'text' }).pipe(
       catchError(error => throwError(() => error))
     );
+  }
+
+  obtenerCombustibles(): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/cat-tipo-combustible/list`);
   }
 }

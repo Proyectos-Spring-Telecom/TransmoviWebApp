@@ -26,6 +26,7 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
   public listaMonederos: any;
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
+  getSerie = (d: any) => (d ? d.numeroSerie ?? d.numeroserie ?? '' : '');
 
   constructor(
     private fb: FormBuilder,
@@ -42,10 +43,23 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
     this.initForm();
   }
 
+  private montoValidoValidator(control: any) {
+    const v = control?.value;
+    if (v === null || v === undefined || v === '') return null; // que lo marque 'required', no aquí
+    const cleaned = String(v)
+      .replace(/[^0-9.,-]/g, '')
+      .replace(',', '.');
+    const n = parseFloat(cleaned);
+    return Number.isFinite(n) ? null : { montoInvalido: true };
+  }
+
   initForm() {
     this.transaccionForm = this.fb.group({
       tipoTransaccion: [null, Validators.required],
-      monto: [null, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+      monto: [
+        null,
+        [Validators.required, this.montoValidoValidator.bind(this)],
+      ],
       latitud: [null],
       longitud: [null],
       fechaHora: [null, Validators.required],
@@ -60,6 +74,25 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
     const off = d.getTimezoneOffset();
     const local = new Date(d.getTime() - off * 60000);
     return local.toISOString().slice(0, 16);
+  }
+
+  onComisionFocus(): void {
+    const c = this.transaccionForm.get('monto');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9.,-]/g, '').replace(',', '.'));
+  }
+
+  onComisionBlur(): void {
+    const c = this.transaccionForm.get('monto');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9.-]/g, '');
+    const num = parseFloat(raw);
+    if (isNaN(num)) {
+      c.setValue('');
+      return;
+    }
+    c.setValue(`$${num.toFixed(2)}`);
   }
 
   toIsoZulu(localStr: string | null): string | null {
@@ -79,111 +112,178 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
 
   obtenerDispositivos() {
     this.dispService.obtenerDispositivos().subscribe((response) => {
-      this.listaDispositivos = response.data;
+      const data = Array.isArray(response?.data) ? response.data : [];
+      this.listaDispositivos = data.length
+        ? data
+        : [{ numeroSerie: 'Sin registros', disabled: true }];
     });
+  }
+
+  private mapTipoToId(t: string | null): string | null {
+    const x = (t || '').toUpperCase();
+    return x === 'RECARGA' ? '1' : x === 'DEBITO' ? '2' : null;
   }
 
   obtenerMonederos() {
     this.moneService.obtenerMonederos().subscribe((response) => {
-      this.listaMonederos = response.data;
+      this.listaMonederos = Array.isArray(response?.data) ? response.data : [];
     });
   }
 
-  agregar() {
-    this.submitButton = 'Cargando...';
-    this.loading = true;
-    const etiquetas: Record<string, string> = {
-      tipoTransaccion: 'Tipo de Transacción',
-      monto: 'Monto',
-      fechaHora: 'Fecha y Hora',
-      numeroSerieMonedero: 'N° de Serie de Monedero',
-    };
-    if (this.transaccionForm.invalid) {
-      this.submitButton = 'Guardar';
-      this.loading = false;
+agregar() {
+  this.submitButton = 'Cargando...';
+  this.loading = true;
 
-      const camposFaltantes: string[] = [];
-      Object.keys(this.transaccionForm.controls).forEach((key) => {
-        const control = this.transaccionForm.get(key);
-        if (control?.errors?.['required']) {
-          camposFaltantes.push(etiquetas[key] || key);
-        }
-      });
+  const etiquetas: Record<string, string> = {
+    tipoTransaccion: 'Tipo de Transacción',
+    monto: 'Monto',
+    fechaHora: 'Fecha y Hora',
+    numeroSerieMonedero: 'N° de Serie de Monedero',
+  };
 
-      const lista = camposFaltantes.map((campo, i) => `
-      <div style="padding:8px 12px;border-left:4px solid #d9534f;
-                  background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
+  if (this.transaccionForm.invalid) {
+    this.submitButton = 'Guardar';
+    this.loading = false;
+
+    const camposFaltantes: string[] = [];
+    Object.keys(this.transaccionForm.controls).forEach((key) => {
+      const control = this.transaccionForm.get(key);
+      if (control?.errors?.['required']) camposFaltantes.push(etiquetas[key] || key);
+      if (key === 'monto' && control?.errors?.['montoInvalido']) camposFaltantes.push('Monto (formato inválido)');
+    });
+
+    const lista = camposFaltantes.map((campo, i) => `
+      <div style="padding:8px 12px;border-left:4px solid #d9534f;background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
         <strong style="color:#b02a37;">${i + 1}. ${campo}</strong>
       </div>
     `).join('');
 
-      Swal.fire({
-        title: '¡Faltan campos obligatorios!',
-        background: '#002136',
-        html: `
+    Swal.fire({
+      title: '¡Faltan campos obligatorios!',
+      background: '#002136',
+      html: `
         <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
-          Los siguientes <strong>campos</strong> están vacíos.<br>
+          Los siguientes <strong>campos</strong> están vacíos o con formato inválido.<br>
           Por favor complétalos antes de continuar:
         </p>
         <div style="max-height:350px;overflow-y:auto;">${lista}</div>
       `,
-        icon: 'error',
-        confirmButtonText: 'Entendido',
-        customClass: { popup: 'swal2-padding swal2-border' },
-      });
-      return;
-    }
-
-    const raw = this.transaccionForm.value;
-    const payload = {
-      ...raw,
-      tipoTransaccion: (raw?.tipoTransaccion || '').toString().toUpperCase() || null,
-      monto: ((): number | null => {
-        if (raw?.monto === '' || raw?.monto == null) return null;
-        const n = Number(parseFloat(String(raw.monto).toString().replace(',', '.')).toFixed(2));
-        return isNaN(n) ? null : n;
-      })(),
-      fechaHora: this.toIsoZulu(raw?.fechaHora || null),
-      latitud: this.toNumber6(raw?.latitud),
-      longitud: this.toNumber6(raw?.longitud),
-    };
-
-    if (this.transaccionForm.contains('id')) {
-      this.transaccionForm.removeControl('id');
-    }
-
-    this.transaccionService.agregarTransaccion(payload).subscribe(
-      () => {
-        this.submitButton = 'Guardar';
-        this.loading = false;
-        Swal.fire({
-          title: '¡Operación Exitosa!',
-          background: '#002136',
-          text: 'Se agregó una nueva transacción de manera exitosa.',
-          icon: 'success',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Confirmar',
-        });
-        this.regresar();
-      },
-      (error: string) => {
-        this.submitButton = 'Guardar';
-        this.loading = false;
-        Swal.fire({
-          title: '¡Ops!',
-          background: '#002136',
-          text: `${error}`,
-          icon: 'error',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Confirmar',
-          allowOutsideClick: false
-        });
-      }
-    );
+      icon: 'error',
+      confirmButtonText: 'Entendido',
+      customClass: { popup: 'swal2-padding swal2-border' },
+    });
+    return;
   }
 
+  const raw = this.transaccionForm.value;
+  const tipo = (raw?.tipoTransaccion || '').toString().toUpperCase();
+
+  const idTipoTransaccion =
+    tipo === 'RECARGA' ? 1 :
+    tipo === 'DEBITO'  ? 2 : null;
+
+  if (idTipoTransaccion == null) {
+    this.submitButton = 'Guardar';
+    this.loading = false;
+    Swal.fire({
+      title: '¡Ops!',
+      background: '#002136',
+      text: 'Tipo de transacción no válido. Elige RECARGA o DEBITO.',
+      icon: 'error',
+      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'Confirmar',
+      allowOutsideClick: false
+    });
+    return;
+  }
+
+  const payload = {
+    idTipoTransaccion,
+    monto: (() => {
+      const v = raw?.monto;
+      if (v === '' || v == null) return null;
+      const cleaned = String(v).replace(/[^0-9.,-]/g, '').replace(',', '.');
+      const n = parseFloat(cleaned);
+      return Number.isFinite(n) ? +n.toFixed(2) : null;
+    })(),
+    latitud: this.toNumber6(raw?.latitud),
+    longitud: this.toNumber6(raw?.longitud),
+    fechaHora: this.toIsoZulu(raw?.fechaHora || null),
+    numeroSerieMonedero: raw?.numeroSerieMonedero || null,
+    numeroSerieDispositivo: raw?.numeroSerieDispositivo || null
+  };
+
+  const request$ = idTipoTransaccion === 1
+    ? this.transaccionService.recargaTransaccion(payload)
+    : this.transaccionService.debitoTransaccion(payload);
+
+  request$.subscribe(
+    (resp: any) => {
+      this.submitButton = 'Guardar';
+      this.loading = false;
+
+      const contenido =
+        typeof resp === 'string'
+          ? resp
+          : (resp?.message ?? resp?.mensaje ?? resp?.detail ?? resp?.error ?? JSON.stringify(resp));
+
+      Swal.fire({
+        title: '¡Operación Exitosa!',
+          background: '#002136',
+          text: 'Se agregó una nueva transacción de manera exitosa.',
+        icon: 'success',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Confirmar',
+      });
+
+      this.regresar();
+    },
+    (error: any) => {
+      this.submitButton = 'Guardar';
+      this.loading = false;
+
+      let msg = '';
+      const e = error;
+
+      if (typeof e?.error === 'string' && e.error.trim()) {
+        msg = e.error;
+      } else if (e?.error && typeof e.error === 'object') {
+        msg = e.error.message || e.error.mensaje || e.error.detail || e.error.error || JSON.stringify(e.error);
+      } else if (typeof e === 'string' && e.trim()) {
+        msg = e;
+      } else if (e?.message) {
+        msg = e.message;
+      } else if (e?.status) {
+        msg = `HTTP ${e.status}${e.statusText ? ' - ' + e.statusText : ''}`;
+      } else {
+        msg = 'Error desconocido';
+      }
+
+      Swal.fire({
+        title: '¡Ops!',
+        background: '#002136',
+        text: String(msg),
+        icon: 'error',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Confirmar',
+        allowOutsideClick: false
+      });
+    }
+  );
+}
+
+
+
   moneyKeydown(e: KeyboardEvent) {
-    const allowed = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'];
+    const allowed = [
+      'Backspace',
+      'Tab',
+      'ArrowLeft',
+      'ArrowRight',
+      'Delete',
+      'Home',
+      'End',
+    ];
     if (allowed.includes(e.key)) return;
 
     const input = e.target as HTMLInputElement;
@@ -277,7 +377,7 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
   }
 
   private initMap(): void {
-    const center = { lat: 19.2840, lng: -99.6550 };
+    const center = { lat: 19.284, lng: -99.655 };
     const el = document.getElementById('map') as HTMLElement;
     this.map = new google.maps.Map(el, { center, zoom: 14 });
     this.geocoder = new google.maps.Geocoder();
@@ -296,21 +396,26 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
   }
 
   private openInfoAt(latLng: any): void {
-    this.geocoder.geocode({ location: latLng }, (results: any, status: string) => {
-      let address =
-        status === 'OK' && results && results[0]?.formatted_address
-          ? results[0].formatted_address
-          : `Lat: ${latLng.lat().toFixed(6)}, Lng: ${latLng.lng().toFixed(6)}`;
+    this.geocoder.geocode(
+      { location: latLng },
+      (results: any, status: string) => {
+        let address =
+          status === 'OK' && results && results[0]?.formatted_address
+            ? results[0].formatted_address
+            : `Lat: ${latLng.lat().toFixed(6)}, Lng: ${latLng
+                .lng()
+                .toFixed(6)}`;
 
-      const html = `
+        const html = `
       <div style="font-family: 'Segoe UI', sans-serif; border-radius: 12px; max-width: 250px; word-wrap: break-word; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; line-height: 1.2;">
         <strong style="font-size: 16px; color: #002136">Punto de Destino</strong>
         <div style="font-size: 14px; color: #4a4a4a;">${address}</div>
       </div>
     `;
-      this.infoWindow.setContent(html);
-      this.infoWindow.open(this.map, this.marker);
-    });
+        this.infoWindow.setContent(html);
+        this.infoWindow.open(this.map, this.marker);
+      }
+    );
   }
 
   private placeMarker(location: any): void {
@@ -324,8 +429,8 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
           url: 'assets/images/marker.png',
           scaledSize: new google.maps.Size(50, 40),
           origin: new google.maps.Point(0, 0),
-          anchor: new google.maps.Point(20, 40)
-        }
+          anchor: new google.maps.Point(20, 40),
+        },
       });
     }
     this.map.panTo(location);
@@ -344,7 +449,9 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
     return new Promise((resolve, reject) => {
       const scriptId = 'gmaps-sdk';
       if (document.getElementById(scriptId)) {
-        (document.getElementById(scriptId) as HTMLScriptElement).addEventListener('load', () => resolve());
+        (
+          document.getElementById(scriptId) as HTMLScriptElement
+        ).addEventListener('load', () => resolve());
         return;
       }
       const script = document.createElement('script');

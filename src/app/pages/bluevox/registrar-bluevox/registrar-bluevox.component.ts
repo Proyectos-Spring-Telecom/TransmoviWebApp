@@ -23,6 +23,8 @@ export class RegistrarBluevoxComponent implements OnInit {
   public listaClientes: any;
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
+  clienteDisplayExpr = (c: any) =>
+    c ? `${c.nombre || ''} ${c.apellidoPaterno || ''} ${c.apellidoMaterno || ''}`.trim() : '';
 
   public idClienteUser: number;
   public idRolUser: number;

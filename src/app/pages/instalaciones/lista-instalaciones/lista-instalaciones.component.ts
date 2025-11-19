@@ -84,7 +84,7 @@ export class ListaInstalacionesComponent implements OnInit {
       background: '#002136',
     }).then((result) => {
       if (result.value) {
-        this.insService.updateEstatus(rowData.idInstalacion, 1).subscribe(
+        this.insService.updateEstatus(rowData.id, 1).subscribe(
           (response) => {
             Swal.fire({
               title: '¡Confirmación Realizada!',
@@ -102,7 +102,7 @@ export class ListaInstalacionesComponent implements OnInit {
           (error) => {
             Swal.fire({
               title: '¡Ops!',
-              html: `${error}`,
+              html: error.error,
               icon: 'error',
               background: '#002136',
               confirmButtonColor: '#3085d6',
@@ -127,7 +127,7 @@ export class ListaInstalacionesComponent implements OnInit {
       background: '#002136',
     }).then((result) => {
       if (result.value) {
-        this.insService.updateEstatus(rowData.idInstalacion, 0).subscribe(
+        this.insService.updateEstatus(rowData.id, 0).subscribe(
           (response) => {
             Swal.fire({
               title: '¡Confirmación Realizada!',
@@ -144,7 +144,7 @@ export class ListaInstalacionesComponent implements OnInit {
           (error) => {
             Swal.fire({
               title: '¡Ops!',
-              html: `${error}`,
+              html: error.error,
               icon: 'error',
               background: '#002136',
               confirmButtonColor: '#3085d6',

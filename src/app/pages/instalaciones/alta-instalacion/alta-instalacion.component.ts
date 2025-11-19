@@ -39,6 +39,18 @@ export class AltaInstalacionComponent implements OnInit {
   listaDipositivos: any[] = [];
   listaBlueVox: any[] = [];
   listaVehiculos: any[] = [];
+  displayCliente = (c: any) =>
+    c ? `${c.nombre || ''} ${c.apellidoPaterno || ''} ${c.apellidoMaterno || ''}`.trim() : '';
+
+  displayDispositivo = (d: any) =>
+    d ? (d.numeroSerie || d.numeroSerieDispositivo || d.serie || d.id) : '';
+
+  displayBluevox = (b: any) =>
+    b ? (b.numeroSerieBlueVox || b.numeroSerie || b.serie || b.id) : '';
+
+  displayVehiculo = (v: any) =>
+    v ? (v.placa || v.placaVehiculo || v.numeroEconomico || v.alias || v.id) : '';
+
 
   idClienteUser!: number;
   idRolUser!: number;
@@ -302,7 +314,7 @@ export class AltaInstalacionComponent implements OnInit {
       focusConfirm: false,
       didOpen: () => {
         const popup = Swal.getPopup()!;
-        popup.style.background = '#0e1621';
+        popup.style.background = '#002136';
         popup.style.border = '1px solid #213041';
         popup.style.borderRadius = '14px';
         popup.style.padding = '22px';
@@ -688,13 +700,13 @@ export class AltaInstalacionComponent implements OnInit {
         });
         this.regresar();
       },
-      () => {
+      (error: any) => {
         this.submitButton = 'Guardar';
         this.loading = false;
         Swal.fire({
           title: '¡Ops!',
           background: '#002136',
-          text: 'Ocurrió un error al agregar la instalación',
+          html: error.error,
           icon: 'error',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Confirmar',
@@ -733,13 +745,13 @@ export class AltaInstalacionComponent implements OnInit {
           });
           this.regresar();
         },
-        () => {
+        (error: any) => {
           this.submitButton = 'Actualizar';
           this.loading = false;
           Swal.fire({
             title: '¡Ops!',
             background: '#002136',
-            text: `Ocurrió un error al actualizar la instalación.`,
+            html: error.error,
             icon: 'error',
             confirmButtonColor: '#3085d6',
             confirmButtonText: 'Confirmar',

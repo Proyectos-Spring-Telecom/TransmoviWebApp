@@ -46,4 +46,11 @@ export class DispositivoBluevoxService {
       catchError(error => throwError(() => error))
     );
   }
+
+  actualizarEstadoDispositivo(idDispositivo: number, estadoActual: number): Observable<any> {
+    const url = `${environment.API_SECURITY}/bluevox/actualizar/estado/${idDispositivo}`;
+    const body = { estadoActual };
+    return this.http.patch<any>(url, body);
+  }
+
 }

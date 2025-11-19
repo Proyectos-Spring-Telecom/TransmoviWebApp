@@ -58,19 +58,13 @@
                                 <ng-container [ngSwitch]="cell.value">
                                     <div *ngSwitchCase="0" class="estatus estatus-inactivo">Inactivo</div>
                                     <div *ngSwitchCase="1" class="estatus estatus-disponible">Disponible</div>
-                                    <div *ngSwitchCase="2" class="estatus estatus-asignado">Asignado</div>
+                                    <div *ngSwitchCase="2" class="estatus estatus-asignado">Instalado</div>
                                     <div *ngSwitchCase="3" class="estatus estatus-mantenimiento">En Mantenimiento</div>
                                     <div *ngSwitchCase="4" class="estatus estatus-danado">Dañado</div>
                                     <div *ngSwitchCase="5" class="estatus estatus-retirado">Retirado</div>
                                     <div *ngSwitchDefault class="estatus estatus-inactivo">Inactivo</div>
                                 </ng-container>
                             </div>
-                            <dxi-column caption="Cliente" alignment="center" cellTemplate="clien">
-                                <div *dxTemplate="let f of 'clien'">
-                                    {{ f.data.nombreCliente || ' ' }} {{ f.data.apellidoPaternoCliente || ' ' }} {{
-                                    f.data.apellidoMaternoCliente || ' ' }}
-                                </div>
-                            </dxi-column>
                             <dxi-column dataField="estatus" caption="Estatus" alignment="center" dataType="string"
                                 cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
@@ -80,6 +74,12 @@
                                     <span *ngIf="f.data.estatus !== 1" class="estatus estatus-inactivo">
                                         Inactivo
                                     </span>
+                                </div>
+                            </dxi-column>
+                            <dxi-column caption="Cliente" alignment="center" cellTemplate="clien">
+                                <div *dxTemplate="let f of 'clien'">
+                                    {{ f.data.nombreCliente || ' ' }} {{ f.data.apellidoPaternoCliente || ' ' }} {{
+                                    f.data.apellidoMaternoCliente || ' ' }}
                                 </div>
                             </dxi-column>
                             <dxo-export [enabled]="false" [allowExportSelectedData]="true"
@@ -100,6 +100,12 @@
                                     <button *ngIf="row.data.estatus === 1" id="deleteButton" class="btnAcciones"
                                         (click)="desactivar(row.data)">
                                         <i class="fa fa-arrow-down"></i>
+                                    </button>
+                                </div>
+                                <div>
+                                    <button id="pinButtonBlue" class="btnAcciones"
+                                        (click)="abrirModalCambioEstado(row.data)">
+                                        <i class="fa fa-exchange-alt"></i>
                                     </button>
                                 </div>
                             </div>

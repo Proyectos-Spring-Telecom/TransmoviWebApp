@@ -95,47 +95,27 @@ export class PuntoVentaPostComponent implements OnInit {
     this.aplicarPaginacion();
   }
 
-obtenerMonerderos() {
-  this.moneService.obtenerMonederos().subscribe({
-    next: (response: any) => {
-      this.listaMonederos = response?.data ?? [];
-      setTimeout(() => Swal.close(), 600);
-    },
-    error: (err: HttpErrorResponse) => {
-      this.loading = false;
-      this.submitButton = 'Confirmar';
-      // NO cerramos antes de mostrar
-      const show = (txt: string) => {
-        Swal.fire({
-          title: '¡Ops!',
-          text: txt ?? 'Ocurrio un error al mostrar los monederos.',
-          icon: 'warning',
-          background: '#002136',
-          confirmButtonColor: '#3085d6'
-        });
-      };
+  public mensajeMonederos: string = '';
 
-      const e: any = err?.error;
-
-      if (e instanceof Blob) {
-        e.text().then(show).catch(() => show(err.statusText || ''));
-        return;
+  obtenerMonerderos() {
+    this.mensajeMonederos = '';
+    this.moneService.obtenerMonederos().subscribe({
+      next: (response: any) => {
+        this.listaMonederos = response?.data ?? [];
+        if (!this.listaMonederos.length) this.mensajeMonederos = 'No se encontraron monederos.';
+        setTimeout(() => Swal.close(), 600);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.loading = false;
+        this.submitButton = 'Confirmar';
+        setTimeout(() => Swal.close(), 0);
+        this.listaMonederos = [];
+        this.mensajeMonederos = err.status === 404
+          ? 'No se encontraron monederos.'
+          : 'No se encontraron monederos para realizar una recarga.';
       }
-
-      if (e instanceof ArrayBuffer) {
-        try { show(new TextDecoder('utf-8').decode(e)); }
-        catch { show(err.statusText || ''); }
-        return;
-      }
-
-      if (typeof e === 'string') { show(e); return; }
-
-      if (e && typeof e === 'object') { show(JSON.stringify(e)); return; }
-
-      show(err.statusText || '');
-    }
-  });
-}
+    });
+  }
 
   private async getErrorMessage(err: any): Promise<string> {
     if (err?.status === 0 && !err?.error)
@@ -196,84 +176,94 @@ obtenerMonerderos() {
   public idTransaccion: any;
 
   agregarTransaccion() {
-    if (!this.monederoSeleccionado || !this.monto || this.monto <= 0) {
+  if (!this.monederoSeleccionado || !this.monto || this.monto <= 0) {
+    Swal.fire({
+      title: 'Atención',
+      text: 'Debes seleccionar un monedero y definir un monto válido.',
+      icon: 'warning',
+      background: '#002136',
+      confirmButtonColor: '#3085d6',
+    });
+    return;
+  }
+
+  this.submitButton = 'Cargando...';
+  this.loading = true;
+  Swal.fire({
+    title: 'Cargando…',
+    html: '<div style="margin-top:.5rem;opacity:.85">Procesando tu recarga, espere un momento</div>',
+    background: '#03131dff',
+    backdrop: 'rgba(0, 0, 0, 0.86)',
+    color: '#e3f8f2',
+    showConfirmButton: false,
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => { Swal.showLoading(); }
+  });
+
+  const numSerie = this.monederoSeleccionado.numeroserie || this.monederoSeleccionado.numeroSerie || '';
+  this.transaccionForm.patchValue({
+    numeroSerieMonedero: numSerie,
+    fechaHora: this.nowZulu(),
+  });
+
+  const raw = this.transaccionForm.value;
+
+  // Body alineado a Swagger; idTipoTransaccion como NUMBER (1 por defecto)
+  const payload = {
+    idTipoTransaccion: 1,
+    monto: (() => {
+      if (raw?.monto === '' || raw?.monto == null) return null;
+      const n = Number(parseFloat(String(raw.monto).toString().replace(',', '.')).toFixed(2));
+      return isNaN(n) ? null : n;
+    })(),
+    latitud: null,
+    longitud: null,
+    fechaHora: raw?.fechaHora || this.nowZulu(),
+    numeroSerieMonedero: raw?.numeroSerieMonedero || numSerie,
+    numeroSerieDispositivo: null,
+  };
+
+  let holdTimer: any = null;
+
+  // >>> Usa el servicio correcto para RECARGA
+  this.transaccionService.recargaTransaccion(payload).subscribe({
+    next: (_res: any) => {
+      this.submitButton = 'Guardar';
+      this.loading = false;
+      this.modalRef?.close();
+      this.modalRef = null;
+      this.idTransaccion = _res?.data?.id;
+      holdTimer = setTimeout(() => {
+        Swal.close();
+        this.showRecargaExitosa = true;
+      }, 3000);
+    },
+    error: async (err: any) => {
+      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+      this.submitButton = 'Guardar';
+      this.loading = false;
+      this.modalRef?.close();
+      this.modalRef = null;
+      Swal.close();
+
+      // Mostrar el error DIRECTO del backend
+      const msg = await this.getErrorMessage(err);
       Swal.fire({
-        title: 'Atención',
-        text: 'Debes seleccionar un monedero y definir un monto válido.',
-        icon: 'warning',
+        title: '¡Error!',
+        text: String(msg || 'Error desconocido'),
+        icon: 'error',
         background: '#002136',
         confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Confirmar',
+        allowOutsideClick: false
+      }).then(() => {
+        this.openModalFromStart();
       });
-      return;
     }
-    this.submitButton = 'Cargando...';
-    this.loading = true;
-    Swal.fire({
-      title: 'Cargando…',
-      html: '<div style="margin-top:.5rem;opacity:.85">Procesando tu recarga, espere un momento</div>',
-      background: '#03131dff',
-      backdrop: 'rgba(0, 0, 0, 0.86)',
-      color: '#e3f8f2',
-      showConfirmButton: false,
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
-    const numSerie = this.monederoSeleccionado.numeroserie || this.monederoSeleccionado.numeroSerie || '';
-    this.transaccionForm.patchValue({
-      numeroSerieMonedero: numSerie,
-      fechaHora: this.nowZulu(),
-    });
-    const raw = this.transaccionForm.value;
-    const payload = {
-      tipoTransaccion: 'RECARGA',
-      monto: (() => {
-        if (raw?.monto === '' || raw?.monto == null) return null;
-        const n = Number(parseFloat(String(raw.monto).toString().replace(',', '.')).toFixed(2));
-        return isNaN(n) ? null : n;
-      })(),
-      latitud: null,
-      longitud: null,
-      fechaHora: raw?.fechaHora || this.nowZulu(),
-      numeroSerieMonedero: raw?.numeroSerieMonedero || numSerie,
-      numeroSerieDispositivo: null,
-    };
-    let holdTimer: any = null;
-    this.transaccionService.agregarTransaccion(payload).subscribe({
-      next: (_res: any) => {
-        this.submitButton = 'Guardar';
-        this.loading = false;
-        this.modalRef?.close();
-        this.modalRef = null;
-        this.idTransaccion = _res.data.id
-        holdTimer = setTimeout(() => {
-          Swal.close();
-          this.showRecargaExitosa = true;
-        }, 3000);
-      },
-      error: (err: any) => {
-        if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
-        this.submitButton = 'Guardar';
-        this.loading = false;
-        this.modalRef?.close();
-        this.modalRef = null;
-        Swal.close();
-        Swal.fire({
-          title: '¡Error!',
-          text: (typeof err === 'string' ? err : 'Ocurrió un problema al registrar la transacción.'),
-          icon: 'error',
-          background: '#002136',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Confirmar',
-          allowOutsideClick: false
-        }).then(() => {
-          this.openModalFromStart();
-        });
-      }
-    });
-  }
+  });
+}
+
 
   isSelected(m: any): boolean {
     return !!this.monederoSeleccionado && this.monederoSeleccionado.id === m.id;

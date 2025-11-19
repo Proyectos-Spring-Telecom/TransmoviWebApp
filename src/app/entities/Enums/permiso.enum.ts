@@ -144,6 +144,7 @@ export enum Permiso {
   Crear_Pasajeros = "82",
   Actualizar_Pasajeros = "83",
   CambiarEstatus_Pasajeros = "84",
+  Perfil_Pasajero = "122",
   /* #endregion */
 
   /* #region Bitácora */
@@ -171,6 +172,13 @@ export enum Permiso {
 
   /* #region Extras / Pruebas */
   Consultar_Monitoreo = "101",
-  Prueba_Modulos = "101",
   /* #endregion */
+
+  /* #region Reportes */
+  Consultar_Reportes = "104",
+  /* #endregion */
+
+  /**#region mantenimiento */
+  Consultar_Mantenimiento = "105",
+  /** #endregion */
 }

@@ -7,49 +7,49 @@
         <div class="col-12 col-md-6">
           <div class="input-group">
             <label for="nombre">Nombre</label>
-            <input type="text" id="nombre" formControlName="nombre" placeholder="Ej.: Miguel"
+            <input type="text" id="nombre" formControlName="nombre" placeholder="Miguel"
               autocomplete="given-name" />
           </div>
         </div>
         <div class="col-12 col-md-6">
           <div class="input-group">
             <label for="apellidoPaterno">Apellido Paterno</label>
-            <input type="text" id="apellidoPaterno" formControlName="apellidoPaterno" placeholder="Ej.: Martínez"
+            <input type="text" id="apellidoPaterno" formControlName="apellidoPaterno" placeholder="Martínez"
               autocomplete="family-name" />
           </div>
         </div>
         <div class="col-12 col-md-6">
           <div class="input-group">
             <label for="apellidoMaterno">Apellido Materno</label>
-            <input type="text" id="apellidoMaterno" formControlName="apellidoMaterno" placeholder="Ej.: García"
+            <input type="text" id="apellidoMaterno" formControlName="apellidoMaterno" placeholder="García"
               autocomplete="additional-name" />
           </div>
         </div>
         <div class="col-12 col-md-6">
           <div class="input-group">
             <label for="fechaNacimiento">Fecha de Nacimiento</label>
-            <input type="date" id="fechaNacimiento" formControlName="fechaNacimiento" placeholder="Ej.: 2000-06-20"
+            <input type="date" id="fechaNacimiento" formControlName="fechaNacimiento" placeholder="2000-06-20"
               autocomplete="bday" inputmode="numeric" />
           </div>
         </div>
         <div class="col-12 col-md-6">
           <div class="input-group">
             <label for="telefono">Teléfono</label>
-            <input type="tel" id="telefono" maxlength="10" (keypress)="allowOnlyNumbers($event)" formControlName="telefono" placeholder="Ej.: 7773896248" autocomplete="tel"
+            <input type="tel" id="telefono" maxlength="10" (keypress)="allowOnlyNumbers($event)" formControlName="telefono" placeholder="7778988745" autocomplete="tel"
               inputmode="tel" />
           </div>
         </div>
         <div class="col-12 col-md-6">
           <div class="input-group">
             <label for="correo">Correo Electrónico</label>
-            <input type="email" id="correo" formControlName="correo" placeholder="Ej.: proyect.beeckerco@outlook.com"
+            <input type="email" id="correo" formControlName="correo" placeholder="correo@gmail.com"
               autocomplete="email" inputmode="email" />
           </div>
         </div>
         <div class="col-12 col-md-6">
           <div class="input-group" style="position: relative;">
             <label for="passwordHash">Contraseña</label>
-            <input [type]="type" id="passwordHash" formControlName="passwordHash" placeholder="Ej.: P@ssw0rd."
+            <input [type]="type" id="passwordHash" formControlName="passwordHash" placeholder="contraseña"
               autocomplete="new-password" (focus)="pwFocused = true" (blur)="pwFocused = false" />
 
             <button type="button" class="eyeButton"
@@ -69,7 +69,7 @@
           <div class="input-group">
             <label for="numeroSerieMonedero">Número de Serie</label>
             <input type="text" id="numeroSerieMonedero" formControlName="numeroSerieMonedero"
-              placeholder="Ej.: MON-0005" autocomplete="off" />
+              placeholder="MON-0005" autocomplete="off" />
           </div>
         </div>
       </div>

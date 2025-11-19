@@ -13,53 +13,70 @@
     <div class="card-body">
       <form [formGroup]="instalacionesForm" class="cliente-form">
         <h6 class="section-title">Datos Generales</h6>
-
-        <div class="row">
-          <div class="col-md-3 mt-3">
+        <div class="row mt-3">
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
             <label for="idCliente" class="form-label">Cliente</label>
-            <select id="idCliente" class="form-select" formControlName="idCliente" [disabled]="!isAdmin">
-              <option [value]="null" disabled>Seleccione un cliente</option>
-              <option *ngFor="let c of listaClientes; trackBy: trackId" [value]="c.id">
-                {{ c.nombre }} {{ c.apellidoPaterno }} {{ c.apellidoMaterno }}
-              </option>
-            </select>
+            <dx-select-box
+              id="idCliente"
+              class="tm-select w-100"
+              formControlName="idCliente"
+              [dataSource]="listaClientes"
+              [displayExpr]="displayCliente"
+              valueExpr="id"
+              [disabled]="!isAdmin"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [noDataText]="'Sin registros'"
+              placeholder="Seleccione un cliente">
+            </dx-select-box>
           </div>
-
-          <div class="col-md-3 mt-3">
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
             <label for="idDispositivo" class="form-label">Dispositivo</label>
-            <select id="idDispositivo" class="form-select" formControlName="idDispositivo">
-              <option [value]="null" disabled>Seleccione un dispositivo</option>
-              <option *ngFor="let d of listaDipositivos; trackBy: trackId" [value]="d.id">
-                {{ d.numeroSerie || d.numeroSerieDispositivo || d.serie || d.id }}
-              </option>
-            </select>
+            <dx-select-box
+              id="idDispositivo"
+              class="tm-select w-100"
+              formControlName="idDispositivo"
+              [dataSource]="listaDipositivos"
+              [displayExpr]="displayDispositivo"
+              valueExpr="id"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [noDataText]="'Sin registros'"
+              placeholder="Seleccione un dispositivo">
+            </dx-select-box>
           </div>
-
-          <div class="col-md-3 mt-3">
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
             <label for="idBlueVox" class="form-label">Bluevox</label>
-            <select id="idBlueVox" class="form-select" formControlName="idBlueVox">
-              <option [value]="null" disabled>Seleccione un Bluevox</option>
-              <option *ngFor="let b of listaBlueVox; trackBy: trackId" [value]="b.id">
-                {{ b.numeroSerieBlueVox || b.numeroSerie || b.serie || b.id }}
-              </option>
-            </select>
+            <dx-select-box
+              id="idBlueVox"
+              class="tm-select w-100"
+              formControlName="idBlueVox"
+              [dataSource]="listaBlueVox"
+              [displayExpr]="displayBluevox"
+              valueExpr="id"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [noDataText]="'Sin registros'"
+              placeholder="Seleccione un Bluevox">
+            </dx-select-box>
           </div>
-
-          <div class="col-md-3 mt-3">
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
             <label for="idVehiculo" class="form-label">Vehículo</label>
-            <select id="idVehiculo"
-        class="form-select"
-        formControlName="idVehiculo"
-        [disabled]="!!idInstalacion">
-  <option [value]="null" disabled>Seleccione un vehículo</option>
-  <option *ngFor="let v of listaVehiculos; trackBy: trackId" [value]="v.id">
-    {{ v.placa || v.placaVehiculo || v.numeroEconomico || v.alias || v.id }}
-  </option>
-</select>
-
+            <dx-select-box
+              id="idVehiculo"
+              class="tm-select w-100"
+              formControlName="idVehiculo"
+              [dataSource]="listaVehiculos"
+              [displayExpr]="displayVehiculo"
+              valueExpr="id"
+              [disabled]="!!idInstalacion"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [noDataText]="'Sin registros'"
+              placeholder="Seleccione un vehículo">
+            </dx-select-box>
           </div>
         </div>
-
         <div class="form-actions mt-4">
           <button type="submit" class="submit" (click)="submit()">{{ submitButton }}</button>
           <button type="button" class="cancel" (click)="regresar()">Cancelar</button>

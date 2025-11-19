@@ -36,18 +36,18 @@ export const MENU: MenuItem[] = [
                 permiso: Permiso.Listado_Permisos
             },
             {
-                id: 8,
-                label: 'Bitácora',
-                icon: 'uil-list-ul',
-                link: '/bitacora/lista-bitacora',
-                permiso: Permiso.Listado_Bitacora
-            },
-            {
                 id: 15,
                 label: 'Roles',
                 icon: 'uil-clipboard-notes',
                 link: '/roles',
                 permiso: Permiso.Listado_Roles
+            },
+            {
+                id: 8,
+                label: 'Bitácora',
+                icon: 'uil-list-ul',
+                link: '/bitacora/lista-bitacora',
+                permiso: Permiso.Listado_Bitacora
             },
         ],
     },
@@ -80,7 +80,7 @@ export const MENU: MenuItem[] = [
     {
         id: 2,
         label: 'Bluevox',
-        icon: 'uil-document-layout-left',
+        icon: 'uil-book',
         link: '/bluevox/dispositivo-bluevox',
         permiso: Permiso.Listado_BlueVoxs
     },
@@ -116,6 +116,7 @@ export const MENU: MenuItem[] = [
         id: 20,
         label: 'Centro de Pagos',
         icon: 'uil-refresh',
+        permiso: Permiso.Listado_Transacciones,
         subItems: [
             {
                 id: 16,
@@ -194,6 +195,36 @@ export const MENU: MenuItem[] = [
         permiso: Permiso.Listado_ConteoPasajeros
     },
     {
+        id: 20,
+        label: 'Gestión Vehícular',
+        permiso: Permiso.Consultar_Mantenimiento,
+        icon: 'uil-wrench',
+        subItems: [
+            {
+                id: 16,
+                label: 'Mantenimiento',
+                icon: 'uil-apps',
+                link: '/mantenimientos'
+            },
+            {
+                id: 16,
+                label: 'Verificaciones',
+                icon: 'uil-apps',
+            },
+            {
+                id: 16,
+                label: 'Siniestros',
+                icon: 'uil-apps',
+            },
+            {
+                id: 16,
+                label: 'Talleres',
+                icon: 'uil-apps',
+                link: '/talleres'
+            },
+        ],
+    },
+    {
         id: 13,
         label: 'Perfil',
         icon: 'uil-user-circle',
@@ -202,12 +233,14 @@ export const MENU: MenuItem[] = [
     {
         id: 115,
         label: 'Reportes',
+        permiso: Permiso.Consultar_Reportes,
         isTitle: true
     },
     {
         id: 116,
         label: 'Recaudación Día',
         icon: 'uil-calendar-alt',
+        permiso: Permiso.Consultar_Reportes,
         link: '/reportes/recaudacion-diaria-ruta',
     },
     {
@@ -215,30 +248,35 @@ export const MENU: MenuItem[] = [
         label: 'Recaudación Operador',
         icon: 'uil-user-check',
         link: '/reportes/recaudacion-operador',
+        permiso: Permiso.Consultar_Reportes,
     },
     {
         id: 116,
         label: 'Recaudación Vehículo',
         icon: 'uil-car-sideview',
         link: '/reportes/recaudacion-vehiculo',
+        permiso: Permiso.Consultar_Reportes,
     },
     {
         id: 116,
         label: 'Recaudación Disp/Inst.',
         icon: 'uil-plug',
         link: '/reportes/recaudacion-dispositivoInstalacion',
+        permiso: Permiso.Consultar_Reportes,
     },
     {
         id: 116,
         label: 'Recaudación Detalladas',
         icon: 'uil-list-ul',
         link: '/reportes/recaudacion-detalladas',
+        permiso: Permiso.Consultar_Reportes,
     },
 
     // {
     //     id: 13,
     //     label: 'Pasajero',
     //     icon: 'uil-user',
+    //     permiso: Permiso.Perfil_Pasajero,
     //     link: '/vista-pasajero',
     // },
     // {

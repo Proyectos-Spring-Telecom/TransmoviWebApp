@@ -62,7 +62,12 @@
                             </dxi-column>
                             <dxi-column dataField="IncrementoCadaMetros" caption="Incremento por Metros" alignment="center" dataType="string" [allowSearch]="true" cellTemplate="incrCadaMetros">
                                 <div *dxTemplate="let r of 'incrCadaMetros' ">
-                                    {{r.data.IncrementoCadaMetros + ' ' + 'm'}}
+                                    <div *ngIf="r.data.IncrementoCadaMetros">
+                                        {{r.data.IncrementoCadaMetros + ' ' + 'm'}}
+                                    </div>
+                                    <div *ngIf="r.data.IncrementoCadaMetros == null">
+                                        $0.00
+                                    </div>
                                 </div>
                             </dxi-column>
                             <dxi-column dataField="CostoAdicional" caption="Costo Adicional" alignment="center" dataType="string" [allowSearch]="true" cellTemplate="cosAdicional">
