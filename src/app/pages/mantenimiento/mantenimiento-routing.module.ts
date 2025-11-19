@@ -26,6 +26,10 @@ const routes: Routes = [
     component: AgregarCombustibleComponent,
   },
   {
+    path: 'editar-mantenimiento-vehicular/:idManVehicular',
+    component: AgregarVehicularComponent,
+  },
+  {
     path: 'editar-mantenimiento-kilometraje/:idManKilometraje',
     component: AgregarKilometrajeComponent,
   },

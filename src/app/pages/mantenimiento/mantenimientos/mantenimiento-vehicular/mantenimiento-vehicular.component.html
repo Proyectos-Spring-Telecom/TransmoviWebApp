@@ -109,7 +109,7 @@
   <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
     <div *appHasPermission="'19'">
       <button valueExpr="id" id="actualizarButton" class="btnAcciones"
-        (click)="actualizarModulo(row.data.id)">
+        (click)="actualizarManVehicular(row.data.id)">
         <i class="fa fa-edit"></i>
       </button>
     </div>
