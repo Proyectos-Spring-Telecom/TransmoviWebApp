@@ -272,13 +272,13 @@ export const MENU: MenuItem[] = [
         permiso: Permiso.Consultar_Reportes,
     },
 
-    {
-        id: 13,
-        label: 'Pasajero',
-        icon: 'uil-user',
-        permiso: Permiso.Perfil_Pasajero,
-        link: '/vista-pasajero',
-    },
+    // {
+    //     id: 13,
+    //     label: 'Pasajero',
+    //     icon: 'uil-user',
+    //     permiso: Permiso.Perfil_Pasajero,
+    //     link: '/vista-pasajero',
+    // },
     // {
     //     id: 115,
     //     label: 'MENUITEMS.PRUEBACOMPONENTCERRAR.TEXT',

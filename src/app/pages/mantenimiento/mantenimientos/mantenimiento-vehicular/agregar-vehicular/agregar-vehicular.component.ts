@@ -85,8 +85,12 @@ export class AgregarVehicularComponent implements OnInit {
   }
 
   obtenerTalleres() {
-    this.talleService.obtenerTalleres().subscribe((response) => {
-      this.listaTalleres = response;
+    this.talleService.obtenerTalleres().subscribe((response: any) => {
+      this.listaTalleres = (response || []).map((t: any) => ({
+        ...t,
+        Id: Number(t.Id),
+        id: Number(t.Id)
+      }));
     });
   }
 
@@ -131,23 +135,29 @@ export class AgregarVehicularComponent implements OnInit {
   }
 
   obtenerManVehicular() {
-    this.manteVeh
-      .obtenerMatVehicular(this.idManVehicular)
-      .subscribe((response: any) => {
-        const idModuloNum =
-          response.data?.idModulo != null
-            ? Number(response.data.idModulo)
-            : response.data?.idModulo2?.id != null
-            ? Number(response.data.idModulo2.id)
-            : null;
+  this.manteVeh
+    .obtenerMatVehicular(this.idManVehicular)
+    .subscribe((response: any) => {
+      const data = Array.isArray(response.data) ? response.data[0] : response.data;
+      if (!data) {
+        return;
+      }
 
-        this.manVehicularForm.patchValue({
-          nombre: response.data.nombre,
-          descripcion: response.data.descripcion,
-          idModulo: idModuloNum,
-        });
+      this.manVehicularForm.patchValue({
+        idInstalacion: data.idInstalacion,
+        idReferencia: data.idReferencia,
+        servicioDescripcion: data.servicioDescripcion,
+        notaServicio: data.notaServicio,
+        idEstatus: data.idEstatus,
+        fechaInicio: data.fechaInicio ? new Date(data.fechaInicio) : null,
+        fechaFinal: data.fechaFinal ? new Date(data.fechaFinal) : null,
+        idTaller: data.idTaller,
+        costo: data.costo,
+        encargado: data.encargado
       });
-  }
+    });
+}
+
 
   initForm() {
     this.manVehicularForm = this.fb.group({
@@ -365,7 +375,7 @@ export class AgregarVehicularComponent implements OnInit {
           Swal.fire({
             title: '¡Operación Exitosa!',
             background: '#002136',
-            text: `Los datos del registro de mantenimiento de kilometraje se actualizaron de manera correcta.`,
+            text: `Los datos del registro de mantenimiento vehicular se actualizaron de manera correcta.`,
             icon: 'success',
             confirmButtonColor: '#3085d6',
             confirmButtonText: 'Confirmar',

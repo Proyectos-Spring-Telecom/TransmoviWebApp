@@ -62,14 +62,14 @@ export class MantenimientoVehicularComponent {
     this.router.navigateByUrl('/mantenimientos/agregar-mantenimiento-vehicular');
   }
 
-  actualizarModulo(idModulo: Number) {
-    this.router.navigateByUrl('/modulos/editar-modulo/' + idModulo);
+  actualizarManVehicular(idManVehicular: number) {
+    this.router.navigateByUrl('/mantenimientos/editar-mantenimiento-vehicular/' + idManVehicular);
   }
 
   activar(rowData: any) {
     Swal.fire({
       title: '¡Activar!',
-      html: `¿Está seguro que requiere activar el módulo: <strong>${rowData.nombre}</strong>?`,
+      html: `¿Está seguro que requiere activar está instalación?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -79,20 +79,18 @@ export class MantenimientoVehicularComponent {
       background: '#002136',
     }).then((result) => {
       if (result.value) {
-        this.manteVeh.updateEstatus(rowData.id, 1).subscribe(
+        this.manteVeh.activarMantenimiento(rowData.id).subscribe(
           (response) => {
             Swal.fire({
               title: '¡Confirmación Realizada!',
-              html: `El módulo ha sido activado.`,
+              html: `La instalación ha sido activada.`,
               icon: 'success',
               background: '#002136',
               confirmButtonColor: '#3085d6',
               confirmButtonText: 'Confirmar',
-            })
-
+            });
             this.setupDataSource();
             this.dataGrid.instance.refresh();
-            // this.obtenerlistaManVehicular();
           },
           (error) => {
             Swal.fire({
@@ -102,7 +100,7 @@ export class MantenimientoVehicularComponent {
               background: '#002136',
               confirmButtonColor: '#3085d6',
               confirmButtonText: 'Confirmar',
-            })
+            });
           }
         );
       }
@@ -112,7 +110,7 @@ export class MantenimientoVehicularComponent {
   desactivar(rowData: any) {
     Swal.fire({
       title: '¡Desactivar!',
-      html: `¿Está seguro que requiere desactivar el módulo: <strong>${rowData.nombre}</strong>?`,
+      html: `¿Está seguro que requiere desactivar está instalación?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -122,19 +120,18 @@ export class MantenimientoVehicularComponent {
       background: '#002136',
     }).then((result) => {
       if (result.value) {
-        this.manteVeh.updateEstatus(rowData.id, 0).subscribe(
+        this.manteVeh.desactivarMantenimiento(rowData.id).subscribe(
           (response) => {
             Swal.fire({
               title: '¡Confirmación Realizada!',
-              html: `El módulo ha sido desactivado.`,
+              html: `La instalación ha sido desactivada.`,
               icon: 'success',
               background: '#002136',
               confirmButtonColor: '#3085d6',
               confirmButtonText: 'Confirmar',
-            })
+            });
             this.setupDataSource();
             this.dataGrid.instance.refresh();
-            // this.obtenerlistaManVehicular();
           },
           (error) => {
             Swal.fire({
@@ -144,13 +141,13 @@ export class MantenimientoVehicularComponent {
               background: '#002136',
               confirmButtonColor: '#3085d6',
               confirmButtonText: 'Confirmar',
-            })
+            });
           }
         );
       }
     });
-    // console.log('Desactivar:', rowData);
   }
+
 
   onPageIndexChanged(e: any) {
     const pageIndex = e.component.pageIndex();

@@ -30,16 +30,26 @@ export class MantenimientoVehicularService {
     return this.http.get<any>(environment.API_SECURITY + '/mantenimiento-vehicular/' + idManVehicular);
   }
 
-  actualizarMatVehicular(idManVehicular: number, saveForm: any): Observable<any> {
-    return this.http.put(`${environment.API_SECURITY}/mantenimiento-vehicular/` + idManVehicular, saveForm);
+  actualizarMatVehicular(idManVehicular: number, payload: any): Observable<any> {
+    return this.http.patch(
+      `${environment.API_SECURITY}/mantenimiento-vehicular/${idManVehicular}`,
+      payload
+    );
   }
 
   private apiUrl = `${environment.API_SECURITY}/mantenimiento-vehicular`;
-  updateEstatus(id: number, estatus: number): Observable<string> {
-    const url = `${this.apiUrl}/${id}/estatus`;
-    const body = { estatus };
-    return this.http.patch(url, body, { responseType: 'text' }).pipe(
+  activarMantenimiento(id: number): Observable<string> {
+    const url = `${this.apiUrl}/${id}/activar`;
+    return this.http.patch(url, null, { responseType: 'text' }).pipe(
       catchError(error => throwError(() => error))
     );
   }
+
+  desactivarMantenimiento(id: number): Observable<string> {
+    const url = `${this.apiUrl}/${id}/desactivar`;
+    return this.http.patch(url, null, { responseType: 'text' }).pipe(
+      catchError(error => throwError(() => error))
+    );
+  }
+
 }
