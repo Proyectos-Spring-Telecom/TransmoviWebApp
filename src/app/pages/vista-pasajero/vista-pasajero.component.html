@@ -53,7 +53,7 @@
                   </div>
 
                   <div class="d-flex gap-3 mt-4">
-                    <button class="btn btn-warning w-50 pill">
+                    <button class="btn btn-warning w-50 pill" (click)="onExtravio()">
                       <i class="fa fa-id-badge me-1"></i>Extravío
                     </button>
                     <button class="btn btn-danger w-50 pill">
@@ -99,10 +99,8 @@
             </div>
 
             <div class="col-12 col-xxl-8 order-2 order-xxl-2 d-flex">
-              <div
-                class="card grids-card flex-fill h-100 d-flex flex-column"
-                style="background-color: #002136; display: flex; align-items: center; justify-content: center;"
-              >
+              <div class="card grids-card flex-fill h-100 d-flex flex-column"
+                style="background-color: #002136; display: flex; align-items: center; justify-content: center;">
                 <div class="grids-body d-flex flex-column">
                   <div class="panel-head">
                     <div class="title d-flex align-items-center gap-0">
@@ -111,65 +109,31 @@
                     </div>
                   </div>
                   <div class="grid-wrap">
-                    <dx-data-grid
-                      class="dx-dark grid-responsive"
-                      id="gridTransacciones"
-                      #gridTransacciones
-                      [dataSource]="listaTransacciones"
-                      [keyExpr]="'id'"
-                      [columnHidingEnabled]="true"
-                      [showBorders]="true"
-                      [showColumnLines]="true"
-                      [showRowLines]="true"
-                      [rowAlternationEnabled]="true"
-                      [remoteOperations]="{ paging: true }"
-                      [paging]="{ pageSize: pageSizeTx }"
-                      [pager]="{
+                    <dx-data-grid class="dx-dark grid-responsive" id="gridTransacciones" #gridTransacciones
+                      [dataSource]="listaTransacciones" [keyExpr]="'id'" [columnHidingEnabled]="true"
+                      [showBorders]="true" [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
+                      [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSizeTx }" [pager]="{
                         allowedPageSizes: [],
                         showPageSizeSelector: true,
                         showInfo: true,
                         infoText: 'Página {0} de {1}',
                         visible: true
-                      }"
-                      (onPageIndexChanged)="onPageIndexChangedTransacciones($event)"
-                      (onOptionChanged)="onGridOptionChangedTransacciones($event)"
-                    >
-                      <dxo-search-panel
-                        [visible]="false"
-                        [width]="200"
-                        placeholder="Buscar..."
-                      ></dxo-search-panel>
-                      <dxo-group-panel
-                        [emptyPanelText]="mensajeAgruparTx"
-                        [visible]="false"
-                      ></dxo-group-panel>
+                      }" (onPageIndexChanged)="onPageIndexChangedTransacciones($event)"
+                      (onOptionChanged)="onGridOptionChangedTransacciones($event)">
+                      <dxo-search-panel [visible]="false" [width]="200" placeholder="Buscar..."></dxo-search-panel>
+                      <dxo-group-panel [emptyPanelText]="mensajeAgruparTx" [visible]="false"></dxo-group-panel>
                       <dxo-filter-row [visible]="showFilterRowTx"></dxo-filter-row>
                       <dxo-header-filter [visible]="showHeaderFilterTx"></dxo-header-filter>
                       <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
 
-                      <dxi-column
-                        dataField="fhRegistro"
-                        caption="Fecha"
-                        alignment="center"
-                        cellTemplate="fecActiTx"
-                      ></dxi-column>
-                      <dxi-column
-                        dataField="monto"
-                        caption="Monto"
-                        alignment="center"
-                        cellTemplate="saldTx"
-                      ></dxi-column>
-                      <dxi-column
-                        dataField="tipoTransaccion"
-                        caption="Tipo Transacción"
-                        alignment="center"
-                        cellTemplate="estTx"
-                      ></dxi-column>
-                      <dxi-column
-                        dataField="numeroSerieMonedero"
-                        caption="N° Serie de Monedero"
-                        alignment="center"
-                      ></dxi-column>
+                      <dxi-column dataField="fhRegistro" caption="Fecha" alignment="center"
+                        cellTemplate="fecActiTx"></dxi-column>
+                      <dxi-column dataField="monto" caption="Monto" alignment="center"
+                        cellTemplate="saldTx"></dxi-column>
+                      <dxi-column dataField="tipoTransaccion" caption="Tipo Transacción" alignment="center"
+                        cellTemplate="estTx"></dxi-column>
+                      <dxi-column dataField="numeroSerieMonedero" caption="N° Serie de Monedero"
+                        alignment="center"></dxi-column>
 
                       <div *dxTemplate="let a of 'fecActiTx'">
                         {{ a.data.fhRegistro | date: 'dd/MM/yyyy HH:mm' : '+0000' }}
@@ -178,16 +142,13 @@
                         {{ f.data.monto | currency: '$' }}
                       </div>
                       <div *dxTemplate="let f of 'estTx'">
-                        <span
-                          *ngIf="f.data.tipoTransaccion === 'RECARGA'"
-                          class="estatus estatus-activo"
-                        >
+                        <span *ngIf="f.data.tipoTransaccion === 'RECARGA'" class="estatus estatus-activo">
                           <i class="fa fa-arrow-up"></i> Recarga
                         </span>
-                        <span
-                          *ngIf="f.data.tipoTransaccion === 'DEBITO'"
-                          class="estatus estatus-inactivo"
-                        >
+                        <span *ngIf="f.data.tipoTransaccion === 'DEBITO'" class="estatus estatus-inactivo">
+                          <i class="fa fa-arrow-down"></i> Débito
+                        </span>
+                        <span *ngIf="f.data.tipoTransaccion === 'RECHAZADO'" class="estatus estatus-mantenimiento">
                           <i class="fa fa-arrow-down"></i> Débito
                         </span>
                       </div>
@@ -198,14 +159,10 @@
                         </span>
                       </div>
 
-                      <dxo-export
-                        [enabled]="false"
-                        [allowExportSelectedData]="true"
-                        [texts]="{
+                      <dxo-export [enabled]="false" [allowExportSelectedData]="true" [texts]="{
                           exportAll: 'Exportar todos los datos a Excel',
                           exportSelectedRows: 'Exportar filas seleccionadas a Excel'
-                        }"
-                      >
+                        }">
                       </dxo-export>
                     </dx-data-grid>
                   </div>

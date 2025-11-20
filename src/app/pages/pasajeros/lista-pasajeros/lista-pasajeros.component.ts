@@ -6,6 +6,7 @@ import CustomStore from 'devextreme/data/custom_store';
 import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
+import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { PasajerosService } from 'src/app/shared/services/pasajeros.service';
 import Swal from 'sweetalert2';
 
@@ -37,23 +38,186 @@ export class ListaPasajerosComponent implements OnInit {
   isGrouped: boolean = false;
   public paginaActualData: any[] = [];
   public filtroActivo: string = '';
+  public listaTipoPasajero: any;
+  idClienteUser!: number;
 
   constructor(private pasaService: PasajerosService,
     private route: Router,
     private sanitizer: DomSanitizer,
     private permissionsService: NgxPermissionsService,
+    private users: AuthenticationService,
   ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
+    const user = this.users.getUser();
+    this.idClienteUser = Number(user?.idCliente);
   }
 
   ngOnInit(): void {
+    this.obtenerTipoPasajero()
     this.obtenerListaPasajeros();
   }
 
   hasPermission(permission: string): boolean {
     return this.permissionsService.getPermission(permission) !== undefined;
   }
+
+  obtenerTipoPasajero() {
+    this.pasaService.obtenerPasajeroClienteId(this.idClienteUser).subscribe((response) => {
+      this.listaTipoPasajero = response.data
+    })
+  }
+
+onCambiarTipoPasajero(rowData: any) {
+  const opcionesTipoHtml = (this.listaTipoPasajero || [])
+    .map((item: any) =>
+      `<option value="${item.id}" style="background-color:#002136;color:#ffffff;">
+        ${item.nombre}
+      </option>`
+    )
+    .join('');
+
+  const opcionesEstadoHtml = `
+    <option value="" disabled selected style="background-color:#002136;color:#ffffff;">
+      selecciona una opción
+    </option>
+    <option value="0" style="background-color:#002136;color:#ffffff;">No Solicitado</option>
+    <option value="1" style="background-color:#002136;color:#ffffff;">Solicitado</option>
+    <option value="2" style="background-color:#002136;color:#ffffff;">Aprobado</option>
+    <option value="3" style="background-color:#002136;color:#ffffff;">Rechazado</option>
+  `;
+
+  Swal.fire({
+    title: '¿Cambio de Tipo Pasajero?',
+    html: `
+      <label for="estadoSolicitudSelect"
+             style="
+               display:block;
+               margin-top:4px;
+               margin-bottom:8px;
+               color:#ffffff;
+               font-weight:500;
+               text-align:left;
+             ">
+        selecciona el estado de la solicitud
+      </label>
+      <select id="estadoSolicitudSelect"
+              style="
+                width:100%;
+                padding:0.625em;
+                border-radius:0.25em;
+                background-color:#002136;
+                color:#ffffff;
+                border:1px solid #4b647a;
+                outline:none;
+                margin-top:6px;
+                margin-bottom:14px;
+              ">
+        ${opcionesEstadoHtml}
+      </select>
+
+      <label for="tipoPasajeroSelect"
+             style="
+               display:block;
+               margin-top:4px;
+               margin-bottom:8px;
+               color:#ffffff;
+               font-weight:500;
+               text-align:left;
+             ">
+        selecciona el tipo de pasajero
+      </label>
+      <select id="tipoPasajeroSelect"
+              style="
+                width:100%;
+                padding:0.625em;
+                border-radius:0.25em;
+                background-color:#002136;
+                color:#ffffff;
+                border:1px solid #4b647a;
+                outline:none;
+                margin-top:6px;
+              ">
+        <option value="" disabled selected
+                style="background-color:#002136;color:#ffffff;">
+          selecciona una opción
+        </option>
+        ${opcionesTipoHtml}
+      </select>
+    `,
+    icon: 'info',
+    background: '#002136',
+    showCancelButton: true,
+    confirmButtonText: 'Confirmar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    allowEnterKey: false,
+    preConfirm: () => {
+      const popup = Swal.getPopup();
+      const selectEstado = popup?.querySelector('#estadoSolicitudSelect') as HTMLSelectElement | null;
+      const selectTipo = popup?.querySelector('#tipoPasajeroSelect') as HTMLSelectElement | null;
+
+      if (!selectEstado || !selectEstado.value) {
+        Swal.showValidationMessage('debes seleccionar el estado de la solicitud');
+        return;
+      }
+
+      if (!selectTipo || !selectTipo.value) {
+        Swal.showValidationMessage('debes seleccionar el tipo de pasajero');
+        return;
+      }
+
+      return {
+        estadoSolicitud: Number(selectEstado.value),
+        idTipoPasajero: Number(selectTipo.value)
+      };
+    }
+  }).then(result => {
+    if (!result.isConfirmed) {
+      return;
+    }
+
+    const estadoSolicitud = result.value.estadoSolicitud;
+    const idTipoPasajero = result.value.idTipoPasajero;
+
+    const tipoSeleccionado =
+      (this.listaTipoPasajero || []).find((x: any) => x.id === idTipoPasajero)?.nombre || '';
+
+    this.pasaService.updateEstadoSolicitud(rowData.id, estadoSolicitud, idTipoPasajero).subscribe({
+      next: () => {
+        Swal.fire({
+          title: '¡Operación Exitosa!',
+          html: `El pasajero ahora tiene el tipo pasajero <strong>${tipoSeleccionado}</strong>.`,
+          icon: 'success',
+          background: '#002136',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Aceptar',
+          allowOutsideClick: false,
+          allowEscapeKey: false
+        });
+      },
+      error: (error) => {
+        const msg = error?.error || 'No se pudo actualizar el tipo de pasajero.';
+        Swal.fire({
+          title: '¡Ops!',
+          html: msg,
+          icon: 'error',
+          background: '#002136',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Aceptar',
+          allowOutsideClick: false,
+          allowEscapeKey: false
+        });
+      }
+    });
+  });
+}
+
+
+
 
   obtenerListaPasajeros() {
     this.loading = true;

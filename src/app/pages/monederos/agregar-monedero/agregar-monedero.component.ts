@@ -291,6 +291,7 @@ onClienteChange(e: any) {
 
     const raw = this.monederoForm.getRawValue();
     const payload: any = { ...raw };
+    delete payload.idTipoPasajero;
 
     const saldoStr = raw.saldo != null ? String(raw.saldo).trim() : '';
     if (saldoStr !== '') {
@@ -308,6 +309,7 @@ onClienteChange(e: any) {
         });
         return;
       }
+      
       payload.saldo = Number(n.toFixed(2));
     } else {
       delete payload.saldo;

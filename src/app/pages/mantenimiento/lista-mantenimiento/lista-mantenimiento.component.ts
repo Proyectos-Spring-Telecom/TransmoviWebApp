@@ -10,9 +10,9 @@ import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation'
 export class ListaMantenimientoComponent {
 
   tabs = [
-    { id: 'vehicular', text: 'Mantenimiento Vehicular', icon: 'car' },
-    { id: 'combustible', text: 'Mantenimiento Combustible', icon: 'money' },
-    { id: 'kilometraje', text: 'Mantenimiento Kilometraje', icon: 'chart' }
+    { id: 'vehicular', text: 'Servicios de Mantenimiento', icon: 'car' },
+    { id: 'combustible', text: 'Control de Combustible', icon: 'fill' },
+    { id: 'kilometraje', text: 'Administración de Kilometraje', icon: 'dataarea' }
   ];
 
   selectedTabIndex = 0;

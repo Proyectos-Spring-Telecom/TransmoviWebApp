@@ -42,11 +42,11 @@ export class ListaUsuariosComponent implements OnInit {
     private users: AuthenticationService,
   ) {
     const user = this.users.getUser();
-this.showFilterRow = true;
-this.showHeaderFilter = true;
+    this.showFilterRow = true;
+    this.showHeaderFilter = true;
 
-// true solo cuando el nombre del rol sea 'SA'
-this.showCliente = user?.rol?.nombre === 'SA';
+    // true solo cuando el nombre del rol sea 'SA'
+    this.showCliente = user?.rol?.nombre === 'SA';
   }
 
   ngOnInit(): void {

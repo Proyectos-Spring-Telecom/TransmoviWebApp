@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MantenimientoRoutingModule } from './mantenimiento-routing.module';
 import { ListaMantenimientoComponent } from './lista-mantenimiento/lista-mantenimiento.component';
 
-import { DxDataGridModule, DxDateBoxModule, DxDateRangeBoxModule, DxLoadPanelModule, DxSelectBoxModule, DxTabsModule } from 'devextreme-angular';
+import { DxDataGridModule, DxDateBoxModule, DxDateRangeBoxModule, DxLoadPanelModule, DxPopupModule, DxSelectBoxModule, DxTabsModule } from 'devextreme-angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MantenimientoVehicularComponent } from './mantenimientos/mantenimiento-vehicular/mantenimiento-vehicular.component';
@@ -36,7 +36,8 @@ import { AgregarCombustibleComponent } from './mantenimientos/mantenimiento-comb
     DxTabsModule,
     DxSelectBoxModule,
     DxDateRangeBoxModule,
-    DxDateBoxModule
+    DxDateBoxModule,
+    DxPopupModule
   ]
 })
 export class MantenimientoModule { }

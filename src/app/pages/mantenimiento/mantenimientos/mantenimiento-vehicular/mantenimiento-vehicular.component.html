@@ -1,153 +1,174 @@
 <div class="container-fluid">
-    <div class="card">
-        <div class="card-body">
-            <div class="u-banner" style="background: #063451;">
-                <div class="u-banner__icon">
-                    <div class="u-icon">
-                        <i class="fas fa-car-side"></i>
-                    </div>
-                </div>
-                <div class="u-banner__body">
-                    <h2 class="u-banner__title">Mantenimiento Vehicular</h2>
-                    <p class="u-banner__subtitle">
-                        Administra y consulta el mantenimiento preventivo y correctivo de tus unidades:
-                        servicios, revisiones, talleres y estatus de cada vehículo.
-                    </p>
-                    <div>
-                        <button class="u-btn u-btn--primary" (click)="agregarManVehicular()">
-                            <i class="fas fa-plus"></i>
-                            <span>Agregar Registro</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row mt-4">
-                <div class="col-lg-12">
-                    <div class="table-responsive mb-4 col-12 col-lg-12">
-                        <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
-  [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
-  [rowAlternationEnabled]="'true'" [dataSource]="listaManVehicular" [keyExpr]="'id'"
-  [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
-  [pager]="{ 
-    showPageSizeSelector: true, 
-    allowedPageSizes: [50], 
-    showInfo: true,
-    infoText: 'Página {0} de {1}', 
-    visible: true 
-  }"
-  (onPageIndexChanged)=" onPageIndexChanged($event)" 
-  (onOptionChanged)="onGridOptionChanged($event)">
-
-  <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
-  <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
-  <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
-  <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
-  <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
-  <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-
-  <dxi-column *appHasPermission="['19', '20']" caption="Acciones" cellTemplate="Acciones"
-    alignment="center" dataType="string" [width]="180">
-  </dxi-column>
-
-  <dxi-column dataField="idInstalacion" caption="Instalación" alignment="center" dataType="number">
-  </dxi-column>
-
-  <dxi-column dataField="servicioDescripcion" caption="Servicio" alignment="center" dataType="string">
-  </dxi-column>
-
-  <dxi-column dataField="notaServicio" caption="Notas del Servicio" alignment="center" dataType="string">
-  </dxi-column>
-
-  <dxi-column dataField="fechaInicio" caption="Fecha Inicio" alignment="center" dataType="date"
-    cellTemplate="fechaInicioTpl">
-  </dxi-column>
-
-  <dxi-column dataField="fechaFinal" caption="Fecha Final" alignment="center" dataType="date"
-    cellTemplate="fechaFinalTpl">
-  </dxi-column>
-
-  <dxi-column dataField="idTaller" caption="Taller" alignment="center" dataType="number">
-  </dxi-column>
-
-  <dxi-column dataField="costo" caption="Costo" alignment="center" dataType="number"
-    cellTemplate="costoTpl">
-  </dxi-column>
-
-  <dxi-column dataField="encargado" caption="Encargado" alignment="center" dataType="string">
-  </dxi-column>
-
-<dxi-column
-  dataField="fhRegistro"
-  caption="Fecha Registro"
-  alignment="center"
-  dataType="date"
-  cellTemplate="fRegistroTpl">
-</dxi-column>
-
-<div *dxTemplate="let d of 'fRegistroTpl'">
-  {{ d.data.fhRegistro | date:'dd/MM/yyyy HH:mm' }}
-</div>
-
-
-  <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est"
-    dataType="string">
-    <div *dxTemplate="let f of 'est'">
-      <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
-        Activo
-      </span>
-      <span *ngIf="f.data.estatus !== 1" class="estatus estatus-inactivo">
-        Inactivo
-      </span>
-    </div>
-  </dxi-column>
-
-  <dxo-export [enabled]="false" [allowExportSelectedData]="true"
-    [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
-  </dxo-export>
-
-  <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
-    <div *appHasPermission="'19'">
-      <button valueExpr="id" id="actualizarButton" class="btnAcciones"
-        (click)="actualizarManVehicular(row.data.id)">
-        <i class="fa fa-edit"></i>
-      </button>
-    </div>
-    <div *appHasPermission="'20'">
-      <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones"
-        (click)="activar(row.data)">
-        <i class="fa fa-arrow-up"></i>
-      </button>
-      <button *ngIf="row.data.estatus === 1" id="deleteButton" class="btnAcciones"
-        (click)="desactivar(row.data)">
-        <i class="fa fa-arrow-down"></i>
-      </button>
-    </div>
-  </div>
-
-  <div *dxTemplate="let d of 'costoTpl'">
-    {{ d.data.costo | currency:'$' }}
-  </div>
-
-  <div *dxTemplate="let d of 'fechaInicioTpl'">
-    {{ d.data.fechaInicio | date:'dd/MM/yyyy HH:mm' }}
-  </div>
-
-  <div *dxTemplate="let d of 'fechaFinalTpl'">
-    {{ d.data.fechaFinal | date:'dd/MM/yyyy HH:mm' }}
-  </div>
-
-
-</dx-data-grid>
-
-                    </div>
-                </div>
-            </div>
-
+  <div class="card">
+    <div class="card-body">
+      <div class="u-banner" style="background: #063451;">
+        <div class="u-banner__icon">
+          <div class="u-icon">
+            <i class="fas fa-car-side"></i>
+          </div>
         </div>
+        <div class="u-banner__body">
+          <p class="u-banner__subtitle">
+            Administra y consulta el mantenimiento preventivo y correctivo de tus unidades:
+            servicios, revisiones, talleres y estatus de cada vehículo.
+          </p>
+          <div>
+            <button class="u-btn u-btn--primary" (click)="agregarManVehicular()">
+              <i class="fas fa-plus"></i>
+              <span>Agregar Registro</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-lg-12">
+          <div class="table-responsive mb-4 col-12 col-lg-12">
+            <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true" [showBorders]="'true'"
+              [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="'true'"
+              [dataSource]="listaManVehicular" [keyExpr]="'id'" [width]="'100%'" [remoteOperations]="{ paging: true }"
+              [paging]="{ pageSize: pageSize }" [pager]="{ 
+                showPageSizeSelector: true, 
+                allowedPageSizes: [50], 
+                showInfo: true,
+                infoText: 'Página {0} de {1}', 
+                visible: true 
+              }" (onPageIndexChanged)=" onPageIndexChanged($event)" (onOptionChanged)="onGridOptionChanged($event)">
+              <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
+              <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]" [showInfo]="true"></dxo-pager>
+              <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
+              <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
+              <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
+              <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
+              <dxi-column *appHasPermission="['19', '20']" caption="Acciones" cellTemplate="Acciones" alignment="center"
+                dataType="string" [width]="180">
+              </dxi-column>
+              <dxi-column caption="Nota de Servicio" [width]="150" alignment="center" [allowSorting]="false"
+                [allowFiltering]="false" cellTemplate="notService">
+              </dxi-column>
+              <div *dxTemplate="let f of 'notService'">
+                <button type="button" class="btn btn-primary btn-sm" style="border-radius: 5px;"
+                  (click)="previsualizar(f?.data?.notaServicio, 'Nota de Servicio', f?.data)">
+                  <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
+                </button>
+              </div>
+              <dxi-column dataField="imagenVehiculo" caption="Imagen" cellTemplate="imagen" [width]="200"
+                alignment="center">
+                <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+              </dxi-column>
+              <dxi-column dataField="placaVehiculo" caption="Instalación" alignment="center" dataType="number">
+              </dxi-column>
+              <div *dxTemplate="let data of 'imagen'" style="text-align: center;">
+                <img *ngIf="data.value" style="max-width: 100px;" [src]="data.value" />
+                <img *ngIf="data.value == null" style="max-width: 70px;"
+                  src="https://transmovi.s3.us-east-2.amazonaws.com/imagenes/no-image.jpg" />
+              </div>
+              <dxi-column dataField="servicioDescripcion" caption="Servicio" alignment="center" dataType="string">
+              </dxi-column>
+              <dxi-column dataField="notaServicio" caption="Notas del Servicio" alignment="center" dataType="string">
+              </dxi-column>
+              <dxi-column dataField="fechaInicio" caption="Fecha Inicio" alignment="center" dataType="date"
+                cellTemplate="fechaInicioTpl"> </dxi-column>
+              <dxi-column dataField="fechaFinal" caption="Fecha Final" alignment="center" dataType="date"
+                cellTemplate="fechaFinalTpl"> </dxi-column>
+              <dxi-column dataField="taller.nombre" caption="Taller" alignment="center" dataType="number"> </dxi-column>
+              <dxi-column dataField="costo" caption="Costo" alignment="center" dataType="number"
+                cellTemplate="costoTpl"> </dxi-column>
+              <dxi-column dataField="encargado" caption="Encargado" alignment="center" dataType="string"> </dxi-column>
+              <dxi-column dataField="fhRegistro" caption="Fecha Registro" alignment="center" dataType="date"
+                cellTemplate="fRegistroTpl"></dxi-column>
+              <div *dxTemplate="let d of 'fRegistroTpl'">
+                {{ d.data.fhRegistro | date:'dd/MM/yyyy HH:mm' }}
+              </div>
+              <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est" dataType="string">
+                <div *dxTemplate="let f of 'est'">
+                  <span *ngIf="f.data.estatus === 1" class="estatus estatus-activo">
+                    Activo
+                  </span>
+                  <span *ngIf="f.data.estatus !== 1" class="estatus estatus-inactivo">
+                    Inactivo
+                  </span>
+                </div>
+              </dxi-column>
+              <dxo-export [enabled]="false" [allowExportSelectedData]="true"
+                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
+              </dxo-export>
+              <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
+                <div *appHasPermission="'19'">
+                  <button valueExpr="id" id="actualizarButton" class="btnAcciones"
+                    (click)="actualizarManVehicular(row.data.id)">
+                    <i class="fa fa-edit"></i>
+                  </button>
+                </div>
+                <div *appHasPermission="'20'">
+                  <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones" (click)="activar(row.data)">
+                    <i class="fa fa-arrow-up"></i>
+                  </button>
+                  <button *ngIf="row.data.estatus === 1" id="deleteButton" class="btnAcciones"
+                    (click)="desactivar(row.data)">
+                    <i class="fa fa-arrow-down"></i>
+                  </button>
+                </div>
+              </div>
+              <div *dxTemplate="let d of 'costoTpl'">
+                {{ d.data.costo | currency:'$' }}
+              </div>
+              <div *dxTemplate="let d of 'fechaInicioTpl'">
+                {{ d.data.fechaInicio | date:'dd/MM/yyyy HH:mm' }}
+              </div>
+              <div *dxTemplate="let d of 'fechaFinalTpl'">
+                {{ d.data.fechaFinal | date:'dd/MM/yyyy HH:mm' }}
+              </div>
+            </dx-data-grid>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
-    [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
+  [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
 </dx-load-panel>
+
+<dx-popup [visible]="pdfPopupVisible" [showTitle]="true" title="Documentación" [dragEnabled]="true"
+  [closeOnOutsideClick]="false" [width]="pdfPopupWidth" [height]="'auto'" [showCloseButton]="true"
+  (onHiding)="pdfPopupVisible = false">
+
+  <div class="pdf-viewer">
+    <div class="pdf-loader" *ngIf="pdfLoading && !pdfError">
+      Cargando documento…
+    </div>
+
+    <span class="dc-document" *ngIf="!pdfError">
+      {{ pdfTitle }}
+      <br>
+    </span>
+
+    <ng-container *ngIf="!pdfError; else pdfErrorTpl">
+      <br>
+      <div class="pdf-frame" [class.is-loading]="pdfLoading">
+        <img *ngIf="esImagen && pdfUrlSafe" [src]="pdfUrlSafe" class="pdf-iframe" (load)="onPdfLoaded()" />
+
+        <!-- Si es PDF -->
+        <iframe *ngIf="!esImagen && pdfUrlSafe" class="pdf-iframe" [src]="pdfUrlSafe" (load)="onPdfLoaded()">
+        </iframe>
+      </div>
+
+      <div class="pdf-actions">
+        <button type="button" class="abrirArchivo" (click)="abrirEnNuevaPestana()">
+          <i class="fa fa-plus"></i>&nbsp;&nbsp;Abrir en Navegador
+        </button>
+        <button type="button" class="descargarArchivo" (click)="descargarPdfForzada()">
+          <i class="fa fa-download"></i>&nbsp;&nbsp;Descargar
+        </button>
+      </div>
+    </ng-container>
+
+    <ng-template #pdfErrorTpl>
+      <div class="pdf-error-card">
+        <h4>📄 No pudimos previsualizar el PDF</h4>
+        <p>{{ pdfErrorMsg || 'El archivo no está disponible, el tipo de contenido no es PDF o fue bloqueado por el navegador (CORS).' }}</p>
+      </div>
+    </ng-template>
+  </div>
+</dx-popup>

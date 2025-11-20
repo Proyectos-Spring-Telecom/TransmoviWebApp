@@ -71,7 +71,7 @@
           <div *ngIf="showInputsNoUpdate" class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Contraseña</label>
             <input [type]="type" class="form-control" id="passwordHash" formControlName="passwordHash"
-              placeholder="Ej.: P@ssw0rd." autocomplete="new-password" (focus)="pwFocused = true"
+              placeholder="Contraseña." autocomplete="new-password" (focus)="pwFocused = true"
               (blur)="pwFocused = false" />
 
             <button type="button" class="eyeButton"
@@ -88,7 +88,7 @@
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-2">
             <div class="tc-upload">
-              <label>Documentación</label>
+              <label>Documentación Oficial</label>
               <div class="tc-preview" *ngIf="docPreviewUrl; else docTile">
                 <img [src]="docPreviewUrl" alt="Documentación" />
                 <div class="tc-actions">

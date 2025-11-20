@@ -46,7 +46,7 @@
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column *appHasPermission="['83', '84']" caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="150"></dxi-column>
+                            <dxi-column *appHasPermission="['83', '84']" caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="200"></dxi-column>
                             <dxi-column caption="Documento" [width]="150" alignment="center"
                                 [allowSorting]="false" [allowFiltering]="false" cellTemplate="ident">
                             </dxi-column>
@@ -127,6 +127,12 @@
                                     <button *ngIf="row.data.estatus === 1" id="deleteButton" class="btnAcciones"
                                         (click)="desactivar(row.data)">
                                         <i class="fa fa-arrow-down"></i>
+                                    </button>
+                                </div>
+                                <div *ngIf="row.data.estadoSolicitud != 0 ">
+                                    <button id="pinButtonBlue" class="btnAcciones"
+                                        (click)="onCambiarTipoPasajero(row.data)">
+                                        <i class="fa fa-refresh"></i>
                                     </button>
                                 </div>
                             </div>

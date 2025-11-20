@@ -1,82 +1,65 @@
 <div [@fadeInUp] class="container-fluid">
-    <div class="card">
-        <div class="card-header-custom">
-            <div class="icon-wrapper">
-                <i class="fas fa-plus"></i>
-            </div>
-            <div class="header-text">
-                <h5>{{ title }}</h5>
-                <span>Completa la información para registrar un nuevo monedero.</span>
-            </div>
+  <div class="card">
+    <div class="card-header-custom">
+      <div class="icon-wrapper">
+        <i class="fas fa-plus"></i>
+      </div>
+      <div class="header-text">
+        <h5>{{ title }}</h5>
+        <span>Completa la información para registrar un nuevo monedero.</span>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <form [formGroup]="monederoForm" class="cliente-form">
+        <h6 class="section-title">Datos Generales</h6>
+
+        <div class="row">
+          <div class="col-12 col-sm-6 col-md-4 mt-3">
+            <label>Número de Serie</label>
+            <input type="text" class="form-control" formControlName="numeroSerie" placeholder="41f170e5dafc640e">
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 mt-3" *ngIf="showDatosID">
+            <label>Saldo</label>
+            <input type="text" class="form-control" formControlName="saldo" placeholder="100.00" inputmode="decimal"
+              (focus)="onComisionFocus()" (blur)="onComisionBlur()" />
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 mt-3">
+            <label>Cliente</label>
+            <dx-select-box class="tm-select w-100" formControlName="idCliente" [items]="listaClientes || []"
+              [valueExpr]="'id'" [displayExpr]="displayCliente" [searchEnabled]="true" [showClearButton]="true"
+              [noDataText]="'Sin registros'" placeholder="Seleccione un cliente"
+              (onValueChanged)="onClienteChange($event)">
+              <div *dxTemplate="let c of 'item'">
+                {{ displayCliente(c) }}
+              </div>
+              <div *dxTemplate="let c of 'field'">
+                {{ displayCliente(c) }}
+              </div>
+            </dx-select-box>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4 mt-3" *ngIf="showDatosID">
+            <label>Tipo de Pasajero</label>
+            <dx-select-box class="tm-select w-100" formControlName="idTipoPasajero" [items]="listaPasajeros || []"
+              [valueExpr]="'id'" [displayExpr]="displayTipoPasajero" [searchEnabled]="true" [showClearButton]="true"
+              [noDataText]="'Sin registros'" placeholder="Seleccione un tipo">
+              <div *dxTemplate="let t of 'item'">{{ displayTipoPasajero(t) }}</div>
+              <div *dxTemplate="let t of 'field'">{{ displayTipoPasajero(t) }}</div>
+            </dx-select-box>
+          </div>
+
+
+
         </div>
 
-        <div class="card-body">
-            <form [formGroup]="monederoForm" class="cliente-form">
-                <h6 class="section-title">Datos Generales</h6>
-
-                <div class="row">
-                    <div class="col-12 col-sm-6 col-md-4 mt-3">
-                        <label>Número de Serie</label>
-                        <input type="text" class="form-control" formControlName="numeroSerie"
-                            placeholder="41f170e5dafc640e">
-                    </div>
-
-                    <div class="col-12 col-sm-6 col-md-4 mt-3" *ngIf="showDatosID">
-                        <label>Saldo</label>
-                        <input type="text" class="form-control" formControlName="saldo" placeholder="100.00"
-                            inputmode="decimal" (focus)="onComisionFocus()" (blur)="onComisionBlur()" />
-                    </div>
-
-                    <div class="col-12 col-sm-6 col-md-4 mt-3">
-  <label>Cliente</label>
-  <dx-select-box
-    class="tm-select w-100"
-    formControlName="idCliente"
-    [items]="listaClientes || []"
-    [valueExpr]="'id'"
-    [displayExpr]="displayCliente"
-    [searchEnabled]="true"
-    [showClearButton]="true"
-    [noDataText]="'Sin registros'"
-    placeholder="Seleccione un cliente"
-    (onValueChanged)="onClienteChange($event)"
-  >
-    <div *dxTemplate="let c of 'item'">
-      {{ displayCliente(c) }}
-    </div>
-    <div *dxTemplate="let c of 'field'">
-      {{ displayCliente(c) }}
-    </div>
-  </dx-select-box>
-</div>
-
-<div class="col-12 col-sm-6 col-md-4 mt-3">
-  <label>Tipo de Pasajero</label>
-  <dx-select-box
-    class="tm-select w-100"
-    formControlName="idTipoPasajero"
-    [items]="listaPasajeros || []"
-    [valueExpr]="'id'"
-    [displayExpr]="displayTipoPasajero"
-    [searchEnabled]="true"
-    [showClearButton]="true"
-    [noDataText]="'Sin registros'"
-    placeholder="Seleccione un tipo"
-  >
-    <div *dxTemplate="let t of 'item'">{{ displayTipoPasajero(t) }}</div>
-    <div *dxTemplate="let t of 'field'">{{ displayTipoPasajero(t) }}</div>
-  </dx-select-box>
-</div>
-
-
-
-                </div>
-
-                <div class="form-actions mt-4">
-                    <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
-                    <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
-                </div>
-            </form>
+        <div class="form-actions mt-4">
+          <button type="submit" class="submit" (click)="submit()">{{submitButton}}</button>
+          <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
         </div>
+      </form>
     </div>
+  </div>
 </div>

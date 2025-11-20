@@ -84,6 +84,9 @@ export class PasajerosService {
     return this.verificarPasajero(codigo) as unknown as Observable<string>;
   }
 
+
+
+  //
   datosUsuarioPasajero(idUsuario: number): Observable<any> {
     return this.http.get<any>(`${environment.API_SECURITY}/pasajeros/main/${idUsuario}`);
   }
@@ -91,4 +94,13 @@ export class PasajerosService {
   obtenerTipoPasajeroCliente(idCliente: number): Observable<any> {
     return this.http.get<any>(`${environment.API_SECURITY}/catpasajerp/clientes/${idCliente}`);
   }
+
+  updateEstadoSolicitud(idPasajero: number, estadoSolicitud: number, idTipoPasajero: number): Observable<string> {
+  const url = `${this.apiUrl}/estado/solicitud/${idPasajero}`;
+  const body = { estadoSolicitud, idTipoPasajero };
+  return this.http.patch(url, body, { responseType: 'text' }).pipe(
+    catchError(error => throwError(() => error))
+  );
+}
+
 }

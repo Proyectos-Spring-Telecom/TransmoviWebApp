@@ -42,9 +42,8 @@
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center"
-                                [width]="200"></dxi-column>
-                            <dxi-column dataField="numeroSerie" caption="NumeroSerie" alignment="center"></dxi-column>
+                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="200"></dxi-column>
+                            <dxi-column dataField="numeroSerie" caption="N° Serie" alignment="center"></dxi-column>
                             <dxi-column dataField="fechaActivacion" caption="Fecha Activación" alignment="center"
                                 cellTemplate="fecActi">
                                 <div *dxTemplate="let a of 'fecActi'">
@@ -86,6 +85,11 @@
                                         (click)="centerModalDebito(centerDataModalDebito, monedero.data.id, monedero.data.numeroSerie, monedero.data.saldo, monedero.data.idCliente, monedero.data.idPasajero)"
                                         class="btnAcciones btnDebito" type="button" placement="top" role="button">
                                         <i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                                <div *ngIf="monedero.data.estadoSolicitud != 0 ">
+                                    <button id="pinButtonBlue" class="btnAcciones" (click)="onCambiarTipoPasajeroMonedero(monedero.data)">
+                                        <i class="fa fa-refresh"></i>
                                     </button>
                                 </div>
                             </div>

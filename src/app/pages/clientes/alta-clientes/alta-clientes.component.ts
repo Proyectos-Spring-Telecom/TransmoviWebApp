@@ -98,7 +98,7 @@ export class AltaClientesComponent implements OnInit {
         actaConstitutiva: d.actaConstitutiva ?? null,
       });
       this.originalDocs = {
-        logotipo: (d.logotipo && String(d.logotipo).trim()) ? d.logotipo : this.DEFAULT_LOGO_URL,
+        logotipo: (d.logotipo && String(d.logotipo).trim()) ? d.logotipo : '',
         constanciaSituacionFiscal: d.constanciaSituacionFiscal ?? '',
         comprobanteDomicilio: d.comprobanteDomicilio ?? '',
         actaConstitutiva: d.actaConstitutiva ?? '',
@@ -294,14 +294,16 @@ export class AltaClientesComponent implements OnInit {
 
     if (this.clienteForm.contains('id')) this.clienteForm.removeControl('id');
     const v = this.clienteForm.value;
+    const logoFormRaw = typeof v.logotipo === 'string' ? v.logotipo.trim() : '';
+    const logoForm = logoFormRaw && logoFormRaw !== this.DEFAULT_LOGO_URL ? logoFormRaw : '';
+    const logoPadre = this.getLogotipoPadre();
+
     const payload = {
       ...v,
       tipoPersona: v.tipoPersona != null ? Number(v.tipoPersona) : null,
-      logotipo:
-        typeof v.logotipo === 'string' && v.logotipo.trim()
-          ? v.logotipo.trim()
-          : this.DEFAULT_LOGO_URL,
+      logotipo: logoForm || logoPadre || null,
     };
+
 
     this.clieService.agregarCliente(payload).subscribe(
       () => {
@@ -330,6 +332,13 @@ export class AltaClientesComponent implements OnInit {
         });
       }
     );
+  }
+
+  private getLogotipoPadre(): string | null {
+    const id = this.clienteForm.get('idPadre')?.value;
+    if (!id) return null;
+    const padre = this.listaClientes.find(c => c.id === Number(id));
+    return padre?.logotipo || null;
   }
 
 
@@ -424,10 +433,14 @@ export class AltaClientesComponent implements OnInit {
       .pipe(finalize(() => { }))
       .subscribe({
         next: (u) => {
+          const logoUploadRaw = u.logotipo && String(u.logotipo).trim() ? String(u.logotipo).trim() : '';
+          const logoUpload = logoUploadRaw && logoUploadRaw !== this.DEFAULT_LOGO_URL ? logoUploadRaw : '';
+          const logoPadre = this.getLogotipoPadre();
+
           const payload = {
             ...v,
             tipoPersona: v.tipoPersona != null ? Number(v.tipoPersona) : null,
-            logotipo: (u.logotipo && String(u.logotipo).trim()) ? u.logotipo : this.DEFAULT_LOGO_URL,
+            logotipo: logoUpload || logoPadre || null,
             constanciaSituacionFiscal: u.constanciaSituacionFiscal,
             comprobanteDomicilio: u.comprobanteDomicilio,
             actaConstitutiva: u.actaConstitutiva,
@@ -491,7 +504,7 @@ export class AltaClientesComponent implements OnInit {
     return v instanceof File;
   }
 
-  private readonly MAX_LOGO_MB = 5; 
+  private readonly MAX_LOGO_MB = 5;
 
   private readonly DEFAULT_LOGO_URL =
     'https://transmovi.s3.us-east-2.amazonaws.com/logos/Logo_TransMovi_2x1-removebg-preview.png';
@@ -516,6 +529,41 @@ export class AltaClientesComponent implements OnInit {
   actaFileName: string | null = null;
 
   private readonly MAX_MB = 3;
+
+  private readonly LOGO_WIDTH = 707;
+  private readonly LOGO_HEIGHT = 353;
+
+  private validateLogoDimensions(file: File, onValid: () => void) {
+    if (!this.isImage(file)) {
+      onValid();
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const okWidth = img.width === this.LOGO_WIDTH;
+        const okHeight = img.height === this.LOGO_HEIGHT;
+
+        if (!okWidth || !okHeight) {
+          this.clienteForm.get('logotipo')?.setErrors({ invalidDimensions: true });
+          Swal.fire({
+            title: '¡Dimensiones Inválidas!',
+            html: `El logotipo debe medir exactamente ${this.LOGO_WIDTH} x ${this.LOGO_HEIGHT} píxeles.`,
+            icon: 'warning',
+            confirmButtonText: 'Entendido',
+            background: '#002136',
+          });
+          return;
+        }
+
+        onValid();
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
 
   private isImage(file: File): boolean {
     if (!file?.type) return /\.(png|jpe?g|webp)$/i.test(file.name);
@@ -588,7 +636,9 @@ export class AltaClientesComponent implements OnInit {
     e.stopPropagation();
     this.logoPreviewUrl = null;
     this.logoFileInput.nativeElement.value = '';
-    this.clienteForm.patchValue({ logotipo: this.DEFAULT_LOGO_URL });
+    this.clienteForm.patchValue({
+      logotipo: this.originalDocs.logotipo || null
+    });
     this.clienteForm.get('logotipo')?.setErrors(null);
   }
 
@@ -610,10 +660,12 @@ export class AltaClientesComponent implements OnInit {
       return;
     }
 
-    this.loadPreview(file, (url) => (this.logoPreviewUrl = url));
-    this.clienteForm.patchValue({ logotipo: file });
-    this.clienteForm.get('logotipo')?.setErrors(null);
-    this.uploadLogo(file);
+    this.validateLogoDimensions(file, () => {
+      this.loadPreview(file, (url) => (this.logoPreviewUrl = url));
+      this.clienteForm.patchValue({ logotipo: file });
+      this.clienteForm.get('logotipo')?.setErrors(null);
+      this.uploadLogo(file);
+    });
   }
 
   private uploadingLogo = false;

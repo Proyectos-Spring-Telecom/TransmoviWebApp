@@ -50,4 +50,18 @@ export class MonederosServices {
       catchError(error => throwError(() => error))
     );
   }
+
+  reporteExtravio(correo: string, numeroSerie: string): Observable<any> {
+    const body = { correo, numeroSerie };
+    return this.http.post(`${environment.API_SECURITY}/monederos/reporte/extravio`, body);
+  }
+
+  updateTipoPasajero(idMonedero: number, idTipoPasajero: number): Observable<string> {
+    const url = `${this.apiUrl}/tipo/pasajero/${idMonedero}`;
+    const body = { idTipoPasajero };
+    return this.http.patch(url, body, { responseType: 'text' }).pipe(
+      catchError(error => throwError(() => error))
+    );
+  }
+
 }
