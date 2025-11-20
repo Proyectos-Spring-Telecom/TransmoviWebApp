@@ -4,14 +4,10 @@
             <div class="u-banner" style="background: #063451;">
                 <div class="u-banner__icon">
                     <div class="u-icon">
-                        <!-- ICONO CAMBIADO -->
                         <i class="fas fa-gas-pump"></i>
                     </div>
                 </div>
                 <div class="u-banner__body">
-                    <!-- TÍTULO CAMBIADO -->
-                    <h2 class="u-banner__title">Mantenimiento de Combustible</h2>
-                    <!-- SUBTÍTULO CAMBIADO -->
                     <p class="u-banner__subtitle">
                         Administra y consulta el mantenimiento de combustible de tus unidades:
                         cargas realizadas, consumos y registros de rendimiento.
@@ -32,13 +28,12 @@
                             [rowAlternationEnabled]="'true'" [dataSource]="listaManCombustible" [keyExpr]="'id'"
                             [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
                             [pager]="{ 
-                showPageSizeSelector: true, 
-                allowedPageSizes: [50], 
-                showInfo: true,
-                infoText: 'Página {0} de {1}', 
-                visible: true 
-              }" (onPageIndexChanged)=" onPageIndexChanged($event)" (onOptionChanged)="onGridOptionChanged($event)">
-
+                            showPageSizeSelector: true, 
+                            allowedPageSizes: [50], 
+                            showInfo: true,
+                            infoText: 'Página {0} de {1}', 
+                            visible: true 
+                            }" (onPageIndexChanged)=" onPageIndexChanged($event)" (onOptionChanged)="onGridOptionChanged($event)">
                             <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
                             <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]"
                                 [showInfo]="true"></dxo-pager>
@@ -46,72 +41,53 @@
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-
-                            <dxi-column *appHasPermission="['19', '20']" caption="Acciones" cellTemplate="Acciones"
-                                alignment="center" dataType="string" [width]="180">
+                            <dxi-column *appHasPermission="['19', '20']" caption="Acciones" cellTemplate="Acciones" alignment="center" dataType="string" [width]="180"> </dxi-column>
+                            <dxi-column dataField="imagenVehiculo" caption="Imagen" cellTemplate="imagen" [width]="200" alignment="center">
+                                <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
                             </dxi-column>
-
-                            <!-- cantidadCombustible -->
+                            <dxi-column dataField="placaVehiculo" caption="Instalación" alignment="center" dataType="number"> </dxi-column>
+                            <div *dxTemplate="let data of 'imagen'" style="text-align: center;">
+                                <img *ngIf="data.value" style="max-width: 100px;" [src]="data.value" />
+                                <img *ngIf="data.value == null" style="max-width: 70px;"
+                                    src="https://transmovi.s3.us-east-2.amazonaws.com/imagenes/no-image.jpg" />
+                            </div>
                             <dxi-column caption="Cantidad" alignment="center" dataType="string" cellTemplate="cantTpl">
                                 <div *dxTemplate="let r of 'cantTpl'">
                                     {{ r.data.cantidadCombustible }} L
                                 </div>
                             </dxi-column>
-
-                            <!-- precioCombustible -->
                             <dxi-column caption="Precio" alignment="center" dataType="string" cellTemplate="precioTpl">
                                 <div *dxTemplate="let r of 'precioTpl'">
                                     {{ r.data.precioCombustible | currency: "$" }}
                                 </div>
                             </dxi-column>
-
-                            <!-- kilometraje -->
                             <dxi-column caption="Kilometraje" alignment="center" dataType="string" cellTemplate="kmTpl">
                                 <div *dxTemplate="let r of 'kmTpl'">
                                     {{ r.data.kilometraje }} Km
                                 </div>
                             </dxi-column>
-
-                            <!-- instalación (idInstalacion) -->
-                            <dxi-column caption="Instalación" alignment="center" dataType="string"
-                                cellTemplate="instTpl">
-                                <div *dxTemplate="let r of 'instTpl'">
-                                    Instalación: {{ r.data.idInstalacion }}
-                                </div>
-                            </dxi-column>
-
-                            <!-- operador (idOperador) -->
                             <dxi-column caption="Operador" alignment="center" dataType="string" cellTemplate="opTpl">
                                 <div *dxTemplate="let r of 'opTpl'">
-                                    {{ r.data.idOperador }}
+                                    {{ r.data.nombreOperador }}
                                 </div>
                             </dxi-column>
-
-                            <!-- tipoCombustible.nombre -->
                             <dxi-column caption="Tipo de combustible" alignment="center" dataType="string"
                                 cellTemplate="tipoCombTpl">
                                 <div *dxTemplate="let r of 'tipoCombTpl'">
                                     {{ r.data.tipoCombustible?.nombre }}
                                 </div>
                             </dxi-column>
-
-                            <!-- fechaHora con pipe -->
                             <dxi-column caption="Fecha y hora" alignment="center" dataType="string"
                                 cellTemplate="fechaHoraTpl">
                                 <div *dxTemplate="let r of 'fechaHoraTpl'">
                                     {{ r.data.fechaHora | date:'dd/MM/yyyy HH:mm' }}
                                 </div>
                             </dxi-column>
-
-                            <!-- fhRegistro con pipe -->
-                            <dxi-column caption="Fecha de registro" alignment="center" dataType="string"
-                                cellTemplate="fhRegTpl">
+                            <dxi-column caption="Fecha de registro" alignment="center" dataType="string" cellTemplate="fhRegTpl">
                                 <div *dxTemplate="let r of 'fhRegTpl'">
                                     {{ r.data.fhRegistro | date:'dd/MM/yyyy HH:mm' }}
                                 </div>
                             </dxi-column>
-
-                            <!-- estatus (igual que ya lo tenías) -->
                             <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est"
                                 dataType="string">
                                 <div *dxTemplate="let f of 'est'">
@@ -123,11 +99,9 @@
                                     </span>
                                 </div>
                             </dxi-column>
-
                             <dxo-export [enabled]="false" [allowExportSelectedData]="true"
                                 [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
                             </dxo-export>
-
                             <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
                                 <div *appHasPermission="'19'">
                                     <button valueExpr="id" id="actualizarButton" class="btnAcciones"
@@ -146,9 +120,7 @@
                                     </button>
                                 </div>
                             </div>
-
                         </dx-data-grid>
-
                     </div>
                 </div>
             </div>

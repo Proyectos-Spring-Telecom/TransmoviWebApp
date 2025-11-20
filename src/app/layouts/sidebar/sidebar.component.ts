@@ -26,6 +26,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
   public showRol: any;
   @ViewChild('sideMenu') sideMenu: ElementRef;
   @ViewChild('componentRef') scrollRef;
+  public showLogotipo: any;
 
   constructor(
     private eventService: EventService,
@@ -49,6 +50,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
     this._scrollElement();
 
     const user = this.user.getUser();
+    this.showLogotipo = user?.logotipo;
 
     if(user.rol.nombre == 'Pasajeros'){
       this.showRol = true

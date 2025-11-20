@@ -17,6 +17,7 @@ export class User {
     rol: any;
     userName: any;
     fotoPerfil: any;
+    logotipo: any;
     nombreCliente: any;
     apellidoPaternoCliente: any;
     apellidoMaternoCliente: any;

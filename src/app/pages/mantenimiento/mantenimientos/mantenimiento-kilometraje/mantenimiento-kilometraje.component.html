@@ -8,7 +8,6 @@
                     </div>
                 </div>
                 <div class="u-banner__body">
-                    <h2 class="u-banner__title">Mantenimiento de Kilometraje</h2>
                     <p class="u-banner__subtitle">
                         Administra y consulta los registros de kilometraje recorridos por tus unidades,
                         controlando recorridos, intervalos de servicio y seguimiento de distancias clave.
@@ -34,9 +33,11 @@
                                 showInfo: true,
                                 infoText: 'Página {0} de {1}', 
                                 visible: true 
-                            }" (onPageIndexChanged)=" onPageIndexChanged($event)" (onOptionChanged)="onGridOptionChanged($event)">
+                            }" (onPageIndexChanged)=" onPageIndexChanged($event)"
+                            (onOptionChanged)="onGridOptionChanged($event)">
                             <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
-                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]"[showInfo]="true"></dxo-pager>
+                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]"
+                                [showInfo]="true"></dxo-pager>
                             <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
@@ -44,9 +45,18 @@
                             <dxi-column *appHasPermission="['19', '20']" caption="Acciones" cellTemplate="Acciones"
                                 alignment="center" dataType="string" [width]="180">
                             </dxi-column>
-                            <dxi-column caption="Instalación" alignment="center" dataField="idInstalacion"
-                                dataType="string">
+                            <dxi-column dataField="imagenVehiculo" caption="Imagen" cellTemplate="imagen" [width]="200"
+                                alignment="center">
+                                <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
                             </dxi-column>
+                            <dxi-column dataField="placaVehiculo" caption="Instalación" alignment="center"
+                                dataType="number">
+                            </dxi-column>
+                            <div *dxTemplate="let data of 'imagen'" style="text-align: center;">
+                                <img *ngIf="data.value" style="max-width: 100px;" [src]="data.value" />
+                                <img *ngIf="data.value == null" style="max-width: 70px;"
+                                    src="https://transmovi.s3.us-east-2.amazonaws.com/imagenes/no-image.jpg" />
+                            </div>
                             <dxi-column caption="Km Inicial" alignment="center" dataType="string"
                                 cellTemplate="kmInicialTpl">
                                 <div *dxTemplate="let r of 'kmInicialTpl'">

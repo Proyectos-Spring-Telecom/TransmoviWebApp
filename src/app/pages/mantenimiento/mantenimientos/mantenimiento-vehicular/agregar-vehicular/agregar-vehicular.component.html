@@ -21,16 +21,16 @@
               [noDataText]="'Sin registros'" placeholder="Seleccione una instalación">
             </dx-select-box>
           </div>
-
-
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Referencia</label>
-            <dx-select-box class="tm-select w-100" formControlName="idReferencia" [items]="listaReferenciasServicios"
+            <dx-select-box class="tm-select w-100" formControlName="idReferencia" [items]="[
+                { id: 1, nombre: 'Preventivo' },
+                { id: 2, nombre: 'Correctivo' }
+              ]"
               [valueExpr]="'id'" [displayExpr]="'nombre'" [searchEnabled]="true" [showClearButton]="true"
               [noDataText]="'Sin registros'" placeholder="Seleccione una referencia">
             </dx-select-box>
           </div>
-
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Taller</label>
             <dx-select-box class="tm-select w-100" formControlName="idTaller" [items]="listaTalleres" [valueExpr]="'Id'"
@@ -38,44 +38,70 @@
               placeholder="Seleccione un taller">
             </dx-select-box>
           </div>
-
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Fecha inicio del servicio</label>
             <dx-date-box class="tm-select w-100" formControlName="fechaInicio" type="datetime" [showClearButton]="true">
             </dx-date-box>
           </div>
-
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Fecha final del servicio</label>
             <dx-date-box class="tm-select w-100" formControlName="fechaFinal" type="datetime" [showClearButton]="true">
             </dx-date-box>
           </div>
-
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Costo</label>
             <input inputmode="decimal" (focus)="onTarifaFocus()" (blur)="onTarifaBlur()"
               (keypress)="allowOnlyNumbers($event)" type="text" class="form-control" formControlName="costo"
               placeholder="Ingrese el costo">
           </div>
-
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Encargado</label>
             <input type="text" class="form-control" formControlName="encargado" placeholder="Nombre del encargado">
           </div>
-
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Descripción del servicio</label>
             <input type="text" class="form-control" formControlName="servicioDescripcion"
               placeholder="Descripción del servicio">
           </div>
-
-          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Nota del servicio</label>
-            <textarea class="form-control" formControlName="notaServicio" rows="3"
-              placeholder="Notas adicionales del servicio"></textarea>
-          </div>
+          <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-2">
+  <div class="tc-upload">
+    <label>Imagen Servicio</label>
+    <div class="tc-preview" *ngIf="notaPreviewUrl; else notaTile">
+      <img [src]="notaPreviewUrl" alt="Imagen servicio" />
+      <div class="tc-actions">
+        <button type="button" class="btn-change" (click)="openNotaFilePicker()">Cambiar</button>
+        <button type="button" class="btn-remove" (click)="clearNotaImage($event)">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <ng-template #notaTile>
+      <div
+        class="tc-tile"
+        (click)="openNotaFilePicker()"
+        (dragover)="onNotaDragOver($event)"
+        (dragleave)="onNotaDragLeave($event)"
+        (drop)="onNotaDrop($event)"
+        [class.dragging]="notaDragging"
+      >
+        <div class="circle"><i class="fas fa-image"></i></div>
+        <div class="meta">
+          <div class="title">Arrastra o haz clic para subir la imagen</div>
+          <div class="hint">JPG/PNG/WEBP/PDF/DOC/XLS · máx 3 MB</div>
         </div>
+      </div>
+    </ng-template>
+    <input
+      type="file"
+      #notaFileInput
+      accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
+      hidden
+      (change)="onNotaFileSelected($event)"
+    />
+  </div>
+</div>
 
+        </div>
         <div class="form-actions mt-4">
           <button type="submit" class="submit" (click)="submit()">
             {{ submitButton }}

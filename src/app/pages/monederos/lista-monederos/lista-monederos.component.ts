@@ -7,7 +7,9 @@ import CustomStore from 'devextreme/data/custom_store';
 import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
+import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { MonederosServices } from 'src/app/shared/services/monederos.service';
+import { PasajerosService } from 'src/app/shared/services/pasajeros.service';
 import { TransaccionesService } from 'src/app/shared/services/transacciones.service';
 import Swal from 'sweetalert2';
 
@@ -44,6 +46,8 @@ export class ListaMonederosComponent implements OnInit {
   isGrouped: boolean = false;
   public paginaActualData: any[] = [];
   public filtroActivo: string = '';
+  public listaTipoPasajero: any;
+  idClienteUser!: number;
 
   constructor(
     private moneService: MonederosServices,
@@ -51,15 +55,20 @@ export class ListaMonederosComponent implements OnInit {
     private fb: FormBuilder,
     private route: Router,
     private permissionsService: NgxPermissionsService,
-    private transaccionService: TransaccionesService
+    private transaccionService: TransaccionesService,
+    private pasaService: PasajerosService,
+    private users: AuthenticationService,
   ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
+    const user = this.users.getUser();
+    this.idClienteUser = Number(user?.idCliente);
   }
 
   ngOnInit(): void {
     this.initForm();
     this.obtenerMonederos();
+    this.obtenerTipoPasajero()
   }
 
   hasPermission(permission: string): boolean {
@@ -69,6 +78,116 @@ export class ListaMonederosComponent implements OnInit {
   actualizarMonederos(idMonedero: number) {
     this.route.navigateByUrl('/monederos/editar-monedero/' + idMonedero);
   }
+
+  obtenerTipoPasajero() {
+    this.pasaService.obtenerPasajeroClienteId(this.idClienteUser).subscribe((response) => {
+      this.listaTipoPasajero = response.data
+    })
+  }
+
+  onCambiarTipoPasajeroMonedero(rowData: any) {
+    const opcionesTipoHtml = (this.listaTipoPasajero || [])
+      .map((item: any) =>
+        `<option value="${item.id}" style="background-color:#002136;color:#ffffff;">
+        ${item.nombre}
+      </option>`
+      )
+      .join('');
+
+    Swal.fire({
+      title: '¿Cambio de Tipo Pasajero?',
+      html: `
+      <label for="tipoPasajeroSelect"
+             style="
+               display:block;
+               margin-top:4px;
+               margin-bottom:8px;
+               color:#ffffff;
+               font-weight:500;
+               text-align:left;
+             ">
+        Tipo Pasajero
+      </label>
+      <select id="tipoPasajeroSelect"
+              style="
+                width:100%;
+                padding:0.625em;
+                border-radius:0.25em;
+                background-color:#002136;
+                color:#ffffff;
+                border:1px solid #4b647a;
+                outline:none;
+                margin-top:6px;
+              ">
+        <option value="" disabled selected
+                style="background-color:#002136;color:#ffffff;">
+          selecciona una opción
+        </option>
+        ${opcionesTipoHtml}
+      </select>
+    `,
+      icon: 'info',
+      background: '#002136',
+      showCancelButton: true,
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      allowEnterKey: false,
+      preConfirm: () => {
+        const popup = Swal.getPopup();
+        const selectTipo = popup?.querySelector('#tipoPasajeroSelect') as HTMLSelectElement | null;
+
+        if (!selectTipo || !selectTipo.value) {
+          Swal.showValidationMessage('debes seleccionar el tipo de pasajero');
+          return;
+        }
+
+        return {
+          idTipoPasajero: Number(selectTipo.value)
+        };
+      }
+    }).then(result => {
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      const idTipoPasajero = result.value.idTipoPasajero;
+      const tipoSeleccionado =
+        (this.listaTipoPasajero || []).find((x: any) => x.id === idTipoPasajero)?.nombre || '';
+
+      this.moneService.updateTipoPasajero(rowData.id, idTipoPasajero).subscribe({
+        next: () => {
+          Swal.fire({
+            title: '¡Operación Exitosa!',
+            html: `El monedero ahora tiene el tipo pasajero <strong>${tipoSeleccionado}</strong>.`,
+            icon: 'success',
+            background: '#002136',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Aceptar',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+          });
+        },
+        error: (error) => {
+          const msg = error?.error || 'No se pudo actualizar el tipo de pasajero.';
+          Swal.fire({
+            title: '¡Ops!',
+            html: msg,
+            icon: 'error',
+            background: '#002136',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Aceptar',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+          });
+        }
+      });
+    });
+  }
+
 
   initForm() {
     this.recargaForm = this.fb.group({
@@ -134,15 +253,13 @@ export class ListaMonederosComponent implements OnInit {
 
             return {
               ...item,
-              // Texto de estatus
               estatusTexto:
                 item?.estatus === 1
                   ? 'Activo'
                   : item?.estatus === 0
-                  ? 'Inactivo'
-                  : null,
-              // Campo que engloba nombre y fallback
-              pasajeroCompleto: nombre || 'sin registro',
+                    ? 'Inactivo'
+                    : null,
+              pasajeroCompleto: nombre || 'Sin registro',
             };
           });
 
@@ -180,7 +297,7 @@ export class ListaMonederosComponent implements OnInit {
     try {
       const colsOpt = grid?.option('columns');
       if (Array.isArray(colsOpt) && colsOpt.length) columnas = colsOpt;
-    } catch {}
+    } catch { }
     if (!columnas.length && grid?.getVisibleColumns) {
       columnas = grid.getVisibleColumns();
     }
@@ -212,7 +329,7 @@ export class ListaMonederosComponent implements OnInit {
               const ddmmyyyy = `${dd}/${mm}/${yyyy}`.toLowerCase();
               if (ddmmyyyy.includes(texto)) return true;
             }
-          } catch {}
+          } catch { }
         }
         return normalizar(v).includes(texto);
       });
@@ -365,9 +482,8 @@ export class ListaMonederosComponent implements OnInit {
         else if (typeof err === 'string' && err.trim()) msg = err;
         else if (err?.message) msg = err.message;
         else if (err?.status)
-          msg = `HTTP ${err.status}${
-            err.statusText ? ' - ' + err.statusText : ''
-          }`;
+          msg = `HTTP ${err.status}${err.statusText ? ' - ' + err.statusText : ''
+            }`;
         else msg = 'Error desconocido';
 
         Swal.fire({
@@ -466,9 +582,8 @@ export class ListaMonederosComponent implements OnInit {
         else if (typeof err === 'string' && err.trim()) msg = err;
         else if (err?.message) msg = err.message;
         else if (err?.status)
-          msg = `HTTP ${err.status}${
-            err.statusText ? ' - ' + err.statusText : ''
-          }`;
+          msg = `HTTP ${err.status}${err.statusText ? ' - ' + err.statusText : ''
+            }`;
         else msg = 'Error desconocido';
 
         Swal.fire({
