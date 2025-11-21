@@ -1,0 +1,61 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-header-custom">
+            <div class="icon-wrapper">
+                <i class="fas fa-plus"></i>
+            </div>
+            <div class="header-text">
+                <h5>{{ title }}</h5>
+                <span>Completa la información para registrar un nuevo módulo.</span>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <form [formGroup]="tipoPasajeroForm" class="cliente-form">
+                <h6 class="section-title">Datos Generales</h6>
+
+                <div class="row mt-3">
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-2">
+                        <label>Nombre</label>
+                        <input type="text" class="form-control" formControlName="nombre" placeholder="Estudiante">
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-2">
+                        <label>Tipo de descuento</label>
+                        <dx-select-box class="tm-select w-100" formControlName="idCatTipoDescuento"
+                            [items]="listaTiposDescuentos || []" valueExpr="idCatTipoDescuento"
+                            displayExpr="nombreCatTipoDescuento" [searchEnabled]="false" [showClearButton]="true"
+                            [noDataText]="'Sin registros'" placeholder="Seleccione un tipo de descuento">
+                        </dx-select-box>
+
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-2">
+  <label>Cantidad</label>
+  <input
+    type="text"
+    class="form-control"
+    formControlName="cantidad"
+    placeholder="50"
+    (keypress)="allowOnlyNumbers($event)"
+    (blur)="formatearCantidad()"
+    (focus)="removerFormatoCantidad()">
+</div>
+
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-2">
+                        <label>Cliente</label>
+                        <dx-select-box class="tm-select w-100" formControlName="idCliente" [items]="listaClientes || []"
+                            valueExpr="id" displayExpr="nombre" [searchEnabled]="true" [showClearButton]="true"
+                            [noDataText]="'Sin registros'" placeholder="Seleccione un cliente">
+                        </dx-select-box>
+                    </div>
+
+                </div>
+
+                <div class="form-actions mt-4">
+                    <button type="submit" class="submit" (click)="submit()">{{ submitButton }}</button>
+                    <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

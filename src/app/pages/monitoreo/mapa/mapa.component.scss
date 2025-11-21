@@ -1,12 +1,12 @@
 .total-registros-label {
-  font-size: 16px; 
-  font-weight: bold; 
-  color: #f7fb06; 
-  padding: 8px 15px; 
-  border-radius: 5px; 
-  background-color: #515237; 
-  display: inline-block; 
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+  font-size: 16px;
+  font-weight: bold;
+  color: #f7fb06;
+  padding: 8px 15px;
+  border-radius: 5px;
+  background-color: #515237;
+  display: inline-block;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .card {
@@ -19,6 +19,7 @@
 .data {
   min-width: 1000px;
 }
+
 .header-dispositivos {
   text-align: center;
   background-color: #00836d;
@@ -73,11 +74,11 @@
   padding: 1rem;
 }
 
-.shadow-sm{
+.shadow-sm {
   background-color: #54565a;
 }
 
-.modal-title{
+.modal-title {
   color: white;
 }
 
@@ -94,6 +95,7 @@
 .data {
   min-width: 1000px;
 }
+
 .content-cards {
   max-height: 56vh; // ajusta según tu diseño
   overflow-y: auto;
@@ -165,7 +167,8 @@
 .map-container {
   border-radius: 15px;
   height: 520px;
-  flex: 1; /* Se adapta al contenedor */
+  flex: 1;
+  /* Se adapta al contenedor */
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   background-color: #e9ecef;

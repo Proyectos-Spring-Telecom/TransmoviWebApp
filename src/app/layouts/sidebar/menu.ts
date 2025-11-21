@@ -43,6 +43,12 @@ export const MENU: MenuItem[] = [
                 permiso: Permiso.Listado_Roles
             },
             {
+                id: 15,
+                label: 'Tipo Pasajero',
+                link: '/tipo-pasajero',
+                permiso: Permiso.Listado_Roles
+            },
+            {
                 id: 8,
                 label: 'Bitácora',
                 icon: 'uil-list-ul',
@@ -210,6 +216,7 @@ export const MENU: MenuItem[] = [
                 id: 16,
                 label: 'Verificaciones',
                 icon: 'uil-apps',
+                link: '/verificaciones'
             },
             {
                 id: 16,
