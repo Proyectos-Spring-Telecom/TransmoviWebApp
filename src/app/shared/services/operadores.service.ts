@@ -54,4 +54,8 @@ export class OperadoresService {
   agregarLicencia(data: any) {
     return this.http.post(environment.API_SECURITY + '/licencias', data);
   }
+
+  obtenerOperadoresByCliente(idCliente: number): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/operadores/by-cliente/${idCliente}`);
+  }
 }
