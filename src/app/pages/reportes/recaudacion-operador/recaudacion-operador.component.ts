@@ -63,11 +63,11 @@ export class RecaudacionOperadorComponent implements OnInit {
       idCliente: [null],
       idOperador: [null],
     });
+    this.getCambioCliente();
   }
 
   ngOnInit(): void {
     this.cargarClientes();
-    this.cargarOperadores();
   }
 
   aplicarFiltros(): void {
@@ -92,6 +92,36 @@ export class RecaudacionOperadorComponent implements OnInit {
     });
   }
 
+  private getCambioCliente(): void {
+    this.filtroForm.get('idCliente')?.valueChanges.subscribe((idCliente) => {
+      if (idCliente) {
+        this.cargarOperadoresByCliente(Number(idCliente));
+      } else {
+        this.operadoresOptions = [];
+        this.filtroForm.patchValue({ idOperador: null }, { emitEvent: false });
+      }
+    });
+  }
+
+  private cargarOperadoresByCliente(idCliente: number): void {
+    this.operadoresService.obtenerOperadoresByCliente(idCliente).subscribe({
+      next: (response) => {
+        const raw = (response as any)?.data ?? response ?? [];
+        this.operadoresOptions = Array.isArray(raw) ? raw.map((o: any) => ({
+          ...o,
+          id: Number(o?.id ?? o?.Id ?? o?.idOperador ?? o?.ID),
+          nombreCompleto:
+            o?.nombreCompleto ??
+            `${o?.nombre ?? ''} ${o?.apellidoPaterno ?? ''} ${o?.apellidoMaterno ?? ''}`.trim(),
+        })) : [];
+      },
+      error: (error) => {
+        console.error('Error al cargar operadores por cliente', error);
+        this.operadoresOptions = [];
+      }
+    });
+  }
+
   limpiarFiltros(): void {
     this.filtroForm.reset({
       fechaInicio: new Date(),
@@ -99,6 +129,7 @@ export class RecaudacionOperadorComponent implements OnInit {
       idCliente: null,
       idOperador: null,
     });
+    this.operadoresOptions = [];
     this.informacion = [];
   }
 
@@ -107,8 +138,8 @@ export class RecaudacionOperadorComponent implements OnInit {
     return {
       fechaInicio: this.formatearFecha(raw.fechaInicio),
       fechaFin: this.formatearFecha(raw.fechaFin),
-      idCliente: raw.idCliente,
-      idOperador: raw.idOperador,
+      idCliente: raw.idCliente ? Number(raw.idCliente) : null,
+      idOperador: raw.idOperador ? Number(raw.idOperador) : null,
     };
   }
 
@@ -194,23 +225,5 @@ export class RecaudacionOperadorComponent implements OnInit {
     });
   }
 
-  private cargarOperadores(): void {
-    this.operadoresService.obtenerOperadores().subscribe({
-      next: (response) => {
-        const raw = (response as any)?.data ?? response ?? [];
-        this.operadoresOptions = raw.map((o: any) => ({
-          ...o,
-          id: Number(o?.id ?? o?.Id ?? o?.idOperador ?? o?.ID),
-          nombreCompleto:
-            o?.nombreCompleto ??
-            `${o?.nombre ?? ''} ${o?.apellidoPaterno ?? ''} ${o?.apellidoMaterno ?? ''}`.trim(),
-        }));
-      },
-      error: (error) => {
-        console.error('Error al cargar operadores', error);
-        this.operadoresOptions = [];
-      },
-    });
-  }
 
 }

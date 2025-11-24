@@ -85,11 +85,11 @@ export class RecaudacionVehiculoComponent implements OnInit {
       idVehiculo: [null],
       idRuta: [null],
     });
+    this.getCambioCliente();
   }
 
   ngOnInit(): void {
     this.cargarClientes();
-    this.cargarVehiculos();
     this.cargarRutas();
   }
 
@@ -115,6 +115,34 @@ export class RecaudacionVehiculoComponent implements OnInit {
     });
   }
 
+  private getCambioCliente(): void {
+    this.filtroForm.get('idCliente')?.valueChanges.subscribe((idCliente) => {
+      if (idCliente) {
+        this.cargarVehiculosByCliente(Number(idCliente));
+      } else {
+        this.vehiculosOptions = [];
+        this.filtroForm.patchValue({ idVehiculo: null }, { emitEvent: false });
+      }
+    });
+  }
+
+  private cargarVehiculosByCliente(idCliente: number): void {
+    this.vehiculosService.obtenerVehiculosByCliente(idCliente).subscribe({
+      next: (response) => {
+        const raw = (response as any)?.data ?? response ?? [];
+        this.vehiculosOptions = Array.isArray(raw) ? raw.map((v: any) => ({
+          ...v,
+          id: Number(v?.id ?? v?.Id ?? v?.idVehiculo ?? v?.ID),
+          numeroEconomico: v?.numeroEconomico ?? v?.numero ?? v?.placa ?? '',
+        })) : [];
+      },
+      error: (error) => {
+        console.error('Error al cargar vehículos por cliente', error);
+        this.vehiculosOptions = [];
+      }
+    });
+  }
+
   limpiarFiltros(): void {
     this.filtroForm.reset({
       fechaInicio: new Date(),
@@ -123,6 +151,7 @@ export class RecaudacionVehiculoComponent implements OnInit {
       idVehiculo: null,
       idRuta: null,
     });
+    this.vehiculosOptions = [];
     this.informacion = [];
   }
 
@@ -131,9 +160,9 @@ export class RecaudacionVehiculoComponent implements OnInit {
     return {
       fechaInicio: this.formatearFecha(raw.fechaInicio),
       fechaFin: this.formatearFecha(raw.fechaFin),
-      idCliente: raw.idCliente,
-      idVehiculo: raw.idVehiculo,
-      idRuta: raw.idRuta,
+      idCliente: raw.idCliente ? Number(raw.idCliente) : null,
+      idVehiculo: raw.idVehiculo ? Number(raw.idVehiculo) : null,
+      idRuta: raw.idRuta ? Number(raw.idRuta) : null,
     };
   }
 
@@ -214,22 +243,6 @@ export class RecaudacionVehiculoComponent implements OnInit {
     });
   }
 
-  private cargarVehiculos(): void {
-    this.vehiculosService.obtenerVehiculos().subscribe({
-      next: (response) => {
-        const raw = (response as any)?.data ?? response ?? [];
-        this.vehiculosOptions = raw.map((v: any) => ({
-          ...v,
-          id: Number(v?.id ?? v?.Id ?? v?.idVehiculo ?? v?.ID),
-          numeroEconomico: v?.numeroEconomico ?? v?.numero ?? v?.placa ?? '',
-        }));
-      },
-      error: (error) => {
-        console.error('Error al cargar vehículos', error);
-        this.vehiculosOptions = [];
-      },
-    });
-  }
 
   private cargarRutas(): void {
     this.rutasService.obtenerRutas().subscribe({

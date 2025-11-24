@@ -19,7 +19,7 @@ export class DispositivosService {
   }
 
   obtenerDispositivosByCliente(idCliente: any): Observable<any> {
-    return this.http.get(`${environment.API_SECURITY}/dispositivos/clientes/${idCliente}`);
+    return this.http.get(`${environment.API_SECURITY}/dispositivos/by-cliente/${idCliente}`);
   }
 
   agregarDispositivo(data: FormData) {

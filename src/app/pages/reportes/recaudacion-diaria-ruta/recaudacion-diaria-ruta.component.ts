@@ -4,6 +4,9 @@ import { DxDataGridComponent } from 'devextreme-angular';
 import { ReportesService, RecaudacionDiariaRutaRequest } from '../reportes.service';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { ClientesService } from 'src/app/shared/services/clientes.service';
+import { RegionesService } from 'src/app/shared/services/regiones.service';
+import { RutasService } from 'src/app/shared/services/rutas.service';
+import { DerroterosService } from 'src/app/shared/services/derroteros.service';
 
 @Component({
   selector: 'app-recaudacion-diaria-ruta',
@@ -42,11 +45,44 @@ export class RecaudacionDiariaRutaComponent implements OnInit {
         c.name ??
         ''
       : '';
+  public regionesOptions: any[] = [];
+  public regionValueExpr: string = 'id';
+  public regionDisplayExpr = (r: any) =>
+    r
+      ? r.nombre ?? 
+        r.nombreRegion ?? 
+        r.descripcion ?? 
+        r.name ?? 
+        ''
+      : '';
+  public rutasOptions: any[] = [];
+  public rutaValueExpr: string = 'id';
+  public rutaDisplayExpr = (r: any) =>
+    r
+      ? r.nombre ?? 
+        r.nombreRuta ?? 
+        r.descripcion ?? 
+        r.name ?? 
+        ''
+      : '';
+  public derroterosOptions: any[] = [];
+  public derroteroValueExpr: string = 'id';
+  public derroteroDisplayExpr = (d: any) =>
+    d
+      ? d.nombre ?? 
+        d.nombreDerrotero ?? 
+        d.descripcion ?? 
+        d.name ?? 
+        ''
+      : '';
 
   constructor(
     private fb: FormBuilder,
     private reportesService: ReportesService,
-    private clientesService: ClientesService
+    private clientesService: ClientesService,
+    private regionesService: RegionesService,
+    private rutasService: RutasService,
+    private derroterosService: DerroterosService
   ) {
     this.filtroForm = this.fb.group({
       fechaInicio: [new Date(), Validators.required],
@@ -56,10 +92,100 @@ export class RecaudacionDiariaRutaComponent implements OnInit {
       idRuta: [null],
       idDerrotero: [null]
     });
+    this.getCambioCliente();
+    this.getCambioRegion();
+    this.getCambioRuta();
   }
 
   ngOnInit(): void {
     this.cargarClientes();
+  }
+
+  private getCambioCliente(): void {
+    this.filtroForm.get('idCliente')?.valueChanges.subscribe((idCliente) => {
+      if (idCliente) {
+        this.cargarRegionesByCliente(Number(idCliente));
+      } else {
+        this.regionesOptions = [];
+        this.filtroForm.patchValue({ idRegion: null }, { emitEvent: false });
+        this.rutasOptions = [];
+        this.filtroForm.patchValue({ idRuta: null }, { emitEvent: false });
+        this.derroterosOptions = [];
+        this.filtroForm.patchValue({ idDerrotero: null }, { emitEvent: false });
+      }
+    });
+  }
+
+  private getCambioRegion(): void {
+    this.filtroForm.get('idRegion')?.valueChanges.subscribe((idRegion) => {
+      if (idRegion) {
+        this.cargarRutasByRegion(Number(idRegion));
+      } else {
+        this.rutasOptions = [];
+        this.filtroForm.patchValue({ idRuta: null }, { emitEvent: false });
+        this.derroterosOptions = [];
+        this.filtroForm.patchValue({ idDerrotero: null }, { emitEvent: false });
+      }
+    });
+  }
+
+  private getCambioRuta(): void {
+    this.filtroForm.get('idRuta')?.valueChanges.subscribe((idRuta) => {
+      if (idRuta) {
+        this.cargarDerroterosByRuta(Number(idRuta));
+      } else {
+        this.derroterosOptions = [];
+        this.filtroForm.patchValue({ idDerrotero: null }, { emitEvent: false });
+      }
+    });
+  }
+
+  private cargarRegionesByCliente(idCliente: number): void {
+    this.regionesService.obtenerRegionesByCliente(idCliente).subscribe({
+      next: (response) => {
+        const raw = (response as any)?.data ?? response ?? [];
+        this.regionesOptions = Array.isArray(raw) ? raw.map((r: any) => ({
+          ...r,
+          id: Number(r?.id ?? r?.Id ?? r?.idRegion ?? r?.ID),
+        })) : [];
+      },
+      error: (error) => {
+        console.error('Error al cargar regiones por cliente', error);
+        this.regionesOptions = [];
+      }
+    });
+  }
+
+  private cargarRutasByRegion(idRegion: number): void {
+    this.rutasService.obtenerRutasByRegion(idRegion).subscribe({
+      next: (response) => {
+        const raw = (response as any)?.data ?? response ?? [];
+        this.rutasOptions = Array.isArray(raw) ? raw.map((r: any) => ({
+          ...r,
+          id: Number(r?.id ?? r?.Id ?? r?.idRuta ?? r?.ID),
+        })) : [];
+      },
+      error: (error) => {
+        console.error('Error al cargar rutas por región', error);
+        this.rutasOptions = [];
+      }
+    });
+  }
+
+  private cargarDerroterosByRuta(idRuta: number): void {
+    this.derroterosService.obtenerDerroterosByRuta(idRuta).subscribe({
+      next: (response) => {
+        const raw = (response as any)?.data ?? response ?? [];
+        this.derroterosOptions = Array.isArray(raw) ? raw.map((d: any) => ({
+          ...d,
+          id: Number(d?.id ?? d?.Id ?? d?.idDerrotero ?? d?.ID),
+        })) : [];
+      },
+      error: (error) => {
+        console.error('Error al cargar derroteros por ruta', error);
+        this.derroterosOptions = [];
+      }
+    });
   }
 
   aplicarFiltros(): void {
@@ -109,6 +235,9 @@ export class RecaudacionDiariaRutaComponent implements OnInit {
       idRuta: null,
       idDerrotero: null
     });
+    this.regionesOptions = [];
+    this.rutasOptions = [];
+    this.derroterosOptions = [];
     this.informacion = [];
   }
 
@@ -117,10 +246,10 @@ export class RecaudacionDiariaRutaComponent implements OnInit {
     return {
       fechaInicio: this.formatearFecha(raw.fechaInicio),
       fechaFin: this.formatearFecha(raw.fechaFin),
-      idCliente: raw.idCliente,
-      idRegion: raw.idRegion,
-      idRuta: raw.idRuta,
-      idDerrotero: raw.idDerrotero
+      idCliente: raw.idCliente ? Number(raw.idCliente) : null,
+      idRegion: raw.idRegion ? Number(raw.idRegion) : null,
+      idRuta: raw.idRuta ? Number(raw.idRuta) : null,
+      idDerrotero: raw.idDerrotero ? Number(raw.idDerrotero) : null
     };
   }
 

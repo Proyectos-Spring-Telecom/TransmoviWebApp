@@ -57,6 +57,10 @@ agregarRuta(payload: any) {
     return this.http.put(`${environment.API_SECURITY}/rutas/` + idRuta, saveForm);
   }
 
+  obtenerRutasByRegion(idRegion: number): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/rutas/by-region/${idRegion}`);
+  }
+
   private apiUrl = `${environment.API_SECURITY}/rutas`;
   updateEstatus(id: number, estatus: number): Observable<string> {
     const url = `${this.apiUrl}/estatus/${id}`;

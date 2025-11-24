@@ -84,11 +84,11 @@ export class RecaudacionDipositivoInstalacionComponent implements OnInit {
       idDispositivo: [null],
       idInstalacion: [null],
     });
+    this.getCambioCliente();
   }
 
   ngOnInit(): void {
     this.cargarClientes();
-    this.cargarDispositivos();
     this.cargarInstalaciones();
   }
 
@@ -114,6 +114,34 @@ export class RecaudacionDipositivoInstalacionComponent implements OnInit {
     });
   }
 
+  private getCambioCliente(): void {
+    this.filtroForm.get('idCliente')?.valueChanges.subscribe((idCliente) => {
+      if (idCliente) {
+        this.cargarDispositivosByCliente(Number(idCliente));
+      } else {
+        this.dispositivosOptions = [];
+        this.filtroForm.patchValue({ idDispositivo: null }, { emitEvent: false });
+      }
+    });
+  }
+
+  private cargarDispositivosByCliente(idCliente: number): void {
+    this.dispositivosService.obtenerDispositivosByCliente(idCliente).subscribe({
+      next: (response) => {
+        const raw = (response as any)?.data ?? response ?? [];
+        this.dispositivosOptions = Array.isArray(raw) ? raw.map((d: any) => ({
+          ...d,
+          id: Number(d?.id ?? d?.Id ?? d?.idDispositivo ?? d?.ID),
+          numeroSerie: d?.numeroSerie ?? d?.serie ?? d?.serieDispositivo ?? '',
+        })) : [];
+      },
+      error: (error) => {
+        console.error('Error al cargar dispositivos por cliente', error);
+        this.dispositivosOptions = [];
+      }
+    });
+  }
+
   limpiarFiltros(): void {
     this.filtroForm.reset({
       fechaInicio: new Date(),
@@ -122,6 +150,7 @@ export class RecaudacionDipositivoInstalacionComponent implements OnInit {
       idDispositivo: null,
       idInstalacion: null,
     });
+    this.dispositivosOptions = [];
     this.informacion = [];
   }
 
@@ -130,9 +159,9 @@ export class RecaudacionDipositivoInstalacionComponent implements OnInit {
     return {
       fechaInicio: this.formatearFecha(raw.fechaInicio),
       fechaFin: this.formatearFecha(raw.fechaFin),
-      idCliente: raw.idCliente,
-      idDispositivo: raw.idDispositivo,
-      idInstalacion: raw.idInstalacion,
+      idCliente: raw.idCliente ? Number(raw.idCliente) : null,
+      idDispositivo: raw.idDispositivo ? Number(raw.idDispositivo) : null,
+      idInstalacion: raw.idInstalacion ? Number(raw.idInstalacion) : null,
     };
   }
 
@@ -196,22 +225,6 @@ export class RecaudacionDipositivoInstalacionComponent implements OnInit {
     });
   }
 
-  private cargarDispositivos(): void {
-    this.dispositivosService.obtenerDispositivos().subscribe({
-      next: (response) => {
-        const raw = (response as any)?.data ?? response ?? [];
-        this.dispositivosOptions = raw.map((d: any) => ({
-          ...d,
-          id: Number(d?.id ?? d?.Id ?? d?.idDispositivo ?? d?.ID),
-          numeroSerie: d?.numeroSerie ?? d?.serie ?? d?.serieDispositivo ?? '',
-        }));
-      },
-      error: (error) => {
-        console.error('Error al cargar dispositivos', error);
-        this.dispositivosOptions = [];
-      },
-    });
-  }
 
   private cargarInstalaciones(): void {
     this.instalacionesService.obtenerInstalaciones().subscribe({
