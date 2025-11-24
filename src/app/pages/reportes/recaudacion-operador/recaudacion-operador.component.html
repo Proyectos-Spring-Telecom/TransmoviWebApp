@@ -36,7 +36,7 @@
                         <dx-select-box stylingMode="filled" placeholder="Selecciona operador" formControlName="idOperador"
                             [dataSource]="operadoresOptions" [valueExpr]="operadorValueExpr"
                             [displayExpr]="operadorDisplayExpr" [searchEnabled]="true" [showClearButton]="true"
-                            [width]="'100%'"></dx-select-box>
+                            [disabled]="operadorDisabled" [width]="'100%'"></dx-select-box>
                     </div>
                 </div>
 

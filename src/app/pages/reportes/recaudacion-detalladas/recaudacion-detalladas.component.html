@@ -38,13 +38,15 @@
                             <dx-select-box stylingMode="filled" placeholder="Selecciona ruta"
                                 formControlName="idRuta" [dataSource]="rutasOptions" [valueExpr]="rutaValueExpr"
                                 [displayExpr]="rutaDisplayExpr" [searchEnabled]="true" [showClearButton]="true"
-                                [width]="'100%'"></dx-select-box>
+                                [disabled]="rutaDisabled" [width]="'100%'"></dx-select-box>
                         </div>
 
                         <div class="col-12 col-md-4 col-xl-2">
                             <label>Derrotero</label>
                             <dx-select-box stylingMode="filled" placeholder="Selecciona derrotero"
-                                formControlName="idDerrotero" [width]="'100%'"></dx-select-box>
+                                formControlName="idDerrotero" [dataSource]="derroterosOptions" [valueExpr]="derroteroValueExpr"
+                                [displayExpr]="derroteroDisplayExpr" [searchEnabled]="true" [showClearButton]="true"
+                                [disabled]="derroteroDisabled" [width]="'100%'"></dx-select-box>
                         </div>
 
                         <div class="col-12 col-md-4 col-xl-2">
@@ -52,7 +54,7 @@
                             <dx-select-box stylingMode="filled" placeholder="Selecciona operador"
                                 formControlName="idOperador" [dataSource]="operadoresOptions" [valueExpr]="operadorValueExpr"
                                 [displayExpr]="operadorDisplayExpr" [searchEnabled]="true" [showClearButton]="true"
-                                [width]="'100%'"></dx-select-box>
+                                [disabled]="operadorDisabled" [width]="'100%'"></dx-select-box>
                         </div>
 
                         <div class="col-12 col-md-4 col-xl-2">
@@ -60,7 +62,7 @@
                             <dx-select-box stylingMode="filled" placeholder="Selecciona vehículo"
                                 formControlName="idVehiculo" [dataSource]="vehiculosOptions" [valueExpr]="vehiculoValueExpr"
                                 [displayExpr]="vehiculoDisplayExpr" [searchEnabled]="true" [showClearButton]="true"
-                                [width]="'100%'"></dx-select-box>
+                                [disabled]="vehiculoDisabled" [width]="'100%'"></dx-select-box>
                         </div>
 
                         <div class="col-12 col-md-4 col-xl-2">
@@ -68,7 +70,7 @@
                             <dx-select-box stylingMode="filled" placeholder="Selecciona dispositivo"
                                 formControlName="idDispositivo" [dataSource]="dispositivosOptions"
                                 [valueExpr]="dispositivoValueExpr" [displayExpr]="dispositivoDisplayExpr"
-                                [searchEnabled]="true" [showClearButton]="true" [width]="'100%'"></dx-select-box>
+                                [searchEnabled]="true" [showClearButton]="true" [disabled]="dispositivoDisabled" [width]="'100%'"></dx-select-box>
                         </div>
                     </div>
 

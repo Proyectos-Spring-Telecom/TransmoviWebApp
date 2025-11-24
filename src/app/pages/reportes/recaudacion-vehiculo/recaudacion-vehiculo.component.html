@@ -36,7 +36,7 @@
                         <dx-select-box stylingMode="filled" placeholder="Selecciona vehículo" formControlName="idVehiculo"
                             [dataSource]="vehiculosOptions" [valueExpr]="vehiculoValueExpr"
                             [displayExpr]="vehiculoDisplayExpr" [searchEnabled]="true" [showClearButton]="true"
-                            [width]="'100%'"></dx-select-box>
+                            [disabled]="vehiculoDisabled" [width]="'100%'"></dx-select-box>
                     </div>
 
                     <div class="col-12 col-md-4 col-xl-3">
