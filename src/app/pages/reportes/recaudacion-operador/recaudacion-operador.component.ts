@@ -50,6 +50,7 @@ export class RecaudacionOperadorComponent implements OnInit {
 
   public operadorDisplayExpr = (o: any) =>
     o ? o.nombreCompleto ?? o.nombre ?? o.operador ?? o.fullName ?? '' : '';
+  public operadorDisabled: boolean = true;
 
   constructor(
     private fb: FormBuilder,
@@ -61,7 +62,7 @@ export class RecaudacionOperadorComponent implements OnInit {
       fechaInicio: [new Date(), Validators.required],
       fechaFin: [new Date(), Validators.required],
       idCliente: [null],
-      idOperador: [null],
+      idOperador: [{value: null, disabled: true}],
     });
     this.getCambioCliente();
   }
@@ -95,10 +96,14 @@ export class RecaudacionOperadorComponent implements OnInit {
   private getCambioCliente(): void {
     this.filtroForm.get('idCliente')?.valueChanges.subscribe((idCliente) => {
       if (idCliente) {
+        this.operadorDisabled = true;
+        this.filtroForm.get('idOperador')?.disable();
         this.cargarOperadoresByCliente(Number(idCliente));
       } else {
         this.operadoresOptions = [];
         this.filtroForm.patchValue({ idOperador: null }, { emitEvent: false });
+        this.operadorDisabled = true;
+        this.filtroForm.get('idOperador')?.disable();
       }
     });
   }
@@ -114,10 +119,18 @@ export class RecaudacionOperadorComponent implements OnInit {
             o?.nombreCompleto ??
             `${o?.nombre ?? ''} ${o?.apellidoPaterno ?? ''} ${o?.apellidoMaterno ?? ''}`.trim(),
         })) : [];
+        this.operadorDisabled = this.operadoresOptions.length === 0;
+        if (this.operadoresOptions.length > 0) {
+          this.filtroForm.get('idOperador')?.enable();
+        } else {
+          this.filtroForm.get('idOperador')?.disable();
+        }
       },
       error: (error) => {
         console.error('Error al cargar operadores por cliente', error);
         this.operadoresOptions = [];
+        this.operadorDisabled = true;
+        this.filtroForm.get('idOperador')?.disable();
       }
     });
   }
@@ -130,6 +143,8 @@ export class RecaudacionOperadorComponent implements OnInit {
       idOperador: null,
     });
     this.operadoresOptions = [];
+    this.operadorDisabled = true;
+    this.filtroForm.get('idOperador')?.disable();
     this.informacion = [];
   }
 

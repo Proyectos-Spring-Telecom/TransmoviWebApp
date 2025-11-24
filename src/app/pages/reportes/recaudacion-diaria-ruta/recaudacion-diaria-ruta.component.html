@@ -33,19 +33,19 @@
                         <label>Región</label>
                         <dx-select-box stylingMode="filled" placeholder="Selecciona región" formControlName="idRegion"
                             [dataSource]="regionesOptions" [valueExpr]="regionValueExpr" [displayExpr]="regionDisplayExpr"
-                            [searchEnabled]="true" [showClearButton]="true" [width]="'100%'"></dx-select-box>
+                            [searchEnabled]="true" [showClearButton]="true" [disabled]="regionDisabled" [width]="'100%'"></dx-select-box>
                     </div>
                     <div class="col-12 col-md-4 col-xl-3">
                         <label>Ruta</label>
                         <dx-select-box stylingMode="filled" placeholder="Selecciona ruta" formControlName="idRuta"
                             [dataSource]="rutasOptions" [valueExpr]="rutaValueExpr" [displayExpr]="rutaDisplayExpr"
-                            [searchEnabled]="true" [showClearButton]="true" [width]="'100%'"></dx-select-box>
+                            [searchEnabled]="true" [showClearButton]="true" [disabled]="rutaDisabled" [width]="'100%'"></dx-select-box>
                     </div>
                     <div class="col-12 col-md-4 col-xl-3">
                         <label>Derrotero</label>
                         <dx-select-box stylingMode="filled" placeholder="Selecciona derrotero" formControlName="idDerrotero"
                             [dataSource]="derroterosOptions" [valueExpr]="derroteroValueExpr" [displayExpr]="derroteroDisplayExpr"
-                            [searchEnabled]="true" [showClearButton]="true" [width]="'100%'"></dx-select-box>
+                            [searchEnabled]="true" [showClearButton]="true" [disabled]="derroteroDisabled" [width]="'100%'"></dx-select-box>
                     </div>
                 </div>
 

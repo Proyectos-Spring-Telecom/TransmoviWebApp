@@ -69,6 +69,7 @@ export class RecaudacionDipositivoInstalacionComponent implements OnInit {
         i.codigo ??
         ''
       : '';
+  public dispositivoDisabled: boolean = true;
 
   constructor(
     private fb: FormBuilder,
@@ -81,7 +82,7 @@ export class RecaudacionDipositivoInstalacionComponent implements OnInit {
       fechaInicio: [new Date(), Validators.required],
       fechaFin: [new Date(), Validators.required],
       idCliente: [null],
-      idDispositivo: [null],
+      idDispositivo: [{value: null, disabled: true}],
       idInstalacion: [null],
     });
     this.getCambioCliente();
@@ -117,10 +118,14 @@ export class RecaudacionDipositivoInstalacionComponent implements OnInit {
   private getCambioCliente(): void {
     this.filtroForm.get('idCliente')?.valueChanges.subscribe((idCliente) => {
       if (idCliente) {
+        this.dispositivoDisabled = true;
+        this.filtroForm.get('idDispositivo')?.disable();
         this.cargarDispositivosByCliente(Number(idCliente));
       } else {
         this.dispositivosOptions = [];
         this.filtroForm.patchValue({ idDispositivo: null }, { emitEvent: false });
+        this.dispositivoDisabled = true;
+        this.filtroForm.get('idDispositivo')?.disable();
       }
     });
   }
@@ -134,10 +139,18 @@ export class RecaudacionDipositivoInstalacionComponent implements OnInit {
           id: Number(d?.id ?? d?.Id ?? d?.idDispositivo ?? d?.ID),
           numeroSerie: d?.numeroSerie ?? d?.serie ?? d?.serieDispositivo ?? '',
         })) : [];
+        this.dispositivoDisabled = this.dispositivosOptions.length === 0;
+        if (this.dispositivosOptions.length > 0) {
+          this.filtroForm.get('idDispositivo')?.enable();
+        } else {
+          this.filtroForm.get('idDispositivo')?.disable();
+        }
       },
       error: (error) => {
         console.error('Error al cargar dispositivos por cliente', error);
         this.dispositivosOptions = [];
+        this.dispositivoDisabled = true;
+        this.filtroForm.get('idDispositivo')?.disable();
       }
     });
   }
@@ -151,6 +164,8 @@ export class RecaudacionDipositivoInstalacionComponent implements OnInit {
       idInstalacion: null,
     });
     this.dispositivosOptions = [];
+    this.dispositivoDisabled = true;
+    this.filtroForm.get('idDispositivo')?.disable();
     this.informacion = [];
   }
 

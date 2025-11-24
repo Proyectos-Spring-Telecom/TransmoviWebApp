@@ -6,6 +6,7 @@ import { RutasService } from 'src/app/shared/services/rutas.service';
 import { OperadoresService } from 'src/app/shared/services/operadores.service';
 import { VehiculosService } from 'src/app/shared/services/vehiculos.service';
 import { DispositivosService } from 'src/app/shared/services/dispositivos.service';
+import { DerroterosService } from 'src/app/shared/services/derroteros.service';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 
 @Component({
@@ -39,12 +40,14 @@ export class RecaudacionDetalladasComponent implements OnInit {
   public operadoresOptions: any[] = [];
   public vehiculosOptions: any[] = [];
   public dispositivosOptions: any[] = [];
+  public derroterosOptions: any[] = [];
 
   public clienteValueExpr: string = 'id';
   public rutaValueExpr: string = 'id';
   public operadorValueExpr: string = 'id';
   public vehiculoValueExpr: string = 'id';
   public dispositivoValueExpr: string = 'id';
+  public derroteroValueExpr: string = 'id';
 
   public clienteDisplayExpr = (c: any) =>
     c
@@ -95,25 +98,42 @@ export class RecaudacionDetalladasComponent implements OnInit {
         ''
       : '';
 
+  public derroteroDisplayExpr = (d: any) =>
+    d
+      ? d.nombre ??
+        d.nombreDerrotero ??
+        d.descripcion ??
+        d.name ??
+        ''
+      : '';
+
+  public rutaDisabled: boolean = true;
+  public operadorDisabled: boolean = true;
+  public vehiculoDisabled: boolean = true;
+  public dispositivoDisabled: boolean = true;
+  public derroteroDisabled: boolean = true;
+
   constructor(
     private fb: FormBuilder,
     private clientesService: ClientesService,
     private rutasService: RutasService,
     private operadoresService: OperadoresService,
     private vehiculosService: VehiculosService,
-    private dispositivosService: DispositivosService
+    private dispositivosService: DispositivosService,
+    private derroterosService: DerroterosService
   ) {
     this.filtroForm = this.fb.group({
       fechaInicio: [new Date(), Validators.required],
       fechaFin: [new Date(), Validators.required],
       idCliente: [null],
-      idRuta: [null],
-      idDerrotero: [null],
-      idOperador: [null],
-      idVehiculo: [null],
-      idDispositivo: [null],
+      idRuta: [{value: null, disabled: true}],
+      idDerrotero: [{value: null, disabled: true}],
+      idOperador: [{value: null, disabled: true}],
+      idVehiculo: [{value: null, disabled: true}],
+      idDispositivo: [{value: null, disabled: true}],
     });
     this.getCambioCliente();
+    this.getCambioRuta();
   }
 
   ngOnInit(): void {
@@ -123,9 +143,34 @@ export class RecaudacionDetalladasComponent implements OnInit {
   private getCambioCliente(): void {
     this.filtroForm.get('idCliente')?.valueChanges.subscribe((idCliente) => {
       if (idCliente) {
+        this.rutaDisabled = true;
+        this.operadorDisabled = true;
+        this.vehiculoDisabled = true;
+        this.dispositivoDisabled = true;
+        this.derroteroDisabled = true;
+        this.filtroForm.get('idRuta')?.disable();
+        this.filtroForm.get('idOperador')?.disable();
+        this.filtroForm.get('idVehiculo')?.disable();
+        this.filtroForm.get('idDispositivo')?.disable();
+        this.filtroForm.get('idDerrotero')?.disable();
         this.cargarDatosByCliente(Number(idCliente));
       } else {
         this.limpiarDatosDependientes();
+      }
+    });
+  }
+
+  private getCambioRuta(): void {
+    this.filtroForm.get('idRuta')?.valueChanges.subscribe((idRuta) => {
+      if (idRuta) {
+        this.derroteroDisabled = true;
+        this.filtroForm.get('idDerrotero')?.disable();
+        this.cargarDerroterosByRuta(Number(idRuta));
+      } else {
+        this.derroterosOptions = [];
+        this.filtroForm.patchValue({ idDerrotero: null }, { emitEvent: false });
+        this.derroteroDisabled = true;
+        this.filtroForm.get('idDerrotero')?.disable();
       }
     });
   }
@@ -139,10 +184,18 @@ export class RecaudacionDetalladasComponent implements OnInit {
           ...r,
           id: Number(r?.id ?? r?.Id ?? r?.idRuta ?? r?.ID),
         })) : [];
+        this.rutaDisabled = this.rutasOptions.length === 0;
+        if (this.rutasOptions.length > 0) {
+          this.filtroForm.get('idRuta')?.enable();
+        } else {
+          this.filtroForm.get('idRuta')?.disable();
+        }
       },
       error: (error) => {
         console.error('Error al cargar rutas', error);
         this.rutasOptions = [];
+        this.rutaDisabled = true;
+        this.filtroForm.get('idRuta')?.disable();
       }
     });
 
@@ -157,10 +210,18 @@ export class RecaudacionDetalladasComponent implements OnInit {
             o?.nombreCompleto ??
             `${o?.nombre ?? ''} ${o?.apellidoPaterno ?? ''} ${o?.apellidoMaterno ?? ''}`.trim(),
         })) : [];
+        this.operadorDisabled = this.operadoresOptions.length === 0;
+        if (this.operadoresOptions.length > 0) {
+          this.filtroForm.get('idOperador')?.enable();
+        } else {
+          this.filtroForm.get('idOperador')?.disable();
+        }
       },
       error: (error) => {
         console.error('Error al cargar operadores por cliente', error);
         this.operadoresOptions = [];
+        this.operadorDisabled = true;
+        this.filtroForm.get('idOperador')?.disable();
       }
     });
 
@@ -173,10 +234,18 @@ export class RecaudacionDetalladasComponent implements OnInit {
           id: Number(v?.id ?? v?.Id ?? v?.idVehiculo ?? v?.ID),
           numeroEconomico: v?.numeroEconomico ?? v?.numero ?? v?.placa ?? '',
         })) : [];
+        this.vehiculoDisabled = this.vehiculosOptions.length === 0;
+        if (this.vehiculosOptions.length > 0) {
+          this.filtroForm.get('idVehiculo')?.enable();
+        } else {
+          this.filtroForm.get('idVehiculo')?.disable();
+        }
       },
       error: (error) => {
         console.error('Error al cargar vehículos por cliente', error);
         this.vehiculosOptions = [];
+        this.vehiculoDisabled = true;
+        this.filtroForm.get('idVehiculo')?.disable();
       }
     });
 
@@ -189,10 +258,42 @@ export class RecaudacionDetalladasComponent implements OnInit {
           id: Number(d?.id ?? d?.Id ?? d?.idDispositivo ?? d?.ID),
           numeroSerie: d?.numeroSerie ?? d?.serie ?? d?.serieDispositivo ?? '',
         })) : [];
+        this.dispositivoDisabled = this.dispositivosOptions.length === 0;
+        if (this.dispositivosOptions.length > 0) {
+          this.filtroForm.get('idDispositivo')?.enable();
+        } else {
+          this.filtroForm.get('idDispositivo')?.disable();
+        }
       },
       error: (error) => {
         console.error('Error al cargar dispositivos por cliente', error);
         this.dispositivosOptions = [];
+        this.dispositivoDisabled = true;
+        this.filtroForm.get('idDispositivo')?.disable();
+      }
+    });
+  }
+
+  private cargarDerroterosByRuta(idRuta: number): void {
+    this.derroterosService.obtenerDerroterosByRuta(idRuta).subscribe({
+      next: (response) => {
+        const raw = (response as any)?.data ?? response ?? [];
+        this.derroterosOptions = Array.isArray(raw) ? raw.map((d: any) => ({
+          ...d,
+          id: Number(d?.id ?? d?.Id ?? d?.idDerrotero ?? d?.ID),
+        })) : [];
+        this.derroteroDisabled = this.derroterosOptions.length === 0;
+        if (this.derroterosOptions.length > 0) {
+          this.filtroForm.get('idDerrotero')?.enable();
+        } else {
+          this.filtroForm.get('idDerrotero')?.disable();
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar derroteros por ruta', error);
+        this.derroterosOptions = [];
+        this.derroteroDisabled = true;
+        this.filtroForm.get('idDerrotero')?.disable();
       }
     });
   }
@@ -202,6 +303,17 @@ export class RecaudacionDetalladasComponent implements OnInit {
     this.operadoresOptions = [];
     this.vehiculosOptions = [];
     this.dispositivosOptions = [];
+    this.derroterosOptions = [];
+    this.rutaDisabled = true;
+    this.operadorDisabled = true;
+    this.vehiculoDisabled = true;
+    this.dispositivoDisabled = true;
+    this.derroteroDisabled = true;
+    this.filtroForm.get('idRuta')?.disable();
+    this.filtroForm.get('idOperador')?.disable();
+    this.filtroForm.get('idVehiculo')?.disable();
+    this.filtroForm.get('idDispositivo')?.disable();
+    this.filtroForm.get('idDerrotero')?.disable();
     this.filtroForm.patchValue({
       idRuta: null,
       idDerrotero: null,

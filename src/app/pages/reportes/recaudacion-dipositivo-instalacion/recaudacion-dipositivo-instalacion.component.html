@@ -36,7 +36,7 @@
                         <dx-select-box stylingMode="filled" placeholder="Selecciona dispositivo"
                             formControlName="idDispositivo" [dataSource]="dispositivosOptions"
                             [valueExpr]="dispositivoValueExpr" [displayExpr]="dispositivoDisplayExpr"
-                            [searchEnabled]="true" [showClearButton]="true" [width]="'100%'"></dx-select-box>
+                            [searchEnabled]="true" [showClearButton]="true" [disabled]="dispositivoDisabled" [width]="'100%'"></dx-select-box>
                     </div>
 
                     <div class="col-12 col-md-4 col-xl-3">

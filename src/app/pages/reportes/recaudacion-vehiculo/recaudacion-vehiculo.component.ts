@@ -70,6 +70,7 @@ export class RecaudacionVehiculoComponent implements OnInit {
         r.route ??
         ''
       : '';
+  public vehiculoDisabled: boolean = true;
 
   constructor(
     private fb: FormBuilder,
@@ -82,7 +83,7 @@ export class RecaudacionVehiculoComponent implements OnInit {
       fechaInicio: [new Date(), Validators.required],
       fechaFin: [new Date(), Validators.required],
       idCliente: [null],
-      idVehiculo: [null],
+      idVehiculo: [{value: null, disabled: true}],
       idRuta: [null],
     });
     this.getCambioCliente();
@@ -118,10 +119,14 @@ export class RecaudacionVehiculoComponent implements OnInit {
   private getCambioCliente(): void {
     this.filtroForm.get('idCliente')?.valueChanges.subscribe((idCliente) => {
       if (idCliente) {
+        this.vehiculoDisabled = true;
+        this.filtroForm.get('idVehiculo')?.disable();
         this.cargarVehiculosByCliente(Number(idCliente));
       } else {
         this.vehiculosOptions = [];
         this.filtroForm.patchValue({ idVehiculo: null }, { emitEvent: false });
+        this.vehiculoDisabled = true;
+        this.filtroForm.get('idVehiculo')?.disable();
       }
     });
   }
@@ -135,10 +140,18 @@ export class RecaudacionVehiculoComponent implements OnInit {
           id: Number(v?.id ?? v?.Id ?? v?.idVehiculo ?? v?.ID),
           numeroEconomico: v?.numeroEconomico ?? v?.numero ?? v?.placa ?? '',
         })) : [];
+        this.vehiculoDisabled = this.vehiculosOptions.length === 0;
+        if (this.vehiculosOptions.length > 0) {
+          this.filtroForm.get('idVehiculo')?.enable();
+        } else {
+          this.filtroForm.get('idVehiculo')?.disable();
+        }
       },
       error: (error) => {
         console.error('Error al cargar vehículos por cliente', error);
         this.vehiculosOptions = [];
+        this.vehiculoDisabled = true;
+        this.filtroForm.get('idVehiculo')?.disable();
       }
     });
   }
@@ -152,6 +165,8 @@ export class RecaudacionVehiculoComponent implements OnInit {
       idRuta: null,
     });
     this.vehiculosOptions = [];
+    this.vehiculoDisabled = true;
+    this.filtroForm.get('idVehiculo')?.disable();
     this.informacion = [];
   }
 

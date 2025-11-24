@@ -69,12 +69,15 @@ export class RecaudacionDiariaRutaComponent implements OnInit {
   public derroteroValueExpr: string = 'id';
   public derroteroDisplayExpr = (d: any) =>
     d
-      ? d.nombre ?? 
-        d.nombreDerrotero ?? 
-        d.descripcion ?? 
-        d.name ?? 
+      ? d.nombre ??
+        d.nombreDerrotero ??
+        d.descripcion ??
+        d.name ??
         ''
       : '';
+  public regionDisabled: boolean = true;
+  public rutaDisabled: boolean = true;
+  public derroteroDisabled: boolean = true;
 
   constructor(
     private fb: FormBuilder,
@@ -88,9 +91,9 @@ export class RecaudacionDiariaRutaComponent implements OnInit {
       fechaInicio: [new Date(), Validators.required],
       fechaFin: [new Date(), Validators.required],
       idCliente: [null],
-      idRegion: [null],
-      idRuta: [null],
-      idDerrotero: [null]
+      idRegion: [{value: null, disabled: true}],
+      idRuta: [{value: null, disabled: true}],
+      idDerrotero: [{value: null, disabled: true}]
     });
     this.getCambioCliente();
     this.getCambioRegion();
@@ -104,6 +107,8 @@ export class RecaudacionDiariaRutaComponent implements OnInit {
   private getCambioCliente(): void {
     this.filtroForm.get('idCliente')?.valueChanges.subscribe((idCliente) => {
       if (idCliente) {
+        this.regionDisabled = true;
+        this.filtroForm.get('idRegion')?.disable();
         this.cargarRegionesByCliente(Number(idCliente));
       } else {
         this.regionesOptions = [];
@@ -112,6 +117,12 @@ export class RecaudacionDiariaRutaComponent implements OnInit {
         this.filtroForm.patchValue({ idRuta: null }, { emitEvent: false });
         this.derroterosOptions = [];
         this.filtroForm.patchValue({ idDerrotero: null }, { emitEvent: false });
+        this.regionDisabled = true;
+        this.rutaDisabled = true;
+        this.derroteroDisabled = true;
+        this.filtroForm.get('idRegion')?.disable();
+        this.filtroForm.get('idRuta')?.disable();
+        this.filtroForm.get('idDerrotero')?.disable();
       }
     });
   }
@@ -119,12 +130,18 @@ export class RecaudacionDiariaRutaComponent implements OnInit {
   private getCambioRegion(): void {
     this.filtroForm.get('idRegion')?.valueChanges.subscribe((idRegion) => {
       if (idRegion) {
+        this.rutaDisabled = true;
+        this.filtroForm.get('idRuta')?.disable();
         this.cargarRutasByRegion(Number(idRegion));
       } else {
         this.rutasOptions = [];
         this.filtroForm.patchValue({ idRuta: null }, { emitEvent: false });
         this.derroterosOptions = [];
         this.filtroForm.patchValue({ idDerrotero: null }, { emitEvent: false });
+        this.rutaDisabled = true;
+        this.derroteroDisabled = true;
+        this.filtroForm.get('idRuta')?.disable();
+        this.filtroForm.get('idDerrotero')?.disable();
       }
     });
   }
@@ -132,10 +149,14 @@ export class RecaudacionDiariaRutaComponent implements OnInit {
   private getCambioRuta(): void {
     this.filtroForm.get('idRuta')?.valueChanges.subscribe((idRuta) => {
       if (idRuta) {
+        this.derroteroDisabled = true;
+        this.filtroForm.get('idDerrotero')?.disable();
         this.cargarDerroterosByRuta(Number(idRuta));
       } else {
         this.derroterosOptions = [];
         this.filtroForm.patchValue({ idDerrotero: null }, { emitEvent: false });
+        this.derroteroDisabled = true;
+        this.filtroForm.get('idDerrotero')?.disable();
       }
     });
   }
@@ -148,10 +169,18 @@ export class RecaudacionDiariaRutaComponent implements OnInit {
           ...r,
           id: Number(r?.id ?? r?.Id ?? r?.idRegion ?? r?.ID),
         })) : [];
+        this.regionDisabled = this.regionesOptions.length === 0;
+        if (this.regionesOptions.length > 0) {
+          this.filtroForm.get('idRegion')?.enable();
+        } else {
+          this.filtroForm.get('idRegion')?.disable();
+        }
       },
       error: (error) => {
         console.error('Error al cargar regiones por cliente', error);
         this.regionesOptions = [];
+        this.regionDisabled = true;
+        this.filtroForm.get('idRegion')?.disable();
       }
     });
   }
@@ -164,10 +193,18 @@ export class RecaudacionDiariaRutaComponent implements OnInit {
           ...r,
           id: Number(r?.id ?? r?.Id ?? r?.idRuta ?? r?.ID),
         })) : [];
+        this.rutaDisabled = this.rutasOptions.length === 0;
+        if (this.rutasOptions.length > 0) {
+          this.filtroForm.get('idRuta')?.enable();
+        } else {
+          this.filtroForm.get('idRuta')?.disable();
+        }
       },
       error: (error) => {
         console.error('Error al cargar rutas por región', error);
         this.rutasOptions = [];
+        this.rutaDisabled = true;
+        this.filtroForm.get('idRuta')?.disable();
       }
     });
   }
@@ -180,10 +217,18 @@ export class RecaudacionDiariaRutaComponent implements OnInit {
           ...d,
           id: Number(d?.id ?? d?.Id ?? d?.idDerrotero ?? d?.ID),
         })) : [];
+        this.derroteroDisabled = this.derroterosOptions.length === 0;
+        if (this.derroterosOptions.length > 0) {
+          this.filtroForm.get('idDerrotero')?.enable();
+        } else {
+          this.filtroForm.get('idDerrotero')?.disable();
+        }
       },
       error: (error) => {
         console.error('Error al cargar derroteros por ruta', error);
         this.derroterosOptions = [];
+        this.derroteroDisabled = true;
+        this.filtroForm.get('idDerrotero')?.disable();
       }
     });
   }
@@ -238,6 +283,12 @@ export class RecaudacionDiariaRutaComponent implements OnInit {
     this.regionesOptions = [];
     this.rutasOptions = [];
     this.derroterosOptions = [];
+    this.regionDisabled = true;
+    this.rutaDisabled = true;
+    this.derroteroDisabled = true;
+    this.filtroForm.get('idRegion')?.disable();
+    this.filtroForm.get('idRuta')?.disable();
+    this.filtroForm.get('idDerrotero')?.disable();
     this.informacion = [];
   }
 
