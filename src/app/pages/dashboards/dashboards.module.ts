@@ -11,7 +11,7 @@ import { NgbDropdownModule, NgbTooltipModule, NgbNavModule } from '@ng-bootstrap
 import { SimplebarAngularModule } from 'simplebar-angular';
 
 import { DefaultComponent } from './default/default.component';
-import { DxChartModule, DxDataGridModule, DxPieChartModule } from 'devextreme-angular';
+import { DxChartModule, DxDataGridModule, DxPieChartModule, DxSelectBoxModule } from 'devextreme-angular';
 
 @NgModule({
   declarations: [DefaultComponent],
@@ -28,7 +28,8 @@ import { DxChartModule, DxDataGridModule, DxPieChartModule } from 'devextreme-an
     UIModule,
     DxChartModule,
     DxDataGridModule,
-    DxPieChartModule
+    DxPieChartModule,
+    DxSelectBoxModule
   ],
 })
 export class DashboardsModule { }
