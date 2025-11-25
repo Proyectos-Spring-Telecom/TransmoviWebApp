@@ -1,17 +1,18 @@
 .total-registros-label {
-  font-size: 16px; 
-  font-weight: bold; 
-  color: #f7fb06; 
-  padding: 8px 15px; 
-  border-radius: 5px; 
-  background-color: #515237; 
-  display: inline-block; 
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+  font-size: 16px;
+  font-weight: bold;
+  color: #f7fb06;
+  padding: 8px 15px;
+  border-radius: 5px;
+  background-color: #515237;
+  display: inline-block;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .data {
   min-width: 1000px;
 }
+
 .header-dispositivos {
   text-align: center;
   background-color: #00836d;
@@ -37,11 +38,49 @@
   margin-top: 5px;
 }
 
-.card {
-  margin-bottom: 1.25rem;
-  box-shadow: var(--bs-box-shadow);
-  background-color: #002136;
+::ng-deep .swal2-container .swal2-title {
+  font-size: 24px;
+  font-weight: 200;
+  color: #ffffff;
 }
+
+.swal2-container .swal2-title {
+  font-size: 24px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+::ng-deep div:where(.swal2-container) .swal2-html-container {
+  z-index: 1;
+  justify-content: center;
+  margin: 1em 1.6em .3em;
+  padding: 0;
+  overflow: auto;
+  color: #c8c8c8;
+  font-size: 1.125em;
+  font-weight: normal;
+  line-height: normal;
+  text-align: center;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+div:where(.swal2-container) .swal2-html-container {
+  z-index: 1;
+  justify-content: center;
+  margin: 1em 1.6em .3em;
+  padding: 0;
+  overflow: auto;
+  color: #c8c8c8;
+  font-size: 1.125em;
+  font-weight: normal;
+  line-height: normal;
+  text-align: center;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+
 
 ::ng-deep .dx-searchbox .dx-texteditor-input {
   --radii: 2.0em;
@@ -62,20 +101,13 @@
 ::ng-deep .dx-searchbox .dx-texteditor-input:is(:focus, :focus-visible, :active) {
   outline: none;
   box-shadow:
-      0 0 0 0px var(--btn-bg-color),
-      0 0 0 0px var(--btn-bg-2);
-}
-
-.card {
-  margin-bottom: 1.25rem;
-  box-shadow: var(--bs-box-shadow);
-  border: none;
-  background-color: #002136;
+    0 0 0 0px var(--btn-bg-color),
+    0 0 0 0px var(--btn-bg-2);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .dx-searchbox .dx-texteditor-input {
-      transition: linear;
+    transition: linear;
   }
 }
 
@@ -126,7 +158,7 @@
 }
 
 .button-18:hover,
-.button-18:focus { 
+.button-18:focus {
   background-color: #16437E;
   color: #ffffff;
 }
@@ -136,51 +168,265 @@
   color: rgb(255, 255, 255, .7);
 }
 
-.button-18:disabled { 
+.button-18:disabled {
   cursor: not-allowed;
   background: rgba(0, 0, 0, .08);
   color: rgba(0, 0, 0, .3);
 }
 
-
-::ng-deep .swal2-container .swal2-title {
-    font-size: 24px;
-    font-weight: 200;
-    color: #ffffff;
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  border: none;
+  background-color: #002136;
 }
 
-.swal2-container .swal2-title {
-    font-size: 24px;
-    font-weight: 500;
-    color: #ffffff;
+.btn-ident {
+  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-::ng-deep div:where(.swal2-container) .swal2-html-container {
-    z-index: 1;
-    justify-content: center;
-    margin: 1em 1.6em .3em;
-    padding: 0;
-    overflow: auto;
-    color: #c8c8c8;
-    font-size: 1.125em;
-    font-weight: normal;
-    line-height: normal;
-    text-align: center;
-    word-wrap: break-word;
-    word-break: break-word;
+.ident-view {
+  padding: 12px;
 }
 
-div:where(.swal2-container) .swal2-html-container {
-    z-index: 1;
-    justify-content: center;
-    margin: 1em 1.6em .3em;
-    padding: 0;
-    overflow: auto;
-    color: #c8c8c8;
-    font-size: 1.125em;
-    font-weight: normal;
-    line-height: normal;
-    text-align: center;
-    word-wrap: break-word;
-    word-break: break-word;
+.ident-frame {
+  position: relative;
+  width: 100%;
+  background: #0f1722;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .35) inset;
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+  max-height: 70vh;
+  overflow: hidden;
+}
+
+.ident-img {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.ident-spinner {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  border: 3px solid rgba(255, 255, 255, .25);
+  border-top-color: rgba(255, 255, 255, .9);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ident-error,
+.ident-empty {
+  color: #e18282;
+  font-weight: 600;
+  text-align: center;
+  padding: 16px 8px;
+}
+
+.ident-meta {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  text-align: center;
+}
+
+$u-bg: #0b2633;
+$u-card: #0f3a43;
+$u-card-2: #0f544f;
+$u-text: #eaf6f8;
+$u-muted: #a7c6cc;
+$u-accent: #4ade80;
+$u-primary: #3b82f6;
+$u-primary-2: #0a66c2;
+$u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+
+::ng-deep .dx-popup-title {
+  background:
+    radial-gradient(1000px 200px at 0% 0%, rgba(255, 255, 255, .06), transparent 40%),
+    linear-gradient(135deg, $u-card, $u-card-2);
+  color: #ffffff !important;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 14px 20px;
+}
+
+::ng-deep .dx-popup-title .dx-toolbar {
+  background: transparent !important;
+  padding: 0 8px;
+}
+
+::ng-deep .dx-popup-title .dx-toolbar .dx-button {
+  margin-left: 8px;
+  margin-right: 4px;
+}
+
+::ng-deep .dx-popup-title.dx-toolbar {
+  padding: 10px 10px 10px 10px;
+  overflow: visible;
+  box-shadow: none;
+}
+
+::ng-deep .dx-popup-title .dx-button[aria-label="Abrir"] .dx-button-content {
+  background-color: #2563eb;
+  color: #fff;
+  border-radius: 6px;
+  min-width: 80px;
+  justify-content: center;
+  font-weight: 500;
+  transition: background-color 0.2s ease-in-out;
+}
+
+::ng-deep .dx-popup-title .dx-button[aria-label="Abrir"] .dx-button-content:hover {
+  background-color: #1e40af;
+}
+
+::ng-deep .dx-popup-title .dx-button[aria-label="Descargar"] .dx-button-content {
+  background-color: #059669;
+  color: #fff;
+  border-radius: 6px;
+  min-width: 100px;
+  justify-content: center;
+  font-weight: 500;
+  transition: background-color 0.2s ease-in-out;
+}
+
+::ng-deep .dx-popup-title .dx-button[aria-label="Descargar"] .dx-button-content:hover {
+  background-color: #065f46;
+}
+
+::ng-deep .dx-popup-title .dx-button[aria-label="Cerrar"] {
+  margin-left: 12px;
+}
+
+::ng-deep .dx-popup-title .dx-button[aria-label="Cerrar"] .dx-icon {
+  color: #e5e7eb;
+  font-size: 18px;
+  transition: color 0.2s ease-in-out;
+}
+
+::ng-deep .dx-popup-title .dx-button[aria-label="Cerrar"] .dx-icon:hover {
+  color: #f87171;
+}
+
+:host ::ng-deep .dx-popup-title .dx-toolbar-before,
+:host ::ng-deep .dx-popup-title .dx-toolbar-after {
+  padding: 0 6px;
+}
+
+:host ::ng-deep .dx-popup-title {
+  background-color: #0a2540;
+  color: #fff !important;
+  border-bottom: 1px solid #0d3c61;
+}
+
+:host ::ng-deep .dx-popup-title .dx-toolbar-label {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: initial !important;
+  line-height: 1.25;
+}
+
+.pdf-viewer {
+  padding: 12px 16px 18px;
+}
+
+.pdf-frame {
+  background: #0f1722;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .35) inset;
+  overflow: hidden;
+}
+
+.pdf-iframe {
+  display: block;
+  width: 100%;
+  height: 70vh;
+  border: 0;
+}
+
+.pdf-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 14px;
+}
+
+.pdf-actions .btn {
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-weight: 600;
+}
+
+.pdf-actions .btn-primary {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.pdf-actions .btn-primary:hover {
+  background: #1e40af;
+  border-color: #1e40af;
+}
+
+.pdf-actions .btn-success {
+  background: #059669;
+  border-color: #059669;
+}
+
+.pdf-actions .btn-success:hover {
+  background: #065f46;
+  border-color: #065f46;
+}
+
+.pdf-empty {
+  color: #e18282;
+  font-weight: 600;
+  text-align: center;
+  padding: 16px 8px;
+}
+
+.pdf-viewer {
+  padding: 12px;
+}
+
+.pdf-frame {
+  background: #0f1722;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .35) inset;
+  overflow: hidden;
+}
+
+.pdf-iframe {
+  display: block;
+  width: 100%;
+  height: 70vh;
+  border: 0;
+}
+
+.pdf-empty {
+  color: #e18282;
+  font-weight: 600;
+  text-align: center;
+  padding: 16px 8px;
+}
+
+.dc-document {
+  font-size: 25px;
+  font-weight: 400;
+  color: #ffffff;
+  text-transform: capitalize;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
 }

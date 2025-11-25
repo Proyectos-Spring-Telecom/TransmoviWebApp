@@ -10,24 +10,9 @@
       </div>
     </div>
     <div class="card-body">
-      <form [formGroup]="verificacionesForm" class="cliente-form">
+      <form [formGroup]="incidentesForm" class="cliente-form">
         <h6 class="section-title">Datos Generales</h6>
-
         <div class="row mt-3">
-          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Fecha de la Verificación Actual</label>
-            <dx-date-box class="tm-select w-100" formControlName="verificacionActual" type="date"
-              [showClearButton]="true">
-            </dx-date-box>
-          </div>
-
-          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Fecha de la Próxima Verificación</label>
-            <dx-date-box class="tm-select w-100" formControlName="proximaVerificacion" type="date"
-              [showClearButton]="true">
-            </dx-date-box>
-          </div>
-
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Instalación</label>
             <dx-select-box class="tm-select w-100" formControlName="idInstalacion" [items]="listaInstalaciones || []"
@@ -35,7 +20,6 @@
               [noDataText]="'Sin registros'" placeholder="Seleccione una instalación">
             </dx-select-box>
           </div>
-
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Operador</label>
             <dx-select-box class="tm-select w-100" formControlName="idOperador" [items]="listaOperadores" valueExpr="id"
@@ -43,15 +27,11 @@
               [noDataText]="'Sin registros'" placeholder="Seleccione un operador">
             </dx-select-box>
           </div>
-
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Tipo de Verificación</label>
-            <dx-select-box class="tm-select w-100" formControlName="idTipoVerificacion"
-              [items]="listaTipoVerificaciones" valueExpr="id" displayExpr="nombre" [searchEnabled]="true"
-              [showClearButton]="true" [noDataText]="'Sin registros'" placeholder="Seleccione un tipo de verificación">
-            </dx-select-box>
+            <label>Descripción del Incidente</label>
+            <textarea class="form-control w-100" style="height: 44px;" formControlName="incidente" rows="3"
+              placeholder="Descripción del incidente"> </textarea>
           </div>
-
           <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-2">
             <div class="tc-upload">
               <label>Nota de verificación</label>
@@ -79,7 +59,6 @@
             </div>
           </div>
         </div>
-
         <div class="form-actions mt-4">
           <button type="submit" class="submit" (click)="submit()">
             {{ submitButton }}

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -9,9 +9,13 @@ import { environment } from '../../../environments/environment';
 export class VerificacionesService {
 
   constructor(private http: HttpClient) { }
+  
+  obtenerVerificacionesData(page: number, limit: number): Observable<any> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString());
 
-  obtenerVerificacionesData(page: number, pageSize: number): Observable<any> {
-    return this.http.get(`${environment.API_SECURITY}/verificaciones/${page}/${pageSize}`);
+    return this.http.get(`${environment.API_SECURITY}/verificaciones`, { params });
   }
 
   obtenerVerificaciones(): Observable<any> {
@@ -36,7 +40,6 @@ export class VerificacionesService {
       saveForm
     );
   }
-
 
   private apiUrl = `${environment.API_SECURITY}/verificaciones`;
   activarVerificacion(id: number): Observable<string> {

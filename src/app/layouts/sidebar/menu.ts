@@ -220,8 +220,9 @@ export const MENU: MenuItem[] = [
             },
             {
                 id: 16,
-                label: 'Siniestros',
+                label: 'Incidentes',
                 icon: 'uil-apps',
+                link: '/incidentes'
             },
             {
                 id: 16,

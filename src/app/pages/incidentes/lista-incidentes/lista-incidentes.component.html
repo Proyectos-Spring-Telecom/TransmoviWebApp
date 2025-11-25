@@ -8,14 +8,14 @@
                     </div>
                 </div>
                 <div class="u-banner__body">
-                    <h2 class="u-banner__title">Gestión de Verificaciones</h2>
+                    <h2 class="u-banner__title">Gestión de Incidentes</h2>
                     <p class="u-banner__subtitle">
-                        Explora y gestiona las verificaciones de los vehiculos.
+                        Consulta y administra los incidentes y accidentes de tus vehículos.
                     </p>
                     <div *appHasPermission="'6'">
-                        <button class="u-btn u-btn--primary" (click)="agregarVerificacion()">
+                        <button class="u-btn u-btn--primary" (click)="agregarIncidente()">
                             <i class="fas fa-plus"></i>
-                            <span>Agregar Verificación</span>
+                            <span>Agregar Incidentes</span>
                         </button>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
                     <div class="table-responsive mb-4 col-12 col-lg-12">
                         <dx-data-grid id="gridContainer" [columnHidingEnabled]="true" [showBorders]="true"
                             [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
-                            [dataSource]="listaVerificaciones" [remoteOperations]="{ paging: true }" [width]="'100%'"
+                            [dataSource]="listaIncidentes" [remoteOperations]="{ paging: true }" [width]="'100%'"
                             [paging]="{ pageSize: pageSize }" [pager]="{ 
                                 showPageSizeSelector: true, 
                                 allowedPageSizes: [50], 
@@ -57,34 +57,19 @@
                                 <img *ngIf="data.value == null" style="max-width: 70px;"
                                     src="https://transmovi.s3.us-east-2.amazonaws.com/imagenes/no-image.jpg" />
                             </div>
-                            <dxi-column caption="Nota de Verificación" [width]="150" alignment="center" [allowSorting]="false"
+                            <dxi-column caption="Captura" [width]="150" alignment="center" [allowSorting]="false"
                                 [allowFiltering]="false" cellTemplate="notVerificacion">
                             </dxi-column>
                             <div *dxTemplate="let f of 'notVerificacion'">
-                                <button type="button" class="btn btn-primary btn-sm"
-                                    style="border-radius: 5px;"
-                                    (click)="previsualizar(f?.data?.notaVerificacion, 'Nota de Verificación', f?.data)">
+                                <button type="button" class="btn btn-primary btn-sm" style="border-radius: 5px;"
+                                    (click)="previsualizar(f?.data?.imagen, 'Captura', f?.data)">
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
                             </div>
-                            <dxi-column dataField="placaVehiculo" caption="Instalación" alignment="center"
-                                dataType="number">
-                            </dxi-column>
-                            <dxi-column dataField="nombreOperador" caption="Operador" alignment="center" dataType="number"> </dxi-column>
-                            <dxi-column dataField="nombreCliente" caption="Cliente" alignment="center" dataType="number"> </dxi-column>
-                            <dxi-column dataField="nombreTipoVerificacion" caption="Tipo Verificación" alignment="center" dataType="number"> </dxi-column>
-                            <dxi-column dataField="verificacionActual" caption="Verificación Actual" alignment="center"
-                                dataType="date" cellTemplate="verFecha"> </dxi-column>
-                            <div *dxTemplate="let d of 'verFecha'">
-                                {{ d.data.verificacionActual | date:'dd/MM/yyyy' }}
-                            </div>
-                            <dxi-column dataField="proximaVerificacion" caption="Proxima Verificación"
-                                alignment="center" dataType="date" cellTemplate="proxVerificacion"> </dxi-column>
-
-                            <div *dxTemplate="let d of 'proxVerificacion'">
-                                {{ d.data.proximaVerificacion | date:'dd/MM/yyyy' }}
-                            </div>
-
+                            <dxi-column dataField="incidente" caption="Descripción del Incidente" alignment="center" dataType="string"> </dxi-column>
+                            <dxi-column dataField="placaVehiculo" caption="Instalación" alignment="center" dataType="string"> </dxi-column>
+                            <dxi-column dataField="nombreOperador" caption="Operador" alignment="center" dataType="string"> </dxi-column>
+                            <dxi-column dataField="nombreCliente" caption="Cliente" alignment="center" dataType="string"> </dxi-column>
                             <dxi-column dataField="estatus" caption="Estatus" alignment="center" dataType="string"
                                 cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
@@ -99,7 +84,7 @@
                             <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
                                 <div *appHasPermission="'7'">
                                     <button id="actualizarButton" class="btnAcciones"
-                                        (click)="actualizarVerificacion(row.data.id)">
+                                        (click)="actualizarIncidente(row.data.id)">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </div>
@@ -143,13 +128,15 @@
         </span>
         <ng-container *ngIf="!pdfError; else pdfErrorTpl">
             <br>
-            <div class="pdf-frame" [class.is-loading]="pdfLoading">
-                <iframe class="pdf-iframe" [src]="pdfUrlSafe" (load)="onPdfLoaded()">
-                </iframe>
+            <div class="pdf-frame" *ngIf="!pdfError && !pdfIsImage && pdfUrlSafe" [class.is-loading]="pdfLoading">
+                <iframe class="pdf-iframe" [src]="pdfUrlSafe" (load)="onPdfLoaded()"></iframe>
+            </div>
+            <div class="pdf-frame" *ngIf="!pdfError && pdfIsImage && imgSrc" [class.is-loading]="pdfLoading">
+                <img class="pdf-image" [src]="imgSrc" alt="Vista previa" (load)="onImgLoaded()" (error)="onImgError()">
             </div>
             <div class="pdf-actions">
                 <button type="button" class="abrirArchivo" (click)="abrirEnNuevaPestana()">
-                    <i class="fa fa-plus"></i>&nbsp;&nbsp;Abrir en Navegador
+                    <i class="fa fa-plus"></i>&nbsp;&nbsp;Abrir
                 </button>
                 <button type="button" class="descargarArchivo" (click)="descargarPdfForzada()">
                     <i class="fa fa-download"></i>&nbsp;&nbsp;Descargar
@@ -158,7 +145,7 @@
         </ng-container>
         <ng-template #pdfErrorTpl>
             <div class="pdf-error-card">
-                <h4>📄 No pudimos previsualizar el PDF</h4>
+                <h4>📄 No pudimos previsualizar el PDF o Imagen</h4>
                 <p>{{ pdfErrorMsg || 'El archivo no está disponible, el tipo de contenido no es PDF o fue bloqueado por el navegador (CORS).' }}</p>
             </div>
         </ng-template>
