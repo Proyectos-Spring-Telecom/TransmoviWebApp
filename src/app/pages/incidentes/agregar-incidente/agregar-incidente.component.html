@@ -6,13 +6,12 @@
       </div>
       <div class="header-text">
         <h5>{{ title }}</h5>
-        <span>Completa la información para registrar un nuevo permiso.</span>
+        <span>Completa la información para registrar una nueva verificación vehicular.</span>
       </div>
     </div>
     <div class="card-body">
-      <form [formGroup]="manVehicularForm" class="cliente-form">
+      <form [formGroup]="incidentesForm" class="cliente-form">
         <h6 class="section-title">Datos Generales</h6>
-
         <div class="row mt-3">
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Instalación</label>
@@ -22,51 +21,22 @@
             </dx-select-box>
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Referencia</label>
-            <dx-select-box class="tm-select w-100" formControlName="idReferencia" [items]="[
-                { id: 1, nombre: 'Preventivo' },
-                { id: 2, nombre: 'Correctivo' }
-              ]" [valueExpr]="'id'" [displayExpr]="'nombre'" [searchEnabled]="true" [showClearButton]="true"
-              [noDataText]="'Sin registros'" placeholder="Seleccione una referencia">
+            <label>Operador</label>
+            <dx-select-box class="tm-select w-100" formControlName="idOperador" [items]="listaOperadores" valueExpr="id"
+              [displayExpr]="displayOperador" [searchEnabled]="true" [showClearButton]="true"
+              [noDataText]="'Sin registros'" placeholder="Seleccione un operador">
             </dx-select-box>
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Taller</label>
-            <dx-select-box class="tm-select w-100" formControlName="idTaller" [items]="listaTalleres" [valueExpr]="'Id'"
-              [displayExpr]="'Nombre'" [searchEnabled]="true" [showClearButton]="true" [noDataText]="'Sin registros'"
-              placeholder="Seleccione un taller">
-            </dx-select-box>
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Fecha inicio del servicio</label>
-            <dx-date-box class="tm-select w-100" formControlName="fechaInicio" type="datetime" [showClearButton]="true">
-            </dx-date-box>
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Fecha final del servicio</label>
-            <dx-date-box class="tm-select w-100" formControlName="fechaFinal" type="datetime" [showClearButton]="true">
-            </dx-date-box>
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Costo</label>
-            <input inputmode="decimal" (focus)="onTarifaFocus()" (blur)="onTarifaBlur()"
-              (keypress)="allowOnlyNumbers($event)" type="text" class="form-control" formControlName="costo"
-              placeholder="Ingrese el costo">
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Encargado</label>
-            <input type="text" class="form-control" formControlName="encargado" placeholder="Nombre del encargado">
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Descripción del servicio</label>
-            <input type="text" class="form-control" formControlName="servicioDescripcion"
-              placeholder="Descripción del servicio">
+            <label>Descripción del Incidente</label>
+            <textarea class="form-control w-100" style="height: 44px;" formControlName="incidente" rows="3"
+              placeholder="Descripción del incidente"> </textarea>
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-2">
             <div class="tc-upload">
-              <label>Imagen Servicio</label>
+              <label>Nota de verificación</label>
               <div class="tc-preview" *ngIf="notaPreviewUrl; else notaTile">
-                <img [src]="notaPreviewUrl" alt="Imagen servicio" />
+                <img [src]="notaPreviewUrl" alt="Nota de verificación" />
                 <div class="tc-actions">
                   <button type="button" class="btn-change" (click)="openNotaFilePicker()">Cambiar</button>
                   <button type="button" class="btn-remove" (click)="clearNotaImage($event)">
@@ -79,7 +49,7 @@
                   (dragleave)="onNotaDragLeave($event)" (drop)="onNotaDrop($event)" [class.dragging]="notaDragging">
                   <div class="circle"><i class="fas fa-image"></i></div>
                   <div class="meta">
-                    <div class="title">Arrastra o haz clic para subir la imagen</div>
+                    <div class="title">Arrastra o haz clic para subir la nota</div>
                     <div class="hint">JPG/PNG/WEBP/PDF/DOC/XLS · máx 3 MB</div>
                   </div>
                 </div>
@@ -88,7 +58,6 @@
                 (change)="onNotaFileSelected($event)" />
             </div>
           </div>
-
         </div>
         <div class="form-actions mt-4">
           <button type="submit" class="submit" (click)="submit()">

@@ -15,52 +15,32 @@
         <div class="row mt-3">
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Instalación</label>
-            <dx-select-box
-              class="tm-select w-100"
-              formControlName="idInstalacion"
-              [items]="listaInstalaciones || []"
-              valueExpr="id"
-              [displayExpr]="displayInstalacion"
-              [searchEnabled]="true"
-              [showClearButton]="true"
-              [noDataText]="'Sin registros'"
-              placeholder="Seleccione una instalación">
+            <dx-select-box class="tm-select w-100" formControlName="idInstalacion" [items]="listaInstalaciones || []"
+              valueExpr="id" [displayExpr]="displayInstalacion" [searchEnabled]="true" [showClearButton]="true"
+              [noDataText]="'Sin registros'" placeholder="Seleccione una instalación">
             </dx-select-box>
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Kilometraje inicial</label>
-            <input
-              type="number"
-              inputmode="decimal"
-              class="form-control"
-              formControlName="kmInicial"
+            <label>Kilometraje Inicial</label>
+            <input type="text" (focus)="onKInicialFocus()" (blur)="onKInicialBlur()"
+              (keypress)="allowOnlyNumbers($event)" inputmode="decimal" class="form-control" formControlName="kmInicial"
               placeholder="10000.5">
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Kilometraje deseado</label>
-            <input
-              type="number"
-              inputmode="decimal"
-              class="form-control"
-              formControlName="kmDeseado"
+            <label>Kilometraje Deseado</label>
+            <input type="text" (focus)="onKilometrajeDeseadoFocus()" (blur)="onKilometrajeDeseadoBlur()"
+              (keypress)="allowOnlyNumbers($event)" inputmode="decimal" class="form-control" formControlName="kmDeseado"
               placeholder="15000">
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Periodo (km)</label>
-            <input
-              type="number"
-              inputmode="decimal"
-              class="form-control"
-              formControlName="periodo"
-              placeholder="5000">
+            <label>Periodo</label>
+            <dx-select-box class="tm-select w-100" formControlName="periodo" [items]="mesesPeriodo" valueExpr="value"
+              displayExpr="text" [searchEnabled]="false" [showClearButton]="false" placeholder="Seleccione un mes">
+            </dx-select-box>
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Año</label>
-            <input
-              type="number"
-              class="form-control"
-              formControlName="anio"
-              placeholder="2024">
+            <input type="text" class="form-control" formControlName="anio" placeholder="2024" maxlength="4" (keypress)="allowOnlyNumbers($event)">
           </div>
         </div>
         <div class="form-actions mt-4">

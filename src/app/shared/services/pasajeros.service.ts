@@ -96,11 +96,34 @@ export class PasajerosService {
   }
 
   updateEstadoSolicitud(idPasajero: number, estadoSolicitud: number, idTipoPasajero: number): Observable<string> {
-  const url = `${this.apiUrl}/estado/solicitud/${idPasajero}`;
-  const body = { estadoSolicitud, idTipoPasajero };
-  return this.http.patch(url, body, { responseType: 'text' }).pipe(
-    catchError(error => throwError(() => error))
-  );
-}
+    const url = `${this.apiUrl}/estado/solicitud/${idPasajero}`;
+    const body = { estadoSolicitud, idTipoPasajero };
+    return this.http.patch(url, body, { responseType: 'text' }).pipe(
+      catchError(error => throwError(() => error))
+    );
+  }
 
+  obtenerTipoPasajeros(): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/catpasajero`);
+  }
+
+  obtenerTipoPasajerosList(): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/catpasajero/list`);
+  }
+
+  obtenerTipoPasajero(id: number): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/catpasajero/${id}`);
+  }
+
+  agregarTipoPasajero(data: FormData) {
+    return this.http.post(`${environment.API_SECURITY}/catpasajero`, data);
+  }
+
+  actualizarTipoPasajero(idPasajero: number, saveForm: any): Observable<any> {
+    return this.http.put(`${environment.API_SECURITY}/catpasajero/${idPasajero}`, saveForm);
+  }
+  
+  obtenerTipoDescuento(): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/cattipodescuento/list`);
+  }
 }

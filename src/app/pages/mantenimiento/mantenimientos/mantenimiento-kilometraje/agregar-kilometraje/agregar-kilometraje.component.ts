@@ -25,6 +25,20 @@ export class AgregarKilometrajeComponent implements OnInit {
   public listaTalleres: any;
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
+  mesesPeriodo = [
+    { value: 1, text: 'Enero' },
+    { value: 2, text: 'Febrero' },
+    { value: 3, text: 'Marzo' },
+    { value: 4, text: 'Abril' },
+    { value: 5, text: 'Mayo' },
+    { value: 6, text: 'Junio' },
+    { value: 7, text: 'Julio' },
+    { value: 8, text: 'Agosto' },
+    { value: 9, text: 'Septiembre' },
+    { value: 10, text: 'Octubre' },
+    { value: 11, text: 'Noviembre' },
+    { value: 12, text: 'Diciembre' }
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -33,7 +47,7 @@ export class AgregarKilometrajeComponent implements OnInit {
     private activatedRouted: ActivatedRoute,
     private insService: InstalacionesService,
     private route: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.obtenerInstalaciones();
@@ -80,14 +94,20 @@ export class AgregarKilometrajeComponent implements OnInit {
           data.idInstalacion != null
             ? data.idInstalacion
             : data.instalacion?.id != null
-            ? data.instalacion.id
-            : null;
+              ? data.instalacion.id
+              : null;
+
+        const kmInicialDisplay =
+          data.kmInicial != null ? `${data.kmInicial} Km` : null;
+
+        const kmDeseadoDisplay =
+          data.kmDeseado != null ? `${data.kmDeseado} Km` : null;
 
         this.manKilometrajeForm.patchValue({
           idInstalacion:
             idInstalacionRaw != null ? Number(idInstalacionRaw) : null,
-          kmInicial: data.kmInicial,
-          kmDeseado: data.kmDeseado,
+          kmInicial: kmInicialDisplay,
+          kmDeseado: kmDeseadoDisplay,
           periodo: data.periodo,
           anio: data.anio,
         });
@@ -107,6 +127,16 @@ export class AgregarKilometrajeComponent implements OnInit {
   private parseCosto(value: any): number {
     if (value == null) return 0;
     const raw = value.toString().replace(/[^0-9.-]/g, '');
+    const num = parseFloat(raw);
+    return isNaN(num) ? 0 : num;
+  }
+
+  private parseDecimal(value: any): number {
+    if (value == null) return 0;
+    const raw = value
+      .toString()
+      .replace(/[^0-9.,-]/g, '')
+      .replace(',', '.');
     const num = parseFloat(raw);
     return isNaN(num) ? 0 : num;
   }
@@ -180,8 +210,8 @@ export class AgregarKilometrajeComponent implements OnInit {
 
     const payload = {
       idInstalacion: Number(formValue.idInstalacion),
-      kmInicial: Number(formValue.kmInicial),
-      kmDeseado: Number(formValue.kmDeseado),
+      kmInicial: this.parseDecimal(formValue.kmInicial),
+      kmDeseado: this.parseDecimal(formValue.kmDeseado),
       periodo: Number(formValue.periodo),
       anio: Number(formValue.anio),
     };
@@ -274,8 +304,8 @@ export class AgregarKilometrajeComponent implements OnInit {
 
     const payload = {
       idInstalacion: Number(formValue.idInstalacion),
-      kmInicial: Number(formValue.kmInicial),
-      kmDeseado: Number(formValue.kmDeseado),
+      kmInicial: this.parseDecimal(formValue.kmInicial),
+      kmDeseado: this.parseDecimal(formValue.kmDeseado),
       periodo: Number(formValue.periodo),
       anio: Number(formValue.anio),
     };
@@ -313,5 +343,43 @@ export class AgregarKilometrajeComponent implements OnInit {
 
   regresar() {
     this.route.navigateByUrl('/mantenimientos');
+  }
+
+  onKInicialFocus(): void {
+    const c = this.manKilometrajeForm.get('kmInicial');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9.,-]/g, '').replace(',', '.'));
+  }
+
+  onKInicialBlur(): void {
+    const c = this.manKilometrajeForm.get('kmInicial');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9.,-]/g, '').replace(',', '.');
+    const num = parseFloat(raw);
+    if (isNaN(num)) {
+      c.setValue('');
+      return;
+    }
+    c.setValue(`${num} Km`);
+  }
+
+  onKilometrajeDeseadoFocus(): void {
+    const c = this.manKilometrajeForm.get('kmDeseado');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9.,-]/g, '').replace(',', '.'));
+  }
+
+  onKilometrajeDeseadoBlur(): void {
+    const c = this.manKilometrajeForm.get('kmDeseado');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9.,-]/g, '').replace(',', '.');
+    const num = parseFloat(raw);
+    if (isNaN(num)) {
+      c.setValue('');
+      return;
+    }
+    c.setValue(`${num} Km`);
   }
 }

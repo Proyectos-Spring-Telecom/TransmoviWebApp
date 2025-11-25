@@ -11,23 +11,26 @@
     </div>
     <div class="card-body">
       <form [formGroup]="rutaForm" class="cliente-form">
-        <!-- <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
-          data-bs-target=".bs-example-modal-lg" (click)="extraLarge(exlargeModal)">Large modal</button> -->
         <h6 class="u-callout u-callout--subtle mt-3">
-          Elige el punto <strong>Inicio</strong> y punto <strong>Fin</strong> sobre el mapa.
-          Después, presiona el botón <strong>Continuar</strong>, completa los campos <strong>Nombre</strong> y
-          <strong>Región</strong> en el modal y confirma el guardado de la ruta.
+          Primero selecciona la <strong>Región de Inicio</strong> en el modal.
+          Después, marca el punto <strong>Fin</strong> sobre el mapa.
+          Al terminar, presiona el botón <strong>Continuar</strong> para nombrar la ruta y guardarla.
         </h6>
 
         <div class="col-md-12 mt-1">
           <div id="map"></div>
         </div>
+
         <div class="form-actions mt-4" style="display: flex; align-items: center; justify-content: center;">
           <button [@fadeInUp] type="submit" class="submit" *ngIf="puntosCompletos"
-            (click)="abrirModal()">{{submitButton}}</button>
+                  (click)="abrirModal()">
+            {{ submitButton }}
+          </button>
+
           <button type="button" class="warning" *ngIf="hayAlgoSeleccionado" (click)="limpiarMapa()">
             Limpiar mapa
           </button>
+
           <button [@fadeInUp] type="button" class="cancel" (click)="regresar()">Cancelar</button>
         </div>
       </form>
@@ -35,47 +38,78 @@
   </div>
 </div>
 
+<!-- Modal 1: Selección de Región de Inicio -->
 <ng-template #exlargeModal let-modal>
-      <div class="card-header-custom">
-        <div class="icon-wrapper">
-          <i class="fas fa-plus"></i>
-        </div>
-        <div class="header-text">
-          <h5>{{title}}</h5>
-          <span>Completa la información para registrar una nueva ruta.</span>
+  <div class="card-header-custom">
+    <div class="icon-wrapper">
+      <i class="fas fa-plus"></i>
+    </div>
+    <div class="header-text">
+      <h5>{{ 'Seleccionar Región de Inicio' }}</h5>
+      <span>Elige la región donde comenzará la ruta.</span>
+    </div>
+  </div>
+
+  <div class="card-body" style="padding: 20px; background-color: #002136;">
+    <form [formGroup]="rutaForm" class="cliente-form">
+      <h6 class="section-titles">Región de Inicio</h6>
+
+      <div class="row">
+        <div class="col-12 col-sm-12 col-md-12 mt-3">
+          <label>Región Inicio</label>
+          <dx-select-box
+            class="tm-select w-100"
+            formControlName="idRegion"
+            [items]="listaRegiones || []"
+            [valueExpr]="'id'"
+            [displayExpr]="'nombre'"
+            [searchEnabled]="true"
+            [showClearButton]="true"
+            placeholder="Seleccione una región"
+            noDataText="Sin registros">
+          </dx-select-box>
         </div>
       </div>
 
-      <div class="card-body" style="padding: 20px; background-color: #002136;">
-        <form [formGroup]="rutaForm" class="cliente-form">
-          <h6 class="section-titles">Datos Generales</h6>
-
-          <div class="row">
-            <div class="col-12 col-sm-6 col-md-6 mt-3">
-              <label>Nombre</label>
-              <input type="text" class="form-control" formControlName="nombre" placeholder="Centro" />
-            </div>
-
-            <div class="col-12 col-sm-6 col-md-6 mt-3">
-              <label>Región</label>
-              <dx-select-box
-                class="tm-select w-100"
-                formControlName="idRegion"
-                [items]="listaRegiones || []"
-                [valueExpr]="'id'"
-                [displayExpr]="'nombre'"
-                [searchEnabled]="true"
-                [showClearButton]="true"
-                placeholder="Seleccione una región"
-                noDataText="Sin registros">
-              </dx-select-box>
-            </div>
-          </div>
-
-          <div class="form-actions mt-4">
-            <button type="submit" class="submit" (click)="submit()">{{ submitButton }}</button>
-            <button type="button" class="cancel" (click)="cancelarYReiniciar()">Cancelar</button>
-          </div>
-        </form>
+      <div class="form-actions mt-4">
+        <button type="button" class="submit" (click)="confirmarRegionInicio()">
+          Continuar
+        </button>
+        <button type="button" class="cancel" (click)="regresar()">
+          Cancelar
+        </button>
       </div>
+    </form>
+  </div>
+</ng-template>
+
+<!-- Modal 2: Datos finales de la Ruta (solo nombre) -->
+<ng-template #datosRutaModal let-modal>
+  <div class="card-header-custom">
+    <div class="icon-wrapper">
+      <i class="fas fa-plus"></i>
+    </div>
+    <div class="header-text">
+      <h5>{{ title }}</h5>
+      <span>Completa la información para registrar una nueva ruta.</span>
+    </div>
+  </div>
+
+  <div class="card-body" style="padding: 20px; background-color: #002136;">
+    <form [formGroup]="rutaForm" class="cliente-form">
+      <h6 class="section-titles">Datos Generales</h6>
+
+      <div class="row">
+        <div class="col-12 col-sm-12 col-md-12 mt-3">
+          <label>Nombre</label>
+          <input type="text" class="form-control" formControlName="nombre" placeholder="Centro" />
+        </div>
+      </div>
+
+      <div class="form-actions mt-4">
+        <button type="submit" class="submit" (click)="submit()">{{ submitButton }}</button>
+        <button type="button" class="cancel" (click)="cancelarYReiniciar()">Cancelar</button>
+      </div>
+    </form>
+  </div>
 </ng-template>

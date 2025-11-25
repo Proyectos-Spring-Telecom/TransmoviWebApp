@@ -33,7 +33,7 @@ export class AgregarTarifaComponent implements OnInit {
     private activatedRouted: ActivatedRoute,
     private derroService: DerroterosService,
     private route: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.obtenerDerroteros();
@@ -216,7 +216,35 @@ export class AgregarTarifaComponent implements OnInit {
           idDerrotero: this.toNumber(item.idDerrotero ?? item.idderrotero),
         };
 
-        this.tarifaForm.patchValue(dto, { emitEvent: false });
+        this.tarifaForm.patchValue(
+          {
+            tipoTarifa: dto.tipoTarifa,
+            tarifaBase:
+              dto.tarifaBase != null && !isNaN(dto.tarifaBase)
+                ? dto.tarifaBase.toString()
+                : '',
+            distanciaBaseKm:
+              dto.distanciaBaseKm != null && !isNaN(dto.distanciaBaseKm)
+                ? dto.distanciaBaseKm.toString()
+                : '',
+            incrementoCadaMetros:
+              dto.incrementoCadaMetros != null && !isNaN(dto.incrementoCadaMetros)
+                ? dto.incrementoCadaMetros.toString()
+                : '',
+            costoAdicional:
+              dto.costoAdicional != null && !isNaN(dto.costoAdicional)
+                ? dto.costoAdicional.toString()
+                : '',
+            estatus: dto.estatus,
+            idDerrotero: dto.idDerrotero,
+          },
+          { emitEvent: false }
+        );
+
+        this.onTarifaBlur();
+        this.onCostoBlur();
+        this.onDistanciaBlur();
+        this.onIncrementoBlur();
 
         this.actualizarCamposPorTipoTarifa(dto.tipoTarifa);
 
@@ -245,10 +273,10 @@ export class AgregarTarifaComponent implements OnInit {
       tipoNum = this.toNum(tipo);
     }
 
-    const tarifaBaseCtrl        = this.tarifaForm.get('tarifaBase');
-    const distanciaBaseCtrl     = this.tarifaForm.get('distanciaBaseKm');
-    const incrementoMetrosCtrl  = this.tarifaForm.get('incrementoCadaMetros');
-    const costoAdicionalCtrl    = this.tarifaForm.get('costoAdicional');
+    const tarifaBaseCtrl = this.tarifaForm.get('tarifaBase');
+    const distanciaBaseCtrl = this.tarifaForm.get('distanciaBaseKm');
+    const incrementoMetrosCtrl = this.tarifaForm.get('incrementoCadaMetros');
+    const costoAdicionalCtrl = this.tarifaForm.get('costoAdicional');
 
     if (!tarifaBaseCtrl || !distanciaBaseCtrl || !incrementoMetrosCtrl || !costoAdicionalCtrl) {
       return;

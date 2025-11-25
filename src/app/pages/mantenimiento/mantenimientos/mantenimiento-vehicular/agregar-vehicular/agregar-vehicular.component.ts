@@ -140,10 +140,15 @@ export class AgregarVehicularComponent implements OnInit {
     this.manteVeh
       .obtenerMatVehicular(this.idManVehicular)
       .subscribe((response: any) => {
-        const data = Array.isArray(response.data) ? response.data[0] : response.data;
+        const rawData = response?.data;
+        const data = Array.isArray(rawData) ? rawData[0] : rawData;
+
         if (!data) {
           return;
         }
+
+        const costoDisplay =
+          data.costo != null ? `$${Number(data.costo).toFixed(2)}` : null;
 
         this.manVehicularForm.patchValue({
           idInstalacion: data.idInstalacion,
@@ -154,11 +159,12 @@ export class AgregarVehicularComponent implements OnInit {
           fechaInicio: data.fechaInicio ? new Date(data.fechaInicio) : null,
           fechaFinal: data.fechaFinal ? new Date(data.fechaFinal) : null,
           idTaller: data.idTaller,
-          costo: data.costo,
+          costo: costoDisplay,
           encargado: data.encargado
         });
       });
   }
+
 
   initForm() {
     this.manVehicularForm = this.fb.group({
@@ -319,6 +325,7 @@ export class AgregarVehicularComponent implements OnInit {
     if (this.manVehicularForm.invalid) {
       this.submitButton = 'Guardar';
       this.loading = false;
+
       const etiquetas: any = {
         idInstalacion: 'Instalación',
         idReferencia: 'Referencia',
@@ -372,24 +379,21 @@ export class AgregarVehicularComponent implements OnInit {
 
     const formValue = this.manVehicularForm.value;
 
-    const fd = new FormData();
-    fd.append('idInstalacion', String(Number(formValue.idInstalacion)));
-    fd.append('idReferencia', String(Number(formValue.idReferencia)));
-    fd.append('servicioDescripcion', formValue.servicioDescripcion);
-    fd.append('idEstatus', String(Number(formValue.idEstatus ?? 1)));
-    fd.append('fechaInicio', this.formatearFechaSwagger(formValue.fechaInicio) || '');
-    fd.append('fechaFinal', this.formatearFechaSwagger(formValue.fechaFinal) || '');
-    fd.append('idTaller', String(Number(formValue.idTaller)));
-    fd.append('costo', String(this.parseCosto(formValue.costo)));
-    fd.append('encargado', formValue.encargado);
-
-    // Solo se manda archivo si el usuario cargó uno nuevo
-    if (this.notaFile) {
-      fd.append('notaServicio', this.notaFile, this.notaFile.name);
-    }
+    const payload = {
+      idInstalacion: Number(formValue.idInstalacion),
+      idReferencia: Number(formValue.idReferencia),
+      servicioDescripcion: formValue.servicioDescripcion,
+      notaServicio: formValue.notaServicio,
+      idEstatus: Number(formValue.idEstatus ?? 1),
+      fechaInicio: this.formatearFechaSwagger(formValue.fechaInicio),
+      fechaFinal: this.formatearFechaSwagger(formValue.fechaFinal),
+      idTaller: Number(formValue.idTaller),
+      costo: this.parseCosto(formValue.costo),
+      encargado: formValue.encargado,
+    };
 
     this.manteVeh
-      .actualizarMatVehicular(this.idManVehicular, fd)
+      .actualizarMatVehicular(this.idManVehicular, payload)
       .subscribe(
         (response) => {
           this.submitButton = 'Actualizar';

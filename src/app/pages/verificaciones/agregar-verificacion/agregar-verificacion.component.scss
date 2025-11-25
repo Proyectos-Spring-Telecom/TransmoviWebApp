@@ -51,21 +51,12 @@ $u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
   }
 }
 
-.Descripcion {
-  font-weight: 700;
-  font-size: 0.9rem;
-  margin: 20px 0 16px;
-  color: rgb(219, 219, 219);
-  border-left: 4px solid #00836d;
-  padding-left: 8px;
-}
-
-.section-titles {
+.section-title {
   font-weight: 700;
   font-size: 1.1rem;
-  margin: 10px 0 16px;
+  margin: 20px 0 16px;
   color: white;
-  border-left: 4px solid #3f9b8b;
+  border-left: 4px solid #00836d;
   padding-left: 8px;
 }
 
@@ -116,6 +107,11 @@ label {
   }
 }
 
+.form-control:focus,
+.form-select:focus {
+  --bs-form-control-focus-box-shadow: none;
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-start;
@@ -136,7 +132,7 @@ label {
   gap: 8px;
 
   .file-input {
-    display: none; // oculta el input real
+    display: none;
   }
 
   .file-label {
@@ -300,128 +296,24 @@ div:where(.swal2-container) .swal2-html-container {
   background-color: #002136;
 }
 
-#map {
-  width: 100%;
-  height: clamp(320px, 48vh, 520px);
-  border-radius: 14px;
-  border: 1px solid #2f395a;
-  background: #343845;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
-  }
-
-  /* Borde de enfoque (teclado / interacción) */
-  &:focus,
-  &:focus-within {
-    outline: none;
-    box-shadow:
-      0 0 0 2px rgba(0, 131, 109, 0.18),
-      0 10px 26px rgba(0, 0, 0, 0.28);
-  }
-
-  /* Fundo sutil superior para legibilidad de controles */
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 72px;
-    pointer-events: none;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), transparent);
-    z-index: 1;
-  }
-
-  /* Afinar controles nativos de Google Maps sin tocar globales */
-  .gm-style .gmnoprint,
-  .gm-style .gm-control-active {
-    border-radius: 10px !important;
-    overflow: hidden;
-  }
-
-  .gm-style .gm-control-active,
-  .gm-style .gm-bundled-control .gm-svpc,
-  .gm-style .gm-fullscreen-control {
-    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
-  }
-
-  /* Margen interno para que los controles no peguen al borde redondeado */
-  .gm-style > div:nth-child(1) {
-    margin: 8px !important;
-  }
-
-  /* Cuadro de búsqueda (si usas Autocomplete) y botones: redondeo coherente */
-  .gm-style .gm-style-mtc,
-  .gm-style .gm-svpc,
-  .gm-style .gm-control-active,
-  .gm-style .gm-fullscreen-control {
-    border-radius: 10px !important;
-  }
-
-  /* Etiquetas emergentes del mapa con leve redondeo */
-  .gm-style .gm-style-iw-c {
-    border-radius: 10px !important;
-  }
-}
-
-
-/* Callout suave para instrucciones */
-.u-callout {
-  position: relative;
-  display: block;
-  padding: .875rem 1rem .875rem 1.25rem;
-  line-height: 1.35;
-  font-weight: 600; /* leve énfasis */
-  backdrop-filter: blur(2px);
-
-  &--subtle {
-    /* sutil en dark theme */
-    border-left: 4px solid #4ade80;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
-  }
-
-  /* Pseudo-ícono discreto */
-  &::before {
-    content: "ℹ";
-    position: absolute;
-    left: .5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: .9rem;
-    opacity: .75;
-  }
-
-  /* Resalte sutil de palabras clave */
-  strong {
-    color: #8dd8ff;
-    font-weight: 700;
-  }
-}
-
-/* Ajuste fino para pantallas pequeñas */
-@media (max-width: 576px) {
-  .u-callout { font-size: .95rem; }
-}
-
-
 
 :host ::ng-deep .tm-range {
+
   .dx-daterangebox,
   .dx-texteditor,
   .dx-texteditor-input-container,
-  .dx-texteditor-buttons-container { min-height: 42px; }
+  .dx-texteditor-buttons-container {
+    min-height: 41px;
+  }
 
   .dx-texteditor-input {
-    height: 42px;
-    line-height: 42px;
+    height: 41px;
+    line-height: 41px;
     padding: 0 12px;
   }
 
   .dx-button .dx-button-content {
-    height: 42px;
+    height: 41px;
     display: flex;
     align-items: center;
   }
@@ -429,68 +321,52 @@ div:where(.swal2-container) .swal2-html-container {
 
 
 :host ::ng-deep .tm-select {
+
   .dx-selectbox,
   .dx-texteditor,
   .dx-texteditor-input-container,
-  .dx-texteditor-buttons-container { min-height: 42px; }
+  .dx-texteditor-buttons-container {
+    min-height: 41px;
+  }
 
   .dx-texteditor-input {
-    height: 42px;
-    line-height: 42px;
+    height: 41px;
+    line-height: 41px;
     padding: 0 12px;
   }
 
   .dx-button .dx-button-content {
-    height: 42px;
+    height: 41px;
     display: flex;
     align-items: center;
   }
 }
 
 :host ::ng-deep .tm-date {
+
   .dx-datebox,
   .dx-texteditor,
   .dx-texteditor-input-container,
   .dx-texteditor-buttons-container {
-    min-height: 42px;
+    min-height: 41px;
     border: none !important;
     box-shadow: none !important;
   }
+
   .dx-texteditor-input {
-    height: 42px;
-    line-height: 42px;
+    height: 41px;
+    line-height: 41px;
     padding: 0 12px;
     border: none !important;
     box-shadow: none !important;
     background: transparent;
   }
+
   .dx-button .dx-button-content {
-    height: 42px;
+    height: 41px;
     display: flex;
     align-items: center;
     border: none !important;
     box-shadow: none !important;
   }
-}
-
-
-::ng-deep .dx-dropdowneditor.dx-dropdowneditor-field-clickable, .dx-dropdowneditor.dx-dropdowneditor-field-clickable .dx-texteditor-input {
-    cursor: pointer;
-    height: 44px;
-}
-
-/* reduce el padding interno del InfoWindow */
-::ng-deep .gm-style .gm-style-iw-c {
-  padding: 6px 8px !important;
-  border-radius: 12px !important;
-}
-
-/* evita scroll y espacios raros */
-::ng-deep .gm-style .gm-style-iw-d {
-  overflow: visible !important;
-}
-
-/* opcional: afina la “colita” del globo para que no deje hueco */
-::ng-deep .gm-style .gm-style-iw-tc {
-  margin-top: -4px; /* ajusta si lo ves necesario */
 }

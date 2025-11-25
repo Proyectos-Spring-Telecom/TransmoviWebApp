@@ -96,7 +96,7 @@ export class LoginComponent implements OnInit {
           background: '#002136',
           icon: 'error',
           title: '¡Ops!',
-          text: 'Usuario y/o contraseña incorrectos',
+          text: error.error,
           confirmButtonText: 'Entendido',
           allowOutsideClick: false,
           allowEscapeKey: false

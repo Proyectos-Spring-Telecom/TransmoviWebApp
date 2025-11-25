@@ -50,6 +50,16 @@
                             <dxi-column *appHasPermission="['75', '76']" caption="Acciones" cellTemplate="acciones" alignment="center" [width]="150"></dxi-column>
                             <dxo-grouping #expand [autoExpandAll]="true"></dxo-grouping>
                             <dxi-column dataField="nombreRuta" caption="Nombre Ruta" alignment="center" dataType="string" [allowSearch]="true"></dxi-column>
+                            <dxi-column dataField="TipoTarifa" caption="Incremento por Metros" alignment="center" dataType="string" [allowSearch]="true" cellTemplate="tipoTarifa">
+                                <div *dxTemplate="let r of 'tipoTarifa' ">
+                                    <div *ngIf="r.data.TipoTarifa == 0">
+                                        Estacionaria
+                                    </div>
+                                    <div *ngIf="r.data.TipoTarifa == 1">
+                                        Incremental
+                                    </div>
+                                </div>
+                            </dxi-column>
                             <dxi-column dataField="TarifaBase" caption="Tarifa" alignment="center" dataType="string" [allowSearch]="true" cellTemplate="tarBase">
                                 <div *dxTemplate="let t of 'tarBase' ">
                                     {{t.data.TarifaBase | currency: '$'}}

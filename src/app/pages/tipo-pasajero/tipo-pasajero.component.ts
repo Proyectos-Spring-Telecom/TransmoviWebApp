@@ -3,19 +3,22 @@ import { Router } from '@angular/router';
 import { DxDataGridComponent } from 'devextreme-angular';
 import CustomStore from 'devextreme/data/custom_store';
 import { NgxPermissionsService } from 'ngx-permissions';
-import { lastValueFrom } from 'rxjs';
-import { MantenimientoKilometrosService } from 'src/app/shared/services/mat-kilometraje.service';
+import { forkJoin, lastValueFrom, map, of, switchMap } from 'rxjs';
+import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
+import { Permiso } from 'src/app/entities/Enums/permiso.enum';
+import { ModulosService } from 'src/app/shared/services/modulos.service';
+import { PasajerosService } from 'src/app/shared/services/pasajeros.service';
 import Swal from 'sweetalert2';
 
 @Component({
-  selector: 'app-mantenimiento-kilometraje',
-  templateUrl: './mantenimiento-kilometraje.component.html',
-  styleUrl: './mantenimiento-kilometraje.component.scss',
+  selector: 'app-tipo-pasajero',
+  templateUrl: './tipo-pasajero.component.html',
+  styleUrl: './tipo-pasajero.component.scss',
+  animations: [fadeInUpAnimation],
 })
-export class MantenimientoKilometrajeComponent {
-  public mensajeAgrupar: string =
-    'Arrastre un encabezado de columna aquí para agrupar por esa columna';
-  public listaManKilometraje: any;
+export class TipoPasajeroComponent {
+  public mensajeAgrupar: string = 'Arrastre un encabezado de columna aquí para agrupar por esa columna';
+  public listaTipoPasajeros: any;
   public showFilterRow: boolean;
   public showHeaderFilter: boolean;
   public loading: boolean;
@@ -25,55 +28,92 @@ export class MantenimientoKilometrajeComponent {
   public totalRegistros: number = 0;
   public pageSize: number = 20;
   public totalPaginas: number = 0;
-  @ViewChild(DxDataGridComponent, { static: false })
-  dataGrid: DxDataGridComponent;
+  @ViewChild(DxDataGridComponent, { static: false }) dataGrid: DxDataGridComponent;
   public autoExpandAllGroups: boolean = true;
   isGrouped: boolean = false;
   public paginaActualData: any[] = [];
   public filtroActivo: string = '';
 
+
   constructor(
     private router: Router,
-    private manteKilome: MantenimientoKilometrosService,
-    private permissionsService: NgxPermissionsService
+    private catService: PasajerosService,
+    private permissionsService: NgxPermissionsService,
   ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
   }
 
   ngOnInit() {
-    this.setupDataSource();
-    // this.obtenerlistaManVehicular();
+    this.obtenerlistaTipoPasajeros();
+    // this.obtenerlistaTipoPasajeros();
   }
 
   hasPermission(permission: string): boolean {
     return this.permissionsService.getPermission(permission) !== undefined;
   }
 
-  obtenerlistaManVehicular() {
+  obtenerlistaTipoPasajeros() {
     this.loading = true;
-    this.manteKilome.obtenerManKilometraje().subscribe((response: any[]) => {
+    this.catService.obtenerTipoPasajerosList().subscribe((response: any) => {
+      this.listaTipoPasajeros = response.data;
       this.loading = false;
-      this.listaManKilometraje = response;
     });
   }
 
-  agregarManKilometraje() {
-    this.router.navigateByUrl(
-      '/mantenimientos/agregar-mantenimiento-kilometraje'
-    );
+  mapNombreTipoDescuento(valor: string): string {
+    if (!valor) return '';
+
+    const v = valor.toUpperCase();
+
+    if (v === 'NULO') return 'Ningún Porcentaje';
+    if (v === 'MONETARIO') return 'Monetario';
+    if (v === 'PORCENTAJE') return 'Porcentaje';
+
+    return valor;
   }
 
-  actualizarKilometraje(idManKilometraje: number) {
-    this.router.navigateByUrl(
-      '/mantenimientos/editar-mantenimiento-kilometraje/' + idManKilometraje
-    );
+  formatCantidad(cantidad: any, tipoDescuento: string): string {
+    if (cantidad == null) {
+      return 'Sin registro';
+    }
+
+    const num = Number(cantidad);
+    if (isNaN(num)) {
+      return 'Sin registro';
+    }
+
+    if (num === 0) {
+      return 'Sin registro';
+    }
+
+    const tipo = tipoDescuento ? tipoDescuento.toUpperCase() : '';
+
+    if (tipo === 'MONETARIO') {
+      return `$${num.toFixed(2)}`;
+    }
+
+    if (tipo === 'PORCENTAJE') {
+      return `${num} %`;
+    }
+
+    return num.toString();
+  }
+
+
+
+  agregarTipo() {
+    this.router.navigateByUrl('/tipo-pasajero/agregar-tipo-pasajero');
+  }
+
+  actualizarTipo(idTipoPasajero: Number) {
+    this.router.navigateByUrl('/tipo-pasajero/editar-tipo-pasajero/' + idTipoPasajero);
   }
 
   activar(rowData: any) {
     Swal.fire({
       title: '¡Activar!',
-      html: `¿Está seguro que requiere activar el registro del kilometraje: <strong>${rowData.id}</strong>?`,
+      html: `¿Está seguro que requiere activar el módulo: <strong>${rowData.nombre}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -83,29 +123,30 @@ export class MantenimientoKilometrajeComponent {
       background: '#002136',
     }).then((result) => {
       if (result.value) {
-        this.manteKilome.activar(rowData.id).subscribe(
+        this.catService.updateEstatus(rowData.id, 1).subscribe(
           (response) => {
             Swal.fire({
               title: '¡Confirmación Realizada!',
-              html: `El registro de kilometraje ha sido activado.`,
+              html: `El módulo ha sido activado.`,
               icon: 'success',
               background: '#002136',
               confirmButtonColor: '#3085d6',
               confirmButtonText: 'Confirmar',
-            });
+            })
 
-            this.setupDataSource();
+            this.obtenerlistaTipoPasajeros();
             this.dataGrid.instance.refresh();
+            // this.obtenerlistaTipoPasajeros();
           },
-          (error: any) => {
+          (error) => {
             Swal.fire({
               title: '¡Ops!',
-              html: error.error,
+              html: `${error}`,
               icon: 'error',
               background: '#002136',
               confirmButtonColor: '#3085d6',
               confirmButtonText: 'Confirmar',
-            });
+            })
           }
         );
       }
@@ -115,7 +156,7 @@ export class MantenimientoKilometrajeComponent {
   desactivar(rowData: any) {
     Swal.fire({
       title: '¡Desactivar!',
-      html: `¿Está seguro que requiere desactivar el registro del kilometraje: <strong>${rowData.id}</strong>?`,
+      html: `¿Está seguro que requiere desactivar el módulo: <strong>${rowData.nombre}</strong>?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -125,128 +166,40 @@ export class MantenimientoKilometrajeComponent {
       background: '#002136',
     }).then((result) => {
       if (result.value) {
-        this.manteKilome.desactivar(rowData.id).subscribe(
+        this.catService.updateEstatus(rowData.id, 0).subscribe(
           (response) => {
             Swal.fire({
               title: '¡Confirmación Realizada!',
-              html: `El registro del kilometraje ha sido desactivado.`,
+              html: `El módulo ha sido desactivado.`,
               icon: 'success',
               background: '#002136',
               confirmButtonColor: '#3085d6',
               confirmButtonText: 'Confirmar',
-            });
-            this.setupDataSource();
+            })
+            this.obtenerlistaTipoPasajeros();
             this.dataGrid.instance.refresh();
+            // this.obtenerlistaTipoPasajeros();
           },
-          (error: any) => {
+          (error) => {
             Swal.fire({
               title: '¡Ops!',
-              html: error.error,
+              html: `${error}`,
               icon: 'error',
               background: '#002136',
               confirmButtonColor: '#3085d6',
               confirmButtonText: 'Confirmar',
-            });
+            })
           }
         );
       }
     });
+    // console.log('Desactivar:', rowData);
   }
 
   onPageIndexChanged(e: any) {
     const pageIndex = e.component.pageIndex();
     this.paginaActual = pageIndex + 1;
     e.component.refresh();
-  }
-
-  mesesPeriodoGrid = [
-    { value: 1, text: 'Enero' },
-    { value: 2, text: 'Febrero' },
-    { value: 3, text: 'Marzo' },
-    { value: 4, text: 'Abril' },
-    { value: 5, text: 'Mayo' },
-    { value: 6, text: 'Junio' },
-    { value: 7, text: 'Julio' },
-    { value: 8, text: 'Agosto' },
-    { value: 9, text: 'Septiembre' },
-    { value: 10, text: 'Octubre' },
-    { value: 11, text: 'Noviembre' },
-    { value: 12, text: 'Diciembre' }
-  ];
-
-  formatPeriodoGrid(valor: number): string {
-    if (valor == null) {
-      return '';
-    }
-
-    const mes = this.mesesPeriodoGrid.find(m => m.value === valor);
-    if (!mes) {
-      return valor.toString();
-    }
-
-    const num = valor.toString().padStart(2, '0');
-    return `${mes.text}`;
-  }
-
-
-  setupDataSource() {
-    this.loading = true;
-
-    this.listaManKilometraje = new CustomStore({
-      key: 'id',
-      load: async (loadOptions: any) => {
-        const take = Number(loadOptions?.take) || this.pageSize || 10;
-        const skip = Number(loadOptions?.skip) || 0;
-        const page = Math.floor(skip / take) + 1;
-
-        try {
-          const resp: any = await lastValueFrom(
-            this.manteKilome.obtenerManKilometroData(page, take)
-          );
-          this.loading = false;
-          const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
-          const meta = resp?.paginated || {};
-          const totalRegistros =
-            toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
-
-          const paginaActual = toNum(meta.page) ?? toNum(resp?.page) ?? page;
-
-          const totalPaginas =
-            toNum(meta.lastPage) ??
-            toNum(resp?.pages) ??
-            Math.max(1, Math.ceil(totalRegistros / take));
-
-          const dataTransformada = rows.map((item: any) => ({
-            ...item,
-            estatusTexto:
-              item?.estatus === 1
-                ? 'Activo'
-                : item?.estatus === 0
-                  ? 'Inactivo'
-                  : null,
-          }));
-
-          this.totalRegistros = totalRegistros;
-          this.paginaActual = paginaActual;
-          this.totalPaginas = totalPaginas;
-          this.paginaActualData = dataTransformada;
-
-          return {
-            data: dataTransformada,
-            totalCount: totalRegistros,
-          };
-        } catch (err) {
-          this.loading = false;
-          console.error('Error en la solicitud de datos:', err);
-          return { data: [], totalCount: 0 };
-        }
-      },
-    });
-
-    function toNum(v: any): number | null {
-      const n = Number(v);
-      return Number.isFinite(n) ? n : null;
-    }
   }
 
   onGridOptionChanged(e: any) {
@@ -256,7 +209,7 @@ export class MantenimientoKilometrajeComponent {
     const texto = (e.value ?? '').toString().trim().toLowerCase();
     if (!texto) {
       this.filtroActivo = '';
-      grid?.option('dataSource', this.listaManKilometraje);
+      grid?.option('dataSource', this.listaTipoPasajeros);
       return;
     }
     this.filtroActivo = texto;
@@ -282,10 +235,11 @@ export class MantenimientoKilometrajeComponent {
       return String(val).toLowerCase();
     };
     const dataFiltrada = (this.paginaActualData || []).filter((row: any) => {
-      const hitEnColumnas = dataFields.some((df) =>
-        normalizar(row?.[df]).includes(texto)
-      );
-      const extras = [normalizar(row?.id), normalizar(row?.estatusTexto)];
+      const hitEnColumnas = dataFields.some((df) => normalizar(row?.[df]).includes(texto));
+      const extras = [
+        normalizar(row?.id),
+        normalizar(row?.estatusTexto)
+      ];
 
       return hitEnColumnas || extras.some((s) => s.includes(texto));
     });

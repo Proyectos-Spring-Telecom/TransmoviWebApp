@@ -18,6 +18,10 @@ export class VehiculosService {
     return this.http.get(`${environment.API_SECURITY}/vehiculos/list`);
   }
 
+  obtenerVehiculosByCliente(idCliente: number): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/vehiculos/by-cliente/${idCliente}`);
+  }
+
   agregarVehiculo(data: any) {
     return this.http.post(environment.API_SECURITY + '/vehiculos', data);
   }
@@ -45,9 +49,5 @@ export class VehiculosService {
 
   obtenerCombustibles(): Observable<any> {
     return this.http.get(`${environment.API_SECURITY}/cat-tipo-combustible/list`);
-  }
-
-  obtenerVehiculosByCliente(idCliente: number): Observable<any> {
-    return this.http.get(`${environment.API_SECURITY}/vehiculos/by-cliente/${idCliente}`);
   }
 }

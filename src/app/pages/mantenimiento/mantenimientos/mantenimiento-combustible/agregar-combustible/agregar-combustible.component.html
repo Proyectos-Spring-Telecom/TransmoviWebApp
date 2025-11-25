@@ -23,40 +23,35 @@
                     </div>
                     <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
                         <label>Tipo de combustible</label>
-                        <dx-select-box class="tm-select w-100" formControlName="idTipoCombustible" [items]="listaCombustibles"
-                            valueExpr="id" displayExpr="nombre" [searchEnabled]="true" [showClearButton]="true"
-                            [noDataText]="'Sin registros'" placeholder="Seleccione un tipo de combustible">
+                        <dx-select-box class="tm-select w-100" formControlName="idTipoCombustible"
+                            [items]="listaCombustibles" valueExpr="id" displayExpr="nombre" [searchEnabled]="true"
+                            [showClearButton]="true" [noDataText]="'Sin registros'"
+                            placeholder="Seleccione un tipo de combustible">
                         </dx-select-box>
                     </div>
                     <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-  <label>Operador</label>
-  <dx-select-box
-    class="tm-select w-100"
-    formControlName="idOperador"
-    [items]="listaOperadores"
-    valueExpr="id"
-    displayExpr="nombreCompleto"
-    [searchEnabled]="true"
-    [showClearButton]="true"
-    [noDataText]="'Sin registros'"
-    placeholder="Seleccione un operador">
-  </dx-select-box>
-</div>
+                        <label>Operador</label>
+                        <dx-select-box class="tm-select w-100" formControlName="idOperador" [items]="listaOperadores"
+                            valueExpr="id" displayExpr="nombreCompleto" [searchEnabled]="true" [showClearButton]="true"
+                            [noDataText]="'Sin registros'" placeholder="Seleccione un operador">
+                        </dx-select-box>
+                    </div>
 
                     <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
                         <label>Cantidad de combustible</label>
-                        <input type="number" inputmode="decimal" class="form-control"
-                            formControlName="cantidadCombustible" placeholder="Ej. 50.5">
+                        <input type="text"  inputmode="decimal" class="form-control"
+                            formControlName="cantidadCombustible" placeholder="50.5" (focus)="onCantidadFocus()" (blur)="onCantidadBlur()" (keypress)="allowOnlyNumbers($event)">
                     </div>
                     <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
                         <label>Precio del combustible</label>
-                        <input type="number" inputmode="decimal" class="form-control"
-                            formControlName="precioCombustible" placeholder="Ej. 1520.75">
+                        <input type="text" inputmode="decimal" (focus)="onCostoFocus()" (blur)="onCostoBlur()"
+              (keypress)="allowOnlyNumbers($event)"  class="form-control"
+                            formControlName="precioCombustible" placeholder="1520.75">
                     </div>
                     <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
                         <label>Kilometraje</label>
-                        <input type="number" inputmode="decimal" class="form-control" formControlName="kilometraje"
-                            placeholder="Ej. 15000.5">
+                        <input type="text" inputmode="decimal" class="form-control" formControlName="kilometraje"
+                            placeholder="15000.5" (focus)="onKilometrajeFocus()" (blur)="onKilometrajeBlur()" (keypress)="allowOnlyNumbers($event)">
                     </div>
                     <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
                         <label>Fecha y hora</label>

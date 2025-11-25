@@ -1,0 +1,153 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-body">
+            <div class="u-banner">
+                <div class="u-banner__icon">
+                    <div class="u-icon">
+                        <i class="fas fa-list-alt"></i>
+                    </div>
+                </div>
+                <div class="u-banner__body">
+                    <h2 class="u-banner__title">Gestión de Incidentes</h2>
+                    <p class="u-banner__subtitle">
+                        Consulta y administra los incidentes y accidentes de tus vehículos.
+                    </p>
+                    <div *appHasPermission="'6'">
+                        <button class="u-btn u-btn--primary" (click)="agregarIncidente()">
+                            <i class="fas fa-plus"></i>
+                            <span>Agregar Incidentes</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <div class="table-responsive mb-4 col-12 col-lg-12">
+                        <dx-data-grid id="gridContainer" [columnHidingEnabled]="true" [showBorders]="true"
+                            [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
+                            [dataSource]="listaIncidentes" [remoteOperations]="{ paging: true }" [width]="'100%'"
+                            [paging]="{ pageSize: pageSize }" [pager]="{ 
+                                showPageSizeSelector: true, 
+                                allowedPageSizes: [50], 
+                                showInfo: true,
+                                infoText: 'Página {0} de {1}', 
+                                visible: true 
+                            }" (onPageIndexChanged)=" onPageIndexChanged($event)"
+                            (onOptionChanged)="onGridOptionChanged($event)">
+                            <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
+                            <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
+                            <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
+                            <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
+                            <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
+                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]"
+                                [showInfo]="true"></dxo-pager>
+                            <!-- <dxi-column dataField="Logotipo" caption="Logotipo" alignment="center" cellTemplate="cellTemplate">
+                                <ng-template *dxTemplate="let d of 'cellTemplate'">
+                                    <img [src]="d.data.Logotipo" alt="Logo" width="50">
+                                </ng-template>
+                            </dxi-column> -->
+                            <dxi-column *appHasPermission="['7', '8']" caption="Acciones" cellTemplate="Acciones"
+                                alignment="center" [width]="150"></dxi-column>
+                            <dxi-column dataField="imagenVehiculo" caption="Imagen" cellTemplate="imagen" [width]="200"
+                                alignment="center">
+                                <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+                            </dxi-column>
+                            <div *dxTemplate="let data of 'imagen'" style="text-align: center;">
+                                <img *ngIf="data.value" style="max-width: 100px;" [src]="data.value" />
+                                <img *ngIf="data.value == null" style="max-width: 70px;"
+                                    src="https://transmovi.s3.us-east-2.amazonaws.com/imagenes/no-image.jpg" />
+                            </div>
+                            <dxi-column caption="Captura" [width]="150" alignment="center" [allowSorting]="false"
+                                [allowFiltering]="false" cellTemplate="notVerificacion">
+                            </dxi-column>
+                            <div *dxTemplate="let f of 'notVerificacion'">
+                                <button type="button" class="btn btn-primary btn-sm" style="border-radius: 5px;"
+                                    (click)="previsualizar(f?.data?.imagen, 'Captura', f?.data)">
+                                    <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
+                                </button>
+                            </div>
+                            <dxi-column dataField="incidente" caption="Descripción del Incidente" alignment="center" dataType="string"> </dxi-column>
+                            <dxi-column dataField="placaVehiculo" caption="Instalación" alignment="center" dataType="string"> </dxi-column>
+                            <dxi-column dataField="nombreOperador" caption="Operador" alignment="center" dataType="string"> </dxi-column>
+                            <dxi-column dataField="nombreCliente" caption="Cliente" alignment="center" dataType="string"> </dxi-column>
+                            <dxi-column dataField="estatus" caption="Estatus" alignment="center" dataType="string"
+                                cellTemplate="est">
+                                <div *dxTemplate="let f of 'est'">
+                                    <span *ngIf="toNum(f.data.estatus) === 1" class="estatus estatus-activo">
+                                        Activo
+                                    </span>
+                                    <span *ngIf="toNum(f.data.estatus) !== 1" class="estatus estatus-inactivo">
+                                        Inactivo
+                                    </span>
+                                </div>
+                            </dxi-column>
+                            <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
+                                <div *appHasPermission="'7'">
+                                    <button id="actualizarButton" class="btnAcciones"
+                                        (click)="actualizarIncidente(row.data.id)">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                </div>
+                                <div *appHasPermission="'8'">
+                                    <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones"
+                                        (click)="activar(row.data)">
+                                        <i class="fa fa-arrow-up"></i>
+                                    </button>
+                                    <button *ngIf="row.data.estatus === 1" id="deleteButton" class="btnAcciones"
+                                        (click)="desactivar(row.data)">
+                                        <i class="fa fa-arrow-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <dxo-export [enabled]="false" [allowExportSelectedData]="true"
+                                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
+                            </dxo-export>
+                        </dx-data-grid>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
+    [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
+</dx-load-panel>
+
+
+<dx-popup [visible]="pdfPopupVisible" [showTitle]="true" title="Documentación" [dragEnabled]="true"
+    [closeOnOutsideClick]="false" [width]="pdfPopupWidth" [height]="'auto'" [showCloseButton]="true"
+    (onHiding)="pdfPopupVisible = false">
+    <div class="pdf-viewer">
+        <div class="pdf-loader" *ngIf="pdfLoading && !pdfError">
+            Cargando documento…
+        </div>
+        <span class="dc-document" *ngIf="!pdfError">
+            {{pdfTitle}}
+            <br>
+        </span>
+        <ng-container *ngIf="!pdfError; else pdfErrorTpl">
+            <br>
+            <div class="pdf-frame" *ngIf="!pdfError && !pdfIsImage && pdfUrlSafe" [class.is-loading]="pdfLoading">
+                <iframe class="pdf-iframe" [src]="pdfUrlSafe" (load)="onPdfLoaded()"></iframe>
+            </div>
+            <div class="pdf-frame" *ngIf="!pdfError && pdfIsImage && imgSrc" [class.is-loading]="pdfLoading">
+                <img class="pdf-image" [src]="imgSrc" alt="Vista previa" (load)="onImgLoaded()" (error)="onImgError()">
+            </div>
+            <div class="pdf-actions">
+                <button type="button" class="abrirArchivo" (click)="abrirEnNuevaPestana()">
+                    <i class="fa fa-plus"></i>&nbsp;&nbsp;Abrir
+                </button>
+                <button type="button" class="descargarArchivo" (click)="descargarPdfForzada()">
+                    <i class="fa fa-download"></i>&nbsp;&nbsp;Descargar
+                </button>
+            </div>
+        </ng-container>
+        <ng-template #pdfErrorTpl>
+            <div class="pdf-error-card">
+                <h4>📄 No pudimos previsualizar el PDF o Imagen</h4>
+                <p>{{ pdfErrorMsg || 'El archivo no está disponible, el tipo de contenido no es PDF o fue bloqueado por el navegador (CORS).' }}</p>
+            </div>
+        </ng-template>
+    </div>
+</dx-popup>
