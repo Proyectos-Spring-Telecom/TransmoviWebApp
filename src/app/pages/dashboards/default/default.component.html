@@ -5,19 +5,39 @@
     <div class="row g-2 mt-2">
       <div class="col-12 d-flex justify-content-end flex-wrap gap-2 align-items-end">
         <div class="me-2 mb-2">
+          <label class="form-label mb-1">{{ renombrar('Cliente') }}</label>
+          <dx-select-box 
+            stylingMode="filled" 
+            placeholder="Selecciona cliente" 
+            [(value)]="clienteSeleccionado"
+            [dataSource]="clientesOptions" 
+            [valueExpr]="clienteValueExpr" 
+            [displayExpr]="clienteDisplayExpr"
+            [searchEnabled]="true" 
+            [showClearButton]="true" 
+            [width]="200"
+            (onValueChanged)="onClienteChanged()">
+          </dx-select-box>
+        </div>
+        <div class="me-2 mb-2">
           <label class="form-label mb-1">{{ renombrar('Fecha inicio') }}</label>
-          <input type="date" class="form-control form-control-sm" />
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="fechaInicio" (change)="obtenerKPIs()" />
         </div>
         <div class="me-2 mb-2">
           <label class="form-label mb-1">{{ renombrar('Fecha fin') }}</label>
-          <input type="date" class="form-control form-control-sm" />
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="fechaFin" />
+        </div>
+        <div class="me-2 mb-2 d-flex align-items-end">
+          <button type="button" class="btn-filtro buscar" (click)="obtenerKPIs()">
+            <i class="fas fa-magnifying-glass"></i> Buscar
+          </button>
         </div>
         <div class="mb-2">
           <label class="form-label mb-1">{{ renombrar('Rango') }}</label>
-          <select class="form-select form-select-sm">
-            <option value="dia">Al día</option>
-            <option value="semana">Semana (7 días)</option>
-            <option value="mes">Mes</option>
+          <select class="form-select form-select-sm" [(ngModel)]="filtroRango" (change)="obtenerKPIsPorRango()">
+            <option [value]="1">Al día</option>
+            <option [value]="2">Semana (7 días)</option>
+            <option [value]="3">Mes</option>
           </select>
         </div>
       </div>

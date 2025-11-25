@@ -3,7 +3,11 @@ import { transactions, lineColumAreaChart, revenueColumnChart, customerRadialBar
 import { ChartType } from './dashboard.model';
 import { MonederosServices } from 'src/app/shared/services/monederos.service';
 import { RutasService } from 'src/app/shared/services/rutas.service';
+import { ClientesService } from 'src/app/shared/services/clientes.service';
+import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 import { fadeInRightAnimation } from 'src/app/core/animations/fade-in-right.animation';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { interval, Subscription } from 'rxjs';
@@ -34,6 +38,28 @@ export class DefaultComponent implements OnInit {
 
   topRutas: { nombre: string; ingresos: number; viajes: number }[] = [];
   dispositivosConAlertas: Dispositivo[] = [];
+
+  // Clientes
+  clientesOptions: any[] = [];
+  clienteSeleccionado: any = null;
+  clienteValueExpr: string = 'id';
+  clienteDisplayExpr = (c: any) =>
+    c
+      ? c.razonSocial ??
+        c.nombre ??
+        c.nombreCliente ??
+        c.nombreComercial ??
+        c.descripcion ??
+        c.name ??
+        ''
+      : '';
+
+  // Filtros
+  fechaInicio: string = '';
+  fechaFin: string = '';
+  filtroRango: number = 1;
+  private kpisCargados: boolean = false;
+  private ejecutandoKPIs: boolean = false;
 
   // Series (una por ruta)
 // ===== Pasajeros por ruta (FIJO) =====
@@ -71,10 +97,28 @@ dsPasajerosPorHora = [
     'Regiones - Zonas'
   ];
 
+  constructor(
+    private clientesService: ClientesService,
+    private authService: AuthenticationService,
+    private http: HttpClient
+  ) {}
+
   ngOnInit(): void {
+    this.inicializarFechas();
+    this.cargarClientes();
     this.fabricarDatos();
     this.armarFuentes();
     this.calcularKPIs();
+  }
+
+  private inicializarFechas(): void {
+    const hoy = new Date();
+    // Formatear para input type="date" (YYYY-MM-DD)
+    const year = hoy.getFullYear();
+    const month = String(hoy.getMonth() + 1).padStart(2, '0');
+    const day = String(hoy.getDate()).padStart(2, '0');
+    this.fechaInicio = `${year}-${month}-${day}`;
+    this.fechaFin = `${year}-${month}-${day}`;
   }
 
   private fabricarDatos(): void {
@@ -205,6 +249,231 @@ dsPasajerosPorHora = [
     const ticket = (d?.ticket ?? 0).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
     return { text: `${arg.argumentText}\nIngresos: ${ingreso}\nTicket: ${ticket}` };
   };
+
+  private cargarClientes(): void {
+    this.clientesService.obtenerClientes().subscribe({
+      next: (response) => {
+        const raw = (response as any)?.data ?? response ?? [];
+        this.clientesOptions = raw.map((c: any) => ({
+          ...c,
+          id: Number(c?.id ?? c?.Id ?? c?.idCliente ?? c?.ID),
+        }));
+        
+        // Autoseleccionar el cliente logueado
+        try {
+          const user = this.authService.getUser();
+          if (user && user.idCliente) {
+            const idClienteLogueado = Number(user.idCliente);
+            const clienteEncontrado = this.clientesOptions.find(c => c.id === idClienteLogueado);
+            if (clienteEncontrado) {
+              // Ejecutar la llamada solo una vez después de autoseleccionar
+              if (!this.kpisCargados && !this.ejecutandoKPIs) {
+                this.clienteSeleccionado = idClienteLogueado;
+                // Usar setTimeout para asegurar que el valor se asigne y evitar que onValueChanged interfiera
+                // Marcar kpisCargados antes para evitar que onValueChanged ejecute otra llamada
+                this.kpisCargados = true;
+                setTimeout(() => {
+                  this.obtenerKPIs();
+                }, 100);
+              }
+            }
+          } else {
+            // Si no hay cliente autoseleccionado, no ejecutar la API
+            console.warn('No se encontró cliente logueado para autoseleccionar');
+          }
+        } catch (error) {
+          console.error('Error al obtener usuario del sessionStorage', error);
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar clientes', error);
+        this.clientesOptions = [];
+      },
+    });
+  }
+
+  onClienteChanged(): void {
+    // Solo ejecutar si ya se cargaron los KPIs iniciales (evitar ejecución durante autoselección inicial)
+    if (this.kpisCargados && !this.ejecutandoKPIs) {
+      this.obtenerKPIs();
+    }
+  }
+
+  obtenerKPIs(): void {
+    // Evitar ejecuciones simultáneas
+    if (this.ejecutandoKPIs) {
+      console.log('Ya hay una ejecución de KPIs en curso, ignorando...');
+      return;
+    }
+
+    if (!this.clienteSeleccionado) {
+      console.warn('No hay cliente seleccionado, no se puede obtener KPIs');
+      return;
+    }
+
+    if (!this.fechaInicio || !this.fechaFin) {
+      console.warn('Fechas no inicializadas');
+      return;
+    }
+
+    this.ejecutandoKPIs = true;
+
+    const body = {
+      idCliente: Number(this.clienteSeleccionado),
+      fechaInicio: this.formatearFechaISO(new Date(this.fechaInicio)),
+      fechaFin: this.formatearFechaISO(new Date(this.fechaFin)),
+      filtro: Number(this.filtroRango)
+    };
+
+    console.log('Ejecutando llamada a API con body:', body);
+    this.http.post(`${environment.API_SECURITY}/dashboard/kpi`, body).subscribe({
+      next: (response) => {
+        console.log('KPIs obtenidos:', response);
+        this.procesarRespuestaKPIs(response);
+        this.ejecutandoKPIs = false;
+        // Asegurar que kpisCargados esté marcado después de la primera carga exitosa
+        if (!this.kpisCargados) {
+          this.kpisCargados = true;
+        }
+      },
+      error: (error) => {
+        console.error('Error al obtener KPIs', error);
+        this.ejecutandoKPIs = false;
+      }
+    });
+  }
+
+  obtenerKPIsPorRango(): void {
+    // Evitar ejecuciones simultáneas
+    if (this.ejecutandoKPIs) {
+      console.log('Ya hay una ejecución de KPIs en curso, ignorando...');
+      return;
+    }
+
+    if (!this.clienteSeleccionado) {
+      console.warn('No hay cliente seleccionado, no se puede obtener KPIs');
+      return;
+    }
+
+    this.ejecutandoKPIs = true;
+
+    const body = {
+      idCliente: Number(this.clienteSeleccionado),
+      fechaInicio: null,
+      fechaFin: null,
+      filtro: Number(this.filtroRango)
+    };
+
+    console.log('Ejecutando llamada a API por rango con body:', body);
+    this.http.post(`${environment.API_SECURITY}/dashboard/kpi`, body).subscribe({
+      next: (response) => {
+        console.log('KPIs obtenidos por rango:', response);
+        this.procesarRespuestaKPIs(response);
+        this.ejecutandoKPIs = false;
+      },
+      error: (error) => {
+        console.error('Error al obtener KPIs por rango', error);
+        this.ejecutandoKPIs = false;
+      }
+    });
+  }
+
+  private procesarRespuestaKPIs(data: any): void {
+    if (!data) return;
+
+    // Buscar y actualizar cada KPI según su título
+    this.kpis = this.kpis.map(kpi => {
+      const titulo = kpi.t.toLowerCase();
+      
+      // Ingresos del día
+      if (titulo.includes('ingresos') && (titulo.includes('día') || titulo.includes('dia'))) {
+        const valor = data.ingresosAlDia ?? 0;
+        return {
+          ...kpi,
+          v: valor.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })
+        };
+      }
+      
+      // Pasajeros validados
+      if (titulo.includes('pasajeros') && titulo.includes('validados')) {
+        const valor = data.pasajerosValidados ?? 0;
+        return {
+          ...kpi,
+          v: valor
+        };
+      }
+      
+      // Ticket promedio
+      if (titulo.includes('ticket') && titulo.includes('promedio')) {
+        const valor = data.ticketPromedio ?? 0;
+        return {
+          ...kpi,
+          v: valor.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })
+        };
+      }
+      
+      // Validaciones
+      if (titulo.includes('validaciones')) {
+        const exitosas = data.validacionesExitosas ?? 0;
+        const fallidas = data.validacionesFallidas ?? 0;
+        return {
+          ...kpi,
+          v: `${exitosas} / ${fallidas} fallidas`
+        };
+      }
+      
+      // Unidades en servicio
+      if (titulo.includes('unidades') && titulo.includes('servicio')) {
+        const enServicio = data.unidadesEnServicio ?? 0;
+        const total = data.totalUnidades ?? 0;
+        return {
+          ...kpi,
+          v: `${enServicio} / ${total}`
+        };
+      }
+      
+      // Cumplimiento de turnos
+      if (titulo.includes('cumplimiento') && titulo.includes('turnos')) {
+        const valor = data.cumplimientoTurnos;
+        if (valor !== null && valor !== undefined) {
+          return {
+            ...kpi,
+            v: `${valor}%`
+          };
+        } else {
+          // Si es null, mostrar "N/A" y actualizar el subtítulo para no mostrar datos aleatorios
+          return {
+            ...kpi,
+            v: 'N/A',
+            s: 'Sin datos disponibles'
+          };
+        }
+      }
+      
+      // Ocupación promedio
+      if (titulo.includes('ocupación') || titulo.includes('ocupacion')) {
+        const valor = data.ocupacionPromedio ?? 0;
+        return {
+          ...kpi,
+          v: `${valor}%`
+        };
+      }
+      
+      return kpi;
+    });
+  }
+
+  private formatearFechaISO(fecha: Date | string): string {
+    let date: Date;
+    if (typeof fecha === 'string') {
+      date = new Date(fecha);
+    } else {
+      date = fecha;
+    }
+    
+    // Formatear a ISO 8601 con timezone (ej: 2025-09-12T16:00:00Z)
+    return date.toISOString();
+  }
 }
 
 function renombrarEstatico(txt: string): string {

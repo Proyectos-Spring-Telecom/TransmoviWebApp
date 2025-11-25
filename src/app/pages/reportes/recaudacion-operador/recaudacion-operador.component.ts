@@ -48,8 +48,16 @@ export class RecaudacionOperadorComponent implements OnInit {
         ''
       : '';
 
-  public operadorDisplayExpr = (o: any) =>
-    o ? o.nombreCompleto ?? o.nombre ?? o.operador ?? o.fullName ?? '' : '';
+  public operadorDisplayExpr = (o: any) => {
+    if (!o) return '';
+    // Concatenar nombreUsuario + apellidoPaternoUsuario + apellidoMaternoUsuario
+    const nombreCompleto = [
+      o.nombreUsuario || '',
+      o.apellidoPaternoUsuario || '',
+      o.apellidoMaternoUsuario || ''
+    ].filter(Boolean).join(' ');
+    return nombreCompleto || o.nombreCompleto || o.nombre || o.operador || o.fullName || '';
+  };
   public operadorDisabled: boolean = true;
 
   constructor(
@@ -115,9 +123,11 @@ export class RecaudacionOperadorComponent implements OnInit {
         this.operadoresOptions = Array.isArray(raw) ? raw.map((o: any) => ({
           ...o,
           id: Number(o?.id ?? o?.Id ?? o?.idOperador ?? o?.ID),
-          nombreCompleto:
-            o?.nombreCompleto ??
-            `${o?.nombre ?? ''} ${o?.apellidoPaterno ?? ''} ${o?.apellidoMaterno ?? ''}`.trim(),
+          nombreCompleto: [
+            o?.nombreUsuario || '',
+            o?.apellidoPaternoUsuario || '',
+            o?.apellidoMaternoUsuario || ''
+          ].filter(Boolean).join(' ') || o?.nombreCompleto || `${o?.nombre ?? ''} ${o?.apellidoPaterno ?? ''} ${o?.apellidoMaterno ?? ''}`.trim(),
         })) : [];
         this.operadorDisabled = this.operadoresOptions.length === 0;
         if (this.operadoresOptions.length > 0) {
