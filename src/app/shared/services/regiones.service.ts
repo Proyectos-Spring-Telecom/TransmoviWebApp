@@ -34,6 +34,10 @@ export class RegionesService {
     return this.http.put(`${environment.API_SECURITY}/regiones/` + idRegion, saveForm);
   }
 
+  obtenerRegionesByCliente(idCliente: number): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/regiones/by-cliente/${idCliente}`);
+  }
+
   private apiUrl = `${environment.API_SECURITY}/regiones`;
   updateEstatus(id: number, estatus: number): Observable<string> {
     const url = `${this.apiUrl}/estatus/${id}`;

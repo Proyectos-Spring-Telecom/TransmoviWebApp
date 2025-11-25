@@ -34,6 +34,10 @@ export class DerroterosService {
     return this.http.put(`${environment.API_SECURITY}/derroteros/` + idDerrotero, saveForm);
   }
 
+  obtenerDerroterosByRuta(idRuta: number): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/derroteros/by-ruta/${idRuta}`);
+  }
+
   private apiUrl = `${environment.API_SECURITY}/derroteros`;
   updateEstatus(id: number, estatus: number): Observable<string> {
     const url = `${this.apiUrl}/estatus/${id}`;

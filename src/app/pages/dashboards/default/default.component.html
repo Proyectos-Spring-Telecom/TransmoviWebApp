@@ -1,6 +1,27 @@
 <div class="container-fluid px-3 px-md-4 py-3 dashboard-wrap">
 <!-- dashboard.component.html -->
 <div class="dashboard container-fluid px-3 py-3">
+    <!-- Filtros de fecha / rango -->
+    <div class="row g-2 mt-2">
+      <div class="col-12 d-flex justify-content-end flex-wrap gap-2 align-items-end">
+        <div class="me-2 mb-2">
+          <label class="form-label mb-1">{{ renombrar('Fecha inicio') }}</label>
+          <input type="date" class="form-control form-control-sm" />
+        </div>
+        <div class="me-2 mb-2">
+          <label class="form-label mb-1">{{ renombrar('Fecha fin') }}</label>
+          <input type="date" class="form-control form-control-sm" />
+        </div>
+        <div class="mb-2">
+          <label class="form-label mb-1">{{ renombrar('Rango') }}</label>
+          <select class="form-select form-select-sm">
+            <option value="dia">Al día</option>
+            <option value="semana">Semana (7 días)</option>
+            <option value="mes">Mes</option>
+          </select>
+        </div>
+      </div>
+    </div>
   <div class="row g-3">
     <div class="col-12 col-md-6 col-lg-3" *ngFor="let k of kpis">
       <div class="card kpi">

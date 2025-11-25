@@ -12,63 +12,77 @@
                     </div>
                 </div>
 
-                <div class="filtros-body row gx-4 gy-3 mt-2">
-                    <div class="col-12 col-md-5 col-xl-4">
-                        <label>Rango de fechas / horas</label>
-                        <div class="d-flex align-items-center gap-2">
-                            <dx-date-box type="datetime" displayFormat="dd/MM/yyyy HH:mm" stylingMode="filled"
-                                [width]="'100%'"></dx-date-box>
-                            <span style="color: #9ec5fe; font-size: 13px;">a</span>
-                            <dx-date-box type="datetime" displayFormat="dd/MM/yyyy HH:mm" stylingMode="filled"
-                                [width]="'100%'"></dx-date-box>
+                <form [formGroup]="filtroForm">
+                    <div class="filtros-body row gx-4 gy-3 mt-2">
+                        <div class="col-12 col-md-5 col-xl-4">
+                            <label>Rango de fechas / horas</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <dx-date-box type="datetime" displayFormat="dd/MM/yyyy HH:mm" stylingMode="filled"
+                                    formControlName="fechaInicio" [width]="'100%'"></dx-date-box>
+                                <span style="color: #9ec5fe; font-size: 13px;">a</span>
+                                <dx-date-box type="datetime" displayFormat="dd/MM/yyyy HH:mm" stylingMode="filled"
+                                    formControlName="fechaFin" [width]="'100%'"></dx-date-box>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4 col-xl-2">
+                            <label>Cliente</label>
+                            <dx-select-box stylingMode="filled" placeholder="Selecciona cliente"
+                                formControlName="idCliente" [dataSource]="clientesOptions" [valueExpr]="clienteValueExpr"
+                                [displayExpr]="clienteDisplayExpr" [searchEnabled]="true" [showClearButton]="true"
+                                [width]="'100%'"></dx-select-box>
+                        </div>
+
+                        <div class="col-12 col-md-4 col-xl-2">
+                            <label>Ruta</label>
+                            <dx-select-box stylingMode="filled" placeholder="Selecciona ruta"
+                                formControlName="idRuta" [dataSource]="rutasOptions" [valueExpr]="rutaValueExpr"
+                                [displayExpr]="rutaDisplayExpr" [searchEnabled]="true" [showClearButton]="true"
+                                [disabled]="rutaDisabled" [width]="'100%'"></dx-select-box>
+                        </div>
+
+                        <div class="col-12 col-md-4 col-xl-2">
+                            <label>Derrotero</label>
+                            <dx-select-box stylingMode="filled" placeholder="Selecciona derrotero"
+                                formControlName="idDerrotero" [dataSource]="derroterosOptions" [valueExpr]="derroteroValueExpr"
+                                [displayExpr]="derroteroDisplayExpr" [searchEnabled]="true" [showClearButton]="true"
+                                [disabled]="derroteroDisabled" [width]="'100%'"></dx-select-box>
+                        </div>
+
+                        <div class="col-12 col-md-4 col-xl-2">
+                            <label>Operador</label>
+                            <dx-select-box stylingMode="filled" placeholder="Selecciona operador"
+                                formControlName="idOperador" [dataSource]="operadoresOptions" [valueExpr]="operadorValueExpr"
+                                [displayExpr]="operadorDisplayExpr" [searchEnabled]="true" [showClearButton]="true"
+                                [disabled]="operadorDisabled" [width]="'100%'"></dx-select-box>
+                        </div>
+
+                        <div class="col-12 col-md-4 col-xl-2">
+                            <label>Vehículo</label>
+                            <dx-select-box stylingMode="filled" placeholder="Selecciona vehículo"
+                                formControlName="idVehiculo" [dataSource]="vehiculosOptions" [valueExpr]="vehiculoValueExpr"
+                                [displayExpr]="vehiculoDisplayExpr" [searchEnabled]="true" [showClearButton]="true"
+                                [disabled]="vehiculoDisabled" [width]="'100%'"></dx-select-box>
+                        </div>
+
+                        <div class="col-12 col-md-4 col-xl-2">
+                            <label>Dispositivo</label>
+                            <dx-select-box stylingMode="filled" placeholder="Selecciona dispositivo"
+                                formControlName="idDispositivo" [dataSource]="dispositivosOptions"
+                                [valueExpr]="dispositivoValueExpr" [displayExpr]="dispositivoDisplayExpr"
+                                [searchEnabled]="true" [showClearButton]="true" [disabled]="dispositivoDisabled" [width]="'100%'"></dx-select-box>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-4 col-xl-2">
-                        <label>Cliente</label>
-                        <dx-select-box stylingMode="filled" placeholder="Selecciona cliente"
-                            [width]="'100%'"></dx-select-box>
+                    <div class="filtros-footer mt-4 d-flex justify-content-end gap-3">
+                        <button type="button" class="btn-filtro limpiar" (click)="limpiarFiltros()">
+                            <i class="fas fa-rotate-left"></i> Limpiar
+                        </button>
+                        <button type="button" class="btn-filtro aplicar" (click)="aplicarFiltros()">
+                            <i class="fas fa-magnifying-glass"></i> Aplicar filtros
+                        </button>
                     </div>
-
-                    <div class="col-12 col-md-4 col-xl-2">
-                        <label>Ruta</label>
-                        <dx-select-box stylingMode="filled" placeholder="Selecciona ruta"
-                            [width]="'100%'"></dx-select-box>
-                    </div>
-
-                    <div class="col-12 col-md-4 col-xl-2">
-                        <label>Derrotero</label>
-                        <dx-select-box stylingMode="filled" placeholder="Selecciona derrotero"
-                            [width]="'100%'"></dx-select-box>
-                    </div>
-
-                    <div class="col-12 col-md-4 col-xl-2">
-                        <label>Operador</label>
-                        <dx-select-box stylingMode="filled" placeholder="Selecciona operador"
-                            [width]="'100%'"></dx-select-box>
-                    </div>
-
-                    <div class="col-12 col-md-4 col-xl-2">
-                        <label>Vehículo</label>
-                        <dx-select-box stylingMode="filled" placeholder="Selecciona vehículo"
-                            [width]="'100%'"></dx-select-box>
-                    </div>
-
-                    <div class="col-12 col-md-4 col-xl-2">
-                        <label>Dispositivo</label>
-                        <dx-select-box stylingMode="filled" placeholder="Selecciona dispositivo"
-                            [width]="'100%'"></dx-select-box>
-                    </div>
-                </div>
-
-                <div class="filtros-footer mt-4 d-flex justify-content-end gap-3">
-                    <button class="btn-filtro limpiar">
-                        <i class="fas fa-rotate-left"></i> Limpiar
-                    </button>
-                    <button class="btn-filtro aplicar">
-                        <i class="fas fa-magnifying-glass"></i> Aplicar filtros
-                    </button>
-                </div>
+                </form>
 
             </div>
 
