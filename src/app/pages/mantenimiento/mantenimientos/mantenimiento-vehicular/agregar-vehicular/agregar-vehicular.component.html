@@ -23,10 +23,7 @@
           </div>
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Referencia</label>
-            <dx-select-box class="tm-select w-100" formControlName="idReferencia" [items]="[
-                { id: 1, nombre: 'Preventivo' },
-                { id: 2, nombre: 'Correctivo' }
-              ]" [valueExpr]="'id'" [displayExpr]="'nombre'" [searchEnabled]="true" [showClearButton]="true"
+            <dx-select-box class="tm-select w-100" formControlName="idReferencia" [items]="listaReferenciasServicios" [valueExpr]="'id'" [displayExpr]="'nombre'" [searchEnabled]="true" [showClearButton]="true"
               [noDataText]="'Sin registros'" placeholder="Seleccione una referencia">
             </dx-select-box>
           </div>

@@ -691,6 +691,33 @@ $u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
   color: #fff;
 }
 
+.estatus-abierto {
+  background-color: #1d4ed8;
+  border: 1px solid #1e3a8a;
+}
+
+.estatus-pendiente {
+  background-color: #d97706;
+  border: 1px solid #b45309;
+}
+
+.estatus-cerrado {
+  background-color: #b91c1c;
+  border: 1px solid #7f1d1d;
+}
+
+.estatus-cancelado {
+  background-color: #047857;
+  border: 1px solid #065f46;
+}
+
+.estatus-activo {
+  background-color: #256d3a;
+  border: 1px solid #1e5a2f;
+  color: #d4f5dc;
+}
+
+
 .estatus-activo {
   background-color: #256d3a;
   border: 1px solid #1e5a2f;

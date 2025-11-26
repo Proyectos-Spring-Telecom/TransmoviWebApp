@@ -62,6 +62,27 @@
                 <img *ngIf="data.value == null" style="max-width: 70px;"
                   src="https://transmovi.s3.us-east-2.amazonaws.com/imagenes/no-image.jpg" />
               </div>
+              <dxi-column caption="Estatus" alignment="center" [cellTemplate]="'estatusMantenimientoTpl'">
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'estatusMantenimientoTpl'">
+                <span class="estatus" [ngClass]="{
+      'estatus-abierto': data.data.estatusMantenimiento?.id === 1,
+      'estatus-pendiente': data.data.estatusMantenimiento?.id === 2,
+      'estatus-cerrado': data.data.estatusMantenimiento?.id === 3,
+      'estatus-cancelado': data.data.estatusMantenimiento?.id === 4,
+      'estatus-activo': data.data.estatusMantenimiento?.id === 5
+    }">
+                  {{
+                  data.data.estatusMantenimiento?.id === 1 ? 'Abierto' :
+                  data.data.estatusMantenimiento?.id === 2 ? 'Pendiente' :
+                  data.data.estatusMantenimiento?.id === 3 ? 'Cerrado' :
+                  data.data.estatusMantenimiento?.id === 4 ? 'Cancelado' :
+                  data.data.estatusMantenimiento?.id === 5 ? 'Activo Combustible' : ''
+                  }}
+                </span>
+              </div>
+
               <dxi-column dataField="servicioDescripcion" caption="Servicio" alignment="center" dataType="string">
               </dxi-column>
               <dxi-column dataField="fechaInicio" caption="Fecha Inicio" alignment="center" dataType="date"
@@ -165,7 +186,8 @@
     <ng-template #pdfErrorTpl>
       <div class="pdf-error-card">
         <h4>📄 No pudimos previsualizar el PDF</h4>
-        <p>{{ pdfErrorMsg || 'El archivo no está disponible, el tipo de contenido no es PDF o fue bloqueado por el navegador (CORS).' }}</p>
+        <p>{{ pdfErrorMsg || 'El archivo no está disponible, el tipo de contenido no es PDF o fue bloqueado por el
+          navegador (CORS).' }}</p>
       </div>
     </ng-template>
   </div>
