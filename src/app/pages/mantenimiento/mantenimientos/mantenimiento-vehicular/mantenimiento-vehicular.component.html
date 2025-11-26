@@ -67,12 +67,12 @@
 
               <div *dxTemplate="let data of 'estatusMantenimientoTpl'">
                 <span class="estatus" [ngClass]="{
-      'estatus-abierto': data.data.estatusMantenimiento?.id === 1,
-      'estatus-pendiente': data.data.estatusMantenimiento?.id === 2,
-      'estatus-cerrado': data.data.estatusMantenimiento?.id === 3,
-      'estatus-cancelado': data.data.estatusMantenimiento?.id === 4,
-      'estatus-activo': data.data.estatusMantenimiento?.id === 5
-    }">
+                    'estatus-abierto': data.data.estatusMantenimiento?.id === 1,
+                    'estatus-pendiente': data.data.estatusMantenimiento?.id === 2,
+                    'estatus-cerrado': data.data.estatusMantenimiento?.id === 3,
+                    'estatus-cancelado': data.data.estatusMantenimiento?.id === 4,
+                    'estatus-activo': data.data.estatusMantenimiento?.id === 5
+                  }">
                   {{
                   data.data.estatusMantenimiento?.id === 1 ? 'Abierto' :
                   data.data.estatusMantenimiento?.id === 2 ? 'Pendiente' :
