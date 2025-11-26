@@ -735,26 +735,31 @@ $u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
   border: 1px solid #1e5a2f;
   color: #d4f5dc;
 }
+
 .estatus-asignado {
   background-color: #1f4f7a;
   border: 1px solid #173d5f;
   color: #d4e6f5;
 }
+
 .estatus-mantenimiento {
   background-color: #8a5a00;
   border: 1px solid #704800;
   color: #fff4d6;
 }
+
 .estatus-danado {
   background-color: #7a1f1f;
   border: 1px solid #611818;
   color: #f5d4d4;
 }
+
 .estatus-retirado {
   background-color: #5a5a5a;
   border: 1px solid #444;
   color: #ececec;
 }
+
 .estatus-inactivo {
   background-color: #7a1f1f;
   border: 1px solid #611818;
@@ -821,8 +826,8 @@ $u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
    Uploader genérico (INE, Licencia, Tarjeta, Permiso)
    ============================ */
 
-.tc-upload { 
-  max-width: 100%; 
+.tc-upload {
+  max-width: 100%;
   margin-bottom: 16px;
 }
 
@@ -858,32 +863,32 @@ $u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
   }
 
   .circle {
-    width: 44px; 
-    height: 44px; 
+    width: 44px;
+    height: 44px;
     border-radius: 999px;
-    display: grid; 
+    display: grid;
     place-items: center;
     background: linear-gradient(135deg, #1e88e5, #1565c0);
 
-    i { 
-      color: #fff; 
-      font-size: 18px; 
+    i {
+      color: #fff;
+      font-size: 18px;
     }
   }
 
   .meta {
-    display: flex; 
+    display: flex;
     flex-direction: column;
 
-    .title { 
-      color: #e3f2fd; 
-      font-weight: 600; 
-      font-size: 14px; 
+    .title {
+      color: #e3f2fd;
+      font-weight: 600;
+      font-size: 14px;
     }
 
-    .hint { 
-      color: #90a4ae; 
-      font-size: 12px; 
+    .hint {
+      color: #90a4ae;
+      font-size: 12px;
     }
   }
 }
@@ -899,7 +904,8 @@ $u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
 
   img {
     width: 100%;
-    max-height: 280px; /* altura de la imagen preview */
+    max-height: 280px;
+    /* altura de la imagen preview */
     object-fit: contain;
     display: block;
     background: transparent;
@@ -925,13 +931,16 @@ $u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
     color: #fff;
     transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
 
-    &:hover { 
-      background: rgba(30, 136, 229, 0.98); 
+    &:hover {
+      background: rgba(30, 136, 229, 0.98);
       box-shadow: 0 6px 16px rgba(33, 150, 243, 0.25);
       transform: translateY(-1px);
     }
 
-    &:active { transform: translateY(0); box-shadow: none; }
+    &:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
   }
 
   /* Botón Eliminar */
@@ -947,15 +956,20 @@ $u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
     cursor: pointer;
     transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
 
-    i { font-size: 14px; }
+    i {
+      font-size: 14px;
+    }
 
-    &:hover { 
-      background: rgba(229, 57, 53, 0.95); 
+    &:hover {
+      background: rgba(229, 57, 53, 0.95);
       box-shadow: 0 6px 16px rgba(229, 57, 53, 0.28);
       transform: translateY(-1px);
     }
 
-    &:active { transform: translateY(0); box-shadow: none; }
+    &:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
   }
 }
 
@@ -969,7 +983,15 @@ $u-shadow: 0 10px 30px rgba(0, 0, 0, .35);
 
 /* Responsivo */
 @media (max-width: 576px) {
-  .tc-upload { max-width: 100%; }
-  .tc-tile { padding: 12px; }
-  .tc-preview img { max-height: 220px; }
+  .tc-upload {
+    max-width: 100%;
+  }
+
+  .tc-tile {
+    padding: 12px;
+  }
+
+  .tc-preview img {
+    max-height: 220px;
+  }
 }
