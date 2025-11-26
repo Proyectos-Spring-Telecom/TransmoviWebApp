@@ -716,19 +716,14 @@ export class ListaOperadoresComponent implements OnInit {
 
   private parseISO(d?: string | null): Date | null {
     if (!d) return null;
-    // asegurar zona neutra
     return new Date(d + 'T00:00:00');
   }
-  // Tamaño máximo (MB)
 
   @ViewChild('licenciaFileInput') licenciaFileInput!: ElementRef<HTMLInputElement>;
   licenciaPreviewUrl: string | ArrayBuffer | null = null;
   licenciaFileName: string | null = null;
   licenciaDragging = false;
   uploadingLicencia = false;
-
-  // ¿Está el control en el form?
-  // this.licenciaForm = this.fb.group({ licencia: [null, Validators.required], ... });
 
   private isImage(file: File): boolean { return file.type.startsWith('image/'); }
   private isPdf(file: File): boolean { return file.type === 'application/pdf'; }
@@ -749,7 +744,6 @@ export class ListaOperadoresComponent implements OnInit {
     e.preventDefault(); e.stopPropagation();
     this.licenciaDragging = false;
 
-    // Tomar desde items cuando existe
     const items = e.dataTransfer?.items;
     let f: File | null = null;
     if (items && items.length) {
@@ -788,11 +782,10 @@ export class ListaOperadoresComponent implements OnInit {
       reader.onload = () => { this.licenciaPreviewUrl = reader.result; };
       reader.readAsDataURL(file);
     } else {
-      // PDF: sin preview de imagen, pero mostraremos la tarjeta con acciones
       this.licenciaPreviewUrl = null;
     }
 
-    this.licenciaForm.patchValue({ licencia: file }); // temporal mientras sube
+    this.licenciaForm.patchValue({ licencia: file });
     this.licenciaForm.get('licencia')?.setErrors(null);
 
     this.uploadLicencia(file);
@@ -811,7 +804,6 @@ export class ListaOperadoresComponent implements OnInit {
       next: (res: any) => {
         const url = this.extractFileUrl(res);
         if (url) {
-          // Sustituimos el File por la URL final
           this.licenciaForm.patchValue({ licencia: url });
         }
       },
@@ -834,26 +826,44 @@ export class ListaOperadoresComponent implements OnInit {
     );
   }
 
-  // TS: agrega estas funciones al componente
-private toDateOnly(d: any): Date | null {
-  if (!d) return null;
-  const s = typeof d === 'string' ? d.split('T')[0] : d;
-  const dt = new Date(s);
-  return isNaN(dt.getTime()) ? null : dt;
-}
+  private toDateOnly(d: any): Date | null {
+    if (!d) return null;
+    const s = typeof d === 'string' ? d.split('T')[0] : d;
+    const dt = new Date(s);
+    return isNaN(dt.getTime()) ? null : dt;
+  }
 
-vigenciaClase(lic: any): string {
-  const venc = this.toDateOnly(lic?.fechaVencimiento);
-  if (!venc) return 'vig-verde';
-  const hoy = new Date();
-  hoy.setHours(0,0,0,0);
-  const diffMs = venc.getTime() - hoy.getTime();
-  const dias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-  if (dias <= 7) return 'vig-rojo';
-  if (dias <= 30) return 'vig-amarillo';
-  return 'vig-verde';
-}
+  vigenciaClase(lic: any): string {
+    const venc = this.toDateOnly(lic?.fechaVencimiento);
+    if (!venc) return 'vig-verde';
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const diffMs = venc.getTime() - hoy.getTime();
+    const dias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    if (dias <= 7) return 'vig-rojo';
+    if (dias <= 30) return 'vig-amarillo';
+    return 'vig-verde';
+  }
 
+  licenciaDiasLabel(lic: any): string {
+    const venc = this.toDateOnly(lic?.fechaVencimiento);
+    if (!venc) return '';
+
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    const diffMs = venc.getTime() - hoy.getTime();
+    const dias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+    if (dias < 0) {
+      const abs = Math.abs(dias);
+      return abs === 1 ? 'Venció hace 1 día' : `Venció hace ${abs} días`;
+    }
+
+    if (dias === 0) return 'Vence hoy';
+    if (dias === 1) return 'Falta 1 día para expirar';
+    return `Faltan ${dias} días para expirar`;
+  }
 
 
 }

@@ -79,16 +79,11 @@
                                 </button>
                             </div>
                             <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center" dataType="string"
-                                [width]="320"></dxi-column>
-                            <dxi-column dataField="userNameUsuario" caption="Correo Electrónico" alignment="center"
-                                dataType="string"></dxi-column>
-                            <dxi-column dataField="telefonoUsuario" caption="Teléfono" alignment="center"
-                                dataType="string"></dxi-column>
-                            <dxi-column dataField="licencias" caption="Vigencias" alignment="center"
-                                cellTemplate="vigencias">
+                                [width]="200"></dxi-column>
+                            <!-- <dxi-column dataField="licencias" caption="Vigencias" alignment="center"
+                                cellTemplate="vigencias" [width]="250">
                                 <div *dxTemplate="let a of 'vigencias'">
                                     <ng-container *ngIf="validLicencias(a.data?.licencias).length; else sinLic">
-                                        <!-- HTML: reemplaza el div del *ngFor por esto -->
                                         <div *ngFor="let lic of validLicencias(a.data.licencias)" class="vig-card"
                                             [ngClass]="vigenciaClase(lic)">
                                             <div style="font-weight:600;">
@@ -105,10 +100,10 @@
                                     </ng-container>
                                     <ng-template #sinLic>Sin licencias</ng-template>
                                 </div>
-                            </dxi-column>
-
-                            <dxi-column dataField="FechaNacimientoTexto" caption="Fecha de Nacimiento"
-                                alignment="center" dataType="string" [width]="150"></dxi-column>
+                            </dxi-column> -->
+                            <dxi-column dataField="userNameUsuario" caption="Correo Electrónico" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="telefonoUsuario" caption="Teléfono" alignment="center" dataType="string"></dxi-column>
+                            <dxi-column dataField="FechaNacimientoTexto" caption="Fecha de Nacimiento" alignment="center" dataType="string" [width]="150"></dxi-column>
                             <dxi-column dataField="EstatusTexto" caption="Estatus" alignment="center" dataType="string"
                                 [width]="150" cellTemplate="est"></dxi-column>
                             <div *dxTemplate="let f of 'est'">
@@ -151,6 +146,60 @@
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
+                            <dxo-master-detail [enabled]="true" template="detalleLicencias">
+                            </dxo-master-detail>
+                            <div *dxTemplate="let row of 'detalleLicencias'">
+                                <ng-container
+                                    *ngIf="validLicencias(row.data?.licencias) as licencias; else sinLicDetalle">
+                                    <div class="licencias-detail-wrapper" [ngClass]="{
+                                            'cols-1': licencias.length === 1,
+                                            'cols-2': licencias.length === 2,
+                                            'cols-3': licencias.length >= 3
+                                        }">
+                                        <div *ngFor="let lic of licencias" class="vig-card vig-card-detail"
+                                            [ngClass]="vigenciaClase(lic)">
+                                            <div class="vig-card-info">
+                                                <div>
+                                                    <span class="vig-label">Tipo Licencia:</span>
+                                                    <span class="vig-value">{{ lic.nombreTipoLicencia }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="vig-label">Categoría:</span>
+                                                    <span class="vig-value">{{ lic.nombreCategoriaLicencia }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="vig-label">N° Licencia:</span>
+                                                    <span class="vig-value">{{ lic.numeroLicencia || '—' }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="vig-label">F. Expiración:</span>
+                                                    <span class="vig-value">
+                                                        {{ lic.fechaExpedicion | date:'dd/MM/yyyy' : '+0000' }}
+                                                    </span>
+                                                    <span class="vig-label">• F. Vencimiento:</span>
+                                                    <span class="vig-value">
+                                                        {{ lic.fechaVencimiento | date:'dd/MM/yyyy' : '+0000' }}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span class="vig-label">Vence en:</span>
+                                                    <span class="vig-value">{{ licenciaDiasLabel(lic) }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="vig-card-actions" *ngIf="lic?.licencia">
+                                                <button type="button" class="btn btn-sm btn-licencia"
+                                                    (click)="previsualizar(lic.licencia, 'Licencia de Conducir', row.data)">
+                                                    <i class="fa fa-eye"></i>
+                                                    <span>Ver Licencia</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                                <ng-template #sinLicDetalle>
+                                    Sin licencias registradas
+                                </ng-template>
+                            </div>
                         </dx-data-grid>
                     </div>
                 </div>
@@ -159,11 +208,13 @@
     </div>
 </div>
 
+
 <dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
     [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
 </dx-load-panel>
 
-<!-- Nuevo modal con NgbModal -->
+
+
 <ng-template #operadorLicModal let-modal>
     <div class="modal-content p-0" style="background-color:#002b47;">
         <div class="modal-body">
@@ -176,18 +227,14 @@
                     <span>Completa la información para registrar un nuevo permiso.</span>
                 </div>
             </div>
-
             <div>
                 <form [formGroup]="licenciaForm" class="cliente-form">
-
                     <div class="row mt-3">
-
                         <div class="col-md-4 mt-3">
                             <label>N° Licencia</label>
                             <input type="text" class="form-control" formControlName="numeroLicencia"
                                 placeholder="ABC12345XYZ">
                         </div>
-
                         <div class="col-md-4 mt-3">
                             <label>Fecha Expedición - Fecha Vencimiento</label>
                             <dx-date-range-box class="tm-range" [displayFormat]="'dd/MM/yyyy'" [labelMode]="'hidden'"
@@ -196,10 +243,7 @@
                                 [startDate]="vigencia.start" [endDate]="vigencia.end"
                                 (onValueChanged)="onRangoVigenciaChanged($event)">
                             </dx-date-range-box>
-
-
                         </div>
-
                         <div class="col-md-4 mt-3">
                             <label>Tipo de Licencia</label>
                             <dx-select-box class="tm-select w-100" formControlName="idTipoLicencia"
@@ -250,21 +294,19 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="form-actions mt-4">
                         <button type="submit" class="submit" (click)="submit(modal)">{{ submitButton }}</button>
-
                         <button type="button" class="cancel" style="margin-left: 3%;"
                             (click)="modal.close()">Cancelar</button>
                     </div>
                 </form>
             </div>
         </div>
-
     </div>
 </ng-template>
 
-<!-- Modal Mapa -->
+
+
 <div class="col-lg-6">
     <ng-template #centerDataModal let-modal>
         <div class="modal-content p-0" style="background-color:#002b47;">
@@ -279,7 +321,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="modal-footer border-top-0 d-flex align-items-center justify-content-center">
                 <button type="button" class="btn btn-md w-50 waves-effect waves-light"
                     style="background-color:#f46a6a; color:#fff; border-radius:5px;" (click)="modal.close()">
@@ -289,7 +330,6 @@
         </div>
     </ng-template>
 </div>
-
 
 
 <dx-popup [visible]="pdfPopupVisible" [showTitle]="true" title="Documentación" [dragEnabled]="true"
@@ -305,17 +345,12 @@
         </span>
         <ng-container *ngIf="!pdfError; else pdfErrorTpl">
             <br>
-            <!-- PDF -->
             <div class="pdf-frame" *ngIf="!pdfError && !pdfIsImage && pdfUrlSafe" [class.is-loading]="pdfLoading">
                 <iframe class="pdf-iframe" [src]="pdfUrlSafe" (load)="onPdfLoaded()"></iframe>
             </div>
-
-            <!-- Imagen -->
             <div class="pdf-frame" *ngIf="!pdfError && pdfIsImage && imgSrc" [class.is-loading]="pdfLoading">
                 <img class="pdf-image" [src]="imgSrc" alt="Vista previa" (load)="onImgLoaded()" (error)="onImgError()">
             </div>
-
-
             <div class="pdf-actions">
                 <button type="button" class="abrirArchivo" (click)="abrirEnNuevaPestana()">
                     <i class="fa fa-plus"></i>&nbsp;&nbsp;Abrir
@@ -328,8 +363,7 @@
         <ng-template #pdfErrorTpl>
             <div class="pdf-error-card">
                 <h4>📄 No pudimos previsualizar el PDF o Imagen</h4>
-                <p>{{ pdfErrorMsg || 'El archivo no está disponible, el tipo de contenido no es PDF o fue bloqueado por
-                    el navegador (CORS).' }}</p>
+                <p>{{ pdfErrorMsg || 'El archivo no está disponible, el tipo de contenido no es PDF o fue bloqueado por el navegador (CORS).' }}</p>
             </div>
         </ng-template>
     </div>

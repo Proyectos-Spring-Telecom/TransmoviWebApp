@@ -40,9 +40,9 @@
               <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
               <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
               <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="200"></dxi-column>
-              <dxi-column dataField="fhRegistro" caption="Fecha" alignment="center" cellTemplate="fecActi">
+              <dxi-column dataField="fechaHora" caption="Fecha" alignment="center" cellTemplate="fecActi">
                 <div *dxTemplate="let a of 'fecActi'">
-                  {{ a.data.fhRegistro | date:'dd/MM/yyyy HH:mm' : '+0000' }}
+                  {{ a.data.fechaHora | date:'dd/MM/yyyy HH:mm a' : '+0000' }}
                 </div>
               </dxi-column>
 

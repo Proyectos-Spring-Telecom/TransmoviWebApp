@@ -47,8 +47,8 @@
                                 </ng-template>
                             </dxi-column> -->
                             <dxi-column *appHasPermission="['7', '8']" caption="Acciones" cellTemplate="Acciones"
-                                alignment="center" [width]="150"></dxi-column>
-                            <dxi-column dataField="imagenVehiculo" caption="Imagen" cellTemplate="imagen" [width]="200"
+                                alignment="center" [width]="200"></dxi-column>
+                            <dxi-column dataField="imagenVehiculo" caption="Imagen" cellTemplate="imagen" [width]="150"
                                 alignment="center">
                                 <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
                             </dxi-column>
@@ -66,10 +66,29 @@
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
                             </div>
-                            <dxi-column dataField="incidente" caption="Descripción del Incidente" alignment="center" dataType="string"> </dxi-column>
-                            <dxi-column dataField="placaVehiculo" caption="Instalación" alignment="center" dataType="string"> </dxi-column>
-                            <dxi-column dataField="nombreOperador" caption="Operador" alignment="center" dataType="string"> </dxi-column>
-                            <dxi-column dataField="nombreCliente" caption="Cliente" alignment="center" dataType="string"> </dxi-column>
+                            <dxi-column caption="Estatus Siniestro" alignment="center"
+                                [cellTemplate]="'estatusSiniestro'"></dxi-column>
+                            <div *dxTemplate="let data of 'estatusSiniestro'">
+                                <span class="estatus" [ngClass]="{
+                    'estatus-activo': data.data.estatusMantenimiento?.id === 1,
+                    'estatus-pendiente': data.data.estatusMantenimiento?.id === 2,
+                    'estatus-abierto': data.data.estatusMantenimiento?.id === 3,
+                  }">
+                                    {{
+                                    data.data.estatusMantenimiento?.id === 1 ? 'Resuelto' :
+                                    data.data.estatusMantenimiento?.id === 2 ? 'Pendiente' :
+                                    data.data.estatusMantenimiento?.id === 3 ? 'Proceso' :''
+                                    }}
+                                </span>
+                            </div>
+                            <dxi-column dataField="incidente" caption="Descripción del Incidente" alignment="center"
+                                dataType="string"> </dxi-column>
+                            <dxi-column dataField="placaVehiculo" caption="Instalación" alignment="center"
+                                dataType="string"> </dxi-column>
+                            <dxi-column dataField="nombreOperador" caption="Operador" alignment="center"
+                                dataType="string"> </dxi-column>
+                            <dxi-column dataField="nombreCliente" caption="Cliente" alignment="center"
+                                dataType="string"> </dxi-column>
                             <dxi-column dataField="estatus" caption="Estatus" alignment="center" dataType="string"
                                 cellTemplate="est">
                                 <div *dxTemplate="let f of 'est'">
@@ -96,6 +115,11 @@
                                     <button *ngIf="row.data.estatus === 1" id="deleteButton" class="btnAcciones"
                                         (click)="desactivar(row.data)">
                                         <i class="fa fa-arrow-down"></i>
+                                    </button>
+                                </div>
+                                <div *appHasPermission="'67'">
+                                    <button id="pinButtonBlue" class="btnAcciones">
+                                        <i class="fa fa-refresh"></i>
                                     </button>
                                 </div>
                             </div>
