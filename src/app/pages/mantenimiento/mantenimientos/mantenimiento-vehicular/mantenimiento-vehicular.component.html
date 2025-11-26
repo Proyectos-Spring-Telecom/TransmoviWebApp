@@ -40,7 +40,7 @@
               <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
               <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
               <dxi-column *appHasPermission="['19', '20']" caption="Acciones" cellTemplate="Acciones" alignment="center"
-                dataType="string" [width]="180">
+                dataType="string" [width]="200">
               </dxi-column>
               <dxi-column caption="Nota de Servicio" [width]="150" alignment="center" [allowSorting]="false"
                 [allowFiltering]="false" cellTemplate="notService">
@@ -62,7 +62,7 @@
                 <img *ngIf="data.value == null" style="max-width: 70px;"
                   src="https://transmovi.s3.us-east-2.amazonaws.com/imagenes/no-image.jpg" />
               </div>
-              <dxi-column caption="Estatus" alignment="center" [cellTemplate]="'estatusMantenimientoTpl'">
+              <dxi-column caption="Estatus Vehícular" alignment="center" [cellTemplate]="'estatusMantenimientoTpl'">
               </dxi-column>
 
               <div *dxTemplate="let data of 'estatusMantenimientoTpl'">
@@ -125,6 +125,11 @@
                   <button *ngIf="row.data.estatus === 1" id="deleteButton" class="btnAcciones"
                     (click)="desactivar(row.data)">
                     <i class="fa fa-arrow-down"></i>
+                  </button>
+                </div>
+                <div *appHasPermission="'67'">
+                  <button id="pinButtonBlue" class="btnAcciones">
+                    <i class="fa fa-refresh"></i>
                   </button>
                 </div>
               </div>

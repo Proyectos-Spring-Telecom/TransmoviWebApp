@@ -46,8 +46,6 @@ export class ListaVerificacionesComponent implements OnInit {
     const user = this.users.getUser();
     this.showFilterRow = true;
     this.showHeaderFilter = true;
-
-    // true solo cuando el nombre del rol sea 'SA'
     this.showCliente = user?.rol?.nombre === 'SA';
   }
 
@@ -181,8 +179,6 @@ export class ListaVerificacionesComponent implements OnInit {
     });
   }
 
-
-
   toNum(v: any): number {
     const n = Number((v ?? '').toString().trim());
     return Number.isFinite(n) ? n : 0;
@@ -192,7 +188,6 @@ export class ListaVerificacionesComponent implements OnInit {
     console.log(idVerificacion)
     this.route.navigateByUrl('/verificaciones/editar-verificacion/' + idVerificacion);
   };
-
 
   eliminarUsuario(usuario: any) {
     Swal.fire({
@@ -330,53 +325,47 @@ export class ListaVerificacionesComponent implements OnInit {
   pdfLoaded = false;
   pdfError = false;
   pdfErrorMsg = '';
-
-
   async previsualizar(url?: string, titulo?: string, _row?: any) {
-  this.pdfTitle = titulo || 'Documento';
-  this.pdfRawUrl = (url || '').trim() || null;
-  this.pdfUrlSafe = null;
-  this.pdfLoading = true;
-  this.pdfLoaded = false;
-  this.pdfError = false;
-  this.pdfErrorMsg = '';
-  this.pdfPopupVisible = true;
-  this.pdfPopupWidth = Math.min(Math.floor(window.innerWidth * 0.95), 900);
-
-  if (!this.pdfRawUrl) {
-    this.pdfError = true;
-    this.pdfLoading = false;
-    this.pdfErrorMsg = 'Este registro no tiene un PDF asignado.';
-    return;
-  }
-
-  try {
-    const head = await fetch(this.pdfRawUrl, { method: 'HEAD', mode: 'cors' });
-    if (!head.ok) {
-      console.warn('HEAD no OK', head.status);
-    } else {
-      const ct = head.headers.get('content-type') || '';
-      if (ct && !ct.toLowerCase().includes('pdf')) {
-        console.warn('Content-Type no es PDF:', ct);
-      }
-    }
-  } catch (e) {
-    console.warn('Error en HEAD', e);
-  }
-
-  const viewerParams = '#toolbar=0&navpanes=0';
-  const finalUrl = this.pdfRawUrl.includes('#') ? this.pdfRawUrl : this.pdfRawUrl + viewerParams;
-  this.pdfUrlSafe = this.sanitizer.bypassSecurityTrustResourceUrl(finalUrl);
-
-  setTimeout(() => {
-    if (!this.pdfLoaded && !this.pdfError) {
+    this.pdfTitle = titulo || 'Documento';
+    this.pdfRawUrl = (url || '').trim() || null;
+    this.pdfUrlSafe = null;
+    this.pdfLoading = true;
+    this.pdfLoaded = false;
+    this.pdfError = false;
+    this.pdfErrorMsg = '';
+    this.pdfPopupVisible = true;
+    this.pdfPopupWidth = Math.min(Math.floor(window.innerWidth * 0.95), 900);
+    if (!this.pdfRawUrl) {
       this.pdfError = true;
       this.pdfLoading = false;
-      this.pdfErrorMsg = 'El visor tardó demasiado en cargar.';
+      this.pdfErrorMsg = 'Este registro no tiene un PDF asignado.';
+      return;
     }
-  }, 4000);
-}
+    try {
+      const head = await fetch(this.pdfRawUrl, { method: 'HEAD', mode: 'cors' });
+      if (!head.ok) {
+        console.warn('HEAD no OK', head.status);
+      } else {
+        const ct = head.headers.get('content-type') || '';
+        if (ct && !ct.toLowerCase().includes('pdf')) {
+          console.warn('Content-Type no es PDF:', ct);
+        }
+      }
+    } catch (e) {
+      console.warn('Error en HEAD', e);
+    }
+    const viewerParams = '#toolbar=0&navpanes=0';
+    const finalUrl = this.pdfRawUrl.includes('#') ? this.pdfRawUrl : this.pdfRawUrl + viewerParams;
+    this.pdfUrlSafe = this.sanitizer.bypassSecurityTrustResourceUrl(finalUrl);
 
+    setTimeout(() => {
+      if (!this.pdfLoaded && !this.pdfError) {
+        this.pdfError = true;
+        this.pdfLoading = false;
+        this.pdfErrorMsg = 'El visor tardó demasiado en cargar.';
+      }
+    }, 4000);
+  }
 
   onPdfLoaded() {
     this.pdfLoaded = true;
@@ -412,5 +401,42 @@ export class ListaVerificacionesComponent implements OnInit {
         window.open(this.pdfRawUrl!, '_blank');
       }
     }
+  }
+
+  proxVerifClase(fecha: any): string {
+    const venc = this.toDateOnly(fecha);
+    if (!venc) return 'vig-verde';
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const diffMs = venc.getTime() - hoy.getTime();
+    const dias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    if (dias <= 7) return 'vig-rojo';
+    if (dias <= 30) return 'vig-amarillo';
+    return 'vig-verde';
+  }
+
+  private toDateOnly(d: any): Date | null {
+    if (!d) return null;
+    const s = typeof d === 'string' ? d.split('T')[0] : d;
+    const dt = new Date(s);
+    return isNaN(dt.getTime()) ? null : dt;
+  }
+
+  proxVerifDiasLabel(fecha: any): string {
+    const venc = this.toDateOnly(fecha);
+    if (!venc) return '';
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const diffMs = venc.getTime() - hoy.getTime();
+    const dias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    if (dias < 0) {
+      const abs = Math.abs(dias);
+      return abs === 1
+        ? 'Se debió verificar hace 1 día'
+        : `Se debió verificar hace ${abs} días`;
+    }
+    if (dias === 0) return 'La verificación es hoy';
+    if (dias === 1) return 'La verificación es en 1 día';
+    return `La verificación es en ${dias} días`;
   }
 }

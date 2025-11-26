@@ -252,6 +252,13 @@ export const MENU: MenuItem[] = [
         isTitle: true
     },
     {
+        id: 11,
+        label: 'Historial de Posiciones',
+        icon: 'uil-history',
+        link: '/posiciones',
+        permiso: Permiso.Consultar_Monitoreo
+    },
+    {
         id: 116,
         label: 'Recaudación Día',
         icon: 'uil-calendar-alt',
