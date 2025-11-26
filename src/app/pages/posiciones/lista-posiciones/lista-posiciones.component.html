@@ -1,0 +1,180 @@
+<!-- <div id="loading" class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+</div> -->
+
+<div [@fadeInUp] class="container-fluid">
+
+    <div class="card">
+        <div class="card-body">
+            <div class="u-banner">
+                <div class="u-banner__icon">
+                    <div class="u-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                </div>
+                <div class="u-banner__body">
+                    <h2 class="u-banner__title">Gestión de Posiciones</h2>
+                    <p class="u-banner__subtitle">
+                        Consulta y navega entre las posiciones registradas
+                    </p>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <div class="table-responsive mb-4 col-12 col-lg-12">
+                        <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
+                            [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
+                            [rowAlternationEnabled]="'true'" [dataSource]="listaPosiciones" [keyExpr]="'id'"
+                            [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
+                            [pager]="{ 
+                                showPageSizeSelector: true, 
+                                allowedPageSizes: [50], 
+                                showInfo: true,
+                                infoText: 'Página {0} de {1}', 
+                                visible: true 
+                            }" (onPageIndexChanged)=" onPageIndexChanged($event)"
+                            (onOptionChanged)="onGridOptionChanged($event)">
+                            <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
+                            <dxo-toolbar>
+                                <dxi-item name="groupPanel" location="before"></dxi-item>
+                                <dxi-item name="exportButton" location="after"
+                                    [options]="{ text: 'Exportar Grid', icon: 'export' }" [showText]="'always'">
+                                </dxi-item>
+                                <dxi-item name="searchPanel" location="after"></dxi-item>
+                            </dxo-toolbar>
+                            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]"
+                                [showInfo]="true"></dxo-pager>
+                            <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
+                            <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
+                            <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
+                            <dxo-grouping #expand [autoExpandAll]="true"></dxo-grouping>
+                            <dxi-column caption="Acciones" cellTemplate="acciones" alignment="center"
+                                [width]="100"></dxi-column>
+                            <div *dxTemplate="let d of 'acciones'" class="d-flex gap-0 justify-content-center">
+                                <button id="pinButtonBlue" class="btnAcciones"
+                                    (click)="centerModal(exlargeModal, d.data)">
+                                    <i class="fa fa-map-pin"></i>
+                                </button>
+                            </div>
+
+                            <dxi-column dataField="exactitud" caption="Exactitud" alignment="center" dataType="string"
+                                [width]="125">
+                            </dxi-column>
+
+                            <dxi-column dataField="estado" caption="Estado" alignment="center" dataType="number"
+                                cellTemplate="estado">
+                                <div *dxTemplate="let o of 'estado' ">
+                                    <div *ngIf="o.data.estado == 0">
+                                        Inválida
+                                    </div>
+                                    <div *ngIf="o.data.estado == 1">
+                                        Válida
+                                    </div>
+                                </div>
+                            </dxi-column>
+
+                            <dxi-column dataField="velocidad" cellTemplate="velocidad" caption="Velocidad"
+                                alignment="center" dataType="number">
+                                <div *dxTemplate="let o of 'velocidad' ">
+                                    <div *ngIf="o.data.velocidad == 0">
+                                        {{o.data.velocidad }}
+                                    </div>
+                                    <div *ngIf="o.data.velocidad >= 1 ">
+                                        {{o.data.velocidad + ' ' + 'km/h' }}
+                                    </div>
+                                </div>
+                            </dxi-column>
+
+                            <dxi-column caption="Dirección" cellTemplate="direccionTpl" alignment="center">
+                            </dxi-column>
+
+                            <div *dxTemplate="let data of 'direccionTpl'">
+                                <span *ngIf="data.data.direccion && data.data.direccion !== 0; else sinDireccion"
+                                    class="direccion-pill">
+                                    {{data.data.direccion + '°'}}  {{ getDireccionTexto(data.data.direccion) }}
+                                </span>
+
+                                <ng-template #sinDireccion>
+                                    <span class="direccion-pill direccion-pill-sin">
+                                        Sin movimiento
+                                    </span>
+                                </ng-template>
+                            </div>
+
+
+                            <dxi-column dataField="latitud" caption="Latitud" alignment="center" dataType="number">
+                            </dxi-column>
+
+                            <dxi-column dataField="longitud" caption="Longitud" alignment="center" dataType="number">
+                            </dxi-column>
+
+                            <dxi-column dataField="fechaHora" caption="Fecha Hora" alignment="center"
+                                dataType="datetime">
+                            </dxi-column>
+
+                            <dxi-column dataField="fhRegistro" caption="Fecha Registro" alignment="center"
+                                dataType="datetime">
+                            </dxi-column>
+
+                            <dxi-column dataField="numeroSerieDispositivo" caption="No. Serie Dispositivo"
+                                alignment="center" dataType="string">
+                            </dxi-column>
+
+                            <dxi-column dataField="marcaDispositivo" caption="Marca Dispositivo" alignment="center"
+                                dataType="string">
+                            </dxi-column>
+
+                            <dxi-column dataField="modeloDispositivo" caption="Modelo Dispositivo" alignment="center"
+                                dataType="string">
+                            </dxi-column>
+
+                            <dxi-column dataField="NombreCompletoCliente" caption="Cliente" alignment="center"
+                                dataType="string">
+                            </dxi-column>
+                            <dxo-export [enabled]="false" [allowExportSelectedData]="false"
+                                [texts]="{ exportAll: 'Exportar todos los datos a Excel' }">
+                            </dxo-export>
+                        </dx-data-grid>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
+    [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
+</dx-load-panel>
+
+<div class="col-lg-6">
+    <ng-template #exlargeModal let-modal>
+        <div class="modal-content p-0" style="background-color:#002b47;">
+            <div class="modal-body">
+                <div class="card mb-3 shadow-sm">
+                    <div class="custom-card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-circle">
+                                <i class="fa fa-map-marker-alt"></i>
+                            </div>
+                            <span class="ruta-titulo">
+                                Posición del Dispositivo: N°Serie {{ selectedNumeroSerieDispositivo || 'Sin dispositivo'
+                                }}
+                            </span>
+
+                        </div>
+                        <div class="header-deco"></div>
+                    </div>
+                </div>
+                <div *ngIf="showMap" class="map-container" style="border-radius:10px; overflow:hidden;">
+                    <div class="w-100" [style.height.px]="500" [id]="'map-' + selectedPositionId"></div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 d-flex align-items-center justify-content-center">
+                <button type="button" class="btn btn-md w-25 waves-effect waves-light"
+                    style="background-color:#f46a6a; color:#fff; border-radius:5px;" (click)="modal.close()">
+                    <i class="fa fa-times"></i>&nbsp;Cerrar
+                </button>
+            </div>
+        </div>
+    </ng-template>
+</div>

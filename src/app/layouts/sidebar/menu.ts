@@ -187,6 +187,13 @@ export const MENU: MenuItem[] = [
         permiso: Permiso.Consultar_Monitoreo
     },
     {
+        id: 11,
+        label: 'Historial de Posiciones',
+        icon: 'uil-history',
+        link: '/posiciones',
+        permiso: Permiso.Consultar_Monitoreo
+    },
+    {
         id: 9,
         label: 'Turnos',
         link: '/turnos',

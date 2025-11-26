@@ -49,6 +49,7 @@ const routes: Routes = [
   { path: 'tipo-pasajero', loadChildren: () => import('./tipo-pasajero/tipo-pasajero.module').then(m => m.TipoPasajeroModule)},
   { path: 'verificaciones', loadChildren: () => import('./verificaciones/verificaciones.module').then(m => m.VerificacionesModule)},
   { path: 'incidentes', loadChildren: () => import('./incidentes/incidentes.module').then(m => m.IncidentesModule)},
+  { path: 'posiciones', loadChildren: () => import('./posiciones/posiciones.module').then(m => m.PosicionesModule)},
 ];
 
 @NgModule({
