@@ -229,7 +229,7 @@ dsPasajerosPorHora = [
       { t: 'Validaciones', v: `${debitos.length} / ${Math.floor(5 + Math.random() * 20)} fallidas`, s: 'Hoy' },
       { t: 'Unidades en servicio / total', v: `${unidadesServ} / ${unidadesTotales}`, s: 'Últimos 15 min' },
       { t: 'Cumplimiento de turnos', v: `${cumplimiento}%`, s: `${turnosFin}/${turnosInicio} cerrados` },
-      // { t: 'Ocupación promedio (proxy)', v: `${ocupacion}%`, s: 'Capacidad teórica 35' }
+      { t: 'Ocupación promedio', v: `${ocupacion}%`, s: 'Capacidad teórica 35' }
     ];
   }
 

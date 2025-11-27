@@ -2,9 +2,10 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MonitoreoRoutingModule } from './monitoreo-routing.module';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { MapaComponent } from './mapa/mapa.component';
+import { DxSelectBoxModule } from 'devextreme-angular';
 
 
 @NgModule({
@@ -14,6 +15,8 @@ import { MapaComponent } from './mapa/mapa.component';
     MonitoreoRoutingModule,
     ReactiveFormsModule,
     GoogleMapsModule,
+    DxSelectBoxModule,
+    FormsModule
   ]
 })
 export class MonitoreoModule { }

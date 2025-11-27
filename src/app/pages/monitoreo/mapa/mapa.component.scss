@@ -97,7 +97,7 @@
 }
 
 .content-cards {
-  max-height: 56vh; // ajusta según tu diseño
+  max-height: 70vh;
   overflow-y: auto;
   padding-right: 0.5rem;
 
@@ -245,4 +245,433 @@
 
 .custom-tooltip .tooltip-body p {
   margin: 5px 0;
+}
+
+::ng-deep .gm-style .gm-ui-hover-effect {
+  display: none !important;
+}
+
+
+.form-control[_ngcontent-serverApp-c2661464102] {
+  border: none;
+  border-bottom: 1px solid #8996af;
+  border-radius: 0;
+  outline: none;
+  box-shadow: none;
+  padding: 10px 14px;
+  color: white;
+  background: #1e2832;
+  transition: border-bottom 0.25s ease, background 0.25s ease;
+}
+
+.section-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 20px 0 16px;
+  color: white;
+  border-left: 4px solid #00836d;
+  padding-left: 8px;
+}
+
+label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+  display: block;
+  color: #fff;
+}
+
+.form-control {
+  border: none;
+  border-bottom: 1px solid #8996af;
+  border-radius: 0;
+  outline: none;
+  box-shadow: none;
+  padding: 10px 14px;
+  color: white;
+  background: #1e2832;
+  transition: border-bottom .25s ease, background .25s ease;
+
+  &:focus {
+    background: #1e2832;
+    border-bottom: 2px solid #4b86e1;
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+.form-select {
+  border: none;
+  border-bottom: 1px solid #8996af;
+  border-radius: 4px;
+  outline: none;
+  border: 1px solid #8996af;
+  box-shadow: none;
+  padding: 10px 14px;
+  color: white;
+  background: #1e2832;
+  transition: border-bottom .25s ease, background .25s ease;
+
+  &:focus {
+    background: #1e2832;
+    border-bottom: 2px solid #4b86e1;
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-top: 24px;
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: 0.3s ease;
+  }
+}
+
+.file-upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .file-input {
+    display: none; // oculta el input real
+  }
+
+  .file-label {
+    display: inline-block;
+    padding: 10px 16px;
+    background: #00b4d8;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    text-align: center;
+
+    i {
+      margin-right: 8px;
+    }
+
+    &:hover {
+      background: #0096c7;
+    }
+  }
+
+  .file-name {
+    font-size: 0.9rem;
+    color: #ddd;
+    font-style: italic;
+  }
+
+  .preview {
+    margin-top: 6px;
+
+    img {
+      max-width: 100px;
+      max-height: 100px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      object-fit: cover;
+    }
+  }
+}
+
+.upload-modal-wrapper {
+  border: 2px dashed #00836d;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  .modal-header {
+    background-color: #00836d;
+  }
+
+  &:hover {
+    border-color: #005748;
+    background: rgba(37, 117, 252, 0.05);
+  }
+
+  .hidden-file-input {
+    display: none;
+  }
+
+  .upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #aaa;
+
+    i {
+      font-size: 40px;
+      color: #00836d;
+      margin-bottom: 10px;
+    }
+
+    span {
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
+
+    small {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+  }
+
+  .preview-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    img {
+      max-width: 250px;
+      max-height: 160px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #444;
+      object-fit: cover;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: #ddd;
+      margin: 0;
+      font-style: italic;
+    }
+
+    button {
+      margin-top: 6px;
+    }
+  }
+}
+
+::ng-deep .swal2-container .swal2-title {
+  font-size: 24px;
+  font-weight: 200;
+  color: #ffffff;
+}
+
+.swal2-container .swal2-title {
+  font-size: 24px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+::ng-deep div:where(.swal2-container) .swal2-html-container {
+  z-index: 1;
+  justify-content: center;
+  margin: 1em 1.6em .3em;
+  padding: 0;
+  overflow: auto;
+  color: #c8c8c8;
+  font-size: 1.125em;
+  font-weight: normal;
+  line-height: normal;
+  text-align: center;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+div:where(.swal2-container) .swal2-html-container {
+  z-index: 1;
+  justify-content: center;
+  margin: 1em 1.6em .3em;
+  padding: 0;
+  overflow: auto;
+  color: #c8c8c8;
+  font-size: 1.125em;
+  font-weight: normal;
+  line-height: normal;
+  text-align: center;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.card {
+  margin-bottom: 1.25rem;
+  box-shadow: var(--bs-box-shadow);
+  border: none;
+  background-color: #002136;
+}
+
+#map {
+  position: relative;
+  /* NUEVO: para anclar ::before y evitar recortes */
+  width: 100%;
+  height: clamp(320px, 70vh, 520px);
+  border-radius: 14px;
+  border: 1px solid #2f395a;
+  background: #343845;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  }
+
+  /* Borde de enfoque (teclado / interacción) */
+  &:focus,
+  &:focus-within {
+    outline: none;
+    box-shadow:
+      0 0 0 2px rgba(0, 131, 109, 0.18),
+      0 10px 26px rgba(0, 0, 0, 0.28);
+  }
+
+  /* Fondo sutil superior para legibilidad de controles */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 72px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), transparent);
+    z-index: 1;
+  }
+
+  /* Afinar controles nativos de Google Maps sin tocar globales */
+  .gm-style .gmnoprint,
+  .gm-style .gm-control-active {
+    border-radius: 10px !important;
+    overflow: hidden;
+  }
+
+  .gm-style .gm-control-active,
+  .gm-style .gm-bundled-control .gm-svpc,
+  .gm-style .gm-fullscreen-control {
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+  }
+
+  /* Margen interno para que los controles no peguen al borde redondeado */
+  .gm-style>div:nth-child(1) {
+    margin: 8px !important;
+  }
+
+  /* Cuadro de búsqueda (si usas Autocomplete) y botones: redondeo coherente */
+  .gm-style .gm-style-mtc,
+  .gm-style .gm-svpc,
+  .gm-style .gm-control-active,
+  .gm-style .gm-fullscreen-control {
+    border-radius: 10px !important;
+  }
+
+  /* Etiquetas emergentes del mapa con leve redondeo */
+  .gm-style .gm-style-iw-c {
+    border-radius: 10px !important;
+  }
+
+  /* NUEVO: evitar que los tiles/íconos se encojan por estilos globales */
+  .gm-style img {
+    max-width: none !important;
+  }
+
+  /* NUEVO: pequeñas correcciones de layout en labels internos */
+  .gm-style label {
+    display: inline;
+  }
+}
+
+
+:host ::ng-deep .tm-range {
+
+  .dx-daterangebox,
+  .dx-texteditor,
+  .dx-texteditor-input-container,
+  .dx-texteditor-buttons-container {
+    min-height: 44px;
+  }
+
+  .dx-texteditor-input {
+    height: 44px;
+    line-height: 44px;
+    padding: 0 12px;
+  }
+
+  .dx-button .dx-button-content {
+    height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+
+:host ::ng-deep .tm-select {
+
+  .dx-selectbox,
+  .dx-texteditor,
+  .dx-texteditor-input-container,
+  .dx-texteditor-buttons-container {
+    min-height: 44px;
+  }
+
+  .dx-texteditor-input {
+    height: 44px;
+    line-height: 44px;
+    padding: 0 12px;
+  }
+
+  .dx-button .dx-button-content {
+    height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+:host ::ng-deep .tm-date {
+
+  .dx-datebox,
+  .dx-texteditor,
+  .dx-texteditor-input-container,
+  .dx-texteditor-buttons-container {
+    min-height: 44px;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .dx-texteditor-input {
+    height: 44px;
+    line-height: 44px;
+    padding: 0 12px;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent;
+  }
+
+  .dx-button .dx-button-content {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+
+:host ::ng-deep .gm-ui-hover-effect {
+  display: none !important;
+}
+
+:host ::ng-deep .gm-style-iw-c {
+  padding-right: 0 !important;
+}
+
+::ng-deep .dx-texteditor.dx-editor-outlined {
+    background-color: #1e2832;
+    border-radius: 4px;
+    height: 44px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #414b5f #414b5f #8996af;
 }
