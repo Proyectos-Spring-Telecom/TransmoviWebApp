@@ -37,6 +37,7 @@ export class DefaultComponent implements OnInit {
   dsPuntualidad: { bin: string; viajes: number }[] = [];
 
   topRutas: { nombre: string; ingresos: number; viajes: number }[] = [];
+  tituloIngresos: string = 'Ingresos por hora (hoy)';
   dispositivosConAlertas: Dispositivo[] = [];
 
   // Clientes
@@ -378,8 +379,134 @@ dsPasajerosPorHora = [
     });
   }
 
+  private formatearPeriodo(periodo: string, indice?: number): string {
+    if (!periodo) return '00:00';
+    
+    // Si viene como "2025-12" (año-mes), mostrarlo así
+    if (/^\d{4}-\d{2}$/.test(periodo)) {
+      return periodo;
+    }
+    
+    // Si tiene hora (formato: "2025-12-01 07:00" o similar), extraer la hora
+    const matchHora = periodo.match(/(\d{2}):(\d{2})/);
+    if (matchHora) {
+      return matchHora[0]; // Retorna "07:00"
+    }
+    
+    // Si tiene fecha completa pero sin hora, intentar parsear como Date
+    const fechaHora = new Date(periodo);
+    if (!isNaN(fechaHora.getTime())) {
+      // Si tiene hora válida (no es medianoche o tiene minutos)
+      if (fechaHora.getHours() !== 0 || fechaHora.getMinutes() !== 0) {
+        const horas = String(fechaHora.getHours()).padStart(2, '0');
+        const minutos = String(fechaHora.getMinutes()).padStart(2, '0');
+        return `${horas}:${minutos}`;
+      } else {
+        // Si no tiene hora, mostrar como "Semana X" basado en el índice
+        if (indice !== undefined && indice !== null) {
+          return `Semana ${indice + 1}`;
+        }
+        // O mostrar la fecha formateada
+        const mes = String(fechaHora.getMonth() + 1).padStart(2, '0');
+        const dia = String(fechaHora.getDate()).padStart(2, '0');
+        return `${dia}/${mes}`;
+      }
+    }
+    
+    // Si no se puede parsear, retornar el valor original
+    return periodo;
+  }
+
+  private determinarTituloIngresos(periodos: any[]): string {
+    if (!periodos || periodos.length === 0) {
+      return 'Ingresos por hora (hoy)';
+    }
+
+    const primerPeriodo = periodos[0]?.periodo;
+    if (!primerPeriodo) {
+      return 'Ingresos por hora (hoy)';
+    }
+
+    // Si el periodo formateado contiene "Semana", es por semana
+    const periodoFormateado = this.formatearPeriodo(primerPeriodo, 0);
+    if (periodoFormateado.includes('Semana')) {
+      return 'Ingresos por semana';
+    }
+
+    // Si viene como "2025-12" (año-mes), extraer el año
+    if (/^\d{4}-\d{2}$/.test(primerPeriodo)) {
+      const año = primerPeriodo.substring(0, 4);
+      return `Ingresos por mes (${año})`;
+    }
+
+    // Si tiene hora, es por hora
+    const matchHora = primerPeriodo.match(/(\d{2}):(\d{2})/);
+    if (matchHora) {
+      return 'Ingresos por hora (hoy)';
+    }
+
+    // Por defecto, asumir por hora
+    return 'Ingresos por hora (hoy)';
+  }
+
   private procesarRespuestaKPIs(data: any): void {
     if (!data) return;
+
+    // Procesar graficaIngresos para dsIngresosHora
+    if (data.graficaIngresos && Array.isArray(data.graficaIngresos)) {
+      // Determinar el título basado en el formato del periodo
+      this.tituloIngresos = this.determinarTituloIngresos(data.graficaIngresos);
+      
+      this.dsIngresosHora = data.graficaIngresos.map((item: any, index: number) => {
+        const periodoFormateado = this.formatearPeriodo(item.periodo, index);
+        
+        return {
+          hora: periodoFormateado,
+          ingreso: item.ingresos ?? 0,
+          ticket: item.ticket_promedio ?? 0
+        };
+      });
+    }
+
+    // Procesar graficaAscensoBoleto para dsBrecha
+    if (data.graficaAscensoBoleto && Array.isArray(data.graficaAscensoBoleto)) {
+      this.dsBrecha = data.graficaAscensoBoleto.map((item: any, index: number) => {
+        const periodoFormateado = this.formatearPeriodo(item.periodo, index);
+        
+        return {
+          hora: periodoFormateado,
+          ascensos: item.ascensos ?? 0,
+          boletos: item.boletos ?? 0
+        };
+      });
+    }
+
+    // Procesar grafica4 para topRutas
+    if (data.grafica4 && Array.isArray(data.grafica4)) {
+      // Agrupar por ruta y sumar ingresosTotales
+      const rutasMap = new Map<string, number>();
+      
+      data.grafica4.forEach((item: any) => {
+        const nombreRuta = item.Ruta ?? item.ruta ?? 'Sin nombre';
+        const ingresos = item.ingresosTotales ?? 0;
+        
+        if (rutasMap.has(nombreRuta)) {
+          rutasMap.set(nombreRuta, rutasMap.get(nombreRuta)! + ingresos);
+        } else {
+          rutasMap.set(nombreRuta, ingresos);
+        }
+      });
+      
+      // Convertir a array, ordenar por ingresos descendente y tomar top 5
+      this.topRutas = Array.from(rutasMap.entries())
+        .map(([nombre, ingresos]) => ({
+          nombre,
+          ingresos,
+          viajes: 0 // No hay información de viajes en grafica4
+        }))
+        .sort((a, b) => b.ingresos - a.ingresos)
+        .slice(0, 5);
+    }
 
     // Buscar y actualizar cada KPI según su título
     this.kpis = this.kpis.map(kpi => {
