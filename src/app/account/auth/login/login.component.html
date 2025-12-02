@@ -5,13 +5,13 @@
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="input-group">
-        <label for="userName">Correo Electrónico</label>
+        <label for="userName">Correo Electrónico:</label>
         <input type="email" formControlName="userName" id="userName" placeholder="Email" autocomplete="username"
           [ngClass]="{ 'is-invalid': submitted && f?.userName?.errors }" />
       </div>
 
       <div class="input-group">
-        <label for="password">Contraseña</label>
+        <label for="password">Contraseña:</label>
         <input [type]="type" formControlName="password" id="password" placeholder="Contraseña"
           autocomplete="current-password" />
         <span *ngIf="type === 'password'" style="color: rgb(161, 161, 161);" class="eyeButton"
