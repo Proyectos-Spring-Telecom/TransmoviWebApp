@@ -16,21 +16,16 @@
           Después, marca el punto <strong>Fin</strong> sobre el mapa.
           Al terminar, presiona el botón <strong>Continuar</strong> para nombrar la ruta y guardarla.
         </h6>
-
         <div class="col-md-12 mt-1">
           <div id="map"></div>
         </div>
-
         <div class="form-actions mt-4" style="display: flex; align-items: center; justify-content: center;">
-          <button [@fadeInUp] type="submit" class="submit" *ngIf="puntosCompletos"
-                  (click)="abrirModal()">
+          <button [@fadeInUp] type="submit" class="submit" *ngIf="puntosCompletos" (click)="abrirModal()">
             {{ submitButton }}
           </button>
-
           <button type="button" class="warning" *ngIf="hayAlgoSeleccionado" (click)="limpiarMapa()">
             Limpiar mapa
           </button>
-
           <button [@fadeInUp] type="button" class="cancel" (click)="regresar()">Cancelar</button>
         </div>
       </form>
@@ -38,7 +33,6 @@
   </div>
 </div>
 
-<!-- Modal 1: Selección de Región de Inicio -->
 <ng-template #exlargeModal let-modal>
   <div class="card-header-custom">
     <div class="icon-wrapper">
@@ -57,17 +51,11 @@
       <div class="row">
         <div class="col-12 col-sm-12 col-md-12 mt-3">
           <label>Región Inicio</label>
-          <dx-select-box
-            class="tm-select w-100"
-            formControlName="idRegion"
-            [items]="listaRegiones || []"
-            [valueExpr]="'id'"
-            [displayExpr]="'nombre'"
-            [searchEnabled]="true"
-            [showClearButton]="true"
-            placeholder="Seleccione una región"
-            noDataText="Sin registros">
+          <dx-select-box class="tm-select w-100" formControlName="idRegion" [items]="listaRegiones || []"
+            [valueExpr]="'id'" [displayExpr]="displayRegion" [searchEnabled]="true" [showClearButton]="true"
+            placeholder="Seleccione una región" noDataText="Sin registros">
           </dx-select-box>
+
         </div>
       </div>
 

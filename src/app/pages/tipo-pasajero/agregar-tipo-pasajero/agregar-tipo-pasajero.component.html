@@ -30,16 +30,11 @@
 
                     </div>
                     <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-2">
-  <label>Cantidad</label>
-  <input
-    type="text"
-    class="form-control"
-    formControlName="cantidad"
-    placeholder="50"
-    (keypress)="allowOnlyNumbers($event)"
-    (blur)="formatearCantidad()"
-    (focus)="removerFormatoCantidad()">
-</div>
+                        <label>Cantidad</label>
+                        <input type="text" class="form-control" formControlName="cantidad" placeholder="50"
+                            (keypress)="allowOnlyNumbers($event)" (blur)="formatearCantidad()"
+                            (focus)="removerFormatoCantidad()">
+                    </div>
 
                     <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-2">
                         <label>Cliente</label>

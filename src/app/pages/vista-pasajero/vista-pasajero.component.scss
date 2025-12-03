@@ -384,3 +384,82 @@ div:where(.swal2-container) .swal2-html-container {
     margin: 1em auto 0;
     color: white;
 }
+
+.vista-pasajero-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.vista-error-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.vista-error-card {
+  max-width: 480px;
+  width: 100%;
+  background: #002b40;
+  border-radius: 18px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.vista-error-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 193, 7, 0.1);
+}
+
+.vista-error-icon i {
+  font-size: 28px;
+  color: #ffc107;
+}
+
+.vista-error-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.75rem;
+}
+
+.vista-error-text {
+  font-size: 0.95rem;
+  color: #c5d4e3;
+  margin-bottom: 1.75rem;
+}
+
+.vista-error-button {
+  min-width: 160px;
+  padding: 0.6rem 1.8rem;
+  border-radius: 999px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: #00b894;
+  color: #ffffff;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.vista-error-button:hover {
+  background: #00a181;
+  box-shadow: 0 8px 20px rgba(0, 184, 148, 0.35);
+  transform: translateY(-1px);
+}
+
+.vista-error-button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}

@@ -42,7 +42,7 @@
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="200"></dxi-column>
+                            <dxi-column *appHasPermission="['79', '80']"  caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="200"></dxi-column>
                             <dxi-column dataField="numeroSerie" caption="N° Serie" alignment="center"></dxi-column>
                             <dxi-column dataField="fechaActivacion" caption="Fecha Activación" alignment="center"
                                 cellTemplate="fecActi">

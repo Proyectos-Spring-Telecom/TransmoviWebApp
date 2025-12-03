@@ -10,7 +10,7 @@
         <div class="u-banner__body">
           <h2 class="u-banner__title">Gestión de Talleres</h2>
           <p class="u-banner__subtitle">Consulta, busca y navega entre los talleres registrados</p>
-          <div *appHasPermission="'91'">
+          <div *appHasPermission="'119'">
             <button class="u-btn u-btn--primary" (click)="agregarTaller()">
               <i class="fas fa-plus"></i>
               <span>Agregar Taller</span>
@@ -38,10 +38,9 @@
               <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
               <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
 
-              <!-- Acciones -->
-              <dxi-column caption="Acciones" [width]="180" alignment="center" cellTemplate="acciones"></dxi-column>
+              <dxi-column *appHasPermission="['120', '121']" caption="Acciones" [width]="180" alignment="center" cellTemplate="acciones"></dxi-column>
               <div *dxTemplate="let row of 'acciones'" class="d-flex gap-2 justify-content-center">
-                <div>
+                <div *appHasPermission="'120'">
                   <button valueExpr="id" id="actualizarButton" class="btnAcciones"
                     (click)="actualizarTaller(row.data.Id)">
                     <i class="fa fa-edit"></i>
@@ -50,7 +49,7 @@
                 <button id="pinButtonBlue" class="btnAcciones" (click)="openTallerMapa(centerDataModal, row.data)">
                   <i class="fa fa-map-pin"></i>
                 </button>
-                <div>
+                <div *appHasPermission="'121'">
                   <button *ngIf="row.data.Estatus === 0" id="pinButton" class="btnAcciones" (click)="activar(row.data)">
                     <i class="fa fa-arrow-up"></i>
                   </button>

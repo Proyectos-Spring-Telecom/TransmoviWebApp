@@ -7,6 +7,8 @@ import CustomStore from 'devextreme/data/custom_store';
 import { lastValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
 import { NgxPermissionsService } from 'ngx-permissions';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import Swal from 'sweetalert2';
 
 declare var google: any;
 
@@ -41,19 +43,30 @@ export class ListaTransaccionesComponent implements OnInit {
   public paginaActualData: any[] = [];
   public filtroActivo: string = '';
   public showMap: boolean = false;
+
+  filtrosForm!: FormGroup;
+  fechaInicioFiltro: string | null = null;
+  fechaFinFiltro: string | null = null;
+
   @ViewChild(DxDataGridComponent, { static: false }) dataGrid: DxDataGridComponent;
 
   constructor(
     private tranService: TransaccionesService,
     private modalService: NgbModal,
     private route: Router,
-    private permissionsService: NgxPermissionsService
+    private permissionsService: NgxPermissionsService,
+    private fb: FormBuilder
   ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
   }
 
   ngOnInit(): void {
+    this.filtrosForm = this.fb.group({
+      fechaInicio: [null],
+      fechaFin: [null]
+    });
+
     this.setupDataSource();
   }
 
@@ -67,13 +80,22 @@ export class ListaTransaccionesComponent implements OnInit {
     this.listaTransacciones = new CustomStore({
       key: 'id',
       load: async (loadOptions: any) => {
+        this.loading = true;
+
         const take = Number(loadOptions?.take) || this.pageSize || 10;
         const skip = Number(loadOptions?.skip) || 0;
         const page = Math.floor(skip / take) + 1;
 
+        const body = {
+          page,
+          limit: take,
+          fechaInicio: this.fechaInicioFiltro,
+          fechaFin: this.fechaFinFiltro
+        };
+
         try {
           const resp: any = await lastValueFrom(
-            this.tranService.obtenerTransaccionesData(page, take)
+            this.tranService.obtenerTransaccionesData(body)
           );
           this.loading = false;
 
@@ -92,23 +114,21 @@ export class ListaTransaccionesComponent implements OnInit {
 
             return {
               id: x?.id ?? null,
+              Id: x?.id ?? null,
               tipoTransaccion: x?.tipoTransaccion ?? null,
               monto: toMoney(x?.monto),
-              latitud: x?.latitud ?? null,
-              longitud: x?.longitud ?? null,
-              fechaHora: x?.fechaHora ?? null,
+              latitudFinal: x?.latitudFinal ?? null,
+              longitudFinal: x?.longitudFinal ?? null,
+              fechaHoraFinal: x?.fechaHoraFinal ?? null,
               fhRegistro: x?.fhRegistro ?? null,
               numeroSerieMonedero: x?.numeroSerieMonedero ?? null,
               numeroSerieDispositivo: x?.numeroSerieDispositivo ?? null,
-              pasajero: pasajero || 'sin registro',
-
+              pasajero: pasajero || 'Sin registro',
               nombreCliente: x?.nombreCliente ?? null,
               apellidoPaternoCliente: x?.apellidoPaternoCliente ?? null,
-              apellidoMaternoCliente: x?.apellidoMaternoCliente ?? null,
+              apellidoMaternoCliente: x?.apellidoMaternoCliente ?? null
             };
           });
-
-
 
           this.totalRegistros = totalRegistros;
           this.paginaActual = paginaActual;
@@ -140,6 +160,41 @@ export class ListaTransaccionesComponent implements OnInit {
     }
   }
 
+  private formatDateForApi(value: any): string | null {
+    if (!value) return null;
+    const d = value instanceof Date ? value : new Date(value);
+    if (isNaN(d.getTime())) return null;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  aplicarFiltros() {
+    const { fechaInicio, fechaFin } = this.filtrosForm.value;
+
+    this.fechaInicioFiltro = this.formatDateForApi(fechaInicio);
+    this.fechaFinFiltro = this.formatDateForApi(fechaFin);
+
+    this.paginaActual = 1;
+    if (this.dataGrid) {
+      this.dataGrid.instance.pageIndex(0);
+      this.dataGrid.instance.refresh();
+    }
+  }
+
+  limpiarFiltros() {
+    this.filtrosForm.reset();
+    this.fechaInicioFiltro = null;
+    this.fechaFinFiltro = null;
+
+    this.paginaActual = 1;
+    if (this.dataGrid) {
+      this.dataGrid.instance.pageIndex(0);
+      this.dataGrid.instance.refresh();
+    }
+  }
+
   onGridOptionChanged(e: any) {
     if (e.fullName === "searchPanel.text") {
       this.filtroActivo = e.value || '';
@@ -162,15 +217,16 @@ export class ListaTransaccionesComponent implements OnInit {
     this.paginaActual = pageIndex + 1;
     e.component.refresh();
   }
+
   showInfo(id: any): void {
     console.log('Mostrar información de la transacción con ID:', id);
   }
 
-  centerModal(centerDataModal: any, id: number, latitud: string, longitud: string, fechaHora: string, monto: number, tipoTransaccion: any) {
+  centerModal(centerDataModal: any, id: number, latitudFinal: string, longitudFinal: string, fechaHoraFinal: string, monto: number, tipoTransaccion: any) {
     this.selectedTransactionId = id;
-    this.latSelect = latitud;
-    this.lngSelect = longitud;
-    this.selectedTransactionDate = fechaHora;
+    this.latSelect = latitudFinal;
+    this.lngSelect = longitudFinal;
+    this.selectedTransactionDate = fechaHoraFinal;
     this.selectedTransactionAmount = monto;
     this.selectedTipoTransaccion = tipoTransaccion;
     if (this.latSelect == null || this.latSelect == '') {
@@ -185,7 +241,7 @@ export class ListaTransaccionesComponent implements OnInit {
     });
 
     setTimeout(() => {
-      this.initializeMap(latitud, longitud);
+      this.initializeMap(latitudFinal, longitudFinal);
     }, 500);
   }
 
@@ -224,4 +280,54 @@ export class ListaTransaccionesComponent implements OnInit {
   agregarTransaccion() {
     this.route.navigateByUrl('/transacciones/agregar-transaccion')
   }
+
+  onFechaFinChange(value: any) {
+    if (!value) return;
+
+    const seleccionada = new Date(value);
+    const hoy = new Date();
+
+    seleccionada.setHours(0, 0, 0, 0);
+    hoy.setHours(0, 0, 0, 0);
+
+    if (seleccionada > hoy) {
+      Swal.fire({
+        background: '#002136',
+        icon: 'warning',
+        title: '¡Ops!',
+        text: 'La fecha fin no puede ser mayor a la fecha actual.',
+        confirmButtonText: 'Aceptar'
+      }).then(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        this.filtrosForm.patchValue({ fechaFin: today });
+      });
+    }
+  }
+
+  onFechaInicioChange(value: any) {
+    if (!value) return;
+
+    const seleccionada = new Date(value);
+    const hoy = new Date();
+
+    seleccionada.setHours(0, 0, 0, 0);
+    hoy.setHours(0, 0, 0, 0);
+
+    if (seleccionada > hoy) {
+      Swal.fire({
+        background: '#002136',
+        icon: 'warning',
+        title: '¡Ops!',
+        text: 'La fecha inicio no puede ser mayor a la fecha actual.',
+        confirmButtonText: 'Aceptar'
+      }).then(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        this.filtrosForm.patchValue({ fechaInicio: today });
+      });
+    }
+  }
+
+
 }
