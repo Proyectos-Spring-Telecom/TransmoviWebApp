@@ -193,9 +193,9 @@ export class ListaMonederosComponent implements OnInit {
     this.recargaForm = this.fb.group({
       tipoTransaccion: ['RECARGA'],
       monto: [null, [Validators.required]],
-      latitud: [null],
-      longitud: [null],
-      fechaHora: [null],
+      latitudFinal: [null],
+      longitudFinal: [null],
+      fechaHoraFinal: [null],
       numeroSerieMonedero: [null],
       numeroSerieDispositivo: [null],
     });
@@ -203,9 +203,9 @@ export class ListaMonederosComponent implements OnInit {
     this.debitoForm = this.fb.group({
       tipoTransaccion: ['DEBITO'],
       monto: [null, [Validators.required]],
-      latitud: [null],
-      longitud: [null],
-      fechaHora: [null],
+      latitudFinal: [null],
+      longitudFinal: [null],
+      fechaHoraFinal: [null],
       numeroSerieMonedero: [null],
       numeroSerieDispositivo: [null],
     });
@@ -400,13 +400,27 @@ export class ListaMonederosComponent implements OnInit {
     });
   }
 
+  private getLocalIsoWithoutMs(): string {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+
+    return `${y}-${m}-${d}T${hh}:${mm}:${ss}Z`;
+  }
+
+
   crearTransaccionRecarga() {
     const serie = (this.selectedSerie ?? '').toString().trim();
-    const fechaActual = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+    const fechaActual = this.getLocalIsoWithoutMs();
+
 
     this.recargaForm.patchValue({
       numeroSerieMonedero: serie,
-      fechaHora: fechaActual,
+      fechaHoraFinal: fechaActual,
     });
 
     const formValue = this.recargaForm.value;
@@ -441,9 +455,9 @@ export class ListaMonederosComponent implements OnInit {
           String(formValue.monto).toString().replace(',', '.')
         ).toFixed(2)
       ),
-      latitud: null,
-      longitud: null,
-      fechaHora: formValue?.fechaHora || fechaActual,
+      latitudFinal: null,
+      longitudFinal: null,
+      fechaHoraFinal: formValue?.fechaHoraFinal || fechaActual,
       numeroSerieMonedero: formValue?.numeroSerieMonedero || serie,
       numeroSerieDispositivo: null,
     };
@@ -500,12 +514,13 @@ export class ListaMonederosComponent implements OnInit {
 
   crearTransaccionDebito() {
     const serie = (this.selectedSerie ?? '').toString().trim();
-    const fechaActual = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+    const fechaActual = this.getLocalIsoWithoutMs();
+
 
     this.debitoForm.patchValue({
       IdMonedero: this.selectedTransactionId,
       numeroSerieMonedero: serie,
-      fechaHora: fechaActual,
+      fechaHoraFinal: fechaActual,
       tipoTransaccion: 'DEBITO',
     });
 
@@ -541,9 +556,9 @@ export class ListaMonederosComponent implements OnInit {
           String(formValue.monto).toString().replace(',', '.')
         ).toFixed(2)
       ),
-      latitud: null,
-      longitud: null,
-      fechaHora: formValue?.fechaHora || fechaActual,
+      latitudFinal: null,
+      longitudFinal: null,
+      fechaHoraFinal: formValue?.fechaHoraFinal || fechaActual,
       numeroSerieMonedero: formValue?.numeroSerieMonedero || serie,
       numeroSerieDispositivo: null,
     };

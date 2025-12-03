@@ -163,9 +163,9 @@ export class PuntoVentaPostComponent implements OnInit {
     this.transaccionForm = this.fb.group({
       tipoTransaccion: ['RECARGA', Validators.required],
       monto: [null, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
-      latitud: [null],
-      longitud: [null],
-      fechaHora: [null, Validators.required],
+      latitudFinal: [null],
+      longitudFinal: [null],
+      fechaHoraFinal: [null, Validators.required],
       numeroSerieMonedero: ['', Validators.required],
       numeroSerieDispositivo: [null],
     });
@@ -204,7 +204,7 @@ export class PuntoVentaPostComponent implements OnInit {
   const numSerie = this.monederoSeleccionado.numeroserie || this.monederoSeleccionado.numeroSerie || '';
   this.transaccionForm.patchValue({
     numeroSerieMonedero: numSerie,
-    fechaHora: this.nowZulu(),
+    fechaHoraFinal: this.nowZulu(),
   });
 
   const raw = this.transaccionForm.value;
@@ -217,9 +217,9 @@ export class PuntoVentaPostComponent implements OnInit {
       const n = Number(parseFloat(String(raw.monto).toString().replace(',', '.')).toFixed(2));
       return isNaN(n) ? null : n;
     })(),
-    latitud: null,
-    longitud: null,
-    fechaHora: raw?.fechaHora || this.nowZulu(),
+    latitudFinal: null,
+    longitudFinal: null,
+    fechaHoraFinal: raw?.fechaHoraFinal || this.nowZulu(),
     numeroSerieMonedero: raw?.numeroSerieMonedero || numSerie,
     numeroSerieDispositivo: null,
   };
@@ -288,22 +288,31 @@ export class PuntoVentaPostComponent implements OnInit {
       const numSerie = this.monederoSeleccionado.numeroserie || this.monederoSeleccionado.numeroSerie || '';
       this.transaccionForm.patchValue({
         numeroSerieMonedero: numSerie,
-        fechaHora: this.nowZulu(),
+        fechaHoraFinal: this.nowZulu(),
       });
     }
   }
 
   private nowZulu(): string {
-    return new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+    const now = new Date();
+
+    const y  = now.getFullYear();
+    const m  = String(now.getMonth() + 1).padStart(2, '0');
+    const d  = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+    return `${y}-${m}-${d}T${hh}:${mm}:${ss}Z`;
   }
+
 
   private resetFormState(): void {
     this.transaccionForm.reset({
       tipoTransaccion: 'RECARGA',
       monto: null,
-      latitud: null,
-      longitud: null,
-      fechaHora: null,
+      latitudFinal: null,
+      longitudFinal: null,
+      fechaHoraFinal: null,
       numeroSerieMonedero: '',
       numeroSerieDispositivo: null,
     });

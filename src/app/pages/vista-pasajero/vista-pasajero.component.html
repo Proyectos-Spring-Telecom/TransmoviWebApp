@@ -1,3 +1,21 @@
+<div class="vista-pasajero-wrapper">
+  <div *ngIf="errorUsuarioOperador; else contenidoPasajero" class="vista-error-container">
+    <div class="vista-error-card">
+      <div class="vista-error-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h2 class="vista-error-title">No pudimos cargar tu información</h2>
+      <p class="vista-error-text">
+        Ocurrió un problema al consultar tus datos de pasajero.
+        Intenta nuevamente. Si el problema continúa, contacta a soporte.
+      </p>
+      <button type="button" class="vista-error-button" (click)="reintentarCargaUsuario()">
+        Reintentar
+      </button>
+    </div>
+  </div>
+
+<ng-template #contenidoPasajero>
 <div [@fadeInUp]>
   <div class="card-body">
     <div class="row">
@@ -23,7 +41,7 @@
                     </div>
                     <div class="ms-3">
                       <div class="label">Saldo</div>
-                      <div class="amount">{{ informacion.SaldoTotal | currency:'$' }}</div>
+                      <div class="amount">{{ (informacion.SaldoTotal | currency:'$') || 0 }}</div>
                     </div>
                   </div>
 
@@ -33,9 +51,9 @@
                         <div class="mini-icon">
                           <i class="fa fa-coins"></i>
                         </div>
-                        <div class="mini-label">Gasto de {{ mesActualLabel }}</div>
+                        <div class="mini-label">Gasto de {{ mesActualLabel || ' ' }}</div>
                         <div class="mini-value">
-                          {{ (informacion.TotalDebitosUltimoMes | currency: '$') || (0 | currency:'$') }}
+                          {{ (informacion.TotalDebitosUltimoMes | currency: '$') || (0 | currency:'$') || 0 }}
                         </div>
                       </div>
                     </div>
@@ -77,16 +95,16 @@
                     </div>
                     <div class="info-row">
                       <span class="info-key">Registro:</span>
-                      <span class="info-val fw-semibold">{{ showCreacion }}</span>
+                      <span class="info-val fw-semibold">{{ showCreacion || '   ' }}</span>
                     </div>
                     <div class="info-row">
                       <span class="info-key">N° Monedero:</span>
-                      <span class="info-val fw-semibold">{{ informacion.Monederos }}</span>
+                      <span class="info-val fw-semibold">{{ informacion.Monederos || '  ' }}</span>
                     </div>
                     <div class="info-row">
                       <span class="info-key">Cliente:</span>
                       <span class="info-val fw-semibold">
-                        {{ showNombreCliente }} {{ showApellidoPaternoCliente }} {{ showApellidoMaternoCliente }}
+                        {{ showNombreCliente || '   ' }} {{ showApellidoPaternoCliente || '   ' }} {{ showApellidoMaternoCliente || '   ' }}
                       </span>
                     </div>
                     <div class="info-row">
@@ -110,7 +128,7 @@
                   </div>
                   <div class="grid-wrap">
                     <dx-data-grid class="dx-dark grid-responsive" id="gridTransacciones" #gridTransacciones
-                      [dataSource]="listaTransacciones" [keyExpr]="'id'" [columnHidingEnabled]="true"
+                      [dataSource]="listaTransacciones || ' '" [keyExpr]="'id'" [columnHidingEnabled]="true"
                       [showBorders]="true" [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
                       [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSizeTx }" [pager]="{
                         allowedPageSizes: [],
@@ -174,4 +192,6 @@
       </div>
     </div>
   </div>
+</div>
+</ng-template>
 </div>

@@ -102,13 +102,13 @@
                 [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
               </dxo-export>
               <div *dxTemplate="let d of 'acciones'" class="d-flex gap-0 justify-content-center">
-                <div *appHasPermission="'67'">
+                <div>
                   <button id="pinButtonBlue" class="btnAcciones"
                     (click)="centerModal(exlargeModal, d.data.id, null, null, undefined, undefined, undefined, d.data)">
                     <i class="fa fa-map-pin"></i>
                   </button>
                 </div>&nbsp;&nbsp;
-                <div>
+                <div *appHasPermission="'68'">
                   <button *ngIf="d.data.estatusRuta === 0" id="pinButton" class="btnAcciones" (click)="activar(d.data)">
                     <i class="fa fa-arrow-up"></i>
                   </button>

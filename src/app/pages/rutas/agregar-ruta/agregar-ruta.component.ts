@@ -44,6 +44,10 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
   private polygons: google.maps.Polygon[] = [];
   private regionesArea: { id: number; nombre: string; coords: google.maps.LatLngLiteral[] }[] = [];
   private regionModalMostrado = false;
+  displayRegion = (item: any) => {
+    if (!item) return "";
+    return `${item.nombre} - Cliente: ${item.nombreCliente} ${item.apellidoPaternoCliente} ${item.apellidoMaternoCliente}`;
+  };
 
   private readonly centroToluca: google.maps.LatLngLiteral = { lat: 19.2879, lng: -99.6468 };
 
