@@ -122,7 +122,8 @@ export class VistaPasajeroComponent implements OnInit {
         this.errorUsuarioOperador = false;
       },
       error: (err) => {
-        console.error('[PASAJERO] Error al obtener usuario:', err);
+        
+        //Si hay error muestra validación
         this.informacion = null;
         this.errorUsuarioOperador = true;
       }
