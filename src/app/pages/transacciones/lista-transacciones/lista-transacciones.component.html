@@ -93,6 +93,9 @@
                   <span *ngIf="f.data.tipoTransaccion === 'DEBITO' " class="estatus estatus-inactivo">
                     <i class="fa fa-arrow-down"></i> Débito
                   </span>
+                  <span *ngIf="f.data.tipoTransaccion === 'RECHAZADO' " class="estatus estatus-mantenimiento">
+                    Rechazado
+                  </span>
                 </div>
               </dxi-column>
               <dxi-column dataField="numeroSerieMonedero" caption="N° Serie de Monedero"
