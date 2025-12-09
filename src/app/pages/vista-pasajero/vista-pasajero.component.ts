@@ -16,6 +16,7 @@ import Swal from 'sweetalert2';
   animations: [fadeInUpAnimation],
 })
 export class VistaPasajeroComponent implements OnInit {
+  errorUsuarioOperador = false;
   loadingTx = false;
   paginaActualTx = 1;
   totalRegistrosTx = 0;
@@ -112,16 +113,30 @@ export class VistaPasajeroComponent implements OnInit {
     return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   }
 
-  obtenerUsuarioOperador(idUsuario: any) {
-    this.pasjService.datosUsuarioPasajero(this.showId).subscribe((response) => {
-      this.informacion = response.data[0]
-    })
+  obtenerUsuarioOperador() {
+    this.errorUsuarioOperador = false;
+
+    this.pasjService.datosUsuarioPasajero(this.showId).subscribe({
+      next: (response) => {
+        this.informacion = response.data?.[0] ?? null;
+        this.errorUsuarioOperador = false;
+      },
+      error: (err) => {
+        
+        //Si hay error muestra validación
+        this.informacion = null;
+        this.errorUsuarioOperador = true;
+      }
+    });
   }
 
   ngOnInit(): void {
     this.setupTransaccionesDataSource();
-    this.setupMonederosDataSource();
-    this.obtenerUsuarioOperador(this.showId);
+    this.obtenerUsuarioOperador();
+  }
+
+  reintentarCargaUsuario() {
+    this.obtenerUsuarioOperador();
   }
 
   setupTransaccionesDataSource() {
@@ -130,12 +145,20 @@ export class VistaPasajeroComponent implements OnInit {
     this.listaTransacciones = new CustomStore({
       key: 'id',
       load: async (loadOptions: any) => {
+
         const take = Number(loadOptions?.take) || this.pageSizeTx || 10;
         const skip = Number(loadOptions?.skip) || 0;
         const page = Math.floor(skip / take) + 1;
 
+        const body = {
+          page,
+          limit: take,
+          fechaInicio: null,
+          fechaFin: null
+        };
+
         try {
-          const resp: any = await lastValueFrom(this.tranService.obtenerTransaccionesData(page, take));
+          const resp: any = await lastValueFrom(this.tranService.obtenerTransaccionesData(body));
           this.loadingTx = false;
 
           const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
@@ -289,77 +312,77 @@ export class VistaPasajeroComponent implements OnInit {
     e.component.refresh();
   }
 
-onExtravio() {
-  const correo =
-    this.informacion?.CorreoUsuario || this.showCorreo || '';
+  onExtravio() {
+    const correo =
+      this.informacion?.CorreoUsuario || this.showCorreo || '';
 
-  const monederoActual =
-    this.informacion?.Monederos || 'monedero';
+    const monederoActual =
+      this.informacion?.Monederos || 'monedero';
 
-  Swal.fire({
-    title: '¡Reporte de Extravío!',
-    html: `Se marcará como extraviado tu monedero: <strong>${monederoActual}</strong>.`,
-    icon: 'warning',
-    background: '#002136',
-    showCancelButton: true,
-    confirmButtonText: 'Confirmar',
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    allowEnterKey: false,
-    input: 'text',
-    inputLabel: 'Nuevo monedero',
-    inputPlaceholder: 'Ingresa el nuevo monedero',
-    inputValidator: (value) => {
-      if (!value || !value.trim()) {
-        return 'Debes ingresar el nuevo monedero';
-      }
-      return null;
-    },
-    customClass: {
-      inputLabel: 'swal-label-grey',
-      input: 'swal-input-borderless'
-    }
-  }).then(result => {
-    if (!result.isConfirmed) {
-      return;
-    }
-
-    const nuevoMonedero = (result.value || '').trim();
-
-    this.moneService.reporteExtravio(correo, nuevoMonedero).subscribe({
-      next: (response: any) => {
-        Swal.fire({
-          title: '¡Operación Exitosa!',
-          html: response.message,
-          icon: 'success',
-          background: '#002136',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Aceptar',
-          allowOutsideClick: false,
-          allowEscapeKey: false
-        });
-        this.setupTransaccionesDataSource();
-        this.setupMonederosDataSource();
-        this.obtenerUsuarioOperador(this.showId);
+    Swal.fire({
+      title: '¡Reporte de Extravío!',
+      html: `Se marcará como extraviado tu monedero: <strong>${monederoActual}</strong>.`,
+      icon: 'warning',
+      background: '#002136',
+      showCancelButton: true,
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      allowEnterKey: false,
+      input: 'text',
+      inputLabel: 'Nuevo monedero',
+      inputPlaceholder: 'Ingresa el nuevo monedero',
+      inputValidator: (value) => {
+        if (!value || !value.trim()) {
+          return 'Debes ingresar el nuevo monedero';
+        }
+        return null;
       },
-      error: (error) => {
-        Swal.fire({
-          title: '¡Ops!',
-          html: error.error,
-          icon: 'error',
-          background: '#002136',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Aceptar',
-          allowOutsideClick: false,
-          allowEscapeKey: false
-        });
+      customClass: {
+        inputLabel: 'swal-label-grey',
+        input: 'swal-input-borderless'
       }
+    }).then(result => {
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      const nuevoMonedero = (result.value || '').trim();
+
+      this.moneService.reporteExtravio(correo, nuevoMonedero).subscribe({
+        next: (response: any) => {
+          Swal.fire({
+            title: '¡Operación Exitosa!',
+            html: response.message,
+            icon: 'success',
+            background: '#002136',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Aceptar',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+          });
+          // this.setupTransaccionesDataSource();
+          this.setupMonederosDataSource();
+          this.obtenerUsuarioOperador();
+        },
+        error: (error) => {
+          Swal.fire({
+            title: '¡Ops!',
+            html: error.error,
+            icon: 'error',
+            background: '#002136',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Aceptar',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+          });
+        }
+      });
     });
-  });
-}
+  }
 
 
 }

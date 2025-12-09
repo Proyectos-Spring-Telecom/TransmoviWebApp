@@ -1,115 +1,114 @@
 <div [@fadeInUp] class="container-fluid">
-    <div class="card">
-        <div class="card-header-custom">
-            <div class="icon-wrapper">
-                <i class="fas fa-plus"></i>
-            </div>
-            <div class="header-text">
-                <h5>{{ 'Agregar Derrotero' }}</h5>
-                <span>Traza el recorrido de tu vehículo.</span>
-            </div>
-            <!-- <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
+  <div class="card">
+    <div class="card-header-custom">
+      <div class="icon-wrapper">
+        <i class="fas fa-plus"></i>
+      </div>
+      <div class="header-text">
+        <h5>{{ 'Agregar Derrotero' }}</h5>
+        <span>Traza el recorrido de tu vehículo.</span>
+      </div>
+      <!-- <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
                 data-bs-target=".bs-example-modal-lg" (click)="extraLarges(exlargeModalForm)">Large modal</button> -->
-        </div>
-        <ng-container *ngIf="contentVisible">
-            <div class="card-body">
-                <form class="cliente-form">
-                    <!-- <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
-              data-bs-target=".bs-example-modal-lg" (click)="extraLarge(exlargeModal)">Large modal</button> -->
-                    <h6 class="u-callout u-callout--subtle mt-3">
-                        Traza en el mapa el recorrido del vehículo marcando los <strong>puntos</strong> por donde
-                        pasará.
-                        Al finalizar, presiona <strong>Enter</strong> para <strong>cerrar la ruta</strong> y
-                        <strong>continuar</strong> con el proceso.
-                    </h6>
-                    <div class="col-md-12 mt-1">
-                        <div id="map"></div>
-                    </div>
-                    <div class="form-actions mt-4" style="display: flex; align-items: center; justify-content: center;">
-                        <button type="button" [@fadeInUp] class="submit" *ngIf="showPreviewPayloadBtn"
-                            (click)="agregarDerrotero()">
-                            {{submitButton}}
-                        </button>
-
-                        <button type="button" [@fadeInUp] class="primary" *ngIf="showClearTraceBtn"
-                            (click)="clearTrace()">
-                            Limpiar trazo
-                        </button>
-                        <button type="button" [@fadeInUp] class="warning" *ngIf="showUndo" (click)="undoLastPoint()">
-                            Deshacer punto
-                        </button>
-                        <button type="button" [@fadeInUp] class="cancel" (click)="regresar()">
-                            Cancelar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </ng-container>
     </div>
+    <ng-container *ngIf="contentVisible">
+      <div class="card-body">
+        <form class="cliente-form">
+          <!-- <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
+              data-bs-target=".bs-example-modal-lg" (click)="extraLarge(exlargeModal)">Large modal</button> -->
+          <h6 class="u-callout u-callout--subtle mt-3">
+            Traza en el mapa el recorrido del vehículo marcando los <strong>puntos</strong> por donde
+            pasará.
+            Al finalizar, presiona <strong>Enter</strong> para <strong>cerrar la ruta</strong> y
+            <strong>continuar</strong> con el proceso.
+          </h6>
+          <div class="col-md-12 mt-1">
+            <div id="map"></div>
+          </div>
+          <div class="form-actions mt-4" style="display: flex; align-items: center; justify-content: center;">
+            <button type="button" [@fadeInUp] class="submit" *ngIf="showPreviewPayloadBtn" (click)="agregarDerrotero()">
+              {{submitButton}}
+            </button>
+
+            <button type="button" [@fadeInUp] class="primary" *ngIf="showClearTraceBtn" (click)="clearTrace()">
+              Limpiar trazo
+            </button>
+            <button type="button" [@fadeInUp] class="warning" *ngIf="showUndo" (click)="undoLastPoint()">
+              Deshacer punto
+            </button>
+            <button type="button" [@fadeInUp] class="cancel" (click)="regresar()">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </ng-container>
+  </div>
 </div>
 
 <ng-template #exlargeModal let-modal>
-    <div class="card-header-custom">
-        <div class="icon-wrapper">
-            <i class="fas fa-map-pin"></i>
-        </div>
-        <div class="header-text">
-            <h5>Selecciona una ruta</h5>
-            <span>Haz click sobre una ruta para realizar el trayecto del vehículo.</span>
-        </div>
+  <div class="card-header-custom">
+    <div class="icon-wrapper">
+      <i class="fas fa-map-pin"></i>
     </div>
+    <div class="header-text">
+      <h5>Selecciona una ruta</h5>
+      <span>Haz click sobre una ruta para realizar el trayecto del vehículo.</span>
+    </div>
+  </div>
 
-    <div class="card-body route-modal">
-        <form [formGroup]="rutaForm" class="cliente-form">
-            <div class="row">
-                <div class="col-md-12">
-                    <label class="route-label">Ruta</label>
+  <div class="card-body route-modal">
+    <form [formGroup]="rutaForm" class="cliente-form">
+      <div class="row">
+        <div class="col-md-12">
+          <label class="route-label">Ruta</label>
 
-                    <!-- Toolbar visual (sin lógica) -->
-                    <div class="route-toolbar">
-                        <div class="search">
-                            <i class="fas fa-search"></i>
-                            <input class="search-input" type="text" placeholder="Buscar ruta…"
-                                [formControl]="rutaSearch" />
-                        </div>
-                        <div class="hint">{{ filteredRutas?.length || 0 }} resultado(s)</div>
+          <div class="route-toolbar">
+            <div class="search">
+              <i class="fas fa-search"></i>
+              <input class="search-input" type="text" placeholder="Buscar ruta…" [formControl]="rutaSearch" />
+            </div>
+            <div class="hint">{{ filteredRutas?.length || 0 }} resultado(s)</div>
+          </div>
+
+          <div class="routes-list" role="listbox" aria-label="Listado de rutas"
+            [@panelAnim]="rutaSearch.value ? 'filtered':'all'" [@listAnim]="filteredRutas?.length">
+
+            <label class="route-row" *ngFor="let c of filteredRutas; trackBy: trackByRutaId">
+              <input class="route-radio" type="radio" formControlName="idRegion" [value]="c.id" />
+              <div class="route-card">
+                <div class="route-left">
+                  <div class="route-icon"><i class="fas fa-route"></i></div>
+                  <div class="route-text">
+                    <div class="route-title">
+                      {{ c.nombre }}
                     </div>
-
-                    <!-- Lista scrollable -->
-                    <div class="routes-list" role="listbox" aria-label="Listado de rutas"
-                        [@panelAnim]="rutaSearch.value ? 'filtered':'all'" [@listAnim]="filteredRutas?.length">
-
-                        <label class="route-row" *ngFor="let c of filteredRutas; trackBy: trackByRutaId">
-                            <input class="route-radio" type="radio" formControlName="idRegion" [value]="c.id" />
-                            <div class="route-card">
-                                <div class="route-left">
-                                    <div class="route-icon"><i class="fas fa-route"></i></div>
-                                    <div class="route-text">
-                                        <div class="route-title">{{ c.nombre }}</div>
-                                        <div class="route-meta">ID: {{ c.id }}</div>
-                                    </div>
-                                </div>
-                                <div class="route-right">
-                                    <span class="route-pill">Ruta</span>
-                                    <i class="fas fa-check route-check" aria-hidden="true"></i>
-                                </div>
-                            </div>
-                        </label>
-
-                        <div class="routes-empty" *ngIf="filteredRutas && filteredRutas.length === 0">
-                            <i class="far fa-folder-open"></i>
-                            <span>No hay rutas para mostrar</span>
-                        </div>
+                    <div class="route-client">
+                      Cliente: {{ c.nombreCompletoCliente }}
                     </div>
+                    <div class="route-meta">ID: {{ c.id }}</div>
+                  </div>
                 </div>
+                <div class="route-right">
+                  <span class="route-pill">Ruta</span>
+                  <i class="fas fa-check route-check" aria-hidden="true"></i>
+                </div>
+              </div>
+            </label>
+            <div class="routes-empty" *ngIf="filteredRutas && filteredRutas.length === 0">
+              <i class="far fa-folder-open"></i>
+              <span>No hay rutas para mostrar</span>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div class="form-actions mt-4">
-                <!-- <button type="submit" class="submit">{{submitButton}}</button> -->
-                <button type="button" class="cancel" (click)="regresarRuta()">Cancelar</button>
-            </div>
-        </form>
-    </div>
+      <div class="form-actions mt-4">
+        <!-- <button type="submit" class="submit">{{submitButton}}</button> -->
+        <button type="button" class="cancel" (click)="regresarRuta()">Cancelar</button>
+      </div>
+    </form>
+  </div>
 </ng-template>
 
 <ng-template #exlargeModalForm let-modal>
@@ -128,66 +127,37 @@
       <div class="card-body" style="padding: 20px; background-color: #002136;">
         <form [formGroup]="tarifaForm" class="cliente-form">
           <div class="row">
-                        <div class="col-12 col-sm-6 col-md-4 mt-3">
-  <label>Tipo Tarifa</label>
-<dx-select-box class="tm-select w-100" formControlName="tipoTarifa" [dataSource]="listaTipoTarifa"
-              displayExpr="nombre" valueExpr="id" [searchEnabled]="true" [showClearButton]="true"
-              [noDataText]="'Sin registros'" placeholder="Selecciona un tipo de tarifa">
-            </dx-select-box>
-</div>
+            <div class="col-12 col-sm-6 col-md-4 mt-3">
+              <label>Tipo Tarifa</label>
+              <dx-select-box class="tm-select w-100" formControlName="tipoTarifa" [dataSource]="listaTipoTarifa"
+                displayExpr="nombre" valueExpr="id" [searchEnabled]="true" [showClearButton]="true"
+                [noDataText]="'Sin registros'" placeholder="Selecciona un tipo de tarifa">
+              </dx-select-box>
+            </div>
             <div class="col-12 col-sm-6 col-md-4 mt-3">
               <label>Tarifa Base</label>
-              <input
-                type="text"
-                class="form-control"
-                formControlName="tarifaBase"
-                placeholder="100.00"
-                inputmode="decimal"
-                (focus)="onTarifaFocus()"
-                (blur)="onTarifaBlur()"
-                (keypress)="allowDecimal($event)"
-              />
+              <input type="text" class="form-control" formControlName="tarifaBase" placeholder="100.00"
+                inputmode="decimal" (focus)="onTarifaFocus()" (blur)="onTarifaBlur()"
+                (keypress)="allowDecimal($event)" />
             </div>
 
             <div class="col-12 col-sm-6 col-md-4 mt-3">
               <label>Distancia Base Km</label>
-              <input
-                type="text"
-                class="form-control"
-                formControlName="distanciaBaseKm"
-                placeholder="120.5"
-                (focus)="onDistanciaFocus()"
-                (blur)="onDistanciaBlur()"
-                (keypress)="allowDecimal($event)"
-              />
+              <input type="text" class="form-control" formControlName="distanciaBaseKm" placeholder="120.5"
+                (focus)="onDistanciaFocus()" (blur)="onDistanciaBlur()" (keypress)="allowDecimal($event)" />
             </div>
 
             <div class="col-12 col-sm-6 col-md-4 mt-3">
               <label>Incremento Por Metros</label>
-              <input
-                type="text"
-                class="form-control"
-                formControlName="incrementoCadaMetros"
-                placeholder="10.25"
-                inputmode="decimal"
-                (focus)="onIncrementoFocus()"
-                (blur)="onIncrementoBlur()"
-                (keypress)="allowDecimal($event)"
-              />
+              <input type="text" class="form-control" formControlName="incrementoCadaMetros" placeholder="10.25"
+                inputmode="decimal" (focus)="onIncrementoFocus()" (blur)="onIncrementoBlur()"
+                (keypress)="allowDecimal($event)" />
             </div>
 
             <div class="col-12 col-sm-6 col-md-4 mt-3">
               <label>Costo Adicional</label>
-              <input
-                type="text"
-                class="form-control"
-                formControlName="costoAdicional"
-                placeholder="50.00"
-                inputmode="decimal"
-                (focus)="onCostoFocus()"
-                (blur)="onCostoBlur()"
-                (keypress)="allowDecimal($event)"
-              />
+              <input type="text" class="form-control" formControlName="costoAdicional" placeholder="50.00"
+                inputmode="decimal" (focus)="onCostoFocus()" (blur)="onCostoBlur()" (keypress)="allowDecimal($event)" />
             </div>
           </div>
 

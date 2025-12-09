@@ -35,7 +35,7 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
     private dispService: DispositivosService,
     private moneService: MonederosServices,
     private zone: NgZone
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.obtenerDispositivos();
@@ -60,9 +60,9 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
         null,
         [Validators.required, this.montoValidoValidator.bind(this)],
       ],
-      latitud: [null],
-      longitud: [null],
-      fechaHora: [null, Validators.required],
+      latitudFinal: [null],
+      longitudFinal: [null],
+      fechaHoraFinal: [null, Validators.required],
       numeroSerieMonedero: ['', Validators.required],
       numeroSerieDispositivo: [null],
     });
@@ -97,15 +97,23 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
 
   toIsoZulu(localStr: string | null): string | null {
     if (!localStr) return null;
-    return new Date(localStr).toISOString().replace(/\.\d{3}Z$/, 'Z');
+    const value = localStr.toString().trim();
+    if (!value) return null;
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) {
+      return `${value}:00Z`;
+    }
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(value)) {
+      return `${value}Z`;
+    }
+    return value;
   }
 
   submit() {
     this.submitButton = 'Cargando...';
     this.loading = true;
-    if (!this.transaccionForm.get('fechaHora')?.value) {
+    if (!this.transaccionForm.get('fechaHoraFinal')?.value) {
       const nowLocal = this.toDatetimeLocal(new Date().toISOString());
-      this.transaccionForm.patchValue({ fechaHora: nowLocal });
+      this.transaccionForm.patchValue({ fechaHoraFinal: nowLocal });
     }
     this.agregar();
   }
@@ -130,147 +138,147 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
     });
   }
 
-agregar() {
-  this.submitButton = 'Cargando...';
-  this.loading = true;
+  agregar() {
+    this.submitButton = 'Cargando...';
+    this.loading = true;
 
-  const etiquetas: Record<string, string> = {
-    tipoTransaccion: 'Tipo de Transacción',
-    monto: 'Monto',
-    fechaHora: 'Fecha y Hora',
-    numeroSerieMonedero: 'N° de Serie de Monedero',
-  };
+    const etiquetas: Record<string, string> = {
+      tipoTransaccion: 'Tipo de Transacción',
+      monto: 'Monto',
+      fechaHoraFinal: 'Fecha y Hora',
+      numeroSerieMonedero: 'N° de Serie de Monedero',
+    };
 
-  if (this.transaccionForm.invalid) {
-    this.submitButton = 'Guardar';
-    this.loading = false;
+    if (this.transaccionForm.invalid) {
+      this.submitButton = 'Guardar';
+      this.loading = false;
 
-    const camposFaltantes: string[] = [];
-    Object.keys(this.transaccionForm.controls).forEach((key) => {
-      const control = this.transaccionForm.get(key);
-      if (control?.errors?.['required']) camposFaltantes.push(etiquetas[key] || key);
-      if (key === 'monto' && control?.errors?.['montoInvalido']) camposFaltantes.push('Monto (formato inválido)');
-    });
+      const camposFaltantes: string[] = [];
+      Object.keys(this.transaccionForm.controls).forEach((key) => {
+        const control = this.transaccionForm.get(key);
+        if (control?.errors?.['required']) camposFaltantes.push(etiquetas[key] || key);
+        if (key === 'monto' && control?.errors?.['montoInvalido']) camposFaltantes.push('Monto (formato inválido)');
+      });
 
-    const lista = camposFaltantes.map((campo, i) => `
+      const lista = camposFaltantes.map((campo, i) => `
       <div style="padding:8px 12px;border-left:4px solid #d9534f;background:#caa8a8;text-align:center;margin-bottom:8px;border-radius:4px;">
         <strong style="color:#b02a37;">${i + 1}. ${campo}</strong>
       </div>
     `).join('');
 
-    Swal.fire({
-      title: '¡Faltan campos obligatorios!',
-      background: '#002136',
-      html: `
+      Swal.fire({
+        title: '¡Faltan campos obligatorios!',
+        background: '#002136',
+        html: `
         <p style="text-align:center;font-size:15px;margin-bottom:16px;color:white">
           Los siguientes <strong>campos</strong> están vacíos o con formato inválido.<br>
           Por favor complétalos antes de continuar:
         </p>
         <div style="max-height:350px;overflow-y:auto;">${lista}</div>
       `,
-      icon: 'error',
-      confirmButtonText: 'Entendido',
-      customClass: { popup: 'swal2-padding swal2-border' },
-    });
-    return;
-  }
-
-  const raw = this.transaccionForm.value;
-  const tipo = (raw?.tipoTransaccion || '').toString().toUpperCase();
-
-  const idTipoTransaccion =
-    tipo === 'RECARGA' ? 1 :
-    tipo === 'DEBITO'  ? 2 : null;
-
-  if (idTipoTransaccion == null) {
-    this.submitButton = 'Guardar';
-    this.loading = false;
-    Swal.fire({
-      title: '¡Ops!',
-      background: '#002136',
-      text: 'Tipo de transacción no válido. Elige RECARGA o DEBITO.',
-      icon: 'error',
-      confirmButtonColor: '#3085d6',
-      confirmButtonText: 'Confirmar',
-      allowOutsideClick: false
-    });
-    return;
-  }
-
-  const payload = {
-    idTipoTransaccion,
-    monto: (() => {
-      const v = raw?.monto;
-      if (v === '' || v == null) return null;
-      const cleaned = String(v).replace(/[^0-9.,-]/g, '').replace(',', '.');
-      const n = parseFloat(cleaned);
-      return Number.isFinite(n) ? +n.toFixed(2) : null;
-    })(),
-    latitud: this.toNumber6(raw?.latitud),
-    longitud: this.toNumber6(raw?.longitud),
-    fechaHora: this.toIsoZulu(raw?.fechaHora || null),
-    numeroSerieMonedero: raw?.numeroSerieMonedero || null,
-    numeroSerieDispositivo: raw?.numeroSerieDispositivo || null
-  };
-
-  const request$ = idTipoTransaccion === 1
-    ? this.transaccionService.recargaTransaccion(payload)
-    : this.transaccionService.debitoTransaccion(payload);
-
-  request$.subscribe(
-    (resp: any) => {
-      this.submitButton = 'Guardar';
-      this.loading = false;
-
-      const contenido =
-        typeof resp === 'string'
-          ? resp
-          : (resp?.message ?? resp?.mensaje ?? resp?.detail ?? resp?.error ?? JSON.stringify(resp));
-
-      Swal.fire({
-        title: '¡Operación Exitosa!',
-          background: '#002136',
-          text: 'Se agregó una nueva transacción de manera exitosa.',
-        icon: 'success',
-        confirmButtonColor: '#3085d6',
-        confirmButtonText: 'Confirmar',
+        icon: 'error',
+        confirmButtonText: 'Entendido',
+        customClass: { popup: 'swal2-padding swal2-border' },
       });
+      return;
+    }
 
-      this.regresar();
-    },
-    (error: any) => {
+    const raw = this.transaccionForm.value;
+    const tipo = (raw?.tipoTransaccion || '').toString().toUpperCase();
+
+    const idTipoTransaccion =
+      tipo === 'RECARGA' ? 1 :
+        tipo === 'DEBITO' ? 2 : null;
+
+    if (idTipoTransaccion == null) {
       this.submitButton = 'Guardar';
       this.loading = false;
-
-      let msg = '';
-      const e = error;
-
-      if (typeof e?.error === 'string' && e.error.trim()) {
-        msg = e.error;
-      } else if (e?.error && typeof e.error === 'object') {
-        msg = e.error.message || e.error.mensaje || e.error.detail || e.error.error || JSON.stringify(e.error);
-      } else if (typeof e === 'string' && e.trim()) {
-        msg = e;
-      } else if (e?.message) {
-        msg = e.message;
-      } else if (e?.status) {
-        msg = `HTTP ${e.status}${e.statusText ? ' - ' + e.statusText : ''}`;
-      } else {
-        msg = 'Error desconocido';
-      }
-
       Swal.fire({
         title: '¡Ops!',
         background: '#002136',
-        text: String(msg),
+        text: 'Tipo de transacción no válido. Elige RECARGA o DEBITO.',
         icon: 'error',
         confirmButtonColor: '#3085d6',
         confirmButtonText: 'Confirmar',
         allowOutsideClick: false
       });
+      return;
     }
-  );
-}
+
+    const payload = {
+      idTipoTransaccion,
+      monto: (() => {
+        const v = raw?.monto;
+        if (v === '' || v == null) return null;
+        const cleaned = String(v).replace(/[^0-9.,-]/g, '').replace(',', '.');
+        const n = parseFloat(cleaned);
+        return Number.isFinite(n) ? +n.toFixed(2) : null;
+      })(),
+      latitudFinal: this.toNumber6(raw?.latitudFinal),
+      longitudFinal: this.toNumber6(raw?.longitudFinal),
+      fechaHoraFinal: this.toIsoZulu(raw?.fechaHoraFinal || null),
+      numeroSerieMonedero: raw?.numeroSerieMonedero || null,
+      numeroSerieDispositivo: raw?.numeroSerieDispositivo || null
+    };
+
+    const request$ = idTipoTransaccion === 1
+      ? this.transaccionService.recargaTransaccion(payload)
+      : this.transaccionService.debitoTransaccion(payload);
+
+    request$.subscribe(
+      (resp: any) => {
+        this.submitButton = 'Guardar';
+        this.loading = false;
+
+        const contenido =
+          typeof resp === 'string'
+            ? resp
+            : (resp?.message ?? resp?.mensaje ?? resp?.detail ?? resp?.error ?? JSON.stringify(resp));
+
+        Swal.fire({
+          title: '¡Operación Exitosa!',
+          background: '#002136',
+          text: 'Se agregó una nueva transacción de manera exitosa.',
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+
+        this.regresar();
+      },
+      (error: any) => {
+        this.submitButton = 'Guardar';
+        this.loading = false;
+
+        let msg = '';
+        const e = error;
+
+        if (typeof e?.error === 'string' && e.error.trim()) {
+          msg = e.error;
+        } else if (e?.error && typeof e.error === 'object') {
+          msg = e.error.message || e.error.mensaje || e.error.detail || e.error.error || JSON.stringify(e.error);
+        } else if (typeof e === 'string' && e.trim()) {
+          msg = e;
+        } else if (e?.message) {
+          msg = e.message;
+        } else if (e?.status) {
+          msg = `HTTP ${e.status}${e.statusText ? ' - ' + e.statusText : ''}`;
+        } else {
+          msg = 'Error desconocido';
+        }
+
+        Swal.fire({
+          title: '¡Ops!',
+          background: '#002136',
+          text: String(msg),
+          icon: 'error',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+          allowOutsideClick: false
+        });
+      }
+    );
+  }
 
 
 
@@ -388,7 +396,7 @@ agregar() {
         const lng = e.latLng.lng();
         this.lat = lat;
         this.lng = lng;
-        this.transaccionForm.patchValue({ latitud: lat, longitud: lng });
+        this.transaccionForm.patchValue({ latitudFinal: lat, longitudFinal: lng });
         this.placeMarker(e.latLng);
         this.openInfoAt(e.latLng);
       });
@@ -403,8 +411,8 @@ agregar() {
           status === 'OK' && results && results[0]?.formatted_address
             ? results[0].formatted_address
             : `Lat: ${latLng.lat().toFixed(6)}, Lng: ${latLng
-                .lng()
-                .toFixed(6)}`;
+              .lng()
+              .toFixed(6)}`;
 
         const html = `
       <div style="font-family: 'Segoe UI', sans-serif; border-radius: 12px; max-width: 250px; word-wrap: break-word; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; line-height: 1.2;">

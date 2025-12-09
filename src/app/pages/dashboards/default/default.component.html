@@ -61,15 +61,17 @@
   <div class="row g-3 mt-1">
     <div class="col-12 col-lg-6">
       <div class="card chart-card">
-        <div class="card-title">{{ renombrar('Ingresos por hora (hoy)') }}</div>
+        <div class="card-title">{{ renombrar(tituloIngresos) }}</div>
         <dx-chart [dataSource]="dsIngresosHora" [palette]="palette" [size]="{ height: 320 }">
           <dxo-legend position="bottom"></dxo-legend>
           <dxo-argument-axis argumentType="string"></dxo-argument-axis>
           <dxo-tooltip [enabled]="true" [customizeTooltip]="customizeIngresosTooltip"></dxo-tooltip>
           <dxi-value-axis name="money">
-            <dxo-label [format]="{ type: 'currency', precision: 2 }"></dxo-label>
+            <dxo-label [format]="{ type: 'currency', currency: 'MXN', precision: 2 }"></dxo-label>
           </dxi-value-axis>
-          <dxi-value-axis name="ticket"></dxi-value-axis>
+          <dxi-value-axis name="ticket" position="right">
+            <dxo-label [format]="{ type: 'currency', currency: 'MXN', precision: 2 }"></dxo-label>
+          </dxi-value-axis>
           <dxi-series type="bar" name="Ingresos" argumentField="hora" valueField="ingreso" axis="money"></dxi-series>
           <dxi-series type="line" name="Ticket promedio" argumentField="hora" valueField="ticket" axis="ticket"></dxi-series>
         </dx-chart>
@@ -98,13 +100,13 @@
         <dx-chart [dataSource]="dsBrecha" [palette]="palette" [size]="{ height: 320 }">
           <dxo-legend position="bottom"></dxo-legend>
           <dxo-argument-axis argumentType="string"></dxo-argument-axis>
-          <dxi-series type="line" name="Ascensos" argumentField="hora" valueField="ascensos"></dxi-series>
-          <dxi-series type="line" name="Boletos" argumentField="hora" valueField="boletos"></dxi-series>
+          <dxi-series type="line" name="Ascensos" argumentField="hora" valueField="ascensos" color="#19b394"></dxi-series>
+          <dxi-series type="line" name="Boletos" argumentField="hora" valueField="boletos" color="#5aa6ff"></dxi-series>
         </dx-chart>
       </div>
     </div>
 
-    <div class="col-12 col-lg-3">
+    <!-- <div class="col-12 col-lg-3">
       <div class="card chart-card">
         <div class="card-title">{{ renombrar('Medios de pago') }}</div>
         <dx-pie-chart [dataSource]="dsMediosPago" [palette]="palette" [size]="{ height: 320 }">
@@ -112,7 +114,7 @@
           <dxo-legend position="bottom"></dxo-legend>
         </dx-pie-chart>
       </div>
-    </div>
+    </div> -->
 
     <div class="col-12 col-lg-3">
       <div class="card chart-card">
@@ -132,7 +134,7 @@
         <div class="card-title">{{ renombrar('Top 5 rutas por ingreso') }}</div>
         <dx-data-grid class="dx-grid-dark" [dataSource]="topRutas" [columnAutoWidth]="true" [rowAlternationEnabled]="true" [showBorders]="false">
           <dxi-column dataField="nombre" [caption]="renombrar('Ruta')"></dxi-column>
-          <dxi-column dataField="ingresos" [caption]="renombrar('Ingresos')" dataType="number" format="currency" alignment="right"></dxi-column>
+          <dxi-column dataField="ingresos" [caption]="renombrar('Ingresos')" dataType="number" [format]="{ type: 'currency', currency: 'MXN', precision: 2 }" alignment="right"></dxi-column>
           <dxi-column dataField="viajes" [caption]="renombrar('Viajes')" dataType="number" alignment="center"></dxi-column>
         </dx-data-grid>
       </div>

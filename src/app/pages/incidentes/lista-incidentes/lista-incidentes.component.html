@@ -12,7 +12,7 @@
                     <p class="u-banner__subtitle">
                         Consulta y administra los incidentes y accidentes de tus vehículos.
                     </p>
-                    <div *appHasPermission="'6'">
+                    <div *appHasPermission="'115'">
                         <button class="u-btn u-btn--primary" (click)="agregarIncidente()">
                             <i class="fas fa-plus"></i>
                             <span>Agregar Incidentes</span>
@@ -46,7 +46,7 @@
                                     <img [src]="d.data.Logotipo" alt="Logo" width="50">
                                 </ng-template>
                             </dxi-column> -->
-                            <dxi-column *appHasPermission="['7', '8']" caption="Acciones" cellTemplate="Acciones"
+                            <dxi-column *appHasPermission="['116', '117']" caption="Acciones" cellTemplate="Acciones"
                                 alignment="center" [width]="200"></dxi-column>
                             <dxi-column dataField="imagenVehiculo" caption="Imagen" cellTemplate="imagen" [width]="150"
                                 alignment="center">
@@ -101,13 +101,13 @@
                                 </div>
                             </dxi-column>
                             <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
-                                <div *appHasPermission="'7'">
+                                <div *appHasPermission="'116'">
                                     <button id="actualizarButton" class="btnAcciones"
                                         (click)="actualizarIncidente(row.data.id)">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </div>
-                                <div *appHasPermission="'8'">
+                                <div *appHasPermission="'117'">
                                     <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones"
                                         (click)="activar(row.data)">
                                         <i class="fa fa-arrow-up"></i>

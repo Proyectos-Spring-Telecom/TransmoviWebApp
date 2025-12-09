@@ -46,7 +46,7 @@ export const MENU: MenuItem[] = [
                 id: 15,
                 label: 'Tipo Pasajero',
                 link: '/tipo-pasajero',
-                permiso: Permiso.Listado_Roles
+                permiso: Permiso.Listado_Monederos
             },
             {
                 id: 8,
@@ -203,32 +203,36 @@ export const MENU: MenuItem[] = [
     {
         id: 20,
         label: 'Gestión Vehícular',
-        permiso: Permiso.Consultar_Mantenimiento,
+        permiso: Permiso.Consultar_Modulos_Mantenimiento,
         icon: 'uil-wrench',
         subItems: [
             {
                 id: 16,
                 label: 'Mantenimiento',
                 icon: 'uil-apps',
-                link: '/mantenimientos'
+                link: '/mantenimientos',
+                permiso: Permiso.Consultar_Mantenimientos
             },
             {
                 id: 16,
                 label: 'Verificaciones',
                 icon: 'uil-apps',
-                link: '/verificaciones'
+                link: '/verificaciones',
+                permiso: Permiso.Consultar_Verificacion
             },
             {
                 id: 16,
                 label: 'Incidentes',
                 icon: 'uil-apps',
-                link: '/incidentes'
+                link: '/incidentes',
+                permiso: Permiso.Consultar_Siniestro
             },
             {
                 id: 16,
                 label: 'Talleres',
                 icon: 'uil-apps',
-                link: '/talleres'
+                link: '/talleres',
+                permiso: Permiso.Consultar_Taller
             },
         ],
     },

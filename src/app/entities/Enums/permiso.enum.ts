@@ -178,7 +178,36 @@ export enum Permiso {
   Consultar_Reportes = "104",
   /* #endregion */
 
-  /**#region mantenimiento */
-  Consultar_Mantenimiento = "105",
+  /**#region Vehicular */
+  Consultar_Modulos_Mantenimiento = "105",
+  /** #endregion */
+
+  /**#region Mantenimiento */
+  Consultar_Mantenimientos = "106",
+  Agregar_Mantenimiento = "107",
+  Actualizar_Mantenimiento = "108",
+  CambioEstatus_Mantenimiento = "109",
+  /** #endregion */
+
+  /**#region Verificacion */
+  Consultar_Verificacion = "110",
+  Agregar_Verificacion = "111",
+  Actualizar_Verificacion = "112",
+  CambioEstatus_Verificacion = "113",
+  /** #endregion */
+
+  /**#region Siniestro */
+  Consultar_Siniestro = "114",
+  Agregar_Siniestro = "115",
+  Actualizar_Siniestro = "116",
+  CambioEstatus_Siniestro = "117",
+  /** #endregion */
+
+  /**#region Taller */
+  Consultar_Taller = "118",
+  Agregar_Taller = "119",
+  Actualizar_Taller = "120",
+  CambioEstatus_Taller = "121",
   /** #endregion */
 }
+

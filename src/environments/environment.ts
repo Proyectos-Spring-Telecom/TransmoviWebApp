@@ -9,7 +9,7 @@ export const environment = {
   //API  Desarrollo
   // API_SECURITY: 'https://transmovi.mx/apidev',
   
-  //API Publicado
+  //API Productivo
   API_SECURITY: 'https://transmovi.mx/api',
 };
 
