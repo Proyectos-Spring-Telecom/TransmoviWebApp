@@ -560,7 +560,7 @@ export class ListaMonederosComponent implements OnInit {
       longitudFinal: null,
       fechaHoraFinal: formValue?.fechaHoraFinal || fechaActual,
       numeroSerieMonedero: formValue?.numeroSerieMonedero || serie,
-      numeroSerieDispositivo: null,
+      numeroSerieDispositivo: '00001',
     };
 
     this.loading = true;
