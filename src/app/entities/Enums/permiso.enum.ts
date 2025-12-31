@@ -174,10 +174,6 @@ export enum Permiso {
   Consultar_Monitoreo = "101",
   /* #endregion */
 
-  /* #region Reportes */
-  Consultar_Reportes = "104",
-  /* #endregion */
-
   /**#region Vehicular */
   Consultar_Modulos_Mantenimiento = "105",
   /** #endregion */
@@ -209,5 +205,23 @@ export enum Permiso {
   Actualizar_Taller = "120",
   CambioEstatus_Taller = "121",
   /** #endregion */
+
+  /**#region Desplegables */
+  Desplegable_Administracion = "124",
+  Desplegable_Centro_Pagos = "125",
+  Desplegable_Gestion_Viajes = "126",
+  Desplegable_Vehicular = "127",
+  /** #endregion */
+
+  /**#region Reportes */
+  Consultar_Reportes = "104",
+  Consultar_Historial_Posiciones = "128",
+  Consultar_Recaudacion_Dia = "129",
+  Consultar_Recaudacion_Operador = "130",
+  Consultar_Recaudacion_Vehiculo = "131",
+  Consultar_Recaudacion_Dispositivo = "132",
+  Consultar_Recaudacion_Detallada = "133",
+  /** #endregion */
+
 }
 

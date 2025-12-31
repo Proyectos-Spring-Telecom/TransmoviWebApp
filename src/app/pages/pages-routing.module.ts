@@ -50,6 +50,7 @@ const routes: Routes = [
   { path: 'verificaciones', loadChildren: () => import('./verificaciones/verificaciones.module').then(m => m.VerificacionesModule)},
   { path: 'incidentes', loadChildren: () => import('./incidentes/incidentes.module').then(m => m.IncidentesModule)},
   { path: 'posiciones', loadChildren: () => import('./posiciones/posiciones.module').then(m => m.PosicionesModule)},
+  { path: 'viajes', loadChildren: () => import('./viajes/viajes.module').then(m => m.ViajesModule)},
 ];
 
 @NgModule({

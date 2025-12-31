@@ -19,7 +19,7 @@ export const MENU: MenuItem[] = [
         id: 20,
         label: 'Administración',
         icon: 'uil-store-alt',
-        permiso: Permiso.Listado_Modulos,
+        permiso: Permiso.Desplegable_Administracion,
         subItems: [
             {
                 id: 16,
@@ -122,7 +122,7 @@ export const MENU: MenuItem[] = [
         id: 20,
         label: 'Centro de Pagos',
         icon: 'uil-refresh',
-        permiso: Permiso.Listado_Transacciones,
+        permiso: Permiso.Desplegable_Centro_Pagos,
         subItems: [
             {
                 id: 16,
@@ -151,7 +151,7 @@ export const MENU: MenuItem[] = [
         id: 15,
         label: 'Gestión de Viajes',
         icon: 'uil-arrows-right-down',
-        permiso: Permiso.Listado_Rutas,
+        permiso: Permiso.Desplegable_Gestion_Viajes,
         subItems: [
             {
                 id: 9,
@@ -176,6 +176,12 @@ export const MENU: MenuItem[] = [
                 label: 'Tarifas',
                 link: '/tarifas',
                 permiso: Permiso.Listado_Tarifas
+            },
+            {
+                id: 9,
+                label: 'Viajes',
+                link: '/viajes',
+                permiso: Permiso.Listado_Viajes
             },
         ]
     },
@@ -203,7 +209,7 @@ export const MENU: MenuItem[] = [
     {
         id: 20,
         label: 'Gestión Vehícular',
-        permiso: Permiso.Consultar_Modulos_Mantenimiento,
+        permiso: Permiso.Desplegable_Vehicular,
         icon: 'uil-wrench',
         subItems: [
             {
@@ -253,13 +259,13 @@ export const MENU: MenuItem[] = [
         label: 'Historial de Posiciones',
         icon: 'uil-history',
         link: '/posiciones',
-        permiso: Permiso.Consultar_Monitoreo
+        permiso: Permiso.Consultar_Historial_Posiciones
     },
     {
         id: 116,
         label: 'Recaudación Día',
         icon: 'uil-calendar-alt',
-        permiso: Permiso.Consultar_Reportes,
+        permiso: Permiso.Consultar_Recaudacion_Dia,
         link: '/reportes/recaudacion-diaria-ruta',
     },
     {
@@ -267,28 +273,28 @@ export const MENU: MenuItem[] = [
         label: 'Recaudación Operador',
         icon: 'uil-user-check',
         link: '/reportes/recaudacion-operador',
-        permiso: Permiso.Consultar_Reportes,
+        permiso: Permiso.Consultar_Recaudacion_Operador,
     },
     {
         id: 116,
         label: 'Recaudación Vehículo',
         icon: 'uil-car-sideview',
         link: '/reportes/recaudacion-vehiculo',
-        permiso: Permiso.Consultar_Reportes,
+        permiso: Permiso.Consultar_Recaudacion_Vehiculo,
     },
     {
         id: 116,
         label: 'Recaudación Disp/Inst.',
         icon: 'uil-plug',
         link: '/reportes/recaudacion-dispositivoInstalacion',
-        permiso: Permiso.Consultar_Reportes,
+        permiso: Permiso.Consultar_Recaudacion_Dispositivo,
     },
     {
         id: 116,
         label: 'Recaudación Detalladas',
         icon: 'uil-list-ul',
         link: '/reportes/recaudacion-detalladas',
-        permiso: Permiso.Consultar_Reportes,
+        permiso: Permiso.Consultar_Recaudacion_Detallada,
     },
 
     // {

@@ -1,0 +1,185 @@
+<div [@fadeInUp] class="container-fluid">
+    <div class="card">
+        <div class="card-body">
+            <div class="u-banner">
+                <div class="u-banner__icon">
+                    <div class="u-icon">
+                        <i class="fa fa-location-arrow" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="u-banner__body">
+                    <h2 class="u-banner__title">Gestión de Viajes</h2>
+                    <p class="u-banner__subtitle">
+                        Consulta, busca y navega entre tus viajes registrados
+                    </p>
+                </div>
+            </div>
+            <!-- <form [formGroup]="filtrosForm">
+                <div class="filtros-body row gx-2 gy-1 mt-3 align-items-end">
+                    <div class="col-12 col-md-4 col-xl-2">
+                        <label>Fecha Inicio</label>
+                        <dx-date-box type="date" displayFormat="dd/MM/yyyy" stylingMode="filled"
+                            formControlName="fechaInicio" [width]="'100%'"
+                            (onValueChanged)="onFechaInicioChange($event.value)">
+                        </dx-date-box>
+
+                    </div>
+
+                    <div class="col-12 col-md-4 col-xl-2">
+                        <label>Fecha Fin</label>
+                        <dx-date-box type="date" displayFormat="dd/MM/yyyy" stylingMode="filled"
+                            formControlName="fechaFin" [width]="'100%'"
+                            (onValueChanged)="onFechaFinChange($event.value)">
+                        </dx-date-box>
+
+                    </div>
+
+                    <div class="col-6 col-md-auto d-flex justify-content-start justify-content-md-end">
+                        <button class="btn-filtro aplicar" type="button" (click)="aplicarFiltros()">
+                            <i class="fa fa-search"></i> Buscar
+                        </button>
+                    </div>
+
+                    <div class="col-6 col-md-auto d-flex justify-content-start justify-content-md-end">
+                        <button class="btn-filtro limpiar" type="button" (click)="limpiarFiltros()">
+                            <i class="fas fa-rotate-left"></i> Limpiar
+                        </button>
+                    </div>
+
+                </div>
+            </form> -->
+
+
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <div class="table-responsive mb-4 col-12 col-lg-12">
+                        <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
+                            [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
+                            [rowAlternationEnabled]="'true'" [dataSource]="listaViajes" [keyExpr]="'Id'"
+                            [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
+                            [pager]="{ 
+                                showPageSizeSelector: true, 
+                                allowedPageSizes: [50], 
+                                showInfo: true,
+                                infoText: 'Página {0} de {1}', 
+                                visible: true 
+                            }" (onPageIndexChanged)=" onPageIndexChanged($event)"
+                            (onOptionChanged)="onGridOptionChanged($event)">
+                            <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
+                            <dxo-group-panel [emptyPanelText]="mensajeAgrupar" [visible]="true"></dxo-group-panel>
+                            <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
+                            <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
+                            <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
+
+                            <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center"
+                                [width]="100"></dxi-column>
+                            <dxi-column dataField="inicio" caption="Inicio de Viaje" dataType="datetime"
+                                alignment="center"></dxi-column>
+                            <dxi-column dataField="fin" caption="Fin de Viaje" alignment="center" cellTemplate="finTpl">
+                                <div *dxTemplate="let f of 'finTpl'">
+                                    <span *ngIf="f.data.fin; else enRuta">
+                                        {{ f.data.fin | date:'dd/MM/yyyy HH:mm a' }}
+                                    </span>
+                                    <ng-template #enRuta>
+                                        En ruta
+                                    </ng-template>
+                                </div>
+                            </dxi-column>
+
+                            <!-- <dxi-column dataField="estatus" caption="Estatus" dataType="number"
+                                alignment="center"></dxi-column> -->
+
+                            <dxi-column dataField="nombreCliente" caption="Cliente" dataType="string"
+                                alignment="center"></dxi-column>
+
+                            <dxi-column dataField="inicioTurno" caption="Inicio Turno" dataType="datetime"
+                                alignment="center"></dxi-column>
+
+                            <dxi-column dataField="numeroSerieDispositivo" caption="Serie Dispositivo" dataType="string"
+                                alignment="center"></dxi-column>
+                            <dxi-column dataField="numeroSerieBlueVox" caption="Serie BlueVox" dataType="string"
+                                alignment="center"></dxi-column>
+
+                            <dxi-column dataField="placaVehiculo" caption="Placa Vehículo" dataType="string"
+                                alignment="center"></dxi-column>
+
+                            <dxi-column dataField="nombreOperador" caption="Nombre Operador" dataType="string"
+                                alignment="center"></dxi-column>
+                            <dxi-column dataField="apellidoPaternoOperador" caption="Apellido Paterno Operador"
+                                dataType="string" alignment="center"></dxi-column>
+                            <dxi-column dataField="apellidoMaternoOperador" caption="Apellido Materno Operador"
+                                dataType="string" alignment="center"></dxi-column>
+
+                            <dxi-column dataField="nombreDerrotero" caption="Derrotero" dataType="string"
+                                alignment="center"></dxi-column>
+                            <dxi-column dataField="distanciaKmDerrotero" caption="Distancia" alignment="center"
+                                cellTemplate="distKm">
+                                <div *dxTemplate="let d of 'distKm'">
+                                    {{ d.data.distanciaKmDerrotero }} km
+                                </div>
+                            </dxi-column>
+
+
+                            <dxi-column dataField="nombreRuta" caption="Ruta" dataType="string"
+                                alignment="center"></dxi-column>
+
+                            <dxi-column dataField="nombreRegionInicio" caption="Región Inicio" dataType="string"
+                                alignment="center"></dxi-column>
+                            <dxi-column dataField="nombreRegionFin" caption="Región Fin" dataType="string"
+                                alignment="center"></dxi-column>
+
+
+                            <div *dxTemplate="let d of 'Acciones'" class="d-flex gap-3 justify-content-center">
+                                <div>
+                                    <button id="pinButtonBlue" class="btnAcciones"
+                                        (click)="centerModal(exlargeModal, d.data.id, null, null, undefined, undefined, undefined, d.data)">
+                                        <i class="fa fa-map-pin"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <dxo-export [enabled]="false" [allowExportSelectedData]="true"
+                                [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
+                            </dxo-export>
+                        </dx-data-grid>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
+    [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">
+</dx-load-panel>
+
+<div class="col-lg-6">
+    <ng-template #exlargeModal let-modal>
+        <div class="modal-content p-0" style="background-color:#002b47;">
+            <div class="modal-body">
+                <div class="card mb-3 shadow-sm">
+                    <div class="custom-card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-circle">
+                                <i class="fa fa-map-signs"></i>
+                            </div>
+                            <span class="ruta-titulo">Inicio y Fin de la Ruta</span>
+                        </div>
+                        <div class="header-deco"></div>
+                    </div>
+                </div>
+                <div *ngIf="showMap" class="map-container" style="border-radius:10px; overflow:hidden;">
+                    <div class="w-100" [style.height.px]="500" [id]="'map-' + selectedTransactionId"></div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 d-flex align-items-center justify-content-center">
+                <button type="button" class="btn btn-md w-25 waves-effect waves-light"
+                    style="background-color:#f46a6a; color:#fff; border-radius:5px;" (click)="modal.close()">
+                    <i class="fa fa-times"></i>&nbsp;Cerrar
+                </button>
+            </div>
+        </div>
+    </ng-template>
+</div>
