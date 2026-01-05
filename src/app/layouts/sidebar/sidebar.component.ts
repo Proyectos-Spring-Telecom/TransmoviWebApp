@@ -62,6 +62,12 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
       .map((p: any) => (typeof p === 'object' ? p.idPermiso : p).toString().trim());
   }
 
+  logout(e?: Event) {
+    e?.preventDefault();
+    this.authService.logout();
+    this.router.navigateByUrl('/account/login', { replaceUrl: true });
+  }
+
   ngAfterViewInit() {
     this.menu = new MetisMenu(this.sideMenu.nativeElement, {
       toggle: false

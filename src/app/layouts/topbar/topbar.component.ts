@@ -107,8 +107,11 @@ export class TopbarComponent implements OnInit {
     this.mobileMenuButtonClicked.emit();
   }
 
-  logout() {
-    this.router.navigate(['/account/login']);
+  logout(e?: Event) {
+    e?.preventDefault();
+    e?.stopPropagation();
+    this.authService.logout();
+    this.router.navigateByUrl('/account/login', { replaceUrl: true });
   }
 
   perfilUsuario(){
