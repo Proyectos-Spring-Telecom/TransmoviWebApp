@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { catchError, throwError } from 'rxjs';
+import { catchError, EMPTY } from 'rxjs';
 import { AuthenticationService } from '../../../core/services/auth.service';
 import { Credentials } from '../../../entities/Credentials';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -78,7 +78,9 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  onSubmit() {
+  onSubmit(e?: Event) {
+    e?.preventDefault();
+    e?.stopPropagation();
     this.submitted = true;
     if (this.loginForm.invalid || this.loading) return;
 
@@ -96,12 +98,12 @@ export class LoginComponent implements OnInit {
           background: '#002136',
           icon: 'error',
           title: '¡Ops!',
-          text: error.error,
+          text: error?.error,
           confirmButtonText: 'Entendido',
           allowOutsideClick: false,
           allowEscapeKey: false
         });
-        return throwError(() => '');
+        return EMPTY;
       })
     ).subscribe((result: any) => {
       setTimeout(() => {
@@ -153,7 +155,9 @@ export class LoginComponent implements OnInit {
     }, 0);
   }
 
-  onSendEmail() {
+  onSendEmail(e?: Event) {
+    e?.preventDefault();
+    e?.stopPropagation();
     if (this.emailForm.invalid || this.loading) return;
     this.loading = true;
 
@@ -221,7 +225,9 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  onVerify() {
+  onVerify(e?: Event) {
+    e?.preventDefault();
+    e?.stopPropagation();
     this.verifyForm.patchValue({ codigo: this.otp.join('') }, { emitEvent: false });
     this.verifyForm.markAllAsTouched();
     this.verifyForm.updateValueAndValidity();
