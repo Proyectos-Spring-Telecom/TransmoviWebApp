@@ -3,7 +3,7 @@
     <img src="./assets/images/arte/Logo_TransMovi.png" alt="Logo Transmovi" class="logo-header" />
     <h2>Iniciar Sesión</h2>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit($event)" novalidate>
       <div class="input-group">
         <label for="userName">Correo Electrónico:</label>
         <input type="email" formControlName="userName" id="userName" placeholder="Email" autocomplete="username"
@@ -52,7 +52,7 @@
     <h2>Verificar Cuenta</h2>
     <p style="text-align:center;margin-top:-8px;">Ingresa tu correo para reenviar el código de verificación.</p>
 
-    <form [formGroup]="emailForm" (ngSubmit)="onSendEmail()">
+    <form [formGroup]="emailForm" (ngSubmit)="onSendEmail($event)" novalidate>
       <div class="input-group">
         <label for="verifyEmail">Correo Electrónico</label>
         <input class="otp-email" id="verifyEmail" type="email" formControlName="userName"
@@ -83,7 +83,7 @@
       Ingresa el código de <strong>4 dígitos</strong> que enviamos a tu correo.
     </p>
 
-    <form [formGroup]="verifyForm" (ngSubmit)="onVerify()" autocomplete="one-time-code">
+    <form [formGroup]="verifyForm" (ngSubmit)="onVerify($event)" autocomplete="one-time-code" novalidate>
       <div class="otp-inputs" style="display:flex; gap:12px; justify-content:center; margin:16px 0;">
         <input id="otp-box-0" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="Dígito 1"
           (input)="onOtpInput($event,0)" (keydown)="onOtpKeydown($event,0)" />

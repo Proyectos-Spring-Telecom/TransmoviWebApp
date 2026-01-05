@@ -117,8 +117,7 @@
       </li>
       <li class="menu-title">{{ 'MENUITEMS.PRUEBACOMPONENTCERRAR.TEXT' | translate }}</li>
       <li>
-        <a [routerLink]="'/account/login'" class="side-nav-link-ref" routerLinkActive="active-link"
-          [routerLinkActiveOptions]="{ exact: true }">
+        <a href="" (click)="logout($event)" class="side-nav-link-ref">
           <i class="bx uil-arrow-to-right"></i>
           <span>{{ 'MENUITEMS.PRUEBACUATROSESION.TEXT' | translate }}</span>
         </a>
