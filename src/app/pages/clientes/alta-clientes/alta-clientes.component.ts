@@ -507,7 +507,7 @@ export class AltaClientesComponent implements OnInit {
   private readonly MAX_LOGO_MB = 5;
 
   private readonly DEFAULT_LOGO_URL =
-    'https://transmovi.s3.us-east-2.amazonaws.com/logos/Logo_TransMovi_2x1-removebg-preview.png';
+    'https://transmovi.s3.us-east-2.amazonaws.com/logos/Logo_QMT_final.png';
 
   @ViewChild('logoFileInput') logoFileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('csfFileInput') csfFileInput!: ElementRef<HTMLInputElement>;
