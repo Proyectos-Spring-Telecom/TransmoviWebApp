@@ -73,7 +73,7 @@ export const MENU: MenuItem[] = [
     },
     {
         id: 1,
-        label: 'Operación',
+        label: 'Configuración',
         isTitle: true
     },
     {
@@ -117,6 +117,17 @@ export const MENU: MenuItem[] = [
         icon: 'uil-user-circle',
         link: '/pasajeros',
         permiso: Permiso.Listado_Pasajeros
+    },
+    {
+        id: 13,
+        label: 'Perfil',
+        icon: 'uil-user-circle',
+        link: '/contacts/profile',
+    },
+    {
+        id: 1,
+        label: 'Operación',
+        isTitle: true
     },
     {
         id: 20,
@@ -241,12 +252,6 @@ export const MENU: MenuItem[] = [
                 permiso: Permiso.Consultar_Taller
             },
         ],
-    },
-    {
-        id: 13,
-        label: 'Perfil',
-        icon: 'uil-user-circle',
-        link: '/contacts/profile',
     },
     {
         id: 115,
