@@ -76,7 +76,7 @@
               <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="200"></dxi-column>
               <dxi-column dataField="fechaHoraFinal" caption="Fecha" alignment="center" cellTemplate="fechFinal">
                 <div *dxTemplate="let a of 'fechFinal'">
-                  {{ a.data.fechaHoraFinal | date:'dd/MM/yyyy HH:mm a' : '+0000' }}
+                  {{ a.data.fechaHoraFinal | date:'dd/MM/yyyy HH:mm':'UTC' }}
                 </div>
               </dxi-column>
 
