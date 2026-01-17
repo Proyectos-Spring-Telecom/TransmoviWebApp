@@ -16,66 +16,109 @@
         <div class="row mt-3">
           <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
             <label for="idCliente" class="form-label">Cliente</label>
-            <dx-select-box
-              id="idCliente"
-              class="tm-select w-100"
-              formControlName="idCliente"
-              [dataSource]="listaClientes"
-              [displayExpr]="displayCliente"
-              valueExpr="id"
-              [disabled]="!isAdmin"
-              [searchEnabled]="true"
-              [showClearButton]="true"
-              [noDataText]="'Sin registros'"
+            <dx-select-box id="idCliente" class="tm-select w-100" formControlName="idCliente"
+              [dataSource]="listaClientes" [displayExpr]="displayCliente" valueExpr="id" [disabled]="!isAdmin"
+              [searchEnabled]="true" [showClearButton]="true" [noDataText]="'Sin registros'"
               placeholder="Seleccione un cliente">
             </dx-select-box>
           </div>
           <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
-            <label for="idDispositivo" class="form-label">Dispositivo</label>
-            <dx-select-box
-              id="idDispositivo"
-              class="tm-select w-100"
-              formControlName="idDispositivo"
-              [dataSource]="listaDipositivos"
-              [displayExpr]="displayDispositivo"
-              valueExpr="id"
-              [searchEnabled]="true"
-              [showClearButton]="true"
-              [noDataText]="'Sin registros'"
-              placeholder="Seleccione un dispositivo">
-            </dx-select-box>
-          </div>
-          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
-            <label for="idBlueVox" class="form-label">Bluevox</label>
-            <dx-select-box
-              id="idBlueVox"
-              class="tm-select w-100"
-              formControlName="idBlueVox"
-              [dataSource]="listaBlueVox"
-              [displayExpr]="displayBluevox"
-              valueExpr="id"
-              [searchEnabled]="true"
-              [showClearButton]="true"
-              [noDataText]="'Sin registros'"
-              placeholder="Seleccione un Bluevox">
-            </dx-select-box>
-          </div>
-          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
             <label for="idVehiculo" class="form-label">Vehículo</label>
-            <dx-select-box
-              id="idVehiculo"
-              class="tm-select w-100"
-              formControlName="idVehiculo"
-              [dataSource]="listaVehiculos"
-              [displayExpr]="displayVehiculo"
-              valueExpr="id"
-              [disabled]="!!idInstalacion"
-              [searchEnabled]="true"
-              [showClearButton]="true"
-              [noDataText]="'Sin registros'"
+            <dx-select-box id="idVehiculo" class="tm-select w-100" formControlName="idVehiculo"
+              [dataSource]="listaVehiculos" [displayExpr]="displayVehiculo" valueExpr="id" [disabled]="!!idInstalacion"
+              [searchEnabled]="true" [showClearButton]="true" [noDataText]="'Sin registros'"
               placeholder="Seleccione un vehículo">
             </dx-select-box>
           </div>
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
+            <label for="idDispositivo" class="form-label">Dispositivo</label>
+            <dx-select-box id="idDispositivo" class="tm-select w-100" formControlName="idDispositivo"
+              [dataSource]="listaDipositivos" [displayExpr]="displayDispositivo" valueExpr="id" [searchEnabled]="true"
+              [showClearButton]="true" [noDataText]="'Sin registros'" placeholder="Seleccione un dispositivo">
+            </dx-select-box>
+          </div>
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3 bluevox-dropdown-container">
+            <label for="idsBlueVoxs" class="form-label">Bluevox</label>
+            <div class="position-relative">
+              <div 
+                class="bluevox-dropdown-trigger"
+                [class.disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled"
+                [style.cursor]="instalacionesForm.get('idsBlueVoxs')?.disabled ? 'not-allowed' : 'pointer'"
+                [style.opacity]="instalacionesForm.get('idsBlueVoxs')?.disabled ? '0.6' : '1'"
+                (click)="!instalacionesForm.get('idsBlueVoxs')?.disabled && toggleBluevoxDropdown()">
+                <span class="dropdown-text">
+                  {{ getBluevoxDisplayText() }}
+                </span>
+                <i class="fas fa-chevron-down dropdown-icon" [class.fa-chevron-up]="showBluevoxDropdown"></i>
+              </div>
+              <div 
+                *ngIf="showBluevoxDropdown && !instalacionesForm.get('idsBlueVoxs')?.disabled" 
+                class="bluevox-dropdown-menu position-absolute w-100"
+                (mousedown)="$event.stopPropagation()"
+                (wheel)="$event.stopPropagation()">
+                <!-- Bluevox asignados -->
+                <ng-container *ngIf="getSelectedBluevox().length > 0">
+                  <div 
+                    *ngFor="let bv of getSelectedBluevox(); trackBy: trackId" 
+                    class="dropdown-item"
+                    (click)="$event.stopPropagation()"
+                    (mousedown)="$event.preventDefault()">
+                    <input 
+                      class="form-check-input" 
+                      type="checkbox" 
+                      [id]="'bluevox-selected-' + bv.id"
+                      [checked]="isBluevoxSelected(bv.id)"
+                      [disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled || isBluevoxDisabled(bv.id)"
+                      (change)="toggleBluevox(bv.id, $event)"
+                      (click)="$event.stopPropagation()">
+                    <label 
+                      class="form-check-label" 
+                      [for]="'bluevox-selected-' + bv.id"
+                      (mousedown)="$event.preventDefault()">
+                      {{ displayBluevox(bv) }}
+                    </label>
+                  </div>
+                </ng-container>
+                
+                <!-- Separador y título "Disponibles" -->
+                <ng-container *ngIf="getSelectedBluevox().length > 0 && getAvailableBluevox().length > 0">
+                  <div class="dropdown-separator"></div>
+                  <div class="dropdown-section-title">
+                    Disponibles
+                  </div>
+                </ng-container>
+                
+                <!-- Bluevox disponibles -->
+                <ng-container *ngIf="getAvailableBluevox().length > 0">
+                  <div 
+                    *ngFor="let bv of getAvailableBluevox(); trackBy: trackId" 
+                    class="dropdown-item"
+                    (click)="$event.stopPropagation()"
+                    (mousedown)="$event.preventDefault()">
+                    <input 
+                      class="form-check-input" 
+                      type="checkbox" 
+                      [id]="'bluevox-available-' + bv.id"
+                      [checked]="isBluevoxSelected(bv.id)"
+                      [disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled || isBluevoxDisabled(bv.id)"
+                      (change)="toggleBluevox(bv.id, $event)"
+                      (click)="$event.stopPropagation()">
+                    <label 
+                      class="form-check-label" 
+                      [for]="'bluevox-available-' + bv.id"
+                      (mousedown)="$event.preventDefault()">
+                      {{ displayBluevox(bv) }}
+                    </label>
+                  </div>
+                </ng-container>
+                
+                <div *ngIf="listaBlueVox.length === 0" class="dropdown-empty">
+                  Sin registros
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
         <div class="form-actions mt-4">
           <button type="submit" class="submit" (click)="submit()">{{ submitButton }}</button>

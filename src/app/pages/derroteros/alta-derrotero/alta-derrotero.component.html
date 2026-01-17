@@ -8,35 +8,39 @@
         <h5>{{ 'Agregar Derrotero' }}</h5>
         <span>Traza el recorrido de tu vehículo.</span>
       </div>
-      <!-- <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
-                data-bs-target=".bs-example-modal-lg" (click)="extraLarges(exlargeModalForm)">Large modal</button> -->
     </div>
+
     <ng-container *ngIf="contentVisible">
       <div class="card-body">
         <form class="cliente-form">
-          <!-- <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
-              data-bs-target=".bs-example-modal-lg" (click)="extraLarge(exlargeModal)">Large modal</button> -->
           <h6 class="u-callout u-callout--subtle mt-3">
-            Traza en el mapa el recorrido del vehículo marcando los <strong>puntos</strong> por donde
-            pasará.
+            Traza en el mapa el recorrido del vehículo marcando los <strong>puntos</strong> por donde pasará.
             Al finalizar, presiona <strong>Enter</strong> para <strong>cerrar la ruta</strong> y
             <strong>continuar</strong> con el proceso.
           </h6>
+
           <div class="col-md-12 mt-1">
-            <div id="map"></div>
+            <div id="map" role="application" aria-label="Mapa para trazar el derrotero" tabindex="0"></div>
           </div>
-          <div class="form-actions mt-4" style="display: flex; align-items: center; justify-content: center;">
-            <button type="button" [@fadeInUp] class="submit" *ngIf="showPreviewPayloadBtn" (click)="agregarDerrotero()">
-              {{submitButton}}
+
+          <div class="form-actions mt-4">
+            <button type="button" [@fadeInUp] class="submit" *ngIf="showPreviewPayloadBtn" (click)="agregarDerrotero()"
+              [disabled]="loading">
+              <span *ngIf="!loading">{{ submitButton }}</span>
+              <span *ngIf="loading">Guardando...</span>
             </button>
 
-            <button type="button" [@fadeInUp] class="primary" *ngIf="showClearTraceBtn" (click)="clearTrace()">
+            <button type="button" [@fadeInUp] class="primary" *ngIf="showClearTraceBtn" (click)="clearTrace()"
+              [disabled]="loading">
               Limpiar trazo
             </button>
-            <button type="button" [@fadeInUp] class="warning" *ngIf="showUndo" (click)="undoLastPoint()">
+
+            <button type="button" [@fadeInUp] class="warning" *ngIf="showUndo" (click)="undoLastPoint()"
+              [disabled]="loading">
               Deshacer punto
             </button>
-            <button type="button" [@fadeInUp] class="cancel" (click)="regresar()">
+
+            <button type="button" [@fadeInUp] class="cancel" (click)="regresar()" [disabled]="loading">
               Cancelar
             </button>
           </div>
@@ -65,22 +69,26 @@
 
           <div class="route-toolbar">
             <div class="search">
-              <i class="fas fa-search"></i>
-              <input class="search-input" type="text" placeholder="Buscar ruta…" [formControl]="rutaSearch" />
+              <i class="fas fa-search" aria-hidden="true"></i>
+              <input class="search-input" type="text" placeholder="Buscar ruta…" [formControl]="rutaSearch"
+                aria-label="Buscar ruta" autocomplete="off" />
             </div>
             <div class="hint">{{ filteredRutas?.length || 0 }} resultado(s)</div>
           </div>
 
           <div class="routes-list" role="listbox" aria-label="Listado de rutas"
-            [@panelAnim]="rutaSearch.value ? 'filtered':'all'" [@listAnim]="filteredRutas?.length">
+            [@panelAnim]="rutaSearch.value ? 'filtered' : 'all'" [@listAnim]="filteredRutas?.length">
+            <label class="route-row" *ngFor="let c of filteredRutas; trackBy: trackByRutaId"
+              [attr.aria-label]="'Seleccionar ruta ' + c.nombre">
+              <input class="route-radio" type="radio" formControlName="idRegion" [value]="c.id"
+                [attr.aria-describedby]="'route-desc-' + c.id" />
 
-            <label class="route-row" *ngFor="let c of filteredRutas; trackBy: trackByRutaId">
-              <input class="route-radio" type="radio" formControlName="idRegion" [value]="c.id" />
               <div class="route-card">
                 <div class="route-left">
-                  <div class="route-icon"><i class="fas fa-route"></i></div>
+                  <div class="route-icon" aria-hidden="true"><i class="fas fa-route"></i></div>
+
                   <div class="route-text">
-                    <div class="route-title">
+                    <div class="route-title" [id]="'route-desc-' + c.id">
                       {{ c.nombre }}
                     </div>
                     <div class="route-client">
@@ -89,14 +97,17 @@
                     <div class="route-meta">ID: {{ c.id }}</div>
                   </div>
                 </div>
+
                 <div class="route-right">
                   <span class="route-pill">Ruta</span>
                   <i class="fas fa-check route-check" aria-hidden="true"></i>
                 </div>
               </div>
             </label>
-            <div class="routes-empty" *ngIf="filteredRutas && filteredRutas.length === 0">
-              <i class="far fa-folder-open"></i>
+
+            <div class="routes-empty" *ngIf="filteredRutas && filteredRutas.length === 0" role="status"
+              aria-live="polite">
+              <i class="far fa-folder-open" aria-hidden="true"></i>
               <span>No hay rutas para mostrar</span>
             </div>
           </div>
@@ -104,7 +115,6 @@
       </div>
 
       <div class="form-actions mt-4">
-        <!-- <button type="submit" class="submit">{{submitButton}}</button> -->
         <button type="button" class="cancel" (click)="regresarRuta()">Cancelar</button>
       </div>
     </form>
@@ -112,61 +122,109 @@
 </ng-template>
 
 <ng-template #exlargeModalForm let-modal>
-  <div>
-    <div>
-      <div class="card-header-custom">
-        <div class="icon-wrapper">
-          <i class="fas fa-plus"></i>
-        </div>
-        <div class="header-text">
-          <h5>{{titleTarifa}}</h5>
-          <span>Completa la información para registrar una nueva tarifa.</span>
-        </div>
-      </div>
-
-      <div class="card-body" style="padding: 20px; background-color: #002136;">
-        <form [formGroup]="tarifaForm" class="cliente-form">
-          <div class="row">
-            <div class="col-12 col-sm-6 col-md-4 mt-3">
-              <label>Tipo Tarifa</label>
-              <dx-select-box class="tm-select w-100" formControlName="tipoTarifa" [dataSource]="listaTipoTarifa"
-                displayExpr="nombre" valueExpr="id" [searchEnabled]="true" [showClearButton]="true"
-                [noDataText]="'Sin registros'" placeholder="Selecciona un tipo de tarifa">
-              </dx-select-box>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4 mt-3">
-              <label>Tarifa Base</label>
-              <input type="text" class="form-control" formControlName="tarifaBase" placeholder="100.00"
-                inputmode="decimal" (focus)="onTarifaFocus()" (blur)="onTarifaBlur()"
-                (keypress)="allowDecimal($event)" />
-            </div>
-
-            <div class="col-12 col-sm-6 col-md-4 mt-3">
-              <label>Distancia Base Km</label>
-              <input type="text" class="form-control" formControlName="distanciaBaseKm" placeholder="120.5"
-                (focus)="onDistanciaFocus()" (blur)="onDistanciaBlur()" (keypress)="allowDecimal($event)" />
-            </div>
-
-            <div class="col-12 col-sm-6 col-md-4 mt-3">
-              <label>Incremento Por Metros</label>
-              <input type="text" class="form-control" formControlName="incrementoCadaMetros" placeholder="10.25"
-                inputmode="decimal" (focus)="onIncrementoFocus()" (blur)="onIncrementoBlur()"
-                (keypress)="allowDecimal($event)" />
-            </div>
-
-            <div class="col-12 col-sm-6 col-md-4 mt-3">
-              <label>Costo Adicional</label>
-              <input type="text" class="form-control" formControlName="costoAdicional" placeholder="50.00"
-                inputmode="decimal" (focus)="onCostoFocus()" (blur)="onCostoBlur()" (keypress)="allowDecimal($event)" />
-            </div>
-          </div>
-
-          <div class="form-actions mt-4">
-            <button type="submit" class="submit" (click)="agregarTarifa()">{{ submitButton }}</button>
-            <button type="button" class="cancel" (click)="regresar()">Cancelar</button>
-          </div>
-        </form>
-      </div>
+  <div class="card-header-custom">
+    <div class="icon-wrapper">
+      <i class="fas fa-plus"></i>
     </div>
+    <div class="header-text">
+      <h5>{{ titleTarifa }}</h5>
+      <span>Completa la información para registrar una nueva tarifa.</span>
+    </div>
+  </div>
+
+  <div class="card-body tarifa-modal">
+    <form [formGroup]="tarifaForm" class="cliente-form" (ngSubmit)="guardarDerrotero()">
+      <div class="row">
+        <div class="col-12 col-sm-6 col-md-4 mt-3">
+          <label for="tipoTarifa">Tipo Tarifa <span class="text-danger" *ngIf="submitted">*</span></label>
+          <dx-select-box id="tipoTarifa" class="tm-select w-100" formControlName="tipoTarifa"
+            [dataSource]="listaTipoTarifa" displayExpr="nombre" valueExpr="id" [searchEnabled]="true"
+            [showClearButton]="true" [noDataText]="'Sin registros'" placeholder="Selecciona un tipo de tarifa"
+            [isValid]="!tarifaForm.get('tipoTarifa')?.invalid || !submitted">
+          </dx-select-box>
+          <small class="text-danger"
+            *ngIf="tarifaForm.get('tipoTarifa')?.invalid && submitted">
+            El tipo de tarifa es requerido
+          </small>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-4 mt-3">
+          <label for="tarifaBase">Tarifa Base <span class="text-danger" *ngIf="submitted">*</span></label>
+          <input id="tarifaBase" type="text" class="form-control" formControlName="tarifaBase" placeholder="100.00"
+            inputmode="decimal"
+            [class.is-invalid]="tarifaForm.get('tarifaBase')?.invalid && submitted"
+            [disabled]="tarifaForm.get('tarifaBase')?.disabled" (focus)="onTarifaFocus()" (blur)="onTarifaBlur()"
+            (keypress)="allowDecimal($event)" aria-describedby="tarifaBase-help" />
+          <small class="text-danger"
+            *ngIf="tarifaForm.get('tarifaBase')?.invalid && submitted">
+            La tarifa base es requerida
+          </small>
+          <small id="tarifaBase-help" class="form-text text-muted">Ingresa el monto en formato decimal</small>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-4 mt-3">
+          <label for="distanciaBaseKm">
+            Distancia Base Km
+            <span class="text-danger"
+              *ngIf="submitted && tarifaForm.get('tipoTarifa')?.value !== null && tarifaForm.get('tipoTarifa')?.value !== 0">*</span>
+          </label>
+          <input id="distanciaBaseKm" type="text" class="form-control" formControlName="distanciaBaseKm"
+            placeholder="120.5"
+            [class.is-invalid]="tarifaForm.get('distanciaBaseKm')?.invalid && submitted"
+            [disabled]="tarifaForm.get('distanciaBaseKm')?.disabled" (focus)="onDistanciaFocus()"
+            (blur)="onDistanciaBlur()" (keypress)="allowDecimal($event)" />
+          <small class="text-danger"
+            *ngIf="tarifaForm.get('distanciaBaseKm')?.invalid && submitted">
+            La distancia base es requerida
+          </small>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-4 mt-3">
+          <label for="incrementoCadaMetros">
+            Incremento Por Metros
+            <span class="text-danger"
+              *ngIf="submitted && tarifaForm.get('tipoTarifa')?.value !== null && tarifaForm.get('tipoTarifa')?.value !== 0">*</span>
+          </label>
+          <input id="incrementoCadaMetros" type="text" class="form-control" formControlName="incrementoCadaMetros"
+            placeholder="10" inputmode="numeric"
+            [class.is-invalid]="tarifaForm.get('incrementoCadaMetros')?.invalid && submitted"
+            [disabled]="tarifaForm.get('incrementoCadaMetros')?.disabled" (focus)="onIncrementoFocus()"
+            (blur)="onIncrementoBlur()" (keypress)="allowInteger($event)" />
+          <small class="text-danger"
+            *ngIf="tarifaForm.get('incrementoCadaMetros')?.invalid && submitted">
+            El incremento es requerido
+          </small>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-4 mt-3">
+          <label for="costoAdicional">
+            Costo Adicional
+            <span class="text-danger"
+              *ngIf="submitted && tarifaForm.get('tipoTarifa')?.value !== null && tarifaForm.get('tipoTarifa')?.value !== 0">*</span>
+          </label>
+          <input id="costoAdicional" type="text" class="form-control" formControlName="costoAdicional"
+            placeholder="50.00" inputmode="decimal"
+            [class.is-invalid]="tarifaForm.get('costoAdicional')?.invalid && submitted"
+            [disabled]="tarifaForm.get('costoAdicional')?.disabled" (focus)="onCostoFocus()" (blur)="onCostoBlur()"
+            (keypress)="allowDecimal($event)" />
+          <small class="text-danger"
+            *ngIf="tarifaForm.get('costoAdicional')?.invalid && submitted">
+            El costo adicional es requerido
+          </small>
+        </div>
+
+        <input type="hidden" formControlName="estatus" />
+      </div>
+
+      <div class="form-actions mt-4">
+        <button type="submit" class="submit" [disabled]="loading || tarifaForm.invalid">
+          <span *ngIf="!loading">{{ submitButton }}</span>
+          <span *ngIf="loading">Guardando...</span>
+        </button>
+        <button type="button" class="cancel" (click)="regresar()" [disabled]="loading">
+          Cancelar
+        </button>
+      </div>
+    </form>
   </div>
 </ng-template>

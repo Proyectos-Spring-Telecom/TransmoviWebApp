@@ -28,6 +28,7 @@ export class ListaTransaccionesComponent implements OnInit {
   public selectedTransactionDate: string | null = null;
   public selectedTransactionAmount: number | null = null;
   public selectedTipoTransaccion: any | null = null;
+  public viajeType: 'inicio' | 'fin' | null = null;
   public grid: boolean = false;
   public showFilterRow: boolean;
   public showHeaderFilter: boolean;
@@ -117,6 +118,9 @@ export class ListaTransaccionesComponent implements OnInit {
               Id: x?.id ?? null,
               tipoTransaccion: x?.tipoTransaccion ?? null,
               monto: toMoney(x?.monto),
+              latitudInicial: x?.latitudInicial ?? null,
+              longitudInicial: x?.longitudInicial ?? null,
+              fechaHoraInicio: x?.fechaHoraInicio ?? null,
               latitudFinal: x?.latitudFinal ?? null,
               longitudFinal: x?.longitudFinal ?? null,
               fechaHoraFinal: x?.fechaHoraFinal ?? null,
@@ -223,6 +227,9 @@ export class ListaTransaccionesComponent implements OnInit {
   }
 
   centerModal(centerDataModal: any, id: number, latitudFinal: string, longitudFinal: string, fechaHoraFinal: string, monto: number, tipoTransaccion: any) {
+    // Solo establecer viajeType como 'fin' si es DEBITO, no para RECARGA
+    const tipoUpper = (tipoTransaccion || '').toUpperCase();
+    this.viajeType = tipoUpper === 'DEBITO' ? 'fin' : null;
     this.selectedTransactionId = id;
     this.latSelect = latitudFinal;
     this.lngSelect = longitudFinal;
@@ -245,6 +252,30 @@ export class ListaTransaccionesComponent implements OnInit {
     }, 500);
   }
 
+  centerModalInicial(centerDataModal: any, id: number, latitudInicial: string, longitudInicial: string, fechaHoraInicio: string, monto: number, tipoTransaccion: any) {
+    this.viajeType = 'inicio';
+    this.selectedTransactionId = id;
+    this.latSelect = latitudInicial;
+    this.lngSelect = longitudInicial;
+    this.selectedTransactionDate = fechaHoraInicio;
+    this.selectedTransactionAmount = monto;
+    this.selectedTipoTransaccion = tipoTransaccion;
+    if (this.latSelect == null || this.latSelect == '') {
+      this.showMap = true;
+    } else {
+      this.showMap = false;
+    }
+    this.modalService.open(centerDataModal, {
+      centered: true, windowClass: 'modal-holder',
+      backdrop: 'static',
+      keyboard: false,
+    });
+
+    setTimeout(() => {
+      this.initializeMap(latitudInicial, longitudInicial);
+    }, 500);
+  }
+
   private readonly markerIcon: google.maps.Icon = {
     url: new URL('assets/images/icons8-marker-48.png', document.baseURI).toString(),
     scaledSize: new google.maps.Size(42, 42),
@@ -254,6 +285,7 @@ export class ListaTransaccionesComponent implements OnInit {
   initializeMap(lat: string, lng: string) {
     const mapElement = document.getElementById('map') as HTMLElement | null;
     if (!mapElement) return;
+    if (!lat || !lng) return;
 
     const position = { lat: Number(lat), lng: Number(lng) };
 
