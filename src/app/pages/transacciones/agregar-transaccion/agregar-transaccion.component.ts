@@ -27,6 +27,11 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
   getSerie = (d: any) => (d ? d.numeroSerie ?? d.numeroserie ?? '' : '');
+  public listaMetodosPago = [
+    { id: 1, nombre: 'Efectivo' },
+    { id: 2, nombre: 'Tarjetas de Crédito' },
+    { id: 3, nombre: 'Tarjeta de Débito' }
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -65,6 +70,7 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
       fechaHoraFinal: [null, Validators.required],
       numeroSerieMonedero: ['', Validators.required],
       numeroSerieDispositivo: [null],
+      idMetodoPago: [null],
     });
   }
 
@@ -218,7 +224,8 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
       longitudFinal: this.toNumber6(raw?.longitudFinal),
       fechaHoraFinal: this.toIsoZulu(raw?.fechaHoraFinal || null),
       numeroSerieMonedero: raw?.numeroSerieMonedero || null,
-      numeroSerieDispositivo: raw?.numeroSerieDispositivo || null
+      numeroSerieDispositivo: raw?.numeroSerieDispositivo || null,
+      idMetodoPago: raw?.idMetodoPago || null
     };
 
     const request$ = idTipoTransaccion === 1

@@ -80,26 +80,27 @@
 
     <div class="col-12 col-lg-6">
       <div class="card chart-card">
-        <div class="card-title">{{ renombrar('Pasajeros por ruta') }}</div>
+        <div class="card-title">{{ renombrar('Pasajeros por Ruta') }}</div>
         <dx-chart
-  [dataSource]="dsPasajerosPorHora"
-  [series]="seriesPasajeros"
-  [palette]="palette"
-  [size]="{ height: 320 }">
-  <dxo-common-series-settings type="stackedBar" argumentField="hora"></dxo-common-series-settings>
-  <dxo-legend position="bottom"></dxo-legend>
-  <dxo-argument-axis argumentType="string"></dxo-argument-axis>
-</dx-chart>
-
+          [dataSource]="dsPasajerosPorHora"
+          [series]="seriesPasajeros"
+          [palette]="palette"
+          [size]="{ height: 320 }">
+          <dxo-common-series-settings type="stackedBar" argumentField="hora"></dxo-common-series-settings>
+          <dxo-legend position="bottom"></dxo-legend>
+          <dxo-argument-axis argumentType="string"></dxo-argument-axis>
+          <dxo-tooltip [enabled]="true" [customizeTooltip]="customizePasajerosTooltip"></dxo-tooltip>
+        </dx-chart>
       </div>
     </div>
 
     <div class="col-12 col-lg-6">
       <div class="card chart-card">
-        <div class="card-title">{{ renombrar('Ascensos vs. boletos') }}</div>
+        <div class="card-title">{{ renombrar('Ascensos vs Boletos') }}</div>
         <dx-chart [dataSource]="dsBrecha" [palette]="palette" [size]="{ height: 320 }">
           <dxo-legend position="bottom"></dxo-legend>
           <dxo-argument-axis argumentType="string"></dxo-argument-axis>
+          <dxo-tooltip [enabled]="true" [customizeTooltip]="customizeAscensosBoletosTooltip"></dxo-tooltip>
           <dxi-series type="line" name="Ascensos" argumentField="hora" valueField="ascensos" color="#19b394"></dxi-series>
           <dxi-series type="line" name="Boletos" argumentField="hora" valueField="boletos" color="#5aa6ff"></dxi-series>
         </dx-chart>
@@ -116,13 +117,17 @@
       </div>
     </div> -->
 
-    <div class="col-12 col-lg-3">
+    <div class="col-12 col-lg-6">
       <div class="card chart-card">
-        <div class="card-title">{{ renombrar('Puntualidad inicio de viaje') }}</div>
-        <dx-chart [dataSource]="dsPuntualidad" [palette]="palette" [size]="{ height: 320 }">
+        <div class="card-title">{{ renombrar('Velocidad Promedio por Ruta') }}</div>
+        <dx-chart [dataSource]="dsVelocidadPromedio" [palette]="palette" [size]="{ height: 320 }">
           <dxo-legend [visible]="false"></dxo-legend>
           <dxo-argument-axis argumentType="string"></dxo-argument-axis>
-          <dxi-series type="bar" argumentField="bin" valueField="viajes" name="Viajes"></dxi-series>
+          <dxo-tooltip [enabled]="true" [customizeTooltip]="customizeVelocidadTooltip"></dxo-tooltip>
+          <dxi-value-axis>
+            <dxo-label [format]="{ type: 'fixedPoint', precision: 0 }"></dxo-label>
+          </dxi-value-axis>
+          <dxi-series type="bar" argumentField="ruta" valueField="velocidad" name="Velocidad (km/h)"></dxi-series>
         </dx-chart>
       </div>
     </div>
@@ -131,7 +136,7 @@
   <div class="row g-3 mt-1">
     <div class="col-12 col-xl-6">
       <div class="card list-card">
-        <div class="card-title">{{ renombrar('Top 5 rutas por ingreso') }}</div>
+        <div class="card-title">{{ renombrar('Top 5 Rutas por Ingreso') }}</div>
         <dx-data-grid class="dx-grid-dark" [dataSource]="topRutas" [columnAutoWidth]="true" [rowAlternationEnabled]="true" [showBorders]="false">
           <dxi-column dataField="nombre" [caption]="renombrar('Ruta')"></dxi-column>
           <dxi-column dataField="ingresos" [caption]="renombrar('Ingresos')" dataType="number" [format]="{ type: 'currency', currency: 'MXN', precision: 2 }" alignment="right"></dxi-column>

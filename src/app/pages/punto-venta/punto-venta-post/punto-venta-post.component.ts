@@ -30,13 +30,6 @@ export class PuntoVentaPostComponent implements OnInit {
    * @param exlargeModal extra large modal data
    */
   monederoSeleccionado: any = null;
-  wallets: Monedero[] = [
-    { id: 1, numeroSerie: 'MN-001-AZ', titular: 'María López', saldo: 320.5 },
-    { id: 2, numeroSerie: 'MN-002-BX', titular: 'Juan Pérez', saldo: 1520 },
-    { id: 3, numeroSerie: 'MN-003-QW', titular: 'Logística MX SA', saldo: 90 },
-    { id: 4, numeroSerie: 'MN-004-ZZ', titular: 'Luis Hernández', saldo: 780.25 },
-    { id: 5, numeroSerie: 'MN-005-KL', titular: 'Sofía Ramos', saldo: 245.75 }
-  ];
   selectedWalletId: number | null = null;
   step = 1;
 
@@ -60,6 +53,11 @@ export class PuntoVentaPostComponent implements OnInit {
   public listaMonederos: any
   public transaccionForm: FormGroup;
   public showForm = false;
+  public listaMetodosPago = [
+    { id: 1, nombre: 'Efectivo' },
+    { id: 2, nombre: 'Tarjetas de Crédito' },
+    { id: 3, nombre: 'Tarjeta de Débito' }
+  ];
 
   constructor(
     private modalService: NgbModal,
@@ -168,6 +166,7 @@ export class PuntoVentaPostComponent implements OnInit {
       fechaHoraFinal: [null, Validators.required],
       numeroSerieMonedero: ['', Validators.required],
       numeroSerieDispositivo: [null],
+      idMetodoPago: [null],
     });
   }
 
@@ -222,6 +221,7 @@ export class PuntoVentaPostComponent implements OnInit {
     fechaHoraFinal: raw?.fechaHoraFinal || this.nowZulu(),
     numeroSerieMonedero: raw?.numeroSerieMonedero || numSerie,
     numeroSerieDispositivo: null,
+    idMetodoPago: raw?.idMetodoPago || null,
   };
 
   let holdTimer: any = null;
@@ -277,11 +277,6 @@ export class PuntoVentaPostComponent implements OnInit {
     this.monederoSeleccionado = m;
   }
 
-
-  get selectedWallet(): Monedero | null {
-    return this.wallets.find(w => w.id === this.selectedWalletId) || null;
-  }
-
   irPaso(n: 1 | 2) {
     this.step = n;
     if (n === 2 && this.monederoSeleccionado) {
@@ -315,6 +310,7 @@ export class PuntoVentaPostComponent implements OnInit {
       fechaHoraFinal: null,
       numeroSerieMonedero: '',
       numeroSerieDispositivo: null,
+      idMetodoPago: null,
     });
     this.monto = 0;
     this.montoView = '';
@@ -391,6 +387,29 @@ export class PuntoVentaPostComponent implements OnInit {
   onSlider(val: number) {
     this.monto = Math.max(0, val || 0);
     this.montoView = this.monto.toFixed(2);
+  }
+
+  onMetodoPagoChange(metodoId: number, event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    const currentValue = this.transaccionForm.get('idMetodoPago')?.value;
+    // Si ya está seleccionado, deseleccionar; si no, seleccionar (single-select)
+    if (currentValue === metodoId) {
+      this.transaccionForm.patchValue({
+        idMetodoPago: null
+      });
+    } else {
+      this.transaccionForm.patchValue({
+        idMetodoPago: metodoId
+      });
+    }
+  }
+
+  isMetodoPagoSelected(metodoId: number): boolean {
+    const currentValue = this.transaccionForm.get('idMetodoPago')?.value;
+    return currentValue === metodoId;
   }
 
   confirmarRecarga() {

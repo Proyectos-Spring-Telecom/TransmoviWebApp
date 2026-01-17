@@ -118,7 +118,8 @@ label {
 
 .form-actions {
   display: flex;
-  justify-content: flex-start;
+  align-items: center;
+  justify-content: center;
   gap: 12px;
   margin-top: 24px;
 
@@ -127,6 +128,11 @@ label {
     border-radius: 10px;
     font-weight: 600;
     transition: 0.3s ease;
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 }
 
@@ -727,4 +733,33 @@ div:where(.swal2-container) .swal2-html-container {
 }
 :host ::ng-deep .gm-style-iw-c {
   padding-right: 0 !important;
+}
+
+// Estilos para el modal de tarifa
+.tarifa-modal {
+  padding: 20px;
+  background-color: #002136;
+}
+
+// Estilos para validación de formularios
+.form-control.is-invalid {
+  border-bottom: 2px solid #dc3545 !important;
+  background-color: rgba(220, 53, 69, 0.1) !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+  font-size: 0.875rem;
+  margin-top: 4px;
+  display: block;
+}
+
+.form-text {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+.text-muted {
+  color: #6c757d !important;
 }

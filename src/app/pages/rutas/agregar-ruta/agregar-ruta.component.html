@@ -39,23 +39,30 @@
       <i class="fas fa-plus"></i>
     </div>
     <div class="header-text">
-      <h5>{{ 'Seleccionar Región de Inicio' }}</h5>
-      <span>Elige la región donde comenzará la ruta.</span>
+      <h5>{{ 'Seleccionar Región' }}</h5>
+      <span>Elige el punto de partida para tu ruta.</span>
     </div>
   </div>
 
   <div class="card-body" style="padding: 20px; background-color: #002136;">
     <form [formGroup]="rutaForm" class="cliente-form">
-      <h6 class="section-titles">Región de Inicio</h6>
+      <h6 class="section-titles">Configuración de la Ruta</h6>
 
-      <div class="row">
-        <div class="col-12 col-sm-12 col-md-12 mt-3">
-          <label>Región Inicio</label>
-          <dx-select-box class="tm-select w-100" formControlName="idRegion" [items]="listaRegiones || []"
-            [valueExpr]="'id'" [displayExpr]="displayRegion" [searchEnabled]="true" [showClearButton]="true"
-            placeholder="Seleccione una región" noDataText="Sin registros">
+      <div class="row mt-3">
+        <div class="col-12 col-sm-12 col-md-12">
+          <label for="idRegion">Región de Inicio</label>
+          <dx-select-box 
+            id="idRegion"
+            class="tm-select w-100" 
+            formControlName="idRegion" 
+            [items]="listaRegiones || []"
+            [valueExpr]="'id'" 
+            [displayExpr]="displayRegion" 
+            [searchEnabled]="true" 
+            [showClearButton]="true"
+            placeholder="Seleccione una región" 
+            noDataText="Sin registros">
           </dx-select-box>
-
         </div>
       </div>
 
@@ -89,8 +96,25 @@
 
       <div class="row">
         <div class="col-12 col-sm-12 col-md-12 mt-3">
-          <label>Nombre</label>
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <label class="mb-0">Nombre</label>
+            <div class="form-check form-switch d-inline-block">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                id="estatusRutaRegreso"
+                formControlName="estatusRutaRegreso"
+                [checked]="rutaForm.get('estatusRutaRegreso')?.value === 1"
+                (change)="rutaForm.patchValue({ estatusRutaRegreso: $any($event.target).checked ? 1 : 0 })" />
+              <label class="form-check-label" for="estatusRutaRegreso">
+                Generar ruta de regreso
+              </label>
+            </div>
+          </div>
           <input type="text" class="form-control" formControlName="nombre" placeholder="Centro" />
+          <small class="form-text text-muted">
+            Activa el switch si deseas que se genere automáticamente la ruta de regreso
+          </small>
         </div>
       </div>
 
