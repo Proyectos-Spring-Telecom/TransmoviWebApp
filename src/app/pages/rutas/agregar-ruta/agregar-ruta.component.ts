@@ -70,6 +70,7 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
       idRegion: [null, Validators.required],
       idRegionFin: [null],
       estatus: [1, Validators.required],
+      estatusRutaRegreso: [0], // 0 = desactivado, 1 = activado
     });
 
     this.obtenerRegiones();
@@ -659,6 +660,8 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
     this.submitButton = 'Guardando...';
     this.loading = true;
 
+    const estatusRutaRegreso = this.rutaForm.get('estatusRutaRegreso')?.value ? 1 : 0;
+
     const body = {
       nombre: nombre,
       puntoInicio: this.buildFeatureCollectionPoint(this.coordInicio),
@@ -668,6 +671,7 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
       estatus: Number(this.rutaForm.get('estatus')?.value ?? 1),
       idRegion: Number(idRegionVal),
       idRegionFin: idRegionFinVal != null ? Number(idRegionFinVal) : null,
+      estatusRutaRegreso: estatusRutaRegreso,
     };
 
     console.group('%cJSON FINAL PARA ENVIAR', 'color:#0a7; font-weight:bold;');
@@ -728,6 +732,7 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
       idRegion: null,
       idRegionFin: null,
       estatus: 1,
+      estatusRutaRegreso: 0,
     });
     if (this.map) {
       this.map.setCenter(this.centroToluca);

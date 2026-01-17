@@ -1,8 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { debounceTime, distinctUntilChanged, finalize, forkJoin } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, finalize, forkJoin, of } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { ClientesService } from 'src/app/shared/services/clientes.service';
@@ -39,6 +39,7 @@ export class AltaInstalacionComponent implements OnInit {
   listaDipositivos: any[] = [];
   listaBlueVox: any[] = [];
   listaVehiculos: any[] = [];
+  showBluevoxDropdown = false;
   displayCliente = (c: any) =>
     c ? `${c.nombre || ''} ${c.apellidoPaterno || ''} ${c.apellidoMaterno || ''}`.trim() : '';
 
@@ -46,7 +47,7 @@ export class AltaInstalacionComponent implements OnInit {
     d ? (d.numeroSerie || d.numeroSerieDispositivo || d.serie || d.id) : '';
 
   displayBluevox = (b: any) =>
-    b ? (b.numeroSerieBlueVox || b.numeroSerie || b.serie || b.id) : '';
+    b ? (b.numeroSerieBlueVox || b.numeroSerie || b.serie || '') : '';
 
   displayVehiculo = (v: any) =>
     v ? (v.placa || v.placaVehiculo || v.numeroEconomico || v.alias || v.id) : '';
@@ -63,7 +64,7 @@ export class AltaInstalacionComponent implements OnInit {
 
   private pendingSelecciones: {
     idDispositivo?: number;
-    idBlueVox?: number;
+    idsBlueVoxs?: number[];
     idVehiculo?: number;
   } = {};
   private pendingLabels: {
@@ -71,9 +72,10 @@ export class AltaInstalacionComponent implements OnInit {
     bluevox?: string | null;
     vehiculo?: string | null;
   } = {};
+  private blueVoxsDataFromService: { [key: number]: any } = {}; // Almacenar datos completos de bluevox por ID
 
   initialDispositivoId?: number | null;
-  initialBlueVoxId?: number | null;
+  initialBlueVoxIds?: number[] | null;
 
   estatusDispositivoAnterior?: number | null;
   estatusBluevoxsAnterior?: number | null;
@@ -132,7 +134,7 @@ export class AltaInstalacionComponent implements OnInit {
         Validators.required,
       ],
       idDispositivo: [{ value: null, disabled: true }, Validators.required],
-      idBlueVox: [{ value: null, disabled: true }, Validators.required],
+      idsBlueVoxs: [{ value: [], disabled: true }, Validators.required],
       idVehiculo: [{ value: null, disabled: true }, Validators.required],
     });
 
@@ -177,16 +179,20 @@ export class AltaInstalacionComponent implements OnInit {
     if (!this.instalacionesForm) return;
     const opts = { emitEvent: false };
     const idDispositivo = this.instalacionesForm.get('idDispositivo');
-    const idBlueVox = this.instalacionesForm.get('idBlueVox');
+    const idsBlueVoxs = this.instalacionesForm.get('idsBlueVoxs');
     const idVehiculo = this.instalacionesForm.get('idVehiculo');
 
     if (disabled) {
       idDispositivo?.disable(opts);
-      idBlueVox?.disable(opts);
+      idsBlueVoxs?.disable(opts);
       idVehiculo?.disable(opts);
+      // Cerrar el dropdown si estaba abierto
+      if (this.showBluevoxDropdown) {
+        this.showBluevoxDropdown = false;
+      }
     } else {
       idDispositivo?.enable(opts);
-      idBlueVox?.enable(opts);
+      idsBlueVoxs?.enable(opts);
       idVehiculo?.enable(opts);
       this.keepEditLocks();
     }
@@ -195,7 +201,7 @@ export class AltaInstalacionComponent implements OnInit {
   private limpiarDependientes(): void {
     const opts = { emitEvent: false };
     this.instalacionesForm.patchValue(
-      { idDispositivo: null, idBlueVox: null, idVehiculo: null },
+      { idDispositivo: null, idsBlueVoxs: [], idVehiculo: null },
       opts
     );
     this.listaDipositivos = [];
@@ -232,6 +238,90 @@ export class AltaInstalacionComponent implements OnInit {
         if (this.lastLoadedCliente === id) return;
         this.cargarListasPorCliente(id, false);
       });
+
+    // Suscribirse a cambios en el vehículo para validar cantidadAccesos
+    this.instalacionesForm
+      .get('idVehiculo')
+      ?.valueChanges.pipe(debounceTime(150), distinctUntilChanged())
+      .subscribe((idVehiculo: any) => {
+        if (this.bootstrapping) return;
+        this.validarCantidadAccesos(idVehiculo);
+      });
+  }
+
+  private validarCantidadAccesos(idVehiculo: any): void {
+    const idsBlueVoxsCtrl = this.instalacionesForm.get('idsBlueVoxs');
+    
+    if (!idVehiculo) {
+      // Si no hay vehículo, limpiar validación y valores
+      idsBlueVoxsCtrl?.clearValidators();
+      idsBlueVoxsCtrl?.setValidators([Validators.required]);
+      idsBlueVoxsCtrl?.setValue([], { emitEvent: false });
+      idsBlueVoxsCtrl?.updateValueAndValidity({ emitEvent: false });
+      this.showBluevoxDropdown = false;
+      return;
+    }
+
+    const vehiculo = this.listaVehiculos.find((v: any) => Number(v.id) === Number(idVehiculo));
+    const cantidadAccesos = vehiculo?.cantidadAccesos != null ? Number(vehiculo.cantidadAccesos) : null;
+    
+    if (cantidadAccesos === 4) {
+      // Requerir máximo 4 bluevox (permitir menos, bloquear más)
+      idsBlueVoxsCtrl?.setValidators([
+        Validators.required,
+        this.exactlyFourBluevoxValidator.bind(this)
+      ]);
+      // Solo limpiar si REBASAN el límite (más de 4), no si tienen menos
+      const currentValue = idsBlueVoxsCtrl?.value || [];
+      if (Array.isArray(currentValue) && currentValue.length > 4) {
+        // Si tienen más de 4, dejar solo los primeros 4
+        idsBlueVoxsCtrl?.setValue(currentValue.slice(0, 4), { emitEvent: false });
+      }
+    } else {
+      // Validación normal: al menos 1
+      idsBlueVoxsCtrl?.clearValidators();
+      idsBlueVoxsCtrl?.setValidators([Validators.required]);
+      // Limpiar si había más de 1 seleccionado (viene de un vehículo con cantidadAccesos === 4)
+      const currentValue = idsBlueVoxsCtrl?.value || [];
+      if (Array.isArray(currentValue) && currentValue.length > 1) {
+        // Mantener solo el primero o limpiar todos
+        idsBlueVoxsCtrl?.setValue([], { emitEvent: false });
+      }
+    }
+    
+    idsBlueVoxsCtrl?.updateValueAndValidity({ emitEvent: false });
+    this.cdr.detectChanges();
+  }
+
+  private exactlyFourBluevoxValidator(control: any) {
+    if (!control.value || !Array.isArray(control.value)) {
+      return { required: true };
+    }
+    const count = control.value.length;
+    if (count === 0) {
+      return { required: true };
+    }
+    // Solo validar si REBASAN el límite (más de 4), no si tienen menos
+    if (count > 4) {
+      return { exactlyFour: true, actual: count };
+    }
+    return null;
+  }
+
+  requiereExactamenteCuatro(): boolean {
+    const idVehiculo = this.instalacionesForm.get('idVehiculo')?.value;
+    if (!idVehiculo) return false;
+    const vehiculo = this.listaVehiculos.find((v: any) => Number(v.id) === Number(idVehiculo));
+    const cantidadAccesos = vehiculo?.cantidadAccesos != null ? Number(vehiculo.cantidadAccesos) : null;
+    return cantidadAccesos === 4;
+  }
+
+  getBluevoxHelpText(): string {
+    const selected = this.getSelectedBluevoxCount();
+    if (this.requiereExactamenteCuatro()) {
+      return `Selecciona exactamente 4 Bluevox (${selected} seleccionado${selected !== 1 ? 's' : ''})`;
+    }
+    return `${selected} seleccionado${selected !== 1 ? 's' : ''}`;
   }
 
   private suscribirCambioEquipos(): void {
@@ -254,21 +344,50 @@ export class AltaInstalacionComponent implements OnInit {
       });
 
     this.instalacionesForm
-      .get('idBlueVox')
-      ?.valueChanges.subscribe(async (nuevo: any) => {
+      .get('idsBlueVoxs')
+      ?.valueChanges.subscribe(async (nuevos: any) => {
         if (this.bootstrapping || !this.idInstalacion) return;
-        const prev = this.initialBlueVoxId;
-        if (prev != null && Number(nuevo) !== Number(prev)) {
+        const prev = this.initialBlueVoxIds || [];
+        const nuevosIds = Array.isArray(nuevos) ? nuevos.map((id: any) => Number(id)).filter((id: any) => !isNaN(id)) : [];
+        const prevIds = Array.isArray(prev) ? prev.map((id: any) => Number(id)).filter((id: any) => !isNaN(id)) : [];
+        
+        if (prevIds.length === 0) {
+          // Si no había bluevox anteriores, solo actualizar sin mostrar alerta
+          this.initialBlueVoxIds = nuevosIds;
+          return;
+        }
+        
+        // Verificar si todos los anteriores están en los nuevos (no se removieron)
+        const todosAnterioresEstan = prevIds.every((id: number) => nuevosIds.includes(id));
+        
+        // Verificar si está AGREGANDO (todos los anteriores + más) o REEMPLAZANDO (alguno faltante o agregando sobre 4)
+        const estaAgregando = todosAnterioresEstan && nuevosIds.length > prevIds.length;
+        const estabaCompleto = prevIds.length === 4;
+        const estaSobrepasando = estabaCompleto && nuevosIds.length > 4;
+        const estaReemplazando = !todosAnterioresEstan; // Alguno de los anteriores no está en los nuevos
+        
+        // Solo mostrar alerta si está REEMPLAZANDO (removiendo alguno anterior) 
+        // o si ya tenía 4 completos y está agregando uno más (sobrepasando)
+        const debeMostrarAlerta = estaReemplazando || estaSobrepasando;
+        
+        if (debeMostrarAlerta) {
           const r = await this.solicitarEstadoYComentarios(
-            '¿A qué estado deseas cambiar el BlueVox anterior?'
+            '¿A qué estado deseas cambiar los BlueVox anteriores?'
           );
           if (r) {
+            // Si acepta, guardar el estado y comentarios, y actualizar los IDs de referencia
             this.estatusBluevoxsAnterior = r.estado ?? null;
             this.comentariosBluevox =
               r.comentarios ?? this.comentariosBluevox ?? null;
-            this.initialBlueVoxId = Number(nuevo);
+            this.initialBlueVoxIds = [...nuevosIds]; // Copia del array para mantener referencia
           }
+          // Si cancela, mantener los cambios en el formulario pero no actualizar estatus anteriores
+          // Los IDs actuales del formulario se enviarán al actualizar (se toman del getNumericFormPayload)
+        } else if (estaAgregando) {
+          // Si solo está agregando (sin reemplazar), actualizar los IDs sin mostrar alerta
+          this.initialBlueVoxIds = [...nuevosIds]; // Copia del array para mantener referencia
         }
+        // Si no hay cambios o son iguales, mantener initialBlueVoxIds como está
       });
   }
 
@@ -395,41 +514,67 @@ export class AltaInstalacionComponent implements OnInit {
     const n = (v: any) => (v == null ? null : Number(v));
 
     forkJoin({
-      dispositivos: this.dispoService.obtenerDispositivosByCliente(idCliente),
-      bluevox: this.blueVoService.obtenerDispositivosBlueByCliente(idCliente),
-      vehiculos: this.vehiService.obtenerVehiculosByCliente(idCliente),
+      dispositivos: this.dispoService.obtenerDispositivosByCliente(idCliente).pipe(
+        catchError((err) => {
+          console.error('Error al obtener dispositivos:', err);
+          return of({ data: [] }); // Retornar estructura vacía si falla
+        })
+      ),
+      bluevox: this.blueVoService.obtenerDispositivosBlueByCliente(idCliente).pipe(
+        catchError((err) => {
+          console.error('Error al obtener bluevox:', err);
+          return of({ data: [] }); // Retornar estructura vacía si falla
+        })
+      ),
+      vehiculos: this.vehiService.obtenerVehiculosByCliente(idCliente).pipe(
+        catchError((err) => {
+          console.error('Error al obtener vehículos:', err);
+          return of({ data: [] }); // Retornar estructura vacía si falla
+        })
+      ),
     })
       .pipe(finalize(() => (this.loadingDependientes = false)))
       .subscribe({
         next: (resp: any) => {
-          const devsRaw = this.ensureArray(
-            resp?.dispositivos ?? resp?.data?.dispositivos ?? resp?.data
-          );
-          const bvxRaw = this.ensureArray(
-            resp?.bluevox ?? resp?.data?.bluevox ?? resp?.data
-          );
-          const vehRaw = this.ensureArray(
-            resp?.vehiculos ?? resp?.data?.vehiculos ?? resp?.data
-          );
+          // Cada servicio devuelve { data: [...] }, con forkJoin accedemos a resp.vehiculos.data
+          const devsRaw = Array.isArray(resp?.dispositivos?.data) 
+            ? resp.dispositivos.data 
+            : Array.isArray(resp?.dispositivos) 
+              ? resp.dispositivos 
+              : [];
+          const bvxRaw = Array.isArray(resp?.bluevox?.data) 
+            ? resp.bluevox.data 
+            : Array.isArray(resp?.bluevox) 
+              ? resp.bluevox 
+              : [];
+          const vehRaw = Array.isArray(resp?.vehiculos?.data) 
+            ? resp.vehiculos.data 
+            : Array.isArray(resp?.vehiculos) 
+              ? resp.vehiculos 
+              : [];
 
-          this.listaDipositivos = this.normalizeId(devsRaw, [
-            'id',
-            'idDispositivo',
-            'IdDispositivo',
-            'IDDispositivo',
-          ]);
-          this.listaBlueVox = this.normalizeId(bvxRaw, [
-            'id',
-            'idBlueVox',
-            'IdBlueVox',
-            'IDBlueVox',
-          ]);
-          this.listaVehiculos = this.normalizeId(vehRaw, [
-            'id',
-            'idVehiculo',
-            'IdVehiculo',
-            'IDVehiculo',
-          ]);
+          // Normalizar dispositivos
+          this.listaDipositivos = Array.isArray(devsRaw) ? devsRaw.map((d: any) => ({
+            ...d,
+            id: Number(d?.id ?? d?.idDispositivo ?? d?.IdDispositivo ?? d?.IDDispositivo ?? 0)
+          })) : [];
+
+          // Normalizar bluevox - priorizar idBlueVox para que coincida con los IDs de la instalación
+          this.listaBlueVox = Array.isArray(bvxRaw) ? bvxRaw.map((b: any) => {
+            // Priorizar idBlueVox para que coincida con los IDs extraídos de blueVoxs en obtenerInstalacion
+            const normalizedId = Number(b?.idBlueVox ?? b?.id ?? b?.IdBlueVox ?? b?.IDBlueVox ?? 0);
+            return {
+              ...b,
+              id: normalizedId,
+              idBlueVox: normalizedId // Asegurar que idBlueVox esté presente
+            };
+          }) : [];
+
+          // Normalizar vehículos
+          this.listaVehiculos = Array.isArray(vehRaw) ? vehRaw.map((v: any) => ({
+            ...v,
+            id: Number(v?.id ?? v?.idVehiculo ?? v?.IdVehiculo ?? v?.IDVehiculo ?? 0)
+          })) : [];
 
           if (!this.listaDipositivos?.length) this.listaDipositivos = [];
           this.listaDipositivos = this.ensureSelectedOptionVisible(
@@ -440,12 +585,32 @@ export class AltaInstalacionComponent implements OnInit {
           );
 
           if (!this.listaBlueVox?.length) this.listaBlueVox = [];
-          this.listaBlueVox = this.ensureSelectedOptionVisible(
-            this.listaBlueVox,
-            this.pendingSelecciones?.idBlueVox,
-            this.pendingLabels.bluevox,
-            'numeroSerieBlueVox'
-          );
+          
+          // Asegurar que los bluevox seleccionados estén en la lista
+          if (applyPending && this.pendingSelecciones.idsBlueVoxs && Array.isArray(this.pendingSelecciones.idsBlueVoxs)) {
+            this.pendingSelecciones.idsBlueVoxs.forEach((pendingId: any) => {
+              const numPendingId = Number(pendingId);
+              const exists = this.listaBlueVox.some((bv: any) => {
+                const bvId = Number(bv?.id ?? bv?.idBlueVox ?? 0);
+                return bvId === numPendingId;
+              });
+              if (!exists && numPendingId > 0) {
+                // Usar los datos guardados del servicio si están disponibles
+                const bvData = this.blueVoxsDataFromService[numPendingId];
+                if (bvData) {
+                  // Agregar el bluevox con los datos completos del servicio
+                  this.listaBlueVox.push(bvData);
+                } else {
+                  // Si no hay datos del servicio, agregar con estructura mínima (no mostrar ID)
+                  this.listaBlueVox.push({
+                    id: numPendingId,
+                    idBlueVox: numPendingId,
+                    numeroSerieBlueVox: '' // No mostrar ID si no hay número de serie
+                  });
+                }
+              }
+            });
+          }
 
           if (!this.listaVehiculos?.length) this.listaVehiculos = [];
           this.listaVehiculos = this.ensureSelectedOptionVisible(
@@ -463,9 +628,24 @@ export class AltaInstalacionComponent implements OnInit {
               n(this.pendingSelecciones.idDispositivo),
               { emitEvent: false }
             );
-            f.get('idBlueVox')?.setValue(n(this.pendingSelecciones.idBlueVox), {
-              emitEvent: false,
-            });
+            if (this.pendingSelecciones.idsBlueVoxs && Array.isArray(this.pendingSelecciones.idsBlueVoxs) && this.pendingSelecciones.idsBlueVoxs.length > 0) {
+              // Normalizar IDs para que coincidan con los IDs de listaBlueVox
+              const normalizedIds = this.pendingSelecciones.idsBlueVoxs
+                .map((id: any) => {
+                  const numId = n(id);
+                  if (numId == null) return null;
+                  // Buscar en listaBlueVox para obtener el ID normalizado
+                  const found = this.listaBlueVox.find((bv: any) => {
+                    const bvId = Number(bv?.id ?? bv?.idBlueVox ?? 0);
+                    return bvId === numId;
+                  });
+                  return found ? Number(found.id) : numId;
+                })
+                .filter((id: any) => id != null);
+              
+              f.get('idsBlueVoxs')?.setValue(normalizedIds, { emitEvent: false });
+              this.cdr.detectChanges();
+            }
             f.get('idVehiculo')?.setValue(
               n(this.pendingSelecciones.idVehiculo),
               { emitEvent: false }
@@ -488,12 +668,7 @@ export class AltaInstalacionComponent implements OnInit {
             this.pendingLabels.dispositivo,
             'numeroSerie'
           );
-          this.listaBlueVox = this.ensureSelectedOptionVisible(
-            [],
-            this.pendingSelecciones?.idBlueVox,
-            this.pendingLabels.bluevox,
-            'numeroSerieBlueVox'
-          );
+          // No necesitamos ensureSelectedOptionVisible para múltiples selecciones
           this.listaVehiculos = this.ensureSelectedOptionVisible(
             [],
             this.pendingSelecciones?.idVehiculo,
@@ -508,10 +683,12 @@ export class AltaInstalacionComponent implements OnInit {
               n(this.pendingSelecciones.idDispositivo),
               { emitEvent: false }
             );
-          if (this.pendingSelecciones.idBlueVox != null)
-            f.get('idBlueVox')?.setValue(n(this.pendingSelecciones.idBlueVox), {
-              emitEvent: false,
-            });
+          if (this.pendingSelecciones.idsBlueVoxs && Array.isArray(this.pendingSelecciones.idsBlueVoxs) && this.pendingSelecciones.idsBlueVoxs.length > 0) {
+            f.get('idsBlueVoxs')?.setValue(
+              this.pendingSelecciones.idsBlueVoxs.map((id: any) => n(id)).filter((id: any) => id != null),
+              { emitEvent: false }
+            );
+          }
           if (this.pendingSelecciones.idVehiculo != null)
             f.get('idVehiculo')?.setValue(
               n(this.pendingSelecciones.idVehiculo),
@@ -546,12 +723,38 @@ export class AltaInstalacionComponent implements OnInit {
         const idDispositivo = this.toNumOrNull(
           raw.idDispositivo ?? raw?.dispositivos?.id
         );
-        const idBlueVox = this.toNumOrNull(raw.idBlueVox ?? raw?.blueVoxs?.id);
+        // Manejar blueVoxs si viene como array de objetos
+        let idsBlueVoxs: number[] = [];
+        this.blueVoxsDataFromService = {}; // Limpiar datos previos
+        
+        if (Array.isArray(raw.blueVoxs) && raw.blueVoxs.length > 0) {
+          // Extraer idBlueVox de cada objeto en el array y guardar los datos completos
+          idsBlueVoxs = raw.blueVoxs
+            .map((bv: any) => {
+              // Priorizar idBlueVox, luego id
+              const bvId = this.toNumOrNull(bv?.idBlueVox ?? bv?.id ?? null);
+              if (bvId != null) {
+                // Guardar los datos completos del bluevox por ID
+                this.blueVoxsDataFromService[bvId] = {
+                  ...bv,
+                  id: bvId,
+                  idBlueVox: bvId
+                };
+              }
+              return bvId;
+            })
+            .filter((id: any) => id != null) as number[];
+        } else if (Array.isArray(raw.idsBlueVoxs)) {
+          // Fallback: si viene como array de IDs directamente
+          idsBlueVoxs = raw.idsBlueVoxs
+            .map((id: any) => this.toNumOrNull(id))
+            .filter((id: any) => id != null) as number[];
+        }
         const idVehiculo = this.toNumOrNull(
           raw.idVehiculo ?? raw?.vehiculos?.id
         );
         this.initialDispositivoId = idDispositivo ?? null;
-        this.initialBlueVoxId = idBlueVox ?? null;
+        this.initialBlueVoxIds = idsBlueVoxs.length > 0 ? idsBlueVoxs : null;
         this.pendingLabels = {
           dispositivo: raw?.numeroSerieDispositivo ?? raw?.numeroSerie ?? null,
           bluevox: raw?.numeroSerieBlueVox ?? raw?.numeroSerie ?? null,
@@ -566,7 +769,7 @@ export class AltaInstalacionComponent implements OnInit {
           { idCliente, estatus },
           { emitEvent: false }
         );
-        this.pendingSelecciones = { idDispositivo, idBlueVox, idVehiculo };
+        this.pendingSelecciones = { idDispositivo, idsBlueVoxs: idsBlueVoxs.length > 0 ? idsBlueVoxs : undefined, idVehiculo };
         if (idCliente) {
           this.cargarListasPorCliente(idCliente, true);
         } else {
@@ -576,12 +779,7 @@ export class AltaInstalacionComponent implements OnInit {
             this.pendingLabels.dispositivo,
             'numeroSerie'
           );
-          this.listaBlueVox = this.ensureSelectedOptionVisible(
-            [],
-            idBlueVox,
-            this.pendingLabels.bluevox,
-            'numeroSerieBlueVox'
-          );
+          // No necesitamos ensureSelectedOptionVisible para múltiples selecciones
           this.listaVehiculos = this.ensureSelectedOptionVisible(
             [],
             idVehiculo,
@@ -592,8 +790,9 @@ export class AltaInstalacionComponent implements OnInit {
           const opts = { emitEvent: false };
           if (idDispositivo != null)
             f.get('idDispositivo')?.patchValue(idDispositivo, opts);
-          if (idBlueVox != null)
-            f.get('idBlueVox')?.patchValue(idBlueVox, opts);
+          if (idsBlueVoxs.length > 0) {
+            f.get('idsBlueVoxs')?.patchValue(idsBlueVoxs, opts);
+          }
           if (idVehiculo != null)
             f.get('idVehiculo')?.patchValue(idVehiculo, opts);
 
@@ -623,7 +822,9 @@ export class AltaInstalacionComponent implements OnInit {
       estatus: this.toNumOrNull(raw.estatus) ?? 1,
       idCliente: this.toNumOrNull(raw.idCliente) ?? this.idClienteUser,
       idDispositivo: this.toNumOrNull(raw.idDispositivo),
-      idBlueVox: this.toNumOrNull(raw.idBlueVox),
+      idsBlueVoxs: Array.isArray(raw.idsBlueVoxs) 
+        ? raw.idsBlueVoxs.map((id: any) => this.toNumOrNull(id)).filter((id: any) => id != null)
+        : [],
       idVehiculo: this.toNumOrNull(raw.idVehiculo),
     };
   }
@@ -644,15 +845,29 @@ export class AltaInstalacionComponent implements OnInit {
       this.loading = false;
       const etiquetas: any = {
         idDispositivo: 'Dispositivo',
-        idBlueVox: 'Bluevox',
+        idsBlueVoxs: 'Bluevox',
         idVehiculo: 'Vehículo',
         idCliente: 'Cliente',
+      };
+      
+      // Mensajes personalizados para validación de bluevox
+      const mensajesPersonalizados: any = {
+        exactlyFour: (control: any) => {
+          const actual = control.errors?.['exactlyFour']?.actual || 0;
+          return `Bluevox: Se requieren exactamente 4 selecciones (tienes ${actual})`;
+        },
       };
       const camposFaltantes: string[] = [];
       Object.keys(this.instalacionesForm.controls).forEach((key) => {
         const control = this.instalacionesForm.get(key);
-        if (control?.invalid && control.errors?.['required'])
-          camposFaltantes.push(etiquetas[key] || key);
+        if (control?.invalid) {
+          if (control.errors?.['required']) {
+            camposFaltantes.push(etiquetas[key] || key);
+          } else if (control.errors?.['exactlyFour']) {
+            const actual = control.errors['exactlyFour'].actual || 0;
+            camposFaltantes.push(`Bluevox: Se requieren exactamente 4 selecciones (tienes ${actual})`);
+          }
+        }
       });
 
       const lista = camposFaltantes
@@ -721,11 +936,17 @@ export class AltaInstalacionComponent implements OnInit {
 
     const base = this.getNumericFormPayload();
 
+    // Obtener el primer ID del array anterior de bluevox para idBlueVox
+    const idBlueVox = this.initialBlueVoxIds && Array.isArray(this.initialBlueVoxIds) && this.initialBlueVoxIds.length > 0
+      ? this.initialBlueVoxIds[0]
+      : null;
+
     const payload = {
       ...base,
       estatusDispositivoAnterior: this.estatusDispositivoAnterior ?? null,
-      comentariosDispositivo: this.comentariosDispositivo ?? null,
+      idBlueVox: idBlueVox ?? null,
       estatusBluevoxsAnterior: this.estatusBluevoxsAnterior ?? null,
+      comentariosDispositivo: this.comentariosDispositivo ?? null,
       comentariosBluevox: this.comentariosBluevox ?? null,
     };
 
@@ -766,5 +987,145 @@ export class AltaInstalacionComponent implements OnInit {
 
   regresar(): void {
     this.route.navigateByUrl('/instalaciones');
+  }
+
+  toggleBluevoxDropdown(): void {
+    const idsBlueVoxsCtrl = this.instalacionesForm.get('idsBlueVoxs');
+    if (idsBlueVoxsCtrl?.disabled) {
+      return; // No abrir si está deshabilitado
+    }
+    this.showBluevoxDropdown = !this.showBluevoxDropdown;
+  }
+
+  isBluevoxSelected(id: number): boolean {
+    const selected = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
+    if (!Array.isArray(selected) || selected.length === 0) {
+      return false;
+    }
+    const selectedIds = selected.map((sid: any) => Number(sid));
+    const bvId = Number(id);
+    return selectedIds.includes(bvId);
+  }
+
+  toggleBluevox(id: number, event: any): void {
+    const currentValue = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
+    const selectedIds = Array.isArray(currentValue) ? [...currentValue] : [];
+    
+    // Verificar si requiere exactamente 4
+    const requiereCuatro = this.requiereExactamenteCuatro();
+    
+    if (event.target.checked) {
+      // Solo validar si requiere 4 y ya hay 4 o más seleccionados
+      if (requiereCuatro && selectedIds.length >= 4) {
+        // Ya hay 4 o más seleccionados, intentando agregar uno más - REBASAR el límite
+        event.target.checked = false;
+        Swal.fire({
+          title: 'Límite alcanzado',
+          text: 'Este vehículo tiene 4 accesos, solo puedes seleccionar exactamente 4 Bluevox.',
+          icon: 'warning',
+          background: '#002136',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Entendido',
+        });
+        return;
+      }
+      // Si tiene menos de 4, permitir seleccionar
+      if (!selectedIds.includes(id)) {
+        selectedIds.push(id);
+      }
+    } else {
+      // Al deseleccionar, siempre permitir (no hay límite mínimo)
+      const index = selectedIds.indexOf(id);
+      if (index > -1) {
+        selectedIds.splice(index, 1);
+      }
+    }
+    
+    this.instalacionesForm.patchValue({ idsBlueVoxs: selectedIds });
+    this.instalacionesForm.get('idsBlueVoxs')?.updateValueAndValidity({ emitEvent: false });
+    this.cdr.detectChanges();
+  }
+
+  isBluevoxDisabled(id: number): boolean {
+    // Primero verificar si el campo está deshabilitado
+    if (this.instalacionesForm.get('idsBlueVoxs')?.disabled) {
+      return true;
+    }
+    
+    // Luego verificar si requiere exactamente 4
+    if (!this.requiereExactamenteCuatro()) {
+      return false;
+    }
+    const currentValue = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
+    const selectedIds = Array.isArray(currentValue) ? currentValue : [];
+    // Deshabilitar si ya hay 4 seleccionados y este no está seleccionado
+    return selectedIds.length >= 4 && !selectedIds.includes(id);
+  }
+
+  getBluevoxDisplayText(): string {
+    const selected = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
+    if (!Array.isArray(selected) || selected.length === 0) {
+      return 'Seleccione Bluevox';
+    }
+    
+    // Obtener los bluevox seleccionados y mostrar sus números de serie
+    const selectedBluevox = selected
+      .map((id: number) => {
+        const bvId = Number(id);
+        return this.listaBlueVox.find((b: any) => {
+          const bId = Number(b?.id ?? b?.idBlueVox ?? 0);
+          return bId === bvId;
+        });
+      })
+      .filter((bv: any) => bv != null)
+      .map((bv: any) => this.displayBluevox(bv))
+      .filter((serie: string) => serie && serie.trim() !== '');
+    
+    if (selectedBluevox.length === 0) {
+      return 'Seleccione Bluevox';
+    }
+    
+    // SIEMPRE mostrar los números de serie separados por comas
+    return selectedBluevox.join(', ');
+  }
+
+  getSelectedBluevoxCount(): number {
+    const selected = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
+    return Array.isArray(selected) ? selected.length : 0;
+  }
+
+  getSelectedBluevox(): any[] {
+    const selected = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
+    if (!Array.isArray(selected) || selected.length === 0 || !this.listaBlueVox || this.listaBlueVox.length === 0) {
+      return [];
+    }
+    const selectedIds = selected.map((id: any) => Number(id));
+    return this.listaBlueVox.filter((bv: any) => {
+      const bvId = Number(bv?.id ?? bv?.idBlueVox ?? 0);
+      return selectedIds.includes(bvId);
+    });
+  }
+
+  getAvailableBluevox(): any[] {
+    const selected = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
+    if (!this.listaBlueVox || this.listaBlueVox.length === 0) {
+      return [];
+    }
+    if (!Array.isArray(selected) || selected.length === 0) {
+      return [...this.listaBlueVox];
+    }
+    const selectedIds = selected.map((id: any) => Number(id));
+    return this.listaBlueVox.filter((bv: any) => {
+      const bvId = Number(bv?.id ?? bv?.idBlueVox ?? 0);
+      return !selectedIds.includes(bvId);
+    });
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.bluevox-dropdown-container')) {
+      this.showBluevoxDropdown = false;
+    }
   }
 }

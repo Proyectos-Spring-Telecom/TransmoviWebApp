@@ -24,7 +24,7 @@ type Dispositivo = { nombre: string; tipo: 'critico'|'advertencia'|'info'; motiv
 export class DefaultComponent implements OnInit {
   palette = ['#19b394','#22d3ee','#5aa6ff','#7dd3fc','#93c5fd','#16a34a','#f59e0b','#ef4444'];
 
-  kpis: { t: string; v: any; s: string }[] = [];
+  kpis: { t: string; v: any; s?: string }[] = [];
   rutas = ['Ruta Centro','Ruta Norte','Ruta Sur','Ruta Express','Ruta Aeropuerto','Ruta Oriente','Ruta Poniente'];
   monederos = Array.from({ length: 120 }, (_, i) => `MON${i + 1}`);
 
@@ -35,6 +35,7 @@ export class DefaultComponent implements OnInit {
   dsBrecha: { hora: string; ascensos: number; boletos: number }[] = [];
   dsMediosPago: { medio: string; valor: number }[] = [];
   dsPuntualidad: { bin: string; viajes: number }[] = [];
+  dsVelocidadPromedio: { ruta: string; velocidad: number }[] = [];
 
   topRutas: { nombre: string; ingresos: number; viajes: number }[] = [];
   tituloIngresos: string = 'Ingresos por hora (hoy)';
@@ -62,31 +63,11 @@ export class DefaultComponent implements OnInit {
   private kpisCargados: boolean = false;
   private ejecutandoKPIs: boolean = false;
 
-  // Series (una por ruta)
-// ===== Pasajeros por ruta (FIJO) =====
-seriesPasajeros = [
-  { valueField: 'centro',  name: 'Ruta Centro'  },
-  { valueField: 'aeropuerto', name: 'Ruta Aeropuerto' },
-  { valueField: 'oriente', name: 'Ruta Oriente' },
-  { valueField: 'poniente', name: 'Ruta Poniente' },
-  { valueField: 'norte',   name: 'Ruta Norte'   },
-];
-
-dsPasajerosPorHora = [
-  { hora: '05:00', centro:  9, aeropuerto:  5, oriente: 12, poniente:  7, norte:  6 },
-  { hora: '06:00', centro: 18, aeropuerto: 10, oriente: 26, poniente: 14, norte: 12 },
-  { hora: '07:00', centro: 36, aeropuerto: 20, oriente: 48, poniente: 28, norte: 25 },
-  { hora: '08:00', centro: 40, aeropuerto: 22, oriente: 54, poniente: 30, norte: 28 },
-  { hora: '09:00', centro: 29, aeropuerto: 16, oriente: 38, poniente: 21, norte: 20 },
-  { hora: '10:00', centro: 24, aeropuerto: 12, oriente: 30, poniente: 17, norte: 17 },
-  { hora: '11:00', centro: 22, aeropuerto: 11, oriente: 28, poniente: 16, norte: 16 },
-  { hora: '12:00', centro: 26, aeropuerto: 13, oriente: 33, poniente: 18, norte: 19 },
-  { hora: '13:00', centro: 32, aeropuerto: 15, oriente: 41, poniente: 22, norte: 23 },
-  { hora: '14:00', centro: 36, aeropuerto: 17, oriente: 47, poniente: 24, norte: 26 },
-  { hora: '15:00', centro: 34, aeropuerto: 16, oriente: 44, poniente: 23, norte: 25 },
-  { hora: '16:00', centro: 30, aeropuerto: 15, oriente: 39, poniente: 21, norte: 22 },
-  { hora: '17:00', centro: 27, aeropuerto: 14, oriente: 35, poniente: 19, norte: 20 },
-];
+  // Series (una por ruta) - Se generan dinámicamente desde los datos del servicio
+  seriesPasajeros: { valueField: string; name: string }[] = [];
+  
+  // Datos de pasajeros por periodo/ruta - Se llenan desde el servicio
+  dsPasajerosPorHora: any[] = [];
 
 
 
@@ -224,13 +205,13 @@ dsPasajerosPorHora = [
 
     this.kpis = [
       { t: 'Ingresos del día (MXN)', v: ingresosDelDia.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }), s: `${debitos.length} movimientos` },
-      { t: 'Pasajeros validados hoy', v: pasajerosValidados, s: `${tarjetasUnicas.length} monederos únicos` },
-      { t: 'Ticket promedio', v: ticket.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }), s: 'Hoy' },
-      { t: '% Pagos electrónicos vs efectivo', v: `${pctElec}% / ${pctEfec}%`, s: `${ascensos} ascensos • ${pasajerosValidados} validados` },
-      { t: 'Validaciones', v: `${debitos.length} / ${Math.floor(5 + Math.random() * 20)} fallidas`, s: 'Hoy' },
+      { t: 'Pasajeros alidados hoy', v: pasajerosValidados, s: `${tarjetasUnicas.length} Monederos Únicos` },
+      { t: 'Ticket Promedio', v: ticket.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }) },
+      { t: '% Pagos electrónicos vs efectivo', v: `${pctElec}% / ${pctEfec}%`, s: `${ascensos} Ascensos • ${pasajerosValidados} Validados` },
+      { t: 'Validaciones', v: `${debitos.length} / ${Math.floor(5 + Math.random() * 20)} fallidas` },
       { t: 'Unidades en servicio / total', v: `${unidadesServ} / ${unidadesTotales}`, s: 'Últimos 15 min' },
-      { t: 'Cumplimiento de turnos', v: `${cumplimiento}%`, s: `${turnosFin}/${turnosInicio} cerrados` },
-      { t: 'Ocupación promedio', v: `${ocupacion}%`, s: 'Capacidad teórica 35' }
+      { t: 'Cumplimiento de turnos', v: `${cumplimiento}%`, s: `${turnosFin}/${turnosInicio} Cerrados` },
+      { t: 'Ocupación promedio', v: `${ocupacion}%`, s: 'Capacidad Teórica' }
     ];
   }
 
@@ -249,6 +230,59 @@ dsPasajerosPorHora = [
     const ingreso = (d?.ingreso ?? 0).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
     const ticket = (d?.ticket ?? 0).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
     return { text: `${arg.argumentText}\nIngresos: ${ingreso}\nTicket: ${ticket}` };
+  };
+
+  customizePasajerosTooltip = (arg: any) => {
+    // Para gráficas apiladas, arg puede tener información de la serie específica o del punto completo
+    const data = arg.point?.data || arg.point?.tag || arg.series?.data || {};
+    const periodo = arg.argumentText || '';
+    let texto = `Periodo: ${periodo}\n`;
+    
+    // Si hay información de la serie específica, mostrar solo esa
+    if (arg.series?.name && arg.value !== undefined) {
+      const serieName = arg.series.name;
+      const valor = Number(arg.value) || 0;
+      texto += `${serieName}: ${valor}`;
+      return { text: texto };
+    }
+    
+    // Si no, mostrar todas las rutas y el total
+    let total = 0;
+    this.seriesPasajeros.forEach((serie) => {
+      const valor = Number(data[serie.valueField]) || 0;
+      if (valor > 0) {
+        texto += `${serie.name}: ${valor}\n`;
+        total += valor;
+      }
+    });
+    
+    if (total > 0) {
+      texto += `\nTotal: ${total}`;
+    }
+    
+    return { text: texto };
+  };
+
+  customizeAscensosBoletosTooltip = (arg: any) => {
+    const data = arg.point?.data || arg.point?.tag || {};
+    const periodo = arg.argumentText || '';
+    const ascensos = Number(data?.ascensos) || 0;
+    const boletos = Number(data?.boletos) || 0;
+    const diferencia = ascensos - boletos;
+    
+    return { 
+      text: `Periodo: ${periodo}\nAscensos: ${ascensos}\nBoletos: ${boletos}\nDiferencia: ${diferencia >= 0 ? '+' : ''}${diferencia}` 
+    };
+  };
+
+  customizeVelocidadTooltip = (arg: any) => {
+    const data = arg.point?.data || arg.point?.tag || {};
+    const ruta = arg.argumentText || data?.ruta || '';
+    const velocidad = Number(data?.velocidad) || 0;
+    
+    return { 
+      text: `Ruta: ${ruta}\nVelocidad: ${velocidad} km/h` 
+    };
   };
 
   private cargarClientes(): void {
@@ -469,16 +503,93 @@ dsPasajerosPorHora = [
     }
 
     // Procesar graficaAscensoBoleto para dsBrecha
-    if (data.graficaAscensoBoleto && Array.isArray(data.graficaAscensoBoleto)) {
+    if (data.graficaAscensoBoleto && Array.isArray(data.graficaAscensoBoleto) && data.graficaAscensoBoleto.length > 0) {
       this.dsBrecha = data.graficaAscensoBoleto.map((item: any, index: number) => {
         const periodoFormateado = this.formatearPeriodo(item.periodo, index);
         
+        // Convertir explícitamente a números para asegurar que se muestren en la gráfica
+        const ascensos = Number(item.ascensos) || 0;
+        const boletos = Number(item.boletos) || 0;
+        
         return {
           hora: periodoFormateado,
-          ascensos: item.ascensos ?? 0,
-          boletos: item.boletos ?? 0
+          ascensos: ascensos,
+          boletos: boletos
         };
       });
+    } else {
+      // Si no hay datos, inicializar con array vacío para evitar errores
+      this.dsBrecha = [];
+    }
+
+    // Procesar graficaPasajerosPorRutas para dsPasajerosPorHora
+    if (data.graficaPasajerosPorRutas && Array.isArray(data.graficaPasajerosPorRutas) && data.graficaPasajerosPorRutas.length > 0) {
+      // Obtener todas las rutas únicas
+      const rutasUnicas = new Set<string>();
+      data.graficaPasajerosPorRutas.forEach((item: any) => {
+        const nombreRuta = item.ruta ?? item.Ruta ?? '';
+        if (nombreRuta) {
+          rutasUnicas.add(nombreRuta);
+        }
+      });
+
+      // Crear las series dinámicamente basadas en las rutas encontradas
+      this.seriesPasajeros = Array.from(rutasUnicas).map((ruta) => {
+        // Crear un campo válido para el valueField (sin espacios, en minúsculas)
+        const valueField = ruta.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+        return {
+          valueField: valueField,
+          name: ruta
+        };
+      });
+
+      // Agrupar datos por periodo
+      const datosPorPeriodo = new Map<string, any>();
+      
+      data.graficaPasajerosPorRutas.forEach((item: any) => {
+        const periodo = item.periodo ?? '';
+        const nombreRuta = item.ruta ?? item.Ruta ?? '';
+        const pasajeros = Number(item.pasajeros) || 0;
+        
+        if (!periodo || !nombreRuta) return;
+        
+        if (!datosPorPeriodo.has(periodo)) {
+          datosPorPeriodo.set(periodo, { hora: this.formatearPeriodo(periodo) });
+        }
+        
+        const valueField = nombreRuta.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+        datosPorPeriodo.get(periodo)[valueField] = pasajeros;
+      });
+
+      // Convertir a array y asegurar que todas las rutas tengan valor 0 si no están presentes
+      this.dsPasajerosPorHora = Array.from(datosPorPeriodo.values()).map((item: any) => {
+        this.seriesPasajeros.forEach((serie) => {
+          if (!(serie.valueField in item)) {
+            item[serie.valueField] = 0;
+          }
+        });
+        return item;
+      });
+    } else {
+      // Si no hay datos, inicializar con arrays vacíos
+      this.seriesPasajeros = [];
+      this.dsPasajerosPorHora = [];
+    }
+
+    // Procesar velocidadPromedioPorRuta para dsVelocidadPromedio
+    if (data.velocidadPromedioPorRuta && Array.isArray(data.velocidadPromedioPorRuta)) {
+      this.dsVelocidadPromedio = data.velocidadPromedioPorRuta.map((item: any) => {
+        const nombreRuta = item.ruta ?? item.Ruta ?? 'Sin nombre';
+        const velocidad = Number(item.velocidad_promedio) || 0;
+        
+        return {
+          ruta: nombreRuta,
+          velocidad: velocidad
+        };
+      });
+    } else {
+      // Si no hay datos, inicializar con array vacío
+      this.dsVelocidadPromedio = [];
     }
 
     // Procesar grafica4 para topRutas
@@ -515,9 +626,11 @@ dsPasajerosPorHora = [
       // Ingresos del día
       if (titulo.includes('ingresos') && (titulo.includes('día') || titulo.includes('dia'))) {
         const valor = data.ingresosAlDia ?? 0;
+        const totalMovimientos = data.totalMovimientos ?? 0;
         return {
           ...kpi,
-          v: valor.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })
+          v: valor.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }),
+          s: `${totalMovimientos} movimientos`
         };
       }
       
