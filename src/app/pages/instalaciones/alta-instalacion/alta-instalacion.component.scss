@@ -356,7 +356,490 @@ div:where(.swal2-container) .swal2-html-container {
   }
 }
 
-// Estilos para el dropdown personalizado de bluevox
+// Botón selector de Bluevox - Estilo igual a DevExtreme select-box
+.btn-bluevox-selector {
+  min-height: 42px;
+  padding: 0 12px;
+  background-color: #1e2832;
+  border-radius: 4px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #414b5f #414b5f #8996af;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: left;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  outline: none;
+  width: 100%;
+  box-shadow: none;
+
+  &:hover:not(.disabled) {
+    background-color: #1e2832;
+    border-color: #414b5f #414b5f #8996af;
+    color: white;
+  }
+
+  &:focus:not(.disabled) {
+    background-color: #1e2832;
+    border-color: #414b5f #414b5f #8996af;
+    box-shadow: none;
+    color: white;
+    outline: none;
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background-color: #1e2832;
+    border-color: #414b5f #414b5f #8996af;
+  }
+
+  .selector-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    height: 42px;
+    line-height: 42px;
+    padding: 0;
+  }
+
+  .selector-icon {
+    margin-left: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  &:hover:not(.disabled) .selector-icon {
+    transform: translateX(2px);
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+// Modal personalizado para Bluevox
+::ng-deep .bluevox-modal-custom {
+  .modal-dialog {
+    max-width: 900px;
+    margin: 2rem auto;
+  }
+
+  .modal-content {
+    background: #002136;
+    border: 1px solid #213041;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+  }
+}
+
+.bluevox-modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 85vh;
+}
+
+.bluevox-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #213041;
+  background: linear-gradient(135deg, #0f3a43, #0f544f);
+
+  .modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: white;
+    display: flex;
+    align-items: center;
+
+    i {
+      color: #4ade80;
+    }
+  }
+
+  .btn-close-modal {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+.bluevox-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+
+  // Barra de búsqueda
+  .search-container {
+    .input-group {
+      background: #1e2832;
+      border: 1px solid #414b5f;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+
+      .input-group-text {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        padding: 12px 14px;
+      }
+
+      .search-input {
+        background: transparent;
+        border: none;
+        color: white;
+        padding: 12px 14px;
+        flex: 1;
+        outline: none;
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.4);
+        }
+
+        &:focus {
+          background: transparent;
+        }
+      }
+
+      .btn-clear-search {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        z-index: 10;
+
+        &:hover {
+          color: white;
+          background: rgba(255, 255, 255, 0.1);
+        }
+      }
+
+      &:focus-within {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+      }
+    }
+  }
+
+  // Títulos de sección
+  .section-heading {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid;
+    display: flex;
+    align-items: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &.existing-heading {
+      color: #86efac;
+      border-bottom-color: rgba(74, 222, 128, 0.3);
+    }
+
+    &.new-heading {
+      color: #93c5fd;
+      border-bottom-color: rgba(96, 165, 250, 0.3);
+    }
+
+    &.available-heading {
+      color: rgba(255, 255, 255, 0.8);
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  // Grid de tarjetas
+  .bluevox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+    }
+  }
+
+  // Tarjetas de Bluevox
+  .bluevox-card {
+    background: #1e2832;
+    border: 2px solid #414b5f;
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100px;
+
+    &:hover:not(.card-disabled) {
+      border-color: #60a5fa;
+      background: #253041;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(96, 165, 250, 0.2);
+    }
+
+    &.card-selected {
+      border-color: #4ade80;
+      background: rgba(74, 222, 128, 0.1);
+    }
+
+    &.card-will-remove {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+      opacity: 0.85;
+    }
+
+    &.card-will-keep {
+      border-color: #4ade80;
+      background: rgba(74, 222, 128, 0.1);
+    }
+
+    &.card-will-add {
+      border-color: #60a5fa;
+      background: rgba(96, 165, 250, 0.1);
+    }
+
+    &.card-disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .card-checkbox {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+
+      input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #4ade80;
+      }
+    }
+
+    .card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 32px;
+    }
+
+    .card-serial {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: white;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      white-space: nowrap;
+      width: fit-content;
+
+      i {
+        font-size: 0.65rem;
+      }
+
+      &.badge-action-add {
+        background: rgba(96, 165, 250, 0.25);
+        color: #93c5fd;
+        border: 1px solid rgba(96, 165, 250, 0.4);
+      }
+
+      &.badge-action-remove {
+        background: rgba(239, 68, 68, 0.25);
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.4);
+      }
+
+      &.badge-action-keep {
+        background: rgba(74, 222, 128, 0.25);
+        color: #86efac;
+        border: 1px solid rgba(74, 222, 128, 0.4);
+      }
+    }
+  }
+
+  // Estado vacío
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.5);
+
+    i {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    p {
+      margin: 0;
+      font-size: 1rem;
+    }
+  }
+}
+
+.bluevox-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-top: 1px solid #213041;
+  background: #0b1a26;
+
+  .footer-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+
+    .limit-warning {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #fcd34d;
+      font-size: 0.85rem;
+      font-weight: 600;
+
+      i {
+        color: #fbbf24;
+      }
+    }
+
+    .selected-count {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+    }
+  }
+
+  .footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .btn-restore-footer {
+    background: #f59e0b;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+
+    &:hover {
+      background: #d97706;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    i {
+      font-size: 0.9rem;
+    }
+  }
+
+  .btn-cancel-footer {
+    background: #6b7280;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+
+    &:hover {
+      background: #4b5563;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    i {
+      font-size: 0.9rem;
+    }
+  }
+
+  .btn-confirm-footer {
+    background: #3085d6;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+
+    &:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(48, 133, 214, 0.3);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    i {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// Estilos para el dropdown personalizado de bluevox (mantener para compatibilidad)
 .bluevox-dropdown-container {
   .bluevox-dropdown-trigger {
     border: none;
@@ -505,6 +988,274 @@ div:where(.swal2-container) .swal2-html-container {
       letter-spacing: 0.5px;
       background-color: #1a1f2e;
       border-bottom: 1px solid #213041;
+      
+      i {
+        margin-right: 6px;
+      }
+      
+      &.existing-title {
+        color: #4ade80;
+        background-color: rgba(74, 222, 128, 0.1);
+        border-bottom: 1px solid rgba(74, 222, 128, 0.3);
+        
+        i {
+          color: #4ade80;
+        }
+      }
+      
+      &.new-title {
+        color: #60a5fa;
+        background-color: rgba(96, 165, 250, 0.1);
+        border-bottom: 1px solid rgba(96, 165, 250, 0.3);
+        
+        i {
+          color: #60a5fa;
+        }
+      }
+    }
+    
+    .dropdown-item {
+      &.bluevox-existing {
+        background-color: rgba(74, 222, 128, 0.05);
+        border-left: 3px solid rgba(74, 222, 128, 0.3);
+        
+        &:hover {
+          background-color: rgba(74, 222, 128, 0.1);
+        }
+      }
+      
+      &.bluevox-new {
+        background-color: rgba(96, 165, 250, 0.05);
+        border-left: 3px solid rgba(96, 165, 250, 0.3);
+        
+        &:hover {
+          background-color: rgba(96, 165, 250, 0.1);
+        }
+      }
+    }
+    
+    .badge-new-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 8px;
+      padding: 2px 6px;
+      background-color: rgba(96, 165, 250, 0.2);
+      color: #60a5fa;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      
+      i {
+        font-size: 0.7rem;
+      }
+    }
+    
+    // Badges de acción para identificar qué se hará con cada bluevox
+    .bluevox-action-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 8px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      white-space: nowrap;
+      
+      i {
+        font-size: 0.65rem;
+      }
+      
+      &.badge-action-add {
+        background-color: rgba(96, 165, 250, 0.25);
+        color: #93c5fd;
+        border: 1px solid rgba(96, 165, 250, 0.4);
+        
+        i {
+          color: #60a5fa;
+        }
+      }
+      
+      &.badge-action-remove {
+        background-color: rgba(239, 68, 68, 0.25);
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        
+        i {
+          color: #ef4444;
+        }
+      }
+      
+      &.badge-action-keep {
+        background-color: rgba(74, 222, 128, 0.25);
+        color: #86efac;
+        border: 1px solid rgba(74, 222, 128, 0.4);
+        
+        i {
+          color: #4ade80;
+        }
+      }
+    }
+    
+    // Estados visuales para items según su acción
+    .dropdown-item {
+      &.bluevox-will-add {
+        border-left-color: rgba(96, 165, 250, 0.5) !important;
+        
+        &:hover {
+          background-color: rgba(96, 165, 250, 0.15) !important;
+        }
+      }
+      
+      &.bluevox-will-remove {
+        border-left-color: rgba(239, 68, 68, 0.5) !important;
+        opacity: 0.8;
+        
+        &:hover {
+          background-color: rgba(239, 68, 68, 0.15) !important;
+        }
+      }
+      
+      &.bluevox-will-keep {
+        border-left-color: rgba(74, 222, 128, 0.5) !important;
+        
+        &:hover {
+          background-color: rgba(74, 222, 128, 0.1) !important;
+        }
+      }
+    }
+  }
+}
+
+// Botón de información en el label (fuera del contenedor del dropdown)
+.btn-info-bluevox {
+  background: transparent;
+  border: none;
+  color: #60a5fa;
+  font-size: 1rem;
+  margin-left: 8px;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  transition: all 0.2s ease;
+  outline: none;
+  
+  i {
+    font-size: 1rem;
+  }
+  
+  &:hover {
+    color: #93c5fd;
+    transform: scale(1.15);
+  }
+  
+  &:active {
+    transform: scale(1.05);
+  }
+  
+  &:focus {
+    outline: 2px solid rgba(96, 165, 250, 0.5);
+    outline-offset: 2px;
+    border-radius: 50%;
+  }
+}
+
+// Indicador de Bluevox removidos dentro del modal de selección
+.bluevox-removed-indicator-modal {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-left: 3px solid #fbbf24;
+  border-radius: 10px;
+  
+  .indicator-icon {
+    color: #fbbf24;
+    font-size: 18px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  
+  .indicator-content {
+    flex: 1;
+    
+    .indicator-title {
+      margin: 0 0 10px 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fcd34d;
+    }
+    
+    .bluevox-tags-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+      
+      .bluevox-tag-item {
+        display: inline-block;
+        padding: 5px 11px;
+        background: rgba(251, 191, 36, 0.2);
+        border: 1px solid rgba(251, 191, 36, 0.4);
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #fcd34d;
+        letter-spacing: 0.3px;
+      }
+    }
+    
+    .indicator-note {
+      margin: 0;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      font-style: italic;
+      line-height: 1.4;
+    }
+  }
+}
+
+// Mensaje informativo del cambio (fuera del contenedor del dropdown)
+.bluevox-change-message {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  
+  i {
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  
+  &.badge-adding {
+    background-color: rgba(96, 165, 250, 0.15);
+    border: 1px solid rgba(96, 165, 250, 0.3);
+    color: #93c5fd;
+    
+    i {
+      color: #60a5fa;
+    }
+  }
+  
+  &.badge-modifying {
+    background-color: rgba(251, 191, 36, 0.15);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    color: #fcd34d;
+    
+    i {
+      color: #fbbf24;
     }
   }
 }
