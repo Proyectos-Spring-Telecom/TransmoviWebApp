@@ -5,23 +5,20 @@
         <div class="col-lg-12">
           <section class="recarga-ok container-fluid my-4">
             <div class="card glass-card success-header mb-3">
-              <div class="card-body d-flex align-items-center gap-3 position-relative">
+              <div class="card-body d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2 gap-md-3 position-relative">
                 <div class="ok-icon">
                   <i class="fa fa-check"></i>
                 </div>
-                <div class="header-copy">
+                <div class="header-copy flex-grow-1">
                   <div class="eyebrow">
                     <span class="dot"></span> Operación Completada
                   </div>
                   <h2 class="title m-0">¡Recarga Exitosa!</h2>
                   <p class="subtitle m-0">Tu recarga se registró correctamente.</p>
                 </div>
-                <div class="ms-auto d-flex align-items-center gap-3">
-                  <span class="amount-pill" aria-label="Monto recargado">
-                    {{ monto | currency:'MXN':'symbol-narrow':'1.2-2' }}
-                  </span>
+                <div class="ms-md-auto d-flex align-items-center gap-3 w-100 w-md-auto justify-content-md-end">
                   <span class="status-chip">
-                    Id Transacción: {{idTransaccion}}
+                    Monto: {{ monto | currency:'MXN':'symbol-narrow':'1.2-2' }}
                   </span>
                 </div>
                 <span class="beam beam-a" aria-hidden="true"></span>
@@ -29,8 +26,8 @@
               </div>
             </div>
             <div class="card glass-card">
-              <div class="card-header card-header-clean">
-                <div class="header-left">
+              <div class="card-header card-header-clean flex-column flex-md-row">
+                <div class="header-left mb-2 mb-md-0">
                   <span class="fw-semibold">Resumen de la recarga</span>
                   <span class="divider-dot"></span>
                   <small class="muted">Detalles</small>
@@ -77,9 +74,9 @@
                   <div class="kv-tile">
                     <div class="kv-ico"><i class="fa fa-money"></i></div>
                     <div class="kv-content">
-                      <div class="k">Monto recargado</div>
+                      <div class="k">Saldo Actual</div>
                       <div class="v v-ok">
-                        {{ monto | currency:'MXN':'symbol-narrow':'1.2-2' }}
+                        {{ (montoFinal ?? 0) | currency:'MXN':'symbol-narrow':'1.2-2' }}
                       </div>
                     </div>
                   </div>
@@ -88,14 +85,23 @@
                     <div class="kv-content">
                       <div class="k">Fecha y hora</div>
                       <div class="v">
-                        {{ (transaccionForm?.value?.fechaHora || (nowZulu && nowZulu())) | date:'yyyy-MM-dd HH:mm' }}
+                        {{ formatearFechaHora(fechaFinal) }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="kv-tile">
+                    <div class="kv-ico"><i class="fa fa-credit-card"></i></div>
+                    <div class="kv-content">
+                      <div class="k">Método de pago</div>
+                      <div class="v">
+                        {{ metodoPago || 'Sin información' }}
                       </div>
                     </div>
                   </div>
                 </div>
                 <hr class="my-4 soft-divider">
-                <div class="cta-bar d-flex flex-wrap gap-2 justify-content-end">
-                  <button type="button" class="btn btn-success" (click)="irTransacciones()">
+                <div class="cta-bar d-flex flex-wrap gap-2 justify-content-center justify-content-md-end">
+                  <button type="button" class="btn btn-success w-100 w-md-auto" (click)="irTransacciones()">
                     Ver transacciones
                   </button>
                 </div>
@@ -113,12 +119,12 @@
     <div class="icon-wrapper">
       <i class="fas fa-plus"></i>
     </div>
-    <div class="header-text d-flex align-items-center justify-content-between w-100">
+    <div class="header-text d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between w-100 gap-2">
       <div class="titles d-flex flex-column">
-        <h5>{{ 'Realizar Recarga' }}</h5>
-        <span>Completa los datos necesarios para realizar tu recarga.</span>
+        <h5 class="mb-0">{{ 'Realizar Recarga' }}</h5>
+        <span class="d-none d-sm-block">Completa los datos necesarios para realizar tu recarga.</span>
       </div>
-      <button (click)="cancelar()" *ngIf="step !=2" type="button" class="btn btn-danger">
+      <button (click)="cancelar()" *ngIf="step !=2" type="button" class="btn btn-danger align-self-sm-end">
         <i class="fa fa-times"></i>
       </button>
     </div>
@@ -126,39 +132,39 @@
   <div [@fadeInUp] class="card-body" style="padding: 20px; background-color: #002136">
     <form [formGroup]="transaccionForm">
       <div class="row">
-        <section class="table-shell">
-          <div class="topup2b-shell theme-dark-topup">
-            <div class="row">
+        <section class="table-shell w-100">
+          <div class="topup2b-shell theme-dark-topup w-100">
+            <div class="row g-0 g-md-3">
               <div class="col-12 col-lg-12">
                 <div *ngIf="step===1" class="topup2b-card card shadow-sm glass-card flex-fill h-100">
                   <div class="card-body d-flex flex-column">
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                       <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-wallet2 fs-5 text-accent"></i>
-                        <h5 class="m-0">Selecciona un Monedero</h5>
+                        <h5 class="m-0 fs-6 fs-md-5">Selecciona un Monedero</h5>
                       </div>
                     </div>
-                    <div class="row g-3">
+                    <div class="row g-2 g-md-3">
                       <div class="wallet-grid-scroll" *ngIf="listaMonederos?.length > 0; else noWallets">
-                        <div class="row row-cols-3 g-3">
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2 g-md-3">
                           <div class="col" *ngFor="let m of listaMonederos">
-                            <label class="wallet-tile mt-1 w-100" [class.selected]="monederoSeleccionado?.id===m.id">
+                            <label class="wallet-tile mt-1 w-100" [class.selected]="monederoSeleccionado?.id===m.id" (click)="seleccionarMonedero(m)">
                               <span class="tile-ring"></span>
-                              <div class="tile-top">
-                                <div class="avatar-ring">
+                              <div class="tile-top d-flex align-items-start gap-2">
+                                <div class="avatar-ring flex-shrink-0">
                                   <span class="avatar-text">{{ m.id }}</span>
                                 </div>
-                                <div class="meta">
-                                  <div class="title">
+                                <div class="meta flex-grow-1 min-w-0">
+                                  <div class="title text-truncate">
                                     {{ m?.pasajeroNombre || 'Sin registro' }} {{ m?.pasajeroApellidoPaterno || ' ' }} {{
                                     m?.pasajeroApellidoMaterno || ' ' }}
                                   </div>
-                                  <div class="sub">Cliente · <b>{{ m?.clienteNombre }} {{ m?.clienteApellidoPaterno || '
+                                  <div class="sub text-truncate">Cliente · <b>{{ m?.clienteNombre }} {{ m?.clienteApellidoPaterno || '
                                       ' }} {{ m?.clienteApellidoMaterno || ' ' }}</b></div>
                                 </div>
-                                <div class="form-check ms-auto">
+                                <div class="form-check flex-shrink-0 ms-2" (click)="$event.stopPropagation()">
                                   <input class="form-check-input" type="radio" name="monederoRadio"
-                                    [checked]="monederoSeleccionado?.id===m.id" (change)="monederoSeleccionado=m">
+                                    [checked]="monederoSeleccionado?.id===m.id" (change)="seleccionarMonedero(m)">
                                 </div>
                               </div>
                               <div class="tile-mid">
@@ -227,22 +233,22 @@
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                       <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-cash-coin fs-5 text-accent"></i>
-                        <h5 class="m-0">Define monto</h5>
+                        <h5 class="m-0 fs-6 fs-md-5">Define monto</h5>
                       </div>
-                      <button class="btn btn-ghost" (click)="irPaso(1)">
-                        <i class="bi bi-arrow-left"></i> Cambiar monedero
+                      <button class="btn btn-ghost btn-sm" (click)="irPaso(1)">
+                        <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Cambiar monedero</span>
                       </button>
                     </div>
-                    <div class="amount-panel mt-1 mb-3">
-                      <button class="btn btn-ghost amt-side" (click)="inc(-50)">− $50</button>
-                      <div class="amt-box">
+                    <div class="amount-panel mt-1 mb-3 d-flex flex-nowrap align-items-center gap-2">
+                      <button class="btn btn-ghost amt-side flex-shrink-0" (click)="inc(-50)">− $50</button>
+                      <div class="amt-box flex-grow-1">
                         <span class="sym">$</span>
                         <input type="text" class="amt-input" [value]="montoView" (input)="onInputMonto($event)"
                           placeholder="0.00" aria-label="Monto a recargar" />
                       </div>
-                      <button class="btn btn-ghost amt-side" (click)="inc(50)">+ $50</button>
+                      <button class="btn btn-ghost amt-side flex-shrink-0" (click)="inc(50)">+ $50</button>
                     </div>
-                    <div class="d-flex flex-wrap gap-2 justify-content-center mb-2">
+                    <div class="d-flex flex-wrap gap-1 gap-sm-2 justify-content-center mb-2">
                       <button class="btn btn-outline-accent btn-sm" (click)="setMonto(1)">$1</button>
                       <button class="btn btn-outline-accent btn-sm" (click)="setMonto(2)">$2</button>
                       <button class="btn btn-outline-accent btn-sm" (click)="setMonto(5)">$5</button>
@@ -257,7 +263,7 @@
                       <label class="metodos-pago-label">
                         <i class="bi bi-credit-card me-2"></i>Métodos de Pago
                       </label>
-                      <div class="metodos-pago-options d-flex flex-wrap gap-3 justify-content-center">
+                      <div class="metodos-pago-options d-flex flex-wrap gap-2 gap-sm-3 justify-content-center">
                         <label class="metodo-pago-item" 
                                *ngFor="let metodo of listaMetodosPago" 
                                [class.selected]="isMetodoPagoSelected(metodo.id)"
@@ -281,33 +287,33 @@
             <div class="row mt-2" [@fadeInUp] *ngIf="step===2">
               <div class="col-12">
                 <div class="topup2b-bottombar card shadow-sm glass-bar">
-                  <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-2">
-                    <div class="d-flex flex-wrap gap-4 info-mini">
-                      <div>
-                        <small>Monedero:&nbsp;</small>
+                  <div class="card-body d-flex flex-column flex-md-row flex-wrap align-items-stretch align-items-md-center justify-content-between gap-3">
+                    <div class="d-flex flex-column flex-sm-row flex-wrap gap-2 gap-sm-3 gap-md-4 info-mini">
+                      <div class="text-center text-sm-start">
+                        <small class="d-block d-sm-inline">Monedero:&nbsp;</small>
                         <strong>{{ monederoSeleccionado?.numeroserie || monederoSeleccionado?.numeroSerie }}</strong>
                       </div>
-                      <div>
-                        <small>Pasajero:&nbsp;</small>
-                        <strong>
+                      <div class="text-center text-sm-start">
+                        <small class="d-block d-sm-inline">Pasajero:&nbsp;</small>
+                        <strong class="d-block d-sm-inline">
                           {{ monederoSeleccionado.pasajeroNombre || 'Sin registro' }}
                           {{ monederoSeleccionado.pasajeroApellidoPaterno || ' ' }}
                           {{ monederoSeleccionado.pasajeroApellidoMaterno || ' ' }}
                         </strong>
                       </div>
-                      <div>
-                        <small>Cliente:&nbsp;</small>
-                        <strong>{{ monederoSeleccionado.clienteNombre }} {{ monederoSeleccionado.clienteApellidoPaterno
+                      <div class="text-center text-sm-start">
+                        <small class="d-block d-sm-inline">Cliente:&nbsp;</small>
+                        <strong class="d-block d-sm-inline">{{ monederoSeleccionado.clienteNombre }} {{ monederoSeleccionado.clienteApellidoPaterno
                           || ' ' }} {{ monederoSeleccionado.clienteApellidoMaterno || ' ' }}</strong>
                       </div>
-                      <div>
-                        <small>Monto:&nbsp;</small>
-                        <strong class="text-success">{{ monto | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
+                      <div class="text-center text-sm-start">
+                        <small class="d-block d-sm-inline">Monto:&nbsp;</small>
+                        <strong class="text-success d-block d-sm-inline">{{ monto | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
                       </div>
                     </div>
-                    <div class="d-flex gap-2">
-                      <button class="btn btn-ghost-danger" (click)="cancelar()">Cancelar</button>
-                      <button class="btn btn-accent" [disabled]="!monto || monto<=0" (click)="agregarTransaccion()">
+                    <div class="d-flex flex-column flex-sm-row gap-2 ms-auto">
+                      <button class="btn btn-ghost-danger w-100 w-sm-auto" (click)="cancelar()">Cancelar</button>
+                      <button class="btn btn-accent w-100 w-sm-auto" [disabled]="!monto || monto<=0 || !transaccionForm.get('idMetodoPago')?.value" (click)="agregarTransaccion()">
                         {{ submitButton }} <i class="bi bi-lightning-charge-fill"></i>
                       </button>
                     </div>

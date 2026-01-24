@@ -260,7 +260,6 @@ export class AltaInstalacionComponent implements OnInit {
     const idsBlueVoxsCtrl = this.instalacionesForm.get('idsBlueVoxs');
     
     if (!idVehiculo) {
-      // Si no hay vehículo, limpiar validación y valores
       idsBlueVoxsCtrl?.clearValidators();
       idsBlueVoxsCtrl?.setValidators([Validators.required]);
       idsBlueVoxsCtrl?.setValue([], { emitEvent: false });
@@ -272,26 +271,17 @@ export class AltaInstalacionComponent implements OnInit {
     const vehiculo = this.listaVehiculos.find((v: any) => Number(v.id) === Number(idVehiculo));
     const cantidadAccesos = vehiculo?.cantidadAccesos != null ? Number(vehiculo.cantidadAccesos) : null;
     
-    if (cantidadAccesos === 4) {
-      // Requerir máximo 4 bluevox (permitir menos, bloquear más)
+    if (cantidadAccesos != null && cantidadAccesos >= 1) {
       idsBlueVoxsCtrl?.setValidators([
         Validators.required,
-        this.exactlyFourBluevoxValidator.bind(this)
+        this.maxBluevoxValidator.bind(this)
       ]);
-      // Solo limpiar si REBASAN el límite (más de 4), no si tienen menos
-      const currentValue = idsBlueVoxsCtrl?.value || [];
-      if (Array.isArray(currentValue) && currentValue.length > 4) {
-        // Si tienen más de 4, dejar solo los primeros 4
-        idsBlueVoxsCtrl?.setValue(currentValue.slice(0, 4), { emitEvent: false });
-      }
+      // No recortar la selección: mantener los elegidos en la vista; solo validar y bloquear agregar más.
     } else {
-      // Validación normal: al menos 1
       idsBlueVoxsCtrl?.clearValidators();
       idsBlueVoxsCtrl?.setValidators([Validators.required]);
-      // Limpiar si había más de 1 seleccionado (viene de un vehículo con cantidadAccesos === 4)
       const currentValue = idsBlueVoxsCtrl?.value || [];
       if (Array.isArray(currentValue) && currentValue.length > 1) {
-        // Mantener solo el primero o limpiar todos
         idsBlueVoxsCtrl?.setValue([], { emitEvent: false });
       }
     }
@@ -300,7 +290,7 @@ export class AltaInstalacionComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  private exactlyFourBluevoxValidator(control: any) {
+  private maxBluevoxValidator(control: any) {
     if (!control.value || !Array.isArray(control.value)) {
       return { required: true };
     }
@@ -308,25 +298,35 @@ export class AltaInstalacionComponent implements OnInit {
     if (count === 0) {
       return { required: true };
     }
-    // Solo validar si REBASAN el límite (más de 4), no si tienen menos
-    if (count > 4) {
-      return { exactlyFour: true, actual: count };
+    const max = this.getCantidadAccesosMax();
+    if (max != null && count > max) {
+      return { maxBluevox: true, actual: count, max };
     }
     return null;
   }
 
-  requiereExactamenteCuatro(): boolean {
+  /** Límite de Bluevox según cantidadAccesos del vehículo seleccionado. */
+  getCantidadAccesosMax(): number | null {
     const idVehiculo = this.instalacionesForm.get('idVehiculo')?.value;
-    if (!idVehiculo) return false;
+    if (!idVehiculo) return null;
     const vehiculo = this.listaVehiculos.find((v: any) => Number(v.id) === Number(idVehiculo));
-    const cantidadAccesos = vehiculo?.cantidadAccesos != null ? Number(vehiculo.cantidadAccesos) : null;
-    return cantidadAccesos === 4;
+    const n = vehiculo?.cantidadAccesos != null ? Number(vehiculo.cantidadAccesos) : null;
+    return n != null && n >= 1 ? n : null;
+  }
+
+  tieneLimiteBluevox(): boolean {
+    return this.getCantidadAccesosMax() != null;
+  }
+
+  requiereExactamenteCuatro(): boolean {
+    return this.tieneLimiteBluevox();
   }
 
   getBluevoxHelpText(): string {
     const selected = this.getSelectedBluevoxCount();
-    if (this.requiereExactamenteCuatro()) {
-      return `Selecciona exactamente 4 Bluevox (${selected} seleccionado${selected !== 1 ? 's' : ''})`;
+    const max = this.getCantidadAccesosMax();
+    if (max != null) {
+      return `Hasta ${max} Bluevox (${selected} seleccionado${selected !== 1 ? 's' : ''})`;
     }
     return `${selected} seleccionado${selected !== 1 ? 's' : ''}`;
   }
@@ -443,7 +443,7 @@ export class AltaInstalacionComponent implements OnInit {
   ): Promise<{ estado: number; comentarios: string | null } | null> {
     // Ya no mostramos la información de Bluevox removidos aquí, se muestra en el modal de selección
 
-    const { value: formValues } = await Swal.fire({
+    const result = await Swal.fire({
       title: '',
       html: `
       <div class="estado-modal-container">
@@ -488,8 +488,10 @@ export class AltaInstalacionComponent implements OnInit {
     `,
       background: 'transparent',
       showCancelButton: true,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
       confirmButtonText: '<i class="fas fa-check me-2"></i>Confirmar',
-      cancelButtonText: '<i class="fas fa-times me-2"></i>Cancelar',
+      cancelButtonText: '<i class="fas fa-undo me-2"></i>Restaurar',
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#6b7280',
       focusConfirm: false,
@@ -717,8 +719,8 @@ export class AltaInstalacionComponent implements OnInit {
           }
           .estado-swal-actions {
             padding: 20px 32px;
-            background: #0f1a26;
-            border-top: 1px solid rgba(96, 165, 250, 0.1);
+            background: transparent;
+            border-top: none;
             border-radius: 0 0 16px 16px;
             gap: 12px;
           }
@@ -784,7 +786,14 @@ export class AltaInstalacionComponent implements OnInit {
         };
       },
     });
-    return formValues || null;
+    
+    // Si se canceló (no confirmado), restaurar bluevox y retornar null
+    if (result && !result.isConfirmed) {
+      this.restaurarBluevox();
+      return null;
+    }
+    
+    return result.value || null;
   }
 
   private cargarListasPorCliente(
@@ -798,7 +807,7 @@ export class AltaInstalacionComponent implements OnInit {
     const n = (v: any) => (v == null ? null : Number(v));
 
     forkJoin({
-      dispositivos: this.dispoService.obtenerDispositivosByCliente(idCliente).pipe(
+      dispositivos: this.dispoService.obtenerDispositivosByClienteInstalacion(idCliente).pipe(
         catchError((err) => {
           console.error('Error al obtener dispositivos:', err);
           return of({ data: [] }); // Retornar estructura vacía si falla
@@ -810,7 +819,7 @@ export class AltaInstalacionComponent implements OnInit {
           return of({ data: [] }); // Retornar estructura vacía si falla
         })
       ),
-      vehiculos: this.vehiService.obtenerVehiculosByCliente(idCliente).pipe(
+      vehiculos: this.vehiService.obtenerVehiculosByClienteInstalacion(idCliente).pipe(
         catchError((err) => {
           console.error('Error al obtener vehículos:', err);
           return of({ data: [] }); // Retornar estructura vacía si falla
@@ -1151,22 +1160,17 @@ export class AltaInstalacionComponent implements OnInit {
         idCliente: 'Cliente',
       };
       
-      // Mensajes personalizados para validación de bluevox
-      const mensajesPersonalizados: any = {
-        exactlyFour: (control: any) => {
-          const actual = control.errors?.['exactlyFour']?.actual || 0;
-          return `Bluevox: Se requieren exactamente 4 selecciones (tienes ${actual})`;
-        },
-      };
+      const maxBv = this.getCantidadAccesosMax();
       const camposFaltantes: string[] = [];
       Object.keys(this.instalacionesForm.controls).forEach((key) => {
         const control = this.instalacionesForm.get(key);
         if (control?.invalid) {
           if (control.errors?.['required']) {
             camposFaltantes.push(etiquetas[key] || key);
-          } else if (control.errors?.['exactlyFour']) {
-            const actual = control.errors['exactlyFour'].actual || 0;
-            camposFaltantes.push(`Bluevox: Se requieren exactamente 4 selecciones (tienes ${actual})`);
+          } else if (control.errors?.['maxBluevox']) {
+            const actual = control.errors['maxBluevox'].actual ?? 0;
+            const max = control.errors['maxBluevox'].max ?? maxBv ?? '?';
+            camposFaltantes.push(`Bluevox: Solo puedes seleccionar hasta ${max} (tienes ${actual})`);
           }
         }
       });
@@ -1453,7 +1457,8 @@ export class AltaInstalacionComponent implements OnInit {
   }
 
   /**
-   * Filtra los bluevox según el texto de búsqueda
+   * Filtra los bluevox según el texto de búsqueda.
+   * Los ya seleccionados siempre se muestran, aunque no coincidan con la búsqueda.
    */
   getFilteredBluevox(lista: any[]): any[] {
     if (!this.searchBluevoxText || this.searchBluevoxText.trim() === '') {
@@ -1461,30 +1466,24 @@ export class AltaInstalacionComponent implements OnInit {
     }
     const search = this.searchBluevoxText.toLowerCase().trim();
     return lista.filter((bv: any) => {
+      const bvId = Number(bv?.id ?? bv?.idBlueVox ?? 0);
+      if (this.isBluevoxSelected(bvId)) return true;
       const serie = this.displayBluevox(bv).toLowerCase();
       return serie.includes(search);
     });
   }
 
   /**
-   * Obtiene todos los bluevox para el modal (seleccionados + disponibles mezclados)
-   * Ya no se usa, pero se mantiene por compatibilidad
+   * Todos los bluevox que se muestran en el modal (para empty state).
+   * Disponibles ya incluye seleccionados; evita duplicar.
    */
   getAllBluevoxForModal(): any[] {
-    const selected = this.getSelectedBluevox();
+    const existing = this.idInstalacion ? this.getExistingBluevox() : [];
     const available = this.getAvailableBluevox();
-    
-    // En modo edición, separar por tipo
-    if (this.idInstalacion) {
-      const existing = selected.filter((bv: any) => !this.isBluevoxNew(bv.id));
-      const newSelected = selected.filter((bv: any) => this.isBluevoxNew(bv.id));
-      
-      // Combinar: existentes primero, luego nuevos seleccionados, luego disponibles
-      return [...existing, ...newSelected, ...available];
+    if (this.idInstalacion && existing.length > 0) {
+      return [...existing, ...available];
     }
-    
-    // En modo agregar, mostrar seleccionados primero, luego disponibles
-    return [...selected, ...available];
+    return available;
   }
 
   /**
@@ -1536,18 +1535,6 @@ export class AltaInstalacionComponent implements OnInit {
     setTimeout(() => {
       this.restaurandoBluevox = false;
     }, 100);
-    
-    // Mostrar confirmación
-    Swal.fire({
-      title: 'Restaurado',
-      text: 'Los Bluevox se han restaurado al estado inicial.',
-      icon: 'success',
-      background: '#002136',
-      confirmButtonColor: '#3085d6',
-      confirmButtonText: 'Entendido',
-      timer: 2000,
-      showConfirmButton: true
-    });
   }
 
   /**
@@ -1591,18 +1578,14 @@ export class AltaInstalacionComponent implements OnInit {
   toggleBluevox(id: number, event: any): void {
     const currentValue = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
     const selectedIds = Array.isArray(currentValue) ? [...currentValue] : [];
-    
-    // Verificar si requiere exactamente 4
-    const requiereCuatro = this.requiereExactamenteCuatro();
+    const max = this.getCantidadAccesosMax();
     
     if (event.target.checked) {
-      // Solo validar si requiere 4 y ya hay 4 o más seleccionados
-      if (requiereCuatro && selectedIds.length >= 4) {
-        // Ya hay 4 o más seleccionados, intentando agregar uno más - REBASAR el límite
+      if (max != null && selectedIds.length >= max) {
         event.target.checked = false;
         Swal.fire({
-          title: 'Límite alcanzado',
-          text: 'Este vehículo tiene 4 accesos, solo puedes seleccionar exactamente 4 Bluevox.',
+          title: '¡Límite Alcanzado!',
+          text: `Este vehículo tiene ${max} acceso${max !== 1 ? 's' : ''}. Solo puedes seleccionar hasta ${max} Bluevox.`,
           icon: 'warning',
           background: '#002136',
           confirmButtonColor: '#3085d6',
@@ -1610,12 +1593,10 @@ export class AltaInstalacionComponent implements OnInit {
         });
         return;
       }
-      // Si tiene menos de 4, permitir seleccionar
       if (!selectedIds.includes(id)) {
         selectedIds.push(id);
       }
     } else {
-      // Al deseleccionar, siempre permitir (no hay límite mínimo)
       const index = selectedIds.indexOf(id);
       if (index > -1) {
         selectedIds.splice(index, 1);
@@ -1626,26 +1607,17 @@ export class AltaInstalacionComponent implements OnInit {
     this.instalacionesForm.get('idsBlueVoxs')?.updateValueAndValidity({ emitEvent: false });
     this.cdr.detectChanges();
     
-    // Actualizar el modal si está abierto
     if (this.bluevoxModalRef) {
       this.cdr.detectChanges();
     }
   }
 
   isBluevoxDisabled(id: number): boolean {
-    // Primero verificar si el campo está deshabilitado
     if (this.instalacionesForm.get('idsBlueVoxs')?.disabled) {
       return true;
     }
-    
-    // Luego verificar si requiere exactamente 4
-    if (!this.requiereExactamenteCuatro()) {
-      return false;
-    }
-    const currentValue = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
-    const selectedIds = Array.isArray(currentValue) ? currentValue : [];
-    // Deshabilitar si ya hay 4 seleccionados y este no está seleccionado
-    return selectedIds.length >= 4 && !selectedIds.includes(id);
+    // No deshabilitar por límite: los disponibles siguen visibles; solo se bloquea agregar más en toggleBluevox y se muestra alerta.
+    return false;
   }
 
   getBluevoxDisplayText(): string {
@@ -1762,64 +1734,42 @@ export class AltaInstalacionComponent implements OnInit {
     });
   }
 
+  /**
+   * Bluevox que se muestran en la lista del modal (Disponibles).
+   * Incluye todos los de la lista, también los seleccionados; no se quitan de la vista al marcar.
+   * Los seleccionados se muestran con check y badge "Se instalará" / "Se agregará".
+   */
   getAvailableBluevox(): any[] {
     const selected = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
     const selectedIds = Array.isArray(selected) ? selected.map((id: any) => Number(id)) : [];
+    const initialIds = Array.isArray(this.initialBlueVoxIds)
+      ? this.initialBlueVoxIds.map((id: any) => Number(id))
+      : [];
     
-    // Empezar con los bluevox de la lista principal que no están seleccionados
-    let disponibles = [];
+    let disponibles: any[] = [];
     if (this.listaBlueVox && this.listaBlueVox.length > 0) {
-      disponibles = this.listaBlueVox.filter((bv: any) => {
-        const bvId = Number(bv?.id ?? bv?.idBlueVox ?? 0);
-        return !selectedIds.includes(bvId);
-      });
+      if (this.idInstalacion && initialIds.length > 0) {
+        // Edición: no iniciales (disponibles + nuevos seleccionados); luego agregamos iniciales deseleccionados
+        disponibles = this.listaBlueVox.filter((bv: any) => {
+          const bvId = Number(bv?.id ?? bv?.idBlueVox ?? 0);
+          return !initialIds.includes(bvId);
+        }).map((bv: any) => ({ ...bv }));
+      } else {
+        // Alta: todos
+        disponibles = this.listaBlueVox.map((bv: any) => ({ ...bv }));
+      }
     }
     
-    // Si estamos en modo edición, agregar también los bluevox que estaban asignados originalmente
-    // pero que ya no están seleccionados (fueron deseleccionados)
-    if (this.idInstalacion && this.initialBlueVoxIds) {
-      const initialIds = Array.isArray(this.initialBlueVoxIds) 
-        ? this.initialBlueVoxIds.map((id: any) => Number(id))
-        : [];
-      
-      // Encontrar los bluevox que estaban asignados pero ya no están seleccionados
+    if (this.idInstalacion && initialIds.length > 0) {
       const removidos = initialIds.filter((id: number) => !selectedIds.includes(id));
-      
       removidos.forEach((id: number) => {
-        // Verificar si ya está en la lista de disponibles
-        const yaEsta = disponibles.some((bv: any) => {
-          const bvId = Number(bv?.id ?? bv?.idBlueVox ?? 0);
-          return bvId === id;
-        });
-        
-        if (!yaEsta) {
-          // Buscar los datos del bluevox en blueVoxsDataFromService
-          const bvData = this.blueVoxsDataFromService[id];
-          if (bvData) {
-            // Agregar el bluevox deseleccionado a la lista de disponibles
-            disponibles.push({
-              ...bvData,
-              id: id,
-              idBlueVox: id
-            });
-          } else {
-            // Si no tenemos los datos completos, buscar en listaBlueVox
-            const encontrado = this.listaBlueVox.find((bv: any) => {
-              const bvId = Number(bv?.id ?? bv?.idBlueVox ?? 0);
-              return bvId === id;
-            });
-            
-            if (encontrado && !selectedIds.includes(id)) {
-              disponibles.push(encontrado);
-            } else if (!encontrado) {
-              // Si no está en ninguna lista, agregar con datos mínimos
-              disponibles.push({
-                id: id,
-                idBlueVox: id,
-                numeroSerieBlueVox: ''
-              });
-            }
-          }
+        if (disponibles.some((bv: any) => Number(bv?.id ?? bv?.idBlueVox ?? 0) === id)) return;
+        const bvData = this.blueVoxsDataFromService[id];
+        if (bvData) {
+          disponibles.push({ ...bvData, id, idBlueVox: id });
+        } else {
+          const encontrado = this.listaBlueVox?.find((b: any) => Number(b?.id ?? b?.idBlueVox ?? 0) === id);
+          disponibles.push(encontrado ? { ...encontrado } : { id, idBlueVox: id, numeroSerieBlueVox: '' });
         }
       });
     }
@@ -1930,7 +1880,7 @@ export class AltaInstalacionComponent implements OnInit {
     const changeType = this.getBluevoxChangeType();
     const newBluevox = this.getNewBluevox();
     const removedBluevox = this.getRemovedBluevox();
-    const requiereCuatro = this.requiereExactamenteCuatro();
+    const maxAllowed = this.getCantidadAccesosMax();
     
     if (changeType === 'none') {
       return '';
@@ -1941,8 +1891,7 @@ export class AltaInstalacionComponent implements OnInit {
     
     if (changeType === 'adding') {
       const newCount = newBluevox.length;
-      if (requiereCuatro) {
-        const maxAllowed = 4;
+      if (maxAllowed != null) {
         if (currentCount >= maxAllowed) {
           return `⚠️ Has alcanzado el límite de ${maxAllowed} Bluevox permitidos para este vehículo.`;
         }
@@ -2159,8 +2108,6 @@ export class AltaInstalacionComponent implements OnInit {
     const nuevos = currentIds.filter((id: number) => !initialIds.includes(id));
     const removidos = initialIds.filter((id: number) => !currentIds.includes(id));
     const mantenidos = currentIds.filter((id: number) => initialIds.includes(id));
-    
-    const requiereCuatro = this.requiereExactamenteCuatro();
 
     let contenidoHtml = `
       <div style="text-align: left; color: #e9eef5; font-size: 14px; line-height: 1.7;">
@@ -2212,18 +2159,19 @@ export class AltaInstalacionComponent implements OnInit {
         </div>
     `;
 
-    if (requiereCuatro) {
+    const maxBv = this.getCantidadAccesosMax();
+    if (maxBv != null) {
       contenidoHtml += `
         <div style="background: rgba(251, 191, 36, 0.1); border-left: 4px solid #fbbf24; padding: 10px 12px; margin-bottom: 12px; border-radius: 6px;">
           <strong style="color: #fcd34d; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px;">
             <i class="fas fa-exclamation-triangle" style="color: #fbbf24; font-size: 16px;"></i> ⚠️ Límite
           </strong>
           <div style="margin-left: 24px; color: #c8c8c8; font-size: 13px;">
-            <p style="margin: 3px 0;">Este vehículo tiene <strong style="color: #fcd34d;">4 puertas</strong>.</p>
-            <p style="margin: 3px 0;">Solo puedes seleccionar <strong>exactamente 4 Bluevox</strong>.</p>
+            <p style="margin: 3px 0;">Este vehículo tiene <strong style="color: #fcd34d;">${maxBv} acceso${maxBv !== 1 ? 's' : ''}</strong>.</p>
+            <p style="margin: 3px 0;">Solo puedes seleccionar <strong>hasta ${maxBv} Bluevox</strong>.</p>
             <p style="margin: 6px 0 3px 0; color: #fcd34d;">
               <i class="fas fa-ban" style="margin-right: 4px; font-size: 11px;"></i>
-              Si intentas poner más, te aparecerá un error
+              Si intentas poner más, aparecerá una alerta y no podrás agregar
             </p>
           </div>
         </div>
