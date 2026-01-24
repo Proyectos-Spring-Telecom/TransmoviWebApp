@@ -28,6 +28,10 @@
   .wallet-tile {
     min-height: 160px;
     /* ajusta si tu tile es más alto */
+    @media (max-width: 576px) {
+      min-height: 140px;
+      padding: 12px;
+    }
   }
 
   /* g-3 en Bootstrap ≈ 1rem de gap vertical */
@@ -37,6 +41,10 @@
     overflow-y: auto;
     padding-right: 25px;
     /* para que el scrollbar no tape contenido */
+    @media (max-width: 576px) {
+      max-height: calc(500px + 1rem);
+      padding-right: 10px;
+    }
   }
 
   /* Asegura 3 columnas por fila siempre dentro del contenedor */
@@ -204,10 +212,19 @@
     border-radius: 14px;
     background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .00));
     box-shadow: 0 8px 24px rgba(2, 6, 23, .25) inset, 0 6px 16px rgba(2, 132, 199, .08);
+    @media (max-width: 576px) {
+      gap: 8px;
+      padding: 12px;
+    }
   }
 
   .amt-side {
     min-width: 84px;
+    @media (max-width: 576px) {
+      min-width: 60px;
+      padding: 8px 12px;
+      font-size: 0.875rem;
+    }
   }
 
   .amt-box {
@@ -235,6 +252,12 @@
     font-size: 34px;
     font-weight: 800;
     letter-spacing: .5px;
+    @media (max-width: 576px) {
+      font-size: 28px;
+    }
+    @media (max-width: 400px) {
+      font-size: 24px;
+    }
   }
 
   /* =========================================================
@@ -258,12 +281,35 @@
   /* =========================================================
      Bottom bar
      ========================================================= */
+  .topup2b-bottombar {
+    @media (max-width: 576px) {
+      .card-body {
+        padding: .85rem;
+      }
+    }
+  }
   .topup2b-bottombar .card-body small {
     color: var(--muted);
+    @media (max-width: 576px) {
+      font-size: 0.75rem;
+    }
   }
 
   .topup2b-bottombar .card-body strong {
     color: var(--text);
+    @media (max-width: 576px) {
+      font-size: 0.875rem;
+    }
+  }
+
+  .info-mini {
+    @media (max-width: 576px) {
+      gap: 1rem !important;
+      > div {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+    }
   }
 
   /* =========================================================
@@ -330,6 +376,10 @@
     align-items: center;
     gap: 12px;
     margin-bottom: 10px;
+    @media (max-width: 576px) {
+      gap: 8px;
+      margin-bottom: 8px;
+    }
   }
 
   .wallet-tile .avatar-ring {
@@ -340,6 +390,11 @@
     padding: 2px;
     display: grid;
     place-items: center;
+    flex-shrink: 0;
+    @media (max-width: 576px) {
+      width: 38px;
+      height: 38px;
+    }
   }
 
   .wallet-tile .avatar-text {
@@ -353,14 +408,28 @@
     font-weight: 800;
   }
 
+  .wallet-tile .meta {
+    min-width: 0;
+    flex-grow: 1;
+    @media (max-width: 576px) {
+      .title {
+        font-size: .875rem;
+      }
+      .sub {
+        font-size: 11px;
+      }
+    }
+  }
   .wallet-tile .meta .title {
     color: var(--text);
     font-weight: 700;
+    word-break: break-word;
   }
 
   .wallet-tile .meta .sub {
     color: var(--muted);
     font-size: 12px;
+    word-break: break-word;
   }
 
   .wallet-tile .tile-mid {
@@ -412,6 +481,9 @@
     background: rgba(255, 255, 255, .03);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, .08);
+    @media (max-width: 576px) {
+      padding: .85rem;
+    }
   }
 
   .metodos-pago-label {
@@ -421,10 +493,17 @@
     color: var(--text);
     margin-bottom: 0.75rem;
     text-align: center;
+    @media (max-width: 576px) {
+      font-size: 0.875rem;
+      margin-bottom: 0.6rem;
+    }
   }
 
   .metodos-pago-options {
     gap: 1rem !important;
+    @media (max-width: 576px) {
+      gap: 0.5rem !important;
+    }
   }
 
   .metodo-pago-item {
@@ -440,6 +519,11 @@
     gap: 0.75rem;
     position: relative;
     user-select: none;
+    @media (max-width: 576px) {
+      padding: 0.6rem 1rem;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+    }
     
     &:hover {
       background: rgba(255, 255, 255, .08);
@@ -576,17 +660,40 @@ div:where(.swal2-container) .swal2-html-container {
     border: 1px solid rgba(46,204,113,.45);
     box-shadow: 0 0 0 8px rgba(46,204,113,.07), inset 0 0 24px rgba(46,204,113,.22);
     color: var(--ok); font-size: 1.5rem;
+    flex-shrink: 0;
+    @media (max-width: 576px) {
+      width: 48px;
+      height: 48px;
+      font-size: 1.25rem;
+      box-shadow: 0 0 0 6px rgba(46,204,113,.07), inset 0 0 20px rgba(46,204,113,.22);
+    }
   }
 
   .header-copy {
     display: grid;
     gap: 4px;
+    min-width: 0;
     .eyebrow {
       font-size: .8rem; color: var(--muted); display: flex; align-items: center; gap: .5rem;
       .dot { width: 8px; height: 8px; border-radius: 99px; background: var(--ok); box-shadow: 0 0 0 6px rgba(46,204,113,.12); }
+      @media (max-width: 576px) {
+        font-size: .75rem;
+      }
     }
-    .title { font-weight: 800; letter-spacing: .2px; }
-    .subtitle { color: var(--muted); }
+    .title { 
+      font-weight: 800; 
+      letter-spacing: .2px; 
+      word-break: break-word;
+      @media (max-width: 576px) {
+        font-size: 1.25rem;
+      }
+    }
+    .subtitle { 
+      color: var(--muted); 
+      @media (max-width: 576px) {
+        font-size: .875rem;
+      }
+    }
   }
 
   .amount-pill {
@@ -603,6 +710,11 @@ div:where(.swal2-container) .swal2-html-container {
     padding: .45rem .75rem; border-radius: .75rem; font-weight: 700;
     color: #39d98a; background: var(--ok-ghost);
     border: 1px solid rgba(46,204,113,.35);
+    white-space: nowrap;
+    @media (max-width: 576px) {
+      padding: .4rem .65rem;
+      font-size: .875rem;
+    }
   }
 
   /* Decorative beams (no animaciones bruscas) */
@@ -626,9 +738,23 @@ div:where(.swal2-container) .swal2-html-container {
   .card-header-clean {
     display:flex; justify-content:space-between; align-items:center; gap:1rem;
     padding: .9rem 1rem; border-bottom: 1px solid var(--edge);
-    .header-left { display:flex; align-items:center; gap:.75rem; }
+    @media (max-width: 576px) {
+      padding: .75rem .85rem;
+    }
+    .header-left { 
+      display:flex; 
+      align-items:center; 
+      gap:.75rem; 
+      flex-wrap: wrap;
+      @media (max-width: 576px) {
+        gap: .5rem;
+      }
+    }
     .divider-dot { width:6px; height:6px; border-radius:999px; background: var(--edge-2); display:inline-block; }
     .muted { color: var(--muted); }
+    .header-right {
+      flex-shrink: 0;
+    }
   }
 
   .badge-done {
@@ -646,7 +772,13 @@ div:where(.swal2-container) .swal2-html-container {
     grid-template-columns: repeat(12, 1fr);
     gap: 14px;
 
-    @media (max-width: 576px) { grid-template-columns: repeat(6, 1fr); }
+    @media (max-width: 576px) { 
+      grid-template-columns: repeat(6, 1fr); 
+      gap: 10px;
+    }
+    @media (min-width: 577px) and (max-width: 991.98px) {
+      gap: 12px;
+    }
   }
 
   .kv-tile {
@@ -660,17 +792,52 @@ div:where(.swal2-container) .swal2-html-container {
 
     &:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,.22); }
 
-    @media (min-width: 992px) { grid-column: span 4; } /* 3 por fila desktop */
+    @media (max-width: 767.98px) { 
+      grid-column: span 6; 
+      gap: .6rem;
+      padding: .7rem .75rem;
+    }
+    @media (min-width: 768px) and (max-width: 991.98px) { 
+      grid-column: span 6; 
+    }
+    @media (min-width: 992px) { 
+      grid-column: span 4; 
+    } /* 3 por fila desktop */
 
     .kv-ico {
       width: 42px; height: 42px; border-radius: 12px; display:grid; place-items:center;
       background: linear-gradient(135deg, rgba(0,180,140,.14), rgba(0,130,255,.12));
       border: 1px solid rgba(255,255,255,.10);
+      flex-shrink: 0;
+      @media (max-width: 576px) {
+        width: 36px;
+        height: 36px;
+        i { font-size: 0.95rem; }
+      }
       i { font-size: 1.1rem; color: #6bdcff; }
     }
-    .kv-content { display:grid; line-height: 1.1; gap: 6px; }
-    .k { font-size: .8rem; color: var(--muted); }
-    .v { font-weight: 700; letter-spacing: .2px; }
+    .kv-content { 
+      display:grid; 
+      line-height: 1.1; 
+      gap: 6px; 
+      min-width: 0;
+      flex-grow: 1;
+    }
+    .k { 
+      font-size: .8rem; 
+      color: var(--muted); 
+      @media (max-width: 576px) {
+        font-size: .75rem;
+      }
+    }
+    .v { 
+      font-weight: 700; 
+      letter-spacing: .2px; 
+      word-break: break-word;
+      @media (max-width: 576px) {
+        font-size: .9rem;
+      }
+    }
     .v-ok { color: #39d98a; }
   }
 

@@ -126,28 +126,19 @@
                 <!-- Para RECARGA: mostrar solo un botón verde -->
                 <div *ngIf="(transaccion.data.tipoTransaccion || '').toUpperCase() === 'RECARGA'">
                   <button type="button" class="btn btn-success"
-                    (click)="centerModal(centerDataModal, transaccion.data.id, transaccion.data.latitudFinal, transaccion.data.longitudFinal, transaccion.data.fechaHoraFinal, transaccion.data.monto, transaccion.data.tipoTransaccion)"
+                    (click)="openUnifiedModal(unifiedModal, transaccion.data)"
                     style="border-radius: 5px;">
                     <i class="uil uil-map-pin ml-2"></i> Ubicar
                   </button>
                 </div>
-                <!-- Para DEBITO: mostrar dos botones (Inicio y Fin) -->
-                <ng-container *ngIf="(transaccion.data.tipoTransaccion || '').toUpperCase() === 'DEBITO'">
-                  <div>
-                    <button type="button" class="btn btn-primary"
-                      (click)="centerModalInicial(centerDataModal, transaccion.data.id, transaccion.data.latitudInicial, transaccion.data.longitudInicial, transaccion.data.fechaHoraInicio, transaccion.data.monto, transaccion.data.tipoTransaccion)"
-                      style="border-radius: 5px;">
-                      <i class="uil uil-map-pin ml-2"></i> Inicio
-                    </button>
-                  </div>
-                  <div>
-                    <button type="button" class="btn btn-danger"
-                      (click)="centerModal(centerDataModal, transaccion.data.id, transaccion.data.latitudFinal, transaccion.data.longitudFinal, transaccion.data.fechaHoraFinal, transaccion.data.monto, transaccion.data.tipoTransaccion)"
-                      style="border-radius: 5px;">
-                      <i class="uil uil-map-pin ml-2"></i> Fin
-                    </button>
-                  </div>
-                </ng-container>
+                <!-- Para DEBITO: mostrar un solo botón que abre modal con ambas ubicaciones -->
+                <div *ngIf="(transaccion.data.tipoTransaccion || '').toUpperCase() === 'DEBITO'">
+                  <button type="button" class="btn btn-primary"
+                    (click)="openUnifiedModal(unifiedModal, transaccion.data)"
+                    style="border-radius: 5px;">
+                    <i class="uil uil-map-pin ml-2"></i> Ubicar
+                  </button>
+                </div>
                 <!-- Para RECHAZADO: mostrar texto informativo -->
                 <div *ngIf="(transaccion.data.tipoTransaccion || '').toUpperCase() === 'RECHAZADO'" class="text-muted" style="font-style: italic;">
                   RECHAZADO
@@ -210,6 +201,131 @@
     </div>
   </ng-template>
 </div>
+
+<!-- Nuevo Modal Unificado con Diseño Moderno -->
+<ng-template #unifiedModal let-modal>
+  <div class="modal-content unified-modal-content">
+    <div class="unified-modal-header">
+      <div class="header-icon-wrapper">
+        <i class="fas fa-map-marked-alt"></i>
+      </div>
+      <div class="header-text-content">
+        <h4 class="modal-title">Ubicaciones de Transacción</h4>
+        <p class="modal-subtitle">ID: {{ selectedTransactionData?.id || selectedTransactionData?.Id }}</p>
+      </div>
+      <button type="button" class="btn-close-modal" (click)="modal.close()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="unified-modal-body">
+      <!-- Información General con Monto a la izquierda y Badge a la derecha -->
+      <div class="info-card">
+        <div class="info-row">
+          <!-- Monto a la izquierda -->
+          <div class="info-item">
+            <i class="fas fa-dollar-sign"></i>
+            <div class="info-content">
+              <span class="info-label">Monto</span>
+              <span class="info-value">{{ selectedTransactionData?.monto | currency:'MXN':'symbol-narrow':'1.2-2' }}</span>
+            </div>
+          </div>
+          <!-- Badge de Tipo de Transacción a la derecha -->
+          <div class="transaction-badge-inline">
+            <span class="transaction-badge" 
+                  [ngClass]="(selectedTransactionData?.tipoTransaccion || '').toUpperCase() === 'RECARGA' ? 'badge-recarga' : 'badge-debito'">
+              <i class="fa" [ngClass]="(selectedTransactionData?.tipoTransaccion || '').toUpperCase() === 'RECARGA' ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+              <span>{{ (selectedTransactionData?.tipoTransaccion || '').toLowerCase() | titlecase }}</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Para DEBITO: Mostrar información arriba y un solo mapa con ambas ubicaciones -->
+      <div *ngIf="(selectedTransactionData?.tipoTransaccion || '').toUpperCase() === 'DEBITO'" class="dual-locations">
+        <div class="locations-info-grid">
+          <!-- Información Inicio -->
+          <div class="location-info-item">
+            <div class="location-info-header">
+              <i class="fas fa-map-marker-alt location-icon-start"></i>
+              <div>
+                <h6>Punto de Inicio</h6>
+                <p class="location-date-small" *ngIf="direccionInicio">{{ direccionInicio }}</p>
+                <p class="location-date-small" *ngIf="!direccionInicio && hasInicioLocation">
+                  <i class="fas fa-spinner fa-spin"></i> Obteniendo dirección...
+                </p>
+                <p class="location-date-small" *ngIf="!direccionInicio && !hasInicioLocation">
+                  Sin coordenadas válidas
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información Fin -->
+          <div class="location-info-item">
+            <div class="location-info-header">
+              <i class="fas fa-map-marker-alt location-icon-end"></i>
+              <div>
+                <h6>Punto de Fin</h6>
+                <p class="location-date-small" *ngIf="direccionFin">{{ direccionFin }}</p>
+                <p class="location-date-small" *ngIf="!direccionFin && hasFinLocation">
+                  <i class="fas fa-spinner fa-spin"></i> Obteniendo dirección...
+                </p>
+                <p class="location-date-small" *ngIf="!direccionFin && !hasFinLocation">
+                  Sin coordenadas válidas
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Mapa único con ambas ubicaciones -->
+        <div class="single-map-container">
+          <div *ngIf="!hasInicioLocation && !hasFinLocation" class="no-location">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Sin ubicaciones registradas</span>
+          </div>
+          <div *ngIf="hasInicioLocation || hasFinLocation" class="map-wrapper">
+            <div id="map-dual" class="map-container-unified"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Para RECARGA: Mostrar solo una ubicación -->
+      <div *ngIf="(selectedTransactionData?.tipoTransaccion || '').toUpperCase() === 'RECARGA'" class="single-location">
+        <div class="location-info-card">
+          <div class="location-header">
+            <i class="fas fa-map-marker-alt location-icon-recarga"></i>
+            <div>
+              <h5>Ubicación de Recarga</h5>
+              <p class="location-date" *ngIf="direccionRecarga">{{ direccionRecarga }}</p>
+              <p class="location-date" *ngIf="!direccionRecarga && hasRecargaLocation">
+                <i class="fas fa-spinner fa-spin"></i> Obteniendo dirección...
+              </p>
+              <p class="location-date" *ngIf="!direccionRecarga && !hasRecargaLocation">
+                Sin coordenadas válidas
+              </p>
+            </div>
+          </div>
+          <div *ngIf="!hasRecargaLocation" class="no-location">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Sin ubicación registrada</span>
+          </div>
+          <div *ngIf="hasRecargaLocation" class="map-wrapper">
+            <div id="map-recarga" class="map-container-unified"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="unified-modal-footer">
+      <button type="button" class="btn-close-footer" (click)="modal.close()">
+        <i class="fas fa-times"></i>
+        <span>Cerrar</span>
+      </button>
+    </div>
+  </div>
+</ng-template>
 
 <dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loading" [showIndicator]="true" [showPane]="true"
   [shading]="true" [closeOnOutsideClick]="false" [message]="loadingMessage">

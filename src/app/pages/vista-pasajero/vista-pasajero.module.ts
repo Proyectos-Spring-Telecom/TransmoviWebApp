@@ -6,6 +6,7 @@ import { VistaPasajeroComponent } from './vista-pasajero.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DxDataGridModule, DxLoadPanelModule, DxPopupModule } from 'devextreme-angular';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 @NgModule({
@@ -18,7 +19,8 @@ import { SharedModule } from 'src/app/shared/shared.module';
     DxDataGridModule,
     DxLoadPanelModule,
     DxPopupModule,
-    SharedModule
+    SharedModule,
+    NgbModalModule
   ]
 })
 export class VistaPasajeroModule { }

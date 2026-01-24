@@ -64,16 +64,6 @@
                 <i class="fas fa-chevron-right selector-icon"></i>
               </div>
             </button>
-            
-            <!-- Mensaje informativo del cambio (solo en edición) -->
-            <div *ngIf="idInstalacion && getBluevoxChangeMessage()" 
-                 [class]="'bluevox-change-message ' + getBluevoxChangeBadgeClass()">
-              <i class="fas" 
-                 [class.fa-info-circle]="getBluevoxChangeType() === 'adding'"
-                 [class.fa-exclamation-circle]="getBluevoxChangeType() === 'modifying'"
-                 [class.fa-exclamation-triangle]="getBluevoxChangeType() === 'modifying' && requiereExactamenteCuatro()"></i>
-              <span>{{ getBluevoxChangeMessage() }}</span>
-            </div>
           </div>
 
         </div>
@@ -167,42 +157,7 @@
           </div>
         </ng-container>
 
-        <!-- Sección de Bluevox nuevos seleccionados (solo en edición) -->
-        <ng-container *ngIf="idInstalacion && hasNewBluevox()">
-          <h6 class="section-heading new-heading mt-4">
-            <i class="fas fa-plus-circle me-2"></i>
-            Nuevos (se agregarán)
-          </h6>
-          <div class="bluevox-grid">
-            <div 
-              *ngFor="let bv of getFilteredBluevox(getNewSelectedBluevox()); trackBy: trackId"
-              class="bluevox-card card-new"
-              [class.card-selected]="isBluevoxSelected(bv.id)"
-              [class.card-will-add]="getBluevoxAction(bv.id) === 'add'"
-              [class.card-disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled || isBluevoxDisabled(bv.id)"
-              (click)="onCardClick(bv, $event)">
-              <div class="card-checkbox" (click)="$event.stopPropagation()">
-                <input 
-                  type="checkbox" 
-                  [id]="'modal-new-' + bv.id"
-                  [checked]="isBluevoxSelected(bv.id)"
-                  [disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled || isBluevoxDisabled(bv.id)"
-                  (change)="toggleBluevox(bv.id, $event)"
-                  (click)="$event.stopPropagation()">
-              </div>
-              <div class="card-content">
-                <div class="card-serial">{{ displayBluevox(bv) || 'Sin número de serie' }}</div>
-                <div *ngIf="getBluevoxAction(bv.id) !== 'none'" 
-                     [class]="'card-badge ' + getBluevoxActionBadgeClass(bv.id)">
-                  <i class="fas" [class]="getBluevoxActionIcon(bv.id)"></i>
-                  {{ getBluevoxActionText(bv.id) }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </ng-container>
-
-        <!-- Sección de Bluevox disponibles -->
+        <!-- Sección de Bluevox disponibles (incluye seleccionados; se muestran con check y "Se instalará" / "Se agregará") -->
         <ng-container *ngIf="getFilteredBluevox(getAvailableBluevox()).length > 0">
           <h6 class="section-heading available-heading mt-4">
             <i class="fas fa-list me-2"></i>
@@ -235,7 +190,7 @@
                 <div *ngIf="!idInstalacion && isBluevoxSelected(bv.id)" 
                      class="card-badge badge-action-keep">
                   <i class="fas fa-check-circle"></i>
-                  Seleccionado
+                  Se instalará
                 </div>
               </div>
             </div>
@@ -251,9 +206,9 @@
 
       <div class="bluevox-modal-footer">
         <div class="footer-info">
-          <span *ngIf="requiereExactamenteCuatro()" class="limit-warning">
+          <span *ngIf="tieneLimiteBluevox()" class="limit-warning">
             <i class="fas fa-exclamation-triangle"></i>
-            Límite: 4 Bluevox máximo
+            Límite: {{ getCantidadAccesosMax() }} Bluevox máximo
           </span>
           <span class="selected-count">
             {{ getSelectedBluevoxCount() }} seleccionado{{ getSelectedBluevoxCount() !== 1 ? 's' : '' }}
