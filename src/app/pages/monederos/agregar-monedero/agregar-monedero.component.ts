@@ -99,7 +99,6 @@ onClienteChange(e: any) {
       this.monederoForm.patchValue({
         numeroSerie: response.data.numeroSerie,
         idCliente: Number(response.data.idCliente),
-        idCard: response.data.idCard,
         // saldo: Number(response.data.saldo)
       });
     })
@@ -114,7 +113,6 @@ onClienteChange(e: any) {
       idTipoPasajero: [null],
       idPasajero: [null],
       idCliente: [null, Validators.required],
-      idCard: [null, Validators.required],
     });
   }
 

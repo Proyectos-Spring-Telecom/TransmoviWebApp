@@ -29,16 +29,9 @@
                     <span class="dot"></span>
                     <span>Bitacora de Pasajero</span>
                   </div>
-                  <div class="d-flex gap-2">
-                    <!--
-                      <button class="btn btn-primary btn-sm pill">
-                        <i class="fa fa-dollar-sign me-1"></i>Recargar
-                      </button>
-                    -->
-                    <button class="btn btn-warning btn-lg pill" (click)="onExtravio()">
-                      <i class="fa fa-id-badge me-1"></i>¿Extravío de Monedero?
-                    </button>
-                  </div>
+                  <button class="btn btn-primary btn-sm pill">
+                    <i class="fa fa-dollar-sign me-1"></i>Recargar
+                  </button>
                 </div>
 
                 <div class="panel-body mt-4">
@@ -52,7 +45,7 @@
                     </div>
                   </div>
 
-                  <div class="row g-3 mt-1">
+                  <div class="row g-3 mt-4">
                     <div class="col-12 col-sm-6">
                       <div class="mini-card">
                         <div class="mini-icon">
@@ -77,6 +70,14 @@
                     </div>
                   </div>
 
+                  <div class="d-flex gap-3 mt-4">
+                    <button class="btn btn-warning w-50 pill" (click)="onExtravio()">
+                      <i class="fa fa-id-badge me-1"></i>Extravío
+                    </button>
+                    <button class="btn btn-danger w-50 pill">
+                      <i class="fa fa-trash me-1"></i>Eliminar
+                    </button>
+                  </div>
 
                   <div class="panel-head mt-5">
                     <div class="title d-flex align-items-center gap-2">
@@ -143,7 +144,6 @@
                       <dxo-header-filter [visible]="showHeaderFilterTx"></dxo-header-filter>
                       <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
 
-                      <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="250"></dxi-column>
                       <dxi-column dataField="fhRegistro" caption="Fecha" alignment="center"
                         cellTemplate="fecActiTx"></dxi-column>
                       <dxi-column dataField="monto" caption="Monto" alignment="center"
@@ -152,8 +152,6 @@
                         cellTemplate="estTx"></dxi-column>
                       <dxi-column dataField="numeroSerieMonedero" caption="N° Serie de Monedero"
                         alignment="center"></dxi-column>
-                      <dxi-column dataField="numeroSerieDispositivo" caption="N° Serie Dispositivo" alignment="center"
-                        cellTemplate="numDisposiTx"></dxi-column>
 
                       <div *dxTemplate="let a of 'fecActiTx'">
                         {{ a.data.fhRegistro | date: 'dd/MM/yyyy HH:mm' : '+0000' }}
@@ -179,29 +177,6 @@
                         </span>
                       </div>
 
-                      <div *dxTemplate="let transaccion of 'Acciones'" class="d-flex gap-3 justify-content-center">
-                        <!-- Para RECARGA: mostrar solo un botón verde -->
-                        <div *ngIf="(transaccion.data.tipoTransaccion || '').toUpperCase() === 'RECARGA'">
-                          <button type="button" class="btn btn-success"
-                            (click)="openUnifiedModal(unifiedModal, transaccion.data)"
-                            style="border-radius: 5px;">
-                            <i class="uil uil-map-pin ml-2"></i> Ubicar
-                          </button>
-                        </div>
-                        <!-- Para DEBITO: mostrar un solo botón que abre modal con ambas ubicaciones -->
-                        <div *ngIf="(transaccion.data.tipoTransaccion || '').toUpperCase() === 'DEBITO'">
-                          <button type="button" class="btn btn-primary"
-                            (click)="openUnifiedModal(unifiedModal, transaccion.data)"
-                            style="border-radius: 5px;">
-                            <i class="uil uil-map-pin ml-2"></i> Ubicar
-                          </button>
-                        </div>
-                        <!-- Para RECHAZADO: mostrar texto informativo -->
-                        <div *ngIf="(transaccion.data.tipoTransaccion || '').toUpperCase() === 'RECHAZADO'" class="text-muted" style="font-style: italic;">
-                          RECHAZADO
-                        </div>
-                      </div>
-
                       <dxo-export [enabled]="false" [allowExportSelectedData]="true" [texts]="{
                           exportAll: 'Exportar todos los datos a Excel',
                           exportSelectedRows: 'Exportar filas seleccionadas a Excel'
@@ -218,130 +193,5 @@
     </div>
   </div>
 </div>
-</ng-template>
-
-<!-- Modal Unificado con Diseño Moderno -->
-<ng-template #unifiedModal let-modal>
-  <div class="modal-content unified-modal-content">
-    <div class="unified-modal-header">
-      <div class="header-icon-wrapper">
-        <i class="fas fa-map-marked-alt"></i>
-      </div>
-      <div class="header-text-content">
-        <h4 class="modal-title">Ubicaciones de Transacción</h4>
-        <p class="modal-subtitle">ID: {{ selectedTransactionData?.id || selectedTransactionData?.Id }}</p>
-      </div>
-      <button type="button" class="btn-close-modal" (click)="modal.close()">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-
-    <div class="unified-modal-body">
-      <!-- Información General con Monto a la izquierda y Badge a la derecha -->
-      <div class="info-card">
-        <div class="info-row">
-          <!-- Monto a la izquierda -->
-          <div class="info-item">
-            <i class="fas fa-dollar-sign"></i>
-            <div class="info-content">
-              <span class="info-label">Monto</span>
-              <span class="info-value">{{ selectedTransactionData?.monto | currency:'MXN':'symbol-narrow':'1.2-2' }}</span>
-            </div>
-          </div>
-          <!-- Badge de Tipo de Transacción a la derecha -->
-          <div class="transaction-badge-inline">
-            <span class="transaction-badge" 
-                  [ngClass]="(selectedTransactionData?.tipoTransaccion || '').toUpperCase() === 'RECARGA' ? 'badge-recarga' : 'badge-debito'">
-              <i class="fa" [ngClass]="(selectedTransactionData?.tipoTransaccion || '').toUpperCase() === 'RECARGA' ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
-              <span>{{ (selectedTransactionData?.tipoTransaccion || '').toLowerCase() | titlecase }}</span>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Para DEBITO: Mostrar información arriba y un solo mapa con ambas ubicaciones -->
-      <div *ngIf="(selectedTransactionData?.tipoTransaccion || '').toUpperCase() === 'DEBITO'" class="dual-locations">
-        <div class="locations-info-grid">
-          <!-- Información Inicio -->
-          <div class="location-info-item">
-            <div class="location-info-header">
-              <i class="fas fa-map-marker-alt location-icon-start"></i>
-              <div>
-                <h6>Punto de Inicio</h6>
-                <p class="location-date-small" *ngIf="direccionInicio">{{ direccionInicio }}</p>
-                <p class="location-date-small" *ngIf="!direccionInicio && hasInicioLocation">
-                  <i class="fas fa-spinner fa-spin"></i> Obteniendo dirección...
-                </p>
-                <p class="location-date-small" *ngIf="!direccionInicio && !hasInicioLocation">
-                  Sin coordenadas válidas
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Información Fin -->
-          <div class="location-info-item">
-            <div class="location-info-header">
-              <i class="fas fa-map-marker-alt location-icon-end"></i>
-              <div>
-                <h6>Punto de Fin</h6>
-                <p class="location-date-small" *ngIf="direccionFin">{{ direccionFin }}</p>
-                <p class="location-date-small" *ngIf="!direccionFin && hasFinLocation">
-                  <i class="fas fa-spinner fa-spin"></i> Obteniendo dirección...
-                </p>
-                <p class="location-date-small" *ngIf="!direccionFin && !hasFinLocation">
-                  Sin coordenadas válidas
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Mapa único con ambas ubicaciones -->
-        <div class="single-map-container">
-          <div *ngIf="!hasInicioLocation && !hasFinLocation" class="no-location">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>Sin ubicaciones registradas</span>
-          </div>
-          <div *ngIf="hasInicioLocation || hasFinLocation" class="map-wrapper">
-            <div id="map-dual" class="map-container-unified"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Para RECARGA: Mostrar solo una ubicación -->
-      <div *ngIf="(selectedTransactionData?.tipoTransaccion || '').toUpperCase() === 'RECARGA'" class="single-location">
-        <div class="location-info-card">
-          <div class="location-header">
-            <i class="fas fa-map-marker-alt location-icon-recarga"></i>
-            <div>
-              <h5>Ubicación de Recarga</h5>
-              <p class="location-date" *ngIf="direccionRecarga">{{ direccionRecarga }}</p>
-              <p class="location-date" *ngIf="!direccionRecarga && hasRecargaLocation">
-                <i class="fas fa-spinner fa-spin"></i> Obteniendo dirección...
-              </p>
-              <p class="location-date" *ngIf="!direccionRecarga && !hasRecargaLocation">
-                Sin coordenadas válidas
-              </p>
-            </div>
-          </div>
-          <div *ngIf="!hasRecargaLocation" class="no-location">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>Sin ubicación registrada</span>
-          </div>
-          <div *ngIf="hasRecargaLocation" class="map-wrapper">
-            <div id="map-recarga" class="map-container-unified"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="unified-modal-footer">
-      <button type="button" class="btn-close-footer" (click)="modal.close()">
-        <i class="fas fa-times"></i>
-        <span>Cerrar</span>
-      </button>
-    </div>
-  </div>
 </ng-template>
 </div>

@@ -166,7 +166,6 @@ export class AltaVehiculoComponent implements OnInit {
       const idCombustible = get(raw, ['idCombustible', 'IdCombustible', 'idcombustible']);
       const capacidadLitros = get(raw, ['capacidadLitros', 'CapacidadLitros']);
       const combustibleNombre = get(raw, ['nombre', 'Nombre', 'tipoCombustible', 'TipoCombustible']);
-      const cantidadAccesos = get(raw, ['cantidadAccesos', 'CantidadAccesos']);
 
       this.vehiculosForm.patchValue({
         marca: marca ?? '',
@@ -186,7 +185,6 @@ export class AltaVehiculoComponent implements OnInit {
         capacidadLitros: capacidadLitros != null ? Number(capacidadLitros) : null,
         estatus: est != null && !Number.isNaN(Number(est)) ? Number(est) : 1,
         idCliente: idCli != null && idCli !== '' ? Number(idCli) : null,
-        cantidadAccesos: cantidadAccesos != null ? Number(cantidadAccesos) : null,
       });
 
       if (!idCombustible) {
@@ -216,7 +214,6 @@ export class AltaVehiculoComponent implements OnInit {
       capacidadLitros: [null, Validators.required],
       estatus: [1, Validators.required],
       idCliente: [null, Validators.required],
-      cantidadAccesos: [null, Validators.required],
     });
   }
 
@@ -318,7 +315,6 @@ export class AltaVehiculoComponent implements OnInit {
         km: 'Kilometraje',
         idCombustible: 'Tipo de combustible',
         capacidadLitros: 'Capacidad de combustible (L)',
-        cantidadAccesos: 'Cantidad de accesos',
       };
 
       const camposFaltantes: string[] = [];
@@ -372,7 +368,6 @@ export class AltaVehiculoComponent implements OnInit {
       km: Number(raw.km),
       idCombustible: parseInt(raw.idCombustible, 10),
       capacidadLitros: Number(raw.capacidadLitros),
-      cantidadAccesos: Number(raw.cantidadAccesos),
     };
 
     this.vehiService.agregarVehiculo(payload).subscribe(
@@ -430,7 +425,6 @@ export class AltaVehiculoComponent implements OnInit {
         km: 'Kilometraje',
         idCombustible: 'Tipo de combustible',
         capacidadLitros: 'Capacidad de combustible (L)',
-        cantidadAccesos: 'Cantidad de accesos',
       };
 
       const camposFaltantes: string[] = [];
@@ -483,7 +477,6 @@ export class AltaVehiculoComponent implements OnInit {
       km: Number(raw.km),
       idCombustible: parseInt(raw.idCombustible, 10),
       capacidadLitros: Number(raw.capacidadLitros),
-      cantidadAccesos: Number(raw.cantidadAccesos),
     };
 
     this.vehiService.actualizarVehiculo(this.idVehiculo, payload).subscribe(
