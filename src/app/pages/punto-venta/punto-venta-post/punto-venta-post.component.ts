@@ -30,6 +30,13 @@ export class PuntoVentaPostComponent implements OnInit {
    * @param exlargeModal extra large modal data
    */
   monederoSeleccionado: any = null;
+  wallets: Monedero[] = [
+    { id: 1, numeroSerie: 'MN-001-AZ', titular: 'María López', saldo: 320.5 },
+    { id: 2, numeroSerie: 'MN-002-BX', titular: 'Juan Pérez', saldo: 1520 },
+    { id: 3, numeroSerie: 'MN-003-QW', titular: 'Logística MX SA', saldo: 90 },
+    { id: 4, numeroSerie: 'MN-004-ZZ', titular: 'Luis Hernández', saldo: 780.25 },
+    { id: 5, numeroSerie: 'MN-005-KL', titular: 'Sofía Ramos', saldo: 245.75 }
+  ];
   selectedWalletId: number | null = null;
   step = 1;
 
@@ -53,7 +60,6 @@ export class PuntoVentaPostComponent implements OnInit {
   public listaMonederos: any
   public transaccionForm: FormGroup;
   public showForm = false;
-  public listaMetodosPago: any[] = [];
 
   constructor(
     private modalService: NgbModal,
@@ -65,28 +71,11 @@ export class PuntoVentaPostComponent implements OnInit {
 
   }
 
-  obtenerMetodosPago(){
-    this.moneService.obtenerMetodosPago().subscribe({
-      next: (response: any) => {
-        const raw = response?.data ?? response ?? [];
-        this.listaMetodosPago = Array.isArray(raw) ? raw.map((m: any) => ({
-          id: Number(m?.id ?? m?.Id ?? m?.idMetodoPago ?? m?.ID),
-          nombre: m?.nombre ?? m?.Nombre ?? m?.descripcion ?? m?.Descripcion ?? 'Sin nombre',
-        })) : [];
-      },
-      error: (error) => {
-        console.error('Error al cargar métodos de pago', error);
-        this.listaMetodosPago = [];
-      }
-    });
-  }
-
   irTransacciones(){
     this.route.navigateByUrl('/transacciones')
   }
 
   ngOnInit() {
-    this.obtenerMetodosPago();
      Swal.fire({
       title: 'Cargando…',
       background: '#03131dff',
@@ -179,16 +168,12 @@ export class PuntoVentaPostComponent implements OnInit {
       fechaHoraFinal: [null, Validators.required],
       numeroSerieMonedero: ['', Validators.required],
       numeroSerieDispositivo: [null],
-      idMetodoPago: [null],
     });
   }
 
   showRecargaExitosa = false;
   private modalRef: any | null = null;
   public idTransaccion: any;
-  public fechaFinal: string | null = null;
-  public montoFinal: number | null = null;
-  public metodoPago: string | null = null;
 
   agregarTransaccion() {
   if (!this.monederoSeleccionado || !this.monto || this.monto <= 0) {
@@ -216,23 +201,7 @@ export class PuntoVentaPostComponent implements OnInit {
     didOpen: () => { Swal.showLoading(); }
   });
 
-  // Obtener el número de serie del monedero seleccionado directamente del objeto
-  const numSerie = this.monederoSeleccionado?.numeroSerie || this.monederoSeleccionado?.numeroserie || '';
-  
-  if (!numSerie) {
-    Swal.fire({
-      title: 'Error',
-      text: 'No se pudo obtener el número de serie del monedero seleccionado.',
-      icon: 'error',
-      background: '#002136',
-      confirmButtonColor: '#3085d6',
-    });
-    this.loading = false;
-    this.submitButton = 'Guardar';
-    Swal.close();
-    return;
-  }
-
+  const numSerie = this.monederoSeleccionado.numeroserie || this.monederoSeleccionado.numeroSerie || '';
   this.transaccionForm.patchValue({
     numeroSerieMonedero: numSerie,
     fechaHoraFinal: this.nowZulu(),
@@ -251,9 +220,8 @@ export class PuntoVentaPostComponent implements OnInit {
     latitudFinal: null,
     longitudFinal: null,
     fechaHoraFinal: raw?.fechaHoraFinal || this.nowZulu(),
-    numeroSerieMonedero: numSerie, // Usar directamente numSerie para evitar problemas
+    numeroSerieMonedero: raw?.numeroSerieMonedero || numSerie,
     numeroSerieDispositivo: null,
-    idMetodoPago: raw?.idMetodoPago || null,
   };
 
   let holdTimer: any = null;
@@ -265,11 +233,7 @@ export class PuntoVentaPostComponent implements OnInit {
       this.loading = false;
       this.modalRef?.close();
       this.modalRef = null;
-      this.idTransaccion = _res?.data?.id || _res?.id;
-      // Guardar datos de la respuesta del servicio
-      this.fechaFinal = _res?.fechaFinal || null;
-      this.montoFinal = _res?.montoFinal != null ? Number(_res.montoFinal) : null;
-      this.metodoPago = _res?.metodoPago || null;
+      this.idTransaccion = _res?.data?.id;
       holdTimer = setTimeout(() => {
         Swal.close();
         this.showRecargaExitosa = true;
@@ -310,27 +274,18 @@ export class PuntoVentaPostComponent implements OnInit {
   }
 
   seleccionarMonedero(m: any) {
-    // Crear una copia del objeto para asegurar que tenemos la referencia correcta
-    this.monederoSeleccionado = {
-      id: m.id,
-      numeroSerie: m.numeroSerie || m.numeroserie,
-      numeroserie: m.numeroserie || m.numeroSerie,
-      saldo: m.saldo,
-      pasajeroNombre: m.pasajeroNombre,
-      pasajeroApellidoPaterno: m.pasajeroApellidoPaterno,
-      pasajeroApellidoMaterno: m.pasajeroApellidoMaterno,
-      clienteNombre: m.clienteNombre,
-      clienteApellidoPaterno: m.clienteApellidoPaterno,
-      clienteApellidoMaterno: m.clienteApellidoMaterno,
-      ...m // Incluir cualquier otra propiedad
-    };
-    console.log('Monedero seleccionado:', this.monederoSeleccionado);
+    this.monederoSeleccionado = m;
+  }
+
+
+  get selectedWallet(): Monedero | null {
+    return this.wallets.find(w => w.id === this.selectedWalletId) || null;
   }
 
   irPaso(n: 1 | 2) {
     this.step = n;
     if (n === 2 && this.monederoSeleccionado) {
-      const numSerie = this.monederoSeleccionado.numeroSerie || this.monederoSeleccionado.numeroserie || '';
+      const numSerie = this.monederoSeleccionado.numeroserie || this.monederoSeleccionado.numeroSerie || '';
       this.transaccionForm.patchValue({
         numeroSerieMonedero: numSerie,
         fechaHoraFinal: this.nowZulu(),
@@ -360,31 +315,11 @@ export class PuntoVentaPostComponent implements OnInit {
       fechaHoraFinal: null,
       numeroSerieMonedero: '',
       numeroSerieDispositivo: null,
-      idMetodoPago: null,
     });
     this.monto = 0;
     this.montoView = '';
     this.monederoSeleccionado = null;
     this.step = 1;
-    this.fechaFinal = null;
-    this.montoFinal = null;
-    this.metodoPago = null;
-    this.idTransaccion = null;
-  }
-
-  formatearFechaHora(fechaISO: string | null): string {
-    if (!fechaISO) return 'Sin información';
-    try {
-      const fecha = new Date(fechaISO);
-      const year = fecha.getFullYear();
-      const month = String(fecha.getMonth() + 1).padStart(2, '0');
-      const day = String(fecha.getDate()).padStart(2, '0');
-      const hours = String(fecha.getHours()).padStart(2, '0');
-      const minutes = String(fecha.getMinutes()).padStart(2, '0');
-      return `${year}-${month}-${day} ${hours}:${minutes}`;
-    } catch {
-      return fechaISO;
-    }
   }
 
   private openModalFromStart(): void {
@@ -456,29 +391,6 @@ export class PuntoVentaPostComponent implements OnInit {
   onSlider(val: number) {
     this.monto = Math.max(0, val || 0);
     this.montoView = this.monto.toFixed(2);
-  }
-
-  onMetodoPagoChange(metodoId: number, event?: Event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    const currentValue = this.transaccionForm.get('idMetodoPago')?.value;
-    // Si ya está seleccionado, deseleccionar; si no, seleccionar (single-select)
-    if (currentValue === metodoId) {
-      this.transaccionForm.patchValue({
-        idMetodoPago: null
-      });
-    } else {
-      this.transaccionForm.patchValue({
-        idMetodoPago: metodoId
-      });
-    }
-  }
-
-  isMetodoPagoSelected(metodoId: number): boolean {
-    const currentValue = this.transaccionForm.get('idMetodoPago')?.value;
-    return currentValue === metodoId;
   }
 
   confirmarRecarga() {

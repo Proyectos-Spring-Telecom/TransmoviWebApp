@@ -7,10 +7,7 @@ import { MonederosServices } from 'src/app/shared/services/monederos.service';
 import { OperadoresService } from 'src/app/shared/services/operadores.service';
 import { PasajerosService } from 'src/app/shared/services/pasajeros.service';
 import { TransaccionesService } from 'src/app/shared/services/transacciones.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import Swal from 'sweetalert2';
-
-declare var google: any;
 
 @Component({
   selector: 'app-vista-pasajero',
@@ -67,21 +64,6 @@ export class VistaPasajeroComponent implements OnInit {
   saldo = 9876.33;
   informacion: any
 
-  // Propiedades para el modal unificado
-  public selectedTransactionData: any = null;
-  public hasInicioLocation: boolean = false;
-  public hasFinLocation: boolean = false;
-  public hasRecargaLocation: boolean = false;
-  public direccionInicio: string = '';
-  public direccionFin: string = '';
-  public direccionRecarga: string = '';
-
-  private readonly markerIcon: google.maps.Icon = {
-    url: new URL('assets/images/icons8-marker-48.png', document.baseURI).toString(),
-    scaledSize: new google.maps.Size(42, 42),
-    anchor: new google.maps.Point(21, 42),
-  };
-
   private obtenerNombreMesActual(): string {
     const meses = [
       'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -94,8 +76,7 @@ export class VistaPasajeroComponent implements OnInit {
     private users: AuthenticationService,
     private tranService: TransaccionesService,
     private moneService: MonederosServices,
-    private pasjService: PasajerosService,
-    private modalService: NgbModal
+    private pasjService: PasajerosService
   ) {
     this.mesActualLabel = this.obtenerNombreMesActual();
     const sanitize = (value: any): string => {
@@ -188,18 +169,11 @@ export class VistaPasajeroComponent implements OnInit {
 
           const dataTransformada = rows.map((x: any, idx: number) => ({
             id: x?.id ?? `tx_${page}_${idx}`,
-            Id: x?.id ?? `tx_${page}_${idx}`,
             tipoTransaccion: x?.tipoTransaccion ?? null,
             monto: toMoney(x?.monto),
             latitud: x?.latitud ?? null,
             longitud: x?.longitud ?? null,
             fechaHora: x?.fechaHora ?? null,
-            latitudInicial: x?.latitudInicial ?? null,
-            longitudInicial: x?.longitudInicial ?? null,
-            fechaHoraInicio: x?.fechaHoraInicio ?? null,
-            latitudFinal: x?.latitudFinal ?? null,
-            longitudFinal: x?.longitudFinal ?? null,
-            fechaHoraFinal: x?.fechaHoraFinal ?? null,
             fhRegistro: x?.fhRegistro ?? null,
             numeroSerieMonedero: x?.numeroSerieMonedero ?? null,
             numeroSerieDispositivo: x?.numeroSerieDispositivo ?? null
@@ -410,347 +384,5 @@ export class VistaPasajeroComponent implements OnInit {
     });
   }
 
-  // Método para abrir el modal unificado
-  openUnifiedModal(modalTemplate: any, transactionData: any) {
-    this.selectedTransactionData = transactionData;
-    
-    // Resetear direcciones
-    this.direccionInicio = '';
-    this.direccionFin = '';
-    this.direccionRecarga = '';
-    
-    // Validar ubicaciones disponibles
-    const tipoUpper = (transactionData?.tipoTransaccion || '').toUpperCase();
-    
-    if (tipoUpper === 'DEBITO') {
-      this.hasInicioLocation = !!(transactionData?.latitudInicial && transactionData?.longitudInicial);
-      this.hasFinLocation = !!(transactionData?.latitudFinal && transactionData?.longitudFinal);
-      
-      // Obtener direcciones para DEBITO
-      if (this.hasInicioLocation) {
-        this.getAddressFromCoordinates(
-          transactionData.latitudInicial,
-          transactionData.longitudInicial,
-          'inicio'
-        );
-      }
-      if (this.hasFinLocation) {
-        this.getAddressFromCoordinates(
-          transactionData.latitudFinal,
-          transactionData.longitudFinal,
-          'fin'
-        );
-      }
-    } else if (tipoUpper === 'RECARGA') {
-      this.hasRecargaLocation = !!(transactionData?.latitudFinal && transactionData?.longitudFinal);
-      
-      // Obtener dirección para RECARGA
-      if (this.hasRecargaLocation) {
-        this.getAddressFromCoordinates(
-          transactionData.latitudFinal,
-          transactionData.longitudFinal,
-          'recarga'
-        );
-      }
-    }
-
-    this.modalService.open(modalTemplate, {
-      centered: true,
-      windowClass: 'unified-modal-holder',
-      backdrop: 'static',
-      keyboard: false,
-      size: 'xl'
-    });
-
-    // Inicializar todos los mapas después de un delay para asegurar que el DOM esté listo
-    setTimeout(() => {
-      if (tipoUpper === 'DEBITO') {
-        // Inicializar un solo mapa con ambas ubicaciones
-        if (this.hasInicioLocation || this.hasFinLocation) {
-          this.initializeDualMap(transactionData);
-        }
-      } else if (tipoUpper === 'RECARGA' && this.hasRecargaLocation) {
-        this.initializeUnifiedMap('map-recarga', transactionData.latitudFinal, transactionData.longitudFinal);
-      }
-    }, 500);
-  }
-
-  // Método para obtener dirección desde coordenadas usando Geocoding
-  getAddressFromCoordinates(lat: string, lng: string, type: 'inicio' | 'fin' | 'recarga') {
-    if (!lat || !lng) {
-      this.setAddressForType(type, 'Sin coordenadas válidas');
-      return;
-    }
-
-    const geocoder = new google.maps.Geocoder();
-    const latlng = {
-      lat: Number(lat),
-      lng: Number(lng)
-    };
-
-    geocoder.geocode({ location: latlng }, (results: any[], status: string) => {
-      if (status === 'OK' && results && results.length > 0) {
-        const address = results[0].formatted_address || results[0].formattedAddress || 'Dirección no disponible';
-        this.setAddressForType(type, address);
-      } else {
-        this.setAddressForType(type, 'No se pudo obtener la dirección');
-      }
-    });
-  }
-
-  setAddressForType(type: 'inicio' | 'fin' | 'recarga', address: string) {
-    switch (type) {
-      case 'inicio':
-        this.direccionInicio = address;
-        break;
-      case 'fin':
-        this.direccionFin = address;
-        break;
-      case 'recarga':
-        this.direccionRecarga = address;
-        break;
-    }
-  }
-
-  initializeUnifiedMap(mapId: string, lat: string, lng: string) {
-    const mapElement = document.getElementById(mapId) as HTMLElement | null;
-    if (!mapElement) return;
-    if (!lat || !lng) return;
-
-    // Limpiar el contenedor del mapa
-    mapElement.innerHTML = '';
-
-    const position = { lat: Number(lat), lng: Number(lng) };
-
-    const map = new google.maps.Map(mapElement, {
-      center: position,
-      zoom: 16,
-      mapTypeControl: true,
-      streetViewControl: true,
-      fullscreenControl: true,
-      scrollwheel: true,
-      gestureHandling: 'auto',
-      zoomControl: true
-    });
-
-    const marker = new google.maps.Marker({
-      position,
-      map,
-      icon: this.markerIcon,
-      title: `Ubicación de Recarga`,
-      animation: google.maps.Animation.DROP
-    });
-
-    // Crear tooltip para RECARGA
-    const direccion = this.direccionRecarga || 'Obteniendo dirección...';
-    const fecha = this.selectedTransactionData?.fechaHoraFinal 
-      ? this.formatUTCDate(this.selectedTransactionData.fechaHoraFinal)
-      : 'Sin fecha';
-
-    const infoWindow = new google.maps.InfoWindow({
-      content: this.buildTooltipHTML('Ubicación de Recarga', direccion, fecha, '#0f9d58')
-    });
-
-    // Ocultar botón de cerrar y div vacío cuando el InfoWindow esté listo
-    infoWindow.addListener('domready', () => {
-      const iwOuter = document.querySelector('.gm-style-iw-d')?.parentElement?.parentElement;
-      if (iwOuter) {
-        const iwCloseBtn = iwOuter.querySelector('.gm-ui-hover-effect');
-        const iwCh = iwOuter.querySelector('.gm-style-iw-ch');
-        if (iwCloseBtn) {
-          (iwCloseBtn as HTMLElement).style.display = 'none';
-        }
-        if (iwCh) {
-          (iwCh as HTMLElement).style.display = 'none';
-        }
-      }
-    });
-
-    // Abrir tooltip automáticamente al cargar
-    google.maps.event.addListenerOnce(map, 'idle', () => {
-      infoWindow.open(map, marker);
-    });
-
-    // Mantener abierto al hacer click en el marcador
-    marker.addListener('click', () => {
-      infoWindow.open(map, marker);
-    });
-
-    // Abrir al pasar el mouse
-    marker.addListener('mouseover', () => {
-      infoWindow.open(map, marker);
-    });
-  }
-
-  initializeDualMap(transactionData: any) {
-    const mapElement = document.getElementById('map-dual') as HTMLElement | null;
-    if (!mapElement) return;
-
-    // Limpiar el contenedor del mapa
-    mapElement.innerHTML = '';
-
-    const positions: { lat: number; lng: number; type: 'inicio' | 'fin' }[] = [];
-    let bounds = new google.maps.LatLngBounds();
-
-    // Agregar posición de inicio si existe
-    if (this.hasInicioLocation && transactionData?.latitudInicial && transactionData?.longitudInicial) {
-      const inicioPos = { 
-        lat: Number(transactionData.latitudInicial), 
-        lng: Number(transactionData.longitudInicial),
-        type: 'inicio' as const
-      };
-      positions.push(inicioPos);
-      bounds.extend(new google.maps.LatLng(inicioPos.lat, inicioPos.lng));
-    }
-
-    // Agregar posición de fin si existe
-    if (this.hasFinLocation && transactionData?.latitudFinal && transactionData?.longitudFinal) {
-      const finPos = { 
-        lat: Number(transactionData.latitudFinal), 
-        lng: Number(transactionData.longitudFinal),
-        type: 'fin' as const
-      };
-      positions.push(finPos);
-      bounds.extend(new google.maps.LatLng(finPos.lat, finPos.lng));
-    }
-
-    if (positions.length === 0) return;
-
-    // Calcular el centro para el mapa
-    const center = positions.length === 1 
-      ? { lat: positions[0].lat, lng: positions[0].lng }
-      : bounds.getCenter().toJSON();
-
-    const map = new google.maps.Map(mapElement, {
-      center: center,
-      zoom: positions.length === 1 ? 16 : undefined,
-      mapTypeControl: true,
-      streetViewControl: true,
-      fullscreenControl: true,
-      scrollwheel: true,
-      gestureHandling: 'auto',
-      zoomControl: true
-    });
-
-    // Si hay múltiples posiciones, ajustar el zoom para mostrar ambas
-    if (positions.length > 1) {
-      map.fitBounds(bounds);
-      // Ajustar el padding para que no quede muy pegado
-      map.setOptions({ padding: { top: 50, right: 50, bottom: 50, left: 50 } });
-    }
-
-    // Crear marcadores más notorios con colores estándar de Google Maps y tooltips
-    positions.forEach((pos) => {
-      // Usar los iconos estándar de Google Maps con colores
-      const markerIcon = {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 18, // Más grande y notorio
-        fillColor: pos.type === 'inicio' ? '#4285F4' : '#EA4335', // Azul y rojo estándar de Google
-        fillOpacity: 1,
-        strokeColor: '#FFFFFF',
-        strokeWeight: 4, // Borde más grueso para mayor visibilidad
-      };
-
-      const marker = new google.maps.Marker({
-        position: { lat: pos.lat, lng: pos.lng },
-        map,
-        icon: markerIcon,
-        title: pos.type === 'inicio' ? 'Punto de Inicio' : 'Punto de Fin',
-        animation: google.maps.Animation.DROP,
-        label: {
-          text: pos.type === 'inicio' ? 'I' : 'F',
-          color: '#FFFFFF',
-          fontSize: '14px',
-          fontWeight: 'bold'
-        },
-        optimized: false // Para mejor renderizado
-      });
-
-      // Obtener datos para el tooltip
-      const titulo = pos.type === 'inicio' ? 'Punto de Inicio' : 'Punto de Fin';
-      const direccion = pos.type === 'inicio' ? (this.direccionInicio || 'Obteniendo dirección...') : (this.direccionFin || 'Obteniendo dirección...');
-      const fecha = pos.type === 'inicio' 
-        ? (transactionData?.fechaHoraInicio ? this.formatUTCDate(transactionData.fechaHoraInicio) : 'Sin fecha')
-        : (transactionData?.fechaHoraFinal ? this.formatUTCDate(transactionData.fechaHoraFinal) : 'Sin fecha');
-      const color = pos.type === 'inicio' ? '#4285F4' : '#EA4335';
-
-      // Crear InfoWindow con tooltip
-      const infoWindow = new google.maps.InfoWindow({
-        content: this.buildTooltipHTML(titulo, direccion, fecha, color)
-      });
-
-      // Ocultar botón de cerrar y div vacío cuando el InfoWindow esté listo
-      infoWindow.addListener('domready', () => {
-        const iwOuter = document.querySelector('.gm-style-iw-d')?.parentElement?.parentElement;
-        if (iwOuter) {
-          const iwCloseBtn = iwOuter.querySelector('.gm-ui-hover-effect');
-          const iwCh = iwOuter.querySelector('.gm-style-iw-ch');
-          if (iwCloseBtn) {
-            (iwCloseBtn as HTMLElement).style.display = 'none';
-          }
-          if (iwCh) {
-            (iwCh as HTMLElement).style.display = 'none';
-          }
-        }
-      });
-
-      // Abrir tooltip automáticamente al cargar
-      google.maps.event.addListenerOnce(map, 'idle', () => {
-        infoWindow.open(map, marker);
-      });
-
-      // Mantener abierto al hacer click en el marcador
-      marker.addListener('click', () => {
-        infoWindow.open(map, marker);
-      });
-
-      // Abrir al pasar el mouse
-      marker.addListener('mouseover', () => {
-        infoWindow.open(map, marker);
-      });
-    });
-  }
-
-  private buildTooltipHTML(titulo: string, direccion: string, fecha: string, color: string): string {
-    const safeTitulo = this.escapeHTML(titulo);
-    const safeDireccion = this.escapeHTML(direccion);
-    const safeFecha = this.escapeHTML(fecha);
-    
-    return `
-      <div style="font-family:'Segoe UI',sans-serif;display:inline-block;background:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.12);padding:12px 10px;line-height:1.3;max-width:240px;white-space:normal;overflow-wrap:break-word;word-wrap:break-word;margin:0;">
-        <div style="font-size:12px;color:#2f2f2f;margin:0;">
-          <span style="display:block;color:${color};font-weight:600;margin-bottom:4px;font-size:13px;">${safeTitulo}</span>
-          <span style="display:block;margin-bottom:3px;font-size:11px;color:#333;">${safeDireccion}</span>
-          <span style="display:block;margin-top:4px;padding-top:4px;border-top:1px solid #eee;font-size:11px;color:#666;">Fecha: ${safeFecha}</span>
-        </div>
-      </div>
-    `;
-  }
-
-  private formatUTCDate(fechaInput: string | Date): string {
-    const fecha = new Date(fechaInput);
-    if (isNaN(fecha.getTime())) return 'Sin fecha';
-    
-    const pad = (n: number) => n.toString().padStart(2, '0');
-    
-    const dd = pad(fecha.getUTCDate());
-    const MM = pad(fecha.getUTCMonth() + 1);
-    const yyyy = fecha.getUTCFullYear();
-    const hh = pad(fecha.getUTCHours());
-    const mm = pad(fecha.getUTCMinutes());
-    
-    return `${dd}/${MM}/${yyyy}, ${hh}:${mm} hrs`;
-  }
-
-  private escapeHTML(text: any): string {
-    if (!text) return '';
-    const str = String(text);
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
 
 }

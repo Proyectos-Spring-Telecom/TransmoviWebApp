@@ -27,7 +27,6 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
   selectedFileName: string = '';
   previewUrl: string | ArrayBuffer | null = null;
   getSerie = (d: any) => (d ? d.numeroSerie ?? d.numeroserie ?? '' : '');
-  public listaMetodosPago: any[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -41,7 +40,6 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.obtenerDispositivos();
     this.obtenerMonederos();
-    this.obtenerMetodosPago();
     this.initForm();
   }
 
@@ -57,7 +55,7 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
 
   initForm() {
     this.transaccionForm = this.fb.group({
-      tipoTransaccion: ['RECARGA'], // Valor por defecto, no se muestra en el formulario
+      tipoTransaccion: [null, Validators.required],
       monto: [
         null,
         [Validators.required, this.montoValidoValidator.bind(this)],
@@ -67,7 +65,6 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
       fechaHoraFinal: [null, Validators.required],
       numeroSerieMonedero: ['', Validators.required],
       numeroSerieDispositivo: [null],
-      idMetodoPago: [null],
     });
   }
 
@@ -141,27 +138,12 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
     });
   }
 
-  obtenerMetodosPago() {
-    this.moneService.obtenerMetodosPago().subscribe({
-      next: (response: any) => {
-        const raw = response?.data ?? response ?? [];
-        this.listaMetodosPago = Array.isArray(raw) ? raw.map((m: any) => ({
-          id: Number(m?.id ?? m?.Id ?? m?.idMetodoPago ?? m?.ID),
-          nombre: m?.nombre ?? m?.Nombre ?? m?.descripcion ?? m?.Descripcion ?? 'Sin nombre',
-        })) : [];
-      },
-      error: (error) => {
-        console.error('Error al cargar métodos de pago', error);
-        this.listaMetodosPago = [];
-      }
-    });
-  }
-
   agregar() {
     this.submitButton = 'Cargando...';
     this.loading = true;
 
     const etiquetas: Record<string, string> = {
+      tipoTransaccion: 'Tipo de Transacción',
       monto: 'Monto',
       fechaHoraFinal: 'Fecha y Hora',
       numeroSerieMonedero: 'N° de Serie de Monedero',
@@ -202,45 +184,46 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
     }
 
     const raw = this.transaccionForm.value;
-    
-    // Siempre usar RECARGA por defecto
-    const idTipoTransaccion = 1;
+    const tipo = (raw?.tipoTransaccion || '').toString().toUpperCase();
 
-    // Construir payload EXPLÍCITAMENTE sin incluir idTipoTransaccion
-    const payload: any = {};
-    
-    // Monto
-    const v = raw?.monto;
-    if (v !== '' && v != null) {
-      const cleaned = String(v).replace(/[^0-9.,-]/g, '').replace(',', '.');
-      const n = parseFloat(cleaned);
-      if (Number.isFinite(n)) {
-        payload.monto = +n.toFixed(2);
-      }
+    const idTipoTransaccion =
+      tipo === 'RECARGA' ? 1 :
+        tipo === 'DEBITO' ? 2 : null;
+
+    if (idTipoTransaccion == null) {
+      this.submitButton = 'Guardar';
+      this.loading = false;
+      Swal.fire({
+        title: '¡Ops!',
+        background: '#002136',
+        text: 'Tipo de transacción no válido. Elige RECARGA o DEBITO.',
+        icon: 'error',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Confirmar',
+        allowOutsideClick: false
+      });
+      return;
     }
-    
-    // Coordenadas
-    const lat = this.toNumber6(raw?.latitudFinal);
-    if (lat != null) payload.latitudFinal = lat;
-    
-    const lng = this.toNumber6(raw?.longitudFinal);
-    if (lng != null) payload.longitudFinal = lng;
-    
-    // Fecha
-    const fecha = this.toIsoZulu(raw?.fechaHoraFinal || null);
-    if (fecha != null) payload.fechaHoraFinal = fecha;
-    
-    // Monedero
-    if (raw?.numeroSerieMonedero) payload.numeroSerieMonedero = raw.numeroSerieMonedero;
-    
-    // Dispositivo
-    if (raw?.numeroSerieDispositivo) payload.numeroSerieDispositivo = raw.numeroSerieDispositivo;
-    
-    // Método de pago
-    if (raw?.idMetodoPago != null) payload.idMetodoPago = raw.idMetodoPago;
-    
-    // Siempre usar recargaTransaccion ya que idTipoTransaccion = 1 (RECARGA)
-    const request$ = this.transaccionService.recargaTransaccion(payload);
+
+    const payload = {
+      idTipoTransaccion,
+      monto: (() => {
+        const v = raw?.monto;
+        if (v === '' || v == null) return null;
+        const cleaned = String(v).replace(/[^0-9.,-]/g, '').replace(',', '.');
+        const n = parseFloat(cleaned);
+        return Number.isFinite(n) ? +n.toFixed(2) : null;
+      })(),
+      latitudFinal: this.toNumber6(raw?.latitudFinal),
+      longitudFinal: this.toNumber6(raw?.longitudFinal),
+      fechaHoraFinal: this.toIsoZulu(raw?.fechaHoraFinal || null),
+      numeroSerieMonedero: raw?.numeroSerieMonedero || null,
+      numeroSerieDispositivo: raw?.numeroSerieDispositivo || null
+    };
+
+    const request$ = idTipoTransaccion === 1
+      ? this.transaccionService.recargaTransaccion(payload)
+      : this.transaccionService.debitoTransaccion(payload);
 
     request$.subscribe(
       (resp: any) => {
@@ -296,6 +279,8 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
       }
     );
   }
+
+
 
   moneyKeydown(e: KeyboardEvent) {
     const allowed = [

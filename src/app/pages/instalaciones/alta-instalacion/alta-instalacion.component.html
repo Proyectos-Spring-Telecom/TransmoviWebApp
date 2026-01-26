@@ -16,56 +16,66 @@
         <div class="row mt-3">
           <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
             <label for="idCliente" class="form-label">Cliente</label>
-            <dx-select-box id="idCliente" class="tm-select w-100" formControlName="idCliente"
-              [dataSource]="listaClientes" [displayExpr]="displayCliente" valueExpr="id" [disabled]="!isAdmin"
-              [searchEnabled]="true" [showClearButton]="true" [noDataText]="'Sin registros'"
+            <dx-select-box
+              id="idCliente"
+              class="tm-select w-100"
+              formControlName="idCliente"
+              [dataSource]="listaClientes"
+              [displayExpr]="displayCliente"
+              valueExpr="id"
+              [disabled]="!isAdmin"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [noDataText]="'Sin registros'"
               placeholder="Seleccione un cliente">
             </dx-select-box>
           </div>
           <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
+            <label for="idDispositivo" class="form-label">Dispositivo</label>
+            <dx-select-box
+              id="idDispositivo"
+              class="tm-select w-100"
+              formControlName="idDispositivo"
+              [dataSource]="listaDipositivos"
+              [displayExpr]="displayDispositivo"
+              valueExpr="id"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [noDataText]="'Sin registros'"
+              placeholder="Seleccione un dispositivo">
+            </dx-select-box>
+          </div>
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
+            <label for="idBlueVox" class="form-label">Bluevox</label>
+            <dx-select-box
+              id="idBlueVox"
+              class="tm-select w-100"
+              formControlName="idBlueVox"
+              [dataSource]="listaBlueVox"
+              [displayExpr]="displayBluevox"
+              valueExpr="id"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [noDataText]="'Sin registros'"
+              placeholder="Seleccione un Bluevox">
+            </dx-select-box>
+          </div>
+          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
             <label for="idVehiculo" class="form-label">Vehículo</label>
-            <dx-select-box id="idVehiculo" class="tm-select w-100" formControlName="idVehiculo"
-              [dataSource]="listaVehiculos" [displayExpr]="displayVehiculo" valueExpr="id" [disabled]="!!idInstalacion"
-              [searchEnabled]="true" [showClearButton]="true" [noDataText]="'Sin registros'"
+            <dx-select-box
+              id="idVehiculo"
+              class="tm-select w-100"
+              formControlName="idVehiculo"
+              [dataSource]="listaVehiculos"
+              [displayExpr]="displayVehiculo"
+              valueExpr="id"
+              [disabled]="!!idInstalacion"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [noDataText]="'Sin registros'"
               placeholder="Seleccione un vehículo">
             </dx-select-box>
           </div>
-          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
-            <label for="idDispositivo" class="form-label">Dispositivo</label>
-            <dx-select-box id="idDispositivo" class="tm-select w-100" formControlName="idDispositivo"
-              [dataSource]="listaDipositivos" [displayExpr]="displayDispositivo" valueExpr="id" [searchEnabled]="true"
-              [showClearButton]="true" [noDataText]="'Sin registros'" placeholder="Seleccione un dispositivo">
-            </dx-select-box>
-          </div>
-          <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
-            <label for="idsBlueVoxs" class="form-label d-flex align-items-center">
-              Bluevox
-              <button 
-                *ngIf="idInstalacion"
-                type="button"
-                class="btn-info-bluevox"
-                (click)="mostrarInformacionBluevox($event)"
-                title="Información sobre Bluevox">
-                <i class="fas fa-question-circle"></i>
-              </button>
-            </label>
-            
-            <!-- Campo tipo botón que abre el modal -->
-            <button 
-              type="button"
-              class="btn-bluevox-selector w-100"
-              [class.disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled"
-              [disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled"
-              (click)="$event.stopPropagation(); !instalacionesForm.get('idsBlueVoxs')?.disabled && abrirModalBluevox($event)">
-              <div class="d-flex align-items-center justify-content-between w-100">
-                <span class="selector-text">
-                  {{ getBluevoxDisplayText() }}
-                </span>
-                <i class="fas fa-chevron-right selector-icon"></i>
-              </div>
-            </button>
-          </div>
-
         </div>
         <div class="form-actions mt-4">
           <button type="submit" class="submit" (click)="submit()">{{ submitButton }}</button>
@@ -74,166 +84,4 @@
       </form>
     </div>
   </div>
-
-  <!-- Modal para seleccionar Bluevox -->
-  <ng-template #bluevoxModal let-modal>
-    <div class="bluevox-modal-content">
-      <div class="bluevox-modal-header">
-        <h5 class="modal-title">
-          <i class="fas fa-microchip me-2"></i>
-          Seleccionar Bluevox
-        </h5>
-        <button type="button" class="btn-close-modal" (click)="cerrarModalBluevox()" aria-label="Cerrar">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <div class="bluevox-modal-body">
-        <!-- Barra de búsqueda -->
-        <div class="search-container mb-3">
-          <div class="input-group">
-            <span class="input-group-text">
-              <i class="fas fa-search"></i>
-            </span>
-            <input 
-              type="text" 
-              class="form-control search-input" 
-              placeholder="Buscar por número de serie..."
-              [(ngModel)]="searchBluevoxText"
-              name="searchBluevox">
-            <button 
-              *ngIf="searchBluevoxText" 
-              class="btn-clear-search" 
-              type="button"
-              (click)="searchBluevoxText = ''">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Indicador sutil de Bluevox originalmente asignados (solo cuando se va a reemplazar) -->
-        <div *ngIf="idInstalacion && getInitialBluevoxCount() > 0 && getBluevoxChangeType() === 'modifying'" 
-             class="bluevox-initial-indicator-modal">
-          <i class="fas fa-info-circle indicator-icon"></i>
-          <span class="indicator-text">
-            Esta instalación tiene <strong>{{ getInitialBluevoxCount() }}</strong> Bluevox asignado{{ getInitialBluevoxCount() !== 1 ? 's' : '' }} 
-            ({{ getInitialBluevoxDisplayText() }}). Al confirmar, algunos serán reemplazados.
-          </span>
-        </div>
-
-        <!-- Sección de Bluevox seleccionados existentes (solo en edición) -->
-        <ng-container *ngIf="idInstalacion && hasExistingBluevox()">
-          <h6 class="section-heading existing-heading">
-            <i class="fas fa-check-circle me-2"></i>
-            Asignados a esta instalación
-          </h6>
-          <div class="bluevox-grid">
-            <div 
-              *ngFor="let bv of getFilteredBluevox(getExistingBluevox()); trackBy: trackId"
-              class="bluevox-card"
-              [class.card-selected]="isBluevoxSelected(bv.id)"
-              [class.card-will-remove]="getBluevoxAction(bv.id) === 'remove'"
-              [class.card-will-keep]="getBluevoxAction(bv.id) === 'keep'"
-              [class.card-disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled || isBluevoxDisabled(bv.id)"
-              (click)="onCardClick(bv, $event)">
-              <div class="card-checkbox" (click)="$event.stopPropagation()">
-                <input 
-                  type="checkbox" 
-                  [id]="'modal-existing-' + bv.id"
-                  [checked]="isBluevoxSelected(bv.id)"
-                  [disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled || isBluevoxDisabled(bv.id)"
-                  (change)="toggleBluevox(bv.id, $event)"
-                  (click)="$event.stopPropagation()">
-              </div>
-              <div class="card-content">
-                <div class="card-serial">{{ displayBluevox(bv) || 'Sin número de serie' }}</div>
-                <div *ngIf="idInstalacion && getBluevoxAction(bv.id) !== 'none'" 
-                     [class]="'card-badge ' + getBluevoxActionBadgeClass(bv.id)">
-                  <i class="fas" [class]="getBluevoxActionIcon(bv.id)"></i>
-                  {{ getBluevoxActionText(bv.id) }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </ng-container>
-
-        <!-- Sección de Bluevox disponibles (incluye seleccionados; se muestran con check y "Se instalará" / "Se agregará") -->
-        <ng-container *ngIf="getFilteredBluevox(getAvailableBluevox()).length > 0">
-          <h6 class="section-heading available-heading mt-4">
-            <i class="fas fa-list me-2"></i>
-            Disponibles
-          </h6>
-          <div class="bluevox-grid">
-            <div 
-              *ngFor="let bv of getFilteredBluevox(getAvailableBluevox()); trackBy: trackId"
-              class="bluevox-card card-available"
-              [class.card-selected]="isBluevoxSelected(bv.id)"
-              [class.card-will-add]="idInstalacion && getBluevoxAction(bv.id) === 'add'"
-              [class.card-disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled || isBluevoxDisabled(bv.id)"
-              (click)="onCardClick(bv, $event)">
-              <div class="card-checkbox" (click)="$event.stopPropagation()">
-                <input 
-                  type="checkbox" 
-                  [id]="'modal-available-' + bv.id"
-                  [checked]="isBluevoxSelected(bv.id)"
-                  [disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled || isBluevoxDisabled(bv.id)"
-                  (change)="toggleBluevox(bv.id, $event)"
-                  (click)="$event.stopPropagation()">
-              </div>
-              <div class="card-content">
-                <div class="card-serial">{{ displayBluevox(bv) || 'Sin número de serie' }}</div>
-                <div *ngIf="idInstalacion && getBluevoxAction(bv.id) !== 'none'" 
-                     [class]="'card-badge ' + getBluevoxActionBadgeClass(bv.id)">
-                  <i class="fas" [class]="getBluevoxActionIcon(bv.id)"></i>
-                  {{ getBluevoxActionText(bv.id) }}
-                </div>
-                <div *ngIf="!idInstalacion && isBluevoxSelected(bv.id)" 
-                     class="card-badge badge-action-keep">
-                  <i class="fas fa-check-circle"></i>
-                  Se instalará
-                </div>
-              </div>
-            </div>
-          </div>
-        </ng-container>
-
-        <!-- Mensaje si no hay resultados -->
-        <div *ngIf="getFilteredBluevox(getAllBluevoxForModal()).length === 0" class="empty-state">
-          <i class="fas fa-search-empty"></i>
-          <p>No se encontraron Bluevox</p>
-        </div>
-      </div>
-
-      <div class="bluevox-modal-footer">
-        <div class="footer-info">
-          <span *ngIf="tieneLimiteBluevox()" class="limit-warning">
-            <i class="fas fa-exclamation-triangle"></i>
-            Límite: {{ getCantidadAccesosMax() }} Bluevox máximo
-          </span>
-          <span class="selected-count">
-            {{ getSelectedBluevoxCount() }} seleccionado{{ getSelectedBluevoxCount() !== 1 ? 's' : '' }}
-          </span>
-        </div>
-        <div class="footer-actions">
-          <button 
-            *ngIf="idInstalacion && tieneCambiosBluevox()"
-            type="button" 
-            class="btn-restore-footer" 
-            (click)="restaurarBluevox()"
-            title="Restaurar al estado inicial">
-            <i class="fas fa-undo me-2"></i>
-            Restaurar
-          </button>
-          <button type="button" class="btn-cancel-footer" (click)="cancelarModalBluevox()">
-            <i class="fas fa-times me-2"></i>
-            Cancelar
-          </button>
-          <button type="button" class="btn-confirm-footer" (click)="confirmarModalBluevox()">
-            <i class="fas fa-check me-2"></i>
-            Confirmar
-          </button>
-        </div>
-      </div>
-    </div>
-  </ng-template>
 </div>

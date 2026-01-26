@@ -56,7 +56,7 @@
           </div>
 
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Tipo de Combustible</label>
+            <label>Tipo de combustible</label>
             <dx-select-box class="tm-select w-100" formControlName="idCombustible" [dataSource]="listaCombustibles"
               displayExpr="nombre" valueExpr="id" [searchEnabled]="true" [showClearButton]="true"
               [noDataText]="'Sin registros'" placeholder="Seleccione el tipo">
@@ -65,7 +65,7 @@
 
 
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Capacidad de Combustible (L)</label>
+            <label>Capacidad de combustible (L)</label>
             <input type="text" class="form-control" formControlName="capacidadLitros"
               (keypress)="allowOnlyNumbersCombustible($event)" (paste)="onPasteDecimal($event)"
               (input)="sanitizeDecimal($event)" inputmode="decimal" pattern="\d*\.?\d*" placeholder="60" />
@@ -74,19 +74,14 @@
 
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Pasajeros sentados</label>
-            <input type="text" class="form-control" formControlName="pasajerosSentados"
+            <input type="number" class="form-control" formControlName="pasajerosSentados"
               (keypress)="allowOnlyNumbers($event)" placeholder="12" />
           </div>
 
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Pasajeros Parados</label>
-            <input type="text" class="form-control" formControlName="pasajerosParados"
+            <label>Pasajeros parados</label>
+            <input type="number" class="form-control" formControlName="pasajerosParados"
               (keypress)="allowOnlyNumbers($event)" placeholder="8" />
-          </div>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
-            <label>Cantidad de Accesos</label>
-            <input type="text" class="form-control" formControlName="cantidadAccesos"
-              (keypress)="allowOnlyNumbers($event)" placeholder="4" />
           </div>
         </div>
 

@@ -50,7 +50,7 @@ declare const google: any;
   ]
 })
 export class AltaDerroteroComponent implements OnInit, AfterViewInit {
-  public crearDerroteroRegresoValue = 0;
+
   @ViewChild('exlargeModal', { static: false }) exlargeModal!: TemplateRef<any>;
   extraLarges(tpl: TemplateRef<any>) {
     // Identifica el modal según el template
@@ -85,25 +85,14 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
     this.loading = false;
 
     this.rutaForm?.reset({ idRegion: null });
-    
-    // Resetear formulario de tarifa y deshabilitar campos dependientes
-    if (this.tarifaForm) {
-      this.tarifaForm.reset({
-        tipoTarifa: null,
-        tarifaBase: null,
-        distanciaBaseKm: null,
-        incrementoCadaMetros: null,
-        costoAdicional: null,
-        estatus: 1,
-      });
-      // Deshabilitar campos dependientes después del reset
-      const campos = ['distanciaBaseKm', 'incrementoCadaMetros', 'costoAdicional'];
-      campos.forEach(nombre => {
-        this.tarifaForm.get(nombre)?.disable({ emitEvent: false });
-      });
-    }
-
-    this.submitted = false;
+    this.tarifaForm?.reset({
+      tarifaBase: null,
+      distanciaBaseKm: null,
+      incrementoCadaMetros: null,
+      costoAdicional: null,
+      estatus: 1,
+      idDerrotero: null,
+    });
 
     this.rutaSearch?.setValue('', { emitEvent: false });
     this.filteredRutas = [...(this.listaRutas ?? [])];
@@ -141,11 +130,10 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
   public tarifaForm: FormGroup;
   public idTarifa: number;
   public titleTarifa = 'Agregar Tarifa';
-  public submitted = false;
-  public listaTipoTarifa = [
-    { id: 0, nombre: 'Estacionaria' },
-    { id: 1, nombre: 'Incremental' }
-  ];
+  tiposTarifa = [
+  { id: 0, nombre: 'Incremental' },
+  { id: 1, nombre: 'Estacionaria' }
+];
 
   constructor(
     private modalService: NgbModal,
@@ -157,25 +145,7 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
-    // Inicializar formulario de ruta (solo para selección de ruta)
-    this.rutaForm = this.fb.group({
-      idRegion: [null, Validators.required],
-    });
-
-    // Inicializar formulario de tarifa (para el modal de tarifa)
-    this.tarifaForm = this.fb.group({
-      tipoTarifa: [null, Validators.required],
-      tarifaBase: [null, Validators.required],
-      distanciaBaseKm: [null],
-      incrementoCadaMetros: [null],
-      costoAdicional: [null],
-      estatus: [1, Validators.required],
-    });
-
-    // Configurar lógica de habilitación/deshabilitación de campos de tarifa
-    this.initTarifaForm();
-
-    // Configurar búsqueda de rutas
+    this.initForm()
     this.rutaSearch.valueChanges
       .pipe(
         startWith(this.rutaSearch.value),
@@ -186,9 +156,12 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
         this.filteredRutas = this.filterRutas(q);
       });
 
+    this.rutaForm = this.fb.group({
+      idRegion: [null, Validators.required]
+    });
+
     this.obtenerRutas();
 
-    // Cuando se selecciona una ruta
     this.rutaForm.get('idRegion')!.valueChanges.subscribe((idSel: any) => {
       const ruta = this.listaRutas?.find(r => r.id === idSel);
       if (!ruta) return;
@@ -202,15 +175,23 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private initTarifaForm(): void {
-    // Inicialmente deshabilitar campos que dependen del tipo de tarifa
-    const campos = ['distanciaBaseKm', 'incrementoCadaMetros', 'costoAdicional'];
-    campos.forEach(nombre => {
-      this.tarifaForm?.get(nombre)?.disable({ emitEvent: false });
+  initForm() {
+    this.tarifaForm = this.fb.group({
+      tipoTarifa: [null, Validators.required],
+      tarifaBase: [null, Validators.required],
+      distanciaBaseKm: [null, Validators.required],
+      incrementoCadaMetros: [null, Validators.required],
+      costoAdicional: [null, Validators.required],
+      estatus: [1, Validators.required],
+      idDerrotero: [null, Validators.required],
     });
 
-    // Suscribirse a cambios en el tipo de tarifa
-    const tipoCtrl = this.tarifaForm?.get('tipoTarifa');
+    const campos = ['tarifaBase', 'distanciaBaseKm', 'incrementoCadaMetros', 'costoAdicional'];
+    campos.forEach(nombre => {
+      this.tarifaForm.get(nombre)?.disable({ emitEvent: false });
+    });
+
+    const tipoCtrl = this.tarifaForm.get('tipoTarifa');
     if (tipoCtrl) {
       tipoCtrl.valueChanges.subscribe(v => this.actualizarCamposPorTipoTarifa(v));
     }
@@ -230,76 +211,47 @@ export class AltaDerroteroComponent implements OnInit, AfterViewInit {
       tipoNum = this.toNum(tipo);
     }
 
-    const tarifaBaseCtrl = this.tarifaForm.get('tarifaBase');
-    const distanciaBaseCtrl = this.tarifaForm.get('distanciaBaseKm');
-    const incrementoMetrosCtrl = this.tarifaForm.get('incrementoCadaMetros');
-    const costoAdicionalCtrl = this.tarifaForm.get('costoAdicional');
+    const tarifaBaseCtrl        = this.tarifaForm.get('tarifaBase');
+    const distanciaBaseCtrl     = this.tarifaForm.get('distanciaBaseKm');
+    const incrementoMetrosCtrl  = this.tarifaForm.get('incrementoCadaMetros');
+    const costoAdicionalCtrl    = this.tarifaForm.get('costoAdicional');
 
-    if (!tarifaBaseCtrl || !distanciaBaseCtrl || !incrementoMetrosCtrl || !costoAdicionalCtrl) return;
+    if (!tarifaBaseCtrl || !distanciaBaseCtrl || !incrementoMetrosCtrl || !costoAdicionalCtrl) {
+      return;
+    }
 
-    // Estacionaria (id: 0) - Solo habilitar Tarifa Base
     if (tipoNum === 0) {
       tarifaBaseCtrl.enable({ emitEvent: false });
-      tarifaBaseCtrl.setValidators([Validators.required]);
-      tarifaBaseCtrl.updateValueAndValidity({ emitEvent: false });
 
       distanciaBaseCtrl.disable({ emitEvent: false });
       distanciaBaseCtrl.setValue(null, { emitEvent: false });
-      distanciaBaseCtrl.clearValidators();
-      distanciaBaseCtrl.updateValueAndValidity({ emitEvent: false });
 
       incrementoMetrosCtrl.disable({ emitEvent: false });
       incrementoMetrosCtrl.setValue(null, { emitEvent: false });
-      incrementoMetrosCtrl.clearValidators();
-      incrementoMetrosCtrl.updateValueAndValidity({ emitEvent: false });
 
       costoAdicionalCtrl.disable({ emitEvent: false });
       costoAdicionalCtrl.setValue(null, { emitEvent: false });
-      costoAdicionalCtrl.clearValidators();
-      costoAdicionalCtrl.updateValueAndValidity({ emitEvent: false });
 
-    // Incremental (id: 1) - Habilitar todos los campos
     } else if (tipoNum === 1) {
       tarifaBaseCtrl.enable({ emitEvent: false });
-      tarifaBaseCtrl.setValidators([Validators.required]);
-      tarifaBaseCtrl.updateValueAndValidity({ emitEvent: false });
-
       distanciaBaseCtrl.enable({ emitEvent: false });
-      distanciaBaseCtrl.setValidators([Validators.required]);
-      distanciaBaseCtrl.updateValueAndValidity({ emitEvent: false });
-
       incrementoMetrosCtrl.enable({ emitEvent: false });
-      incrementoMetrosCtrl.setValidators([Validators.required]);
-      incrementoMetrosCtrl.updateValueAndValidity({ emitEvent: false });
-
       costoAdicionalCtrl.enable({ emitEvent: false });
-      costoAdicionalCtrl.setValidators([Validators.required]);
-      costoAdicionalCtrl.updateValueAndValidity({ emitEvent: false });
 
-    // Sin selección - Deshabilitar todo
     } else {
       tarifaBaseCtrl.disable({ emitEvent: false });
       tarifaBaseCtrl.setValue(null, { emitEvent: false });
-      tarifaBaseCtrl.clearValidators();
-      tarifaBaseCtrl.updateValueAndValidity({ emitEvent: false });
 
       distanciaBaseCtrl.disable({ emitEvent: false });
       distanciaBaseCtrl.setValue(null, { emitEvent: false });
-      distanciaBaseCtrl.clearValidators();
-      distanciaBaseCtrl.updateValueAndValidity({ emitEvent: false });
 
       incrementoMetrosCtrl.disable({ emitEvent: false });
       incrementoMetrosCtrl.setValue(null, { emitEvent: false });
-      incrementoMetrosCtrl.clearValidators();
-      incrementoMetrosCtrl.updateValueAndValidity({ emitEvent: false });
 
       costoAdicionalCtrl.disable({ emitEvent: false });
       costoAdicionalCtrl.setValue(null, { emitEvent: false });
-      costoAdicionalCtrl.clearValidators();
-      costoAdicionalCtrl.updateValueAndValidity({ emitEvent: false });
     }
   }
-
 
   async ngAfterViewInit(): Promise<void> {
     setTimeout(() => {
@@ -387,68 +339,67 @@ private normalizeFormToNumbers(): void {
   }, { emitEvent: false });
 }
 
-onTarifaFocus(): void {
-  const c = this.tarifaForm.get('tarifaBase');
-  if (!c) return;
-  const raw = (c.value ?? '').toString();
-  c.setValue(raw.replace(/[^0-9.,-]/g, '').replace(',', '.'), { emitEvent: false });
-}
+  onTarifaFocus(): void {
+    const c = this.tarifaForm.get('tarifaBase');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9.,-]/g, '').replace(',', '.'));
+  }
 
-onTarifaBlur(): void {
-  const c = this.tarifaForm.get('tarifaBase');
-  if (!c) return;
-  const raw = (c.value ?? '').toString().replace(/[^0-9.-]/g, '');
-  const num = parseFloat(raw);
-  if (isNaN(num)) { c.setValue('', { emitEvent: false }); return; }
-  c.setValue(`$${num.toFixed(2)}`, { emitEvent: false });
-}
+  onTarifaBlur(): void {
+    const c = this.tarifaForm.get('tarifaBase');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9.-]/g, '');
+    const num = parseFloat(raw);
+    if (isNaN(num)) { c.setValue(''); return; }
+    c.setValue(`$${num.toFixed(2)}`);
+  }
 
-onCostoFocus(): void {
-  const c = this.tarifaForm.get('costoAdicional');
-  if (!c) return;
-  const raw = (c.value ?? '').toString();
-  c.setValue(raw.replace(/[^0-9.,-]/g, '').replace(',', '.'), { emitEvent: false });
-}
+  onCostoFocus(): void {
+    const c = this.tarifaForm.get('costoAdicional');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9.,-]/g, '').replace(',', '.'));
+  }
 
-onCostoBlur(): void {
-  const c = this.tarifaForm.get('costoAdicional');
-  if (!c) return;
-  const raw = (c.value ?? '').toString().replace(/[^0-9.-]/g, '');
-  const num = parseFloat(raw);
-  if (isNaN(num)) { c.setValue('', { emitEvent: false }); return; }
-  c.setValue(`$${num.toFixed(2)}`, { emitEvent: false });
-}
+  onCostoBlur(): void {
+    const c = this.tarifaForm.get('costoAdicional');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9.-]/g, '');
+    const num = parseFloat(raw);
+    if (isNaN(num)) { c.setValue(''); return; }
+    c.setValue(`$${num.toFixed(2)}`);
+  }
 
-onDistanciaFocus(): void {
-  const c = this.tarifaForm.get('distanciaBaseKm');
-  if (!c) return;
-  const raw = (c.value ?? '').toString();
-  c.setValue(raw.replace(/[^0-9.,-]/g, '').replace(',', '.'), { emitEvent: false });
-}
+  onDistanciaFocus(): void {
+    const c = this.tarifaForm.get('distanciaBaseKm');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9]/g, ''));
+  }
 
-onDistanciaBlur(): void {
-  const c = this.tarifaForm.get('distanciaBaseKm');
-  if (!c) return;
-  const raw = (c.value ?? '').toString().replace(/[^0-9.,-]/g, '').replace(',', '.');
-  const num = parseFloat(raw);
-  if (isNaN(num)) { c.setValue('', { emitEvent: false }); return; }
-  c.setValue(`${num} km`, { emitEvent: false });
-}
+  onDistanciaBlur(): void {
+    const c = this.tarifaForm.get('distanciaBaseKm');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9]/g, '');
+    if (!raw) { c.setValue(''); return; }
+    c.setValue(`${raw} km`);
+  }
 
-onIncrementoFocus(): void {
-  const c = this.tarifaForm.get('incrementoCadaMetros');
-  if (!c) return;
-  const raw = (c.value ?? '').toString();
-  c.setValue(raw.replace(/[^0-9]/g, ''), { emitEvent: false });
-}
+  onIncrementoFocus(): void {
+    const c = this.tarifaForm.get('incrementoCadaMetros');
+    if (!c) return;
+    const raw = (c.value ?? '').toString();
+    c.setValue(raw.replace(/[^0-9]/g, ''));
+  }
 
-onIncrementoBlur(): void {
-  const c = this.tarifaForm.get('incrementoCadaMetros');
-  if (!c) return;
-  const raw = (c.value ?? '').toString().replace(/[^0-9]/g, '');
-  if (!raw) { c.setValue('', { emitEvent: false }); return; }
-  c.setValue(`${raw} m`, { emitEvent: false });
-}
+  onIncrementoBlur(): void {
+    const c = this.tarifaForm.get('incrementoCadaMetros');
+    if (!c) return;
+    const raw = (c.value ?? '').toString().replace(/[^0-9]/g, '');
+    if (!raw) { c.setValue(''); return; }
+    c.setValue(`${raw} m`);
+  }
 
   allowOnlyNumbers(event: KeyboardEvent): void {
     const charCode = event.keyCode ? event.keyCode : event.which;
@@ -490,18 +441,7 @@ onIncrementoBlur(): void {
         gestureHandling: 'greedy',
         disableDoubleClickZoom: true,
         draggableCursor: 'crosshair',
-        draggable: true,
-        styles: [
-          {
-            featureType: 'poi',
-            elementType: 'labels',
-            stylers: [{ visibility: 'off' }]
-          },
-          {
-            featureType: 'poi',
-            stylers: [{ visibility: 'off' }]
-          }
-        ]
+        draggable: true
       });
     } else {
       this.limpiarMapa();
@@ -511,18 +451,7 @@ onIncrementoBlur(): void {
         gestureHandling: 'greedy',
         disableDoubleClickZoom: true,
         draggable: true,
-        draggableCursor: 'crosshair',
-        styles: [
-          {
-            featureType: 'poi',
-            elementType: 'labels',
-            stylers: [{ visibility: 'off' }]
-          },
-          {
-            featureType: 'poi',
-            stylers: [{ visibility: 'off' }]
-          }
-        ]
+        draggableCursor: 'crosshair'
       });
       this.map.setCenter(this.centroDefault);
       this.map.setZoom(12);
@@ -571,18 +500,7 @@ onIncrementoBlur(): void {
           gestureHandling: 'greedy',
           disableDoubleClickZoom: true,
           draggableCursor: 'crosshair',
-          draggable: true,
-          styles: [
-            {
-              featureType: 'poi',
-              elementType: 'labels',
-              stylers: [{ visibility: 'off' }]
-            },
-            {
-              featureType: 'poi',
-              stylers: [{ visibility: 'off' }]
-            }
-          ]
+          draggable: true
         });
       } else {
         this.map.setOptions({
@@ -591,18 +509,7 @@ onIncrementoBlur(): void {
           gestureHandling: 'greedy',
           disableDoubleClickZoom: true,
           draggableCursor: 'crosshair',
-          draggable: true,
-          styles: [
-            {
-              featureType: 'poi',
-              elementType: 'labels',
-              stylers: [{ visibility: 'off' }]
-            },
-            {
-              featureType: 'poi',
-              stylers: [{ visibility: 'off' }]
-            }
-          ]
+          draggable: true
         });
       }
 
@@ -1152,169 +1059,93 @@ onIncrementoBlur(): void {
     console.groupEnd();
   }
 
-async agregarDerrotero(): Promise<void> {
-  const body = await this.buildDerroteroPayloadAsync();
+  async agregarDerrotero(): Promise<void> {
+    const body = await this.buildDerroteroPayloadAsync();
 
-  if (!body?.idRuta || !body?.puntoInicio?.coordenadas || !body?.puntoFin?.coordenadas || !body?.recorridoDetallado?.length) {
-    Swal.fire({
-      title: 'Faltan datos',
-      background: '#002136',
-      text: 'Selecciona una ruta y traza al menos un segmento.',
-      icon: 'warning',
-      confirmButtonColor: '#3085d6',
-      confirmButtonText: 'Entendido',
-    });
-    return;
-  }
-
-  const res = await Swal.fire({
-    title: '¿Derrotero de Regreso?',
-    text: '¿Quieres que se genere también el trayecto de regreso?',
-    icon: 'question',
-    background: '#002136',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Sí',
-    cancelButtonText: 'No',
-    reverseButtons: true
-  });
-
-  this.crearDerroteroRegresoValue = res.isConfirmed ? 1 : 0;
-
-  // Resetear y preparar el formulario de tarifa antes de abrir el modal
-  if (this.tarifaForm) {
-    this.tarifaForm.reset({
-      tipoTarifa: null,
-      tarifaBase: null,
-      distanciaBaseKm: null,
-      incrementoCadaMetros: null,
-      costoAdicional: null,
-      estatus: 1,
-    });
-    // Deshabilitar campos dependientes
-    const campos = ['distanciaBaseKm', 'incrementoCadaMetros', 'costoAdicional'];
-    campos.forEach(nombre => {
-      this.tarifaForm.get(nombre)?.disable({ emitEvent: false });
-    });
-  }
-
-  this.submitted = false;
-  this.extraLarges(this.exlargeModalForm);
-}
-
-
-async guardarDerrotero(): Promise<void> {
-  // Marcar que se intentó guardar para mostrar errores
-  this.submitted = true;
-  // Marcar todos los campos del formulario de tarifa como tocados
-  this.tarifaForm.markAllAsTouched();
-
-  const derrotero = await this.buildDerroteroPayloadAsync();
-  if (!derrotero?.idRuta || !derrotero?.recorridoDetallado?.length) return;
-
-  // Usar tarifaForm en lugar de rutaForm para los datos de tarifa
-  const v = this.tarifaForm.value;
-  const tipoTarifaNum = this.toNum(v.tipoTarifa);
-  const esEstacionaria = tipoTarifaNum === 0;
-
-  const payloadTarifa = {
-    tipoTarifa: tipoTarifaNum,
-    tarifaBase: this.parseNumeric(v.tarifaBase),
-    distanciaBaseKm: esEstacionaria ? null : this.parseNumeric(v.distanciaBaseKm),
-    incrementoCadaMetros: esEstacionaria ? null : this.parseNumeric(v.incrementoCadaMetros),
-    costoAdicional: esEstacionaria ? null : this.parseNumeric(v.costoAdicional),
-    estatus: this.toNum(v.estatus),
-  };
-
-  const invalidNums = Object.values(payloadTarifa).some(x => Number.isNaN(x as any));
-  if (invalidNums) {
-    Swal.fire({
-      title: 'Datos inválidos',
-      background: '#002136',
-      text: 'Revisa los campos numéricos de la tarifa.',
-      icon: 'error',
-      confirmButtonText: 'Entendido',
-    });
-    return;
-  }
-
-  if (this.tarifaForm.invalid) {
-    Swal.fire({
-      title: '¡Faltan campos obligatorios!',
-      background: '#002136',
-      text: 'Completa los campos de tarifa antes de guardar.',
-      icon: 'error',
-      confirmButtonText: 'Entendido',
-    });
-    return;
-  }
-
-  const payloadFinal = {
-  crearDerroteroRegreso: this.crearDerroteroRegresoValue,
-  nombre: derrotero.nombre,
-  puntoInicio: derrotero.puntoInicio,
-  puntoFin: derrotero.puntoFin,
-  recorridoDetallado: derrotero.recorridoDetallado,
-  distanciaKm: derrotero.distanciaKm,
-  estatus: derrotero.estatus,
-  idRuta: derrotero.idRuta,
-
-  tarifaBase: payloadTarifa.tarifaBase,
-  distanciaBaseKm: payloadTarifa.distanciaBaseKm,
-  incrementoCadaMetros: payloadTarifa.incrementoCadaMetros,
-  costoAdicional: payloadTarifa.costoAdicional,
-  tipoTarifa: payloadTarifa.tipoTarifa,
-  estatusTarifa: payloadTarifa.estatus
-};
-
-
-  Swal.fire({
-    title: 'Cargando…',
-    background: '#03131dff',
-    backdrop: 'rgba(0, 0, 0, 0.86)',
-    color: '#e3f8f2',
-    showConfirmButton: false,
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    didOpen: () => Swal.showLoading()
-  });
-
-  this.submitButton = 'Guardando...';
-  this.loading = true;
-
-  this.derroTService.agregarDerrotero(payloadFinal).subscribe({
-    next: () => {
-      this.submitButton = 'Guardar';
-      this.loading = false;
-      Swal.close();
-      this.modalService.dismissAll();
-      this.regresar();
+    if (!body?.idRuta || !body?.puntoInicio?.coordenadas || !body?.puntoFin?.coordenadas || !body?.recorridoDetallado?.length) {
       Swal.fire({
-        title: '¡Operación Exitosa!',
+        title: 'Faltan datos',
         background: '#002136',
-        text: `Se agregó un nuevo derrotero de manera exitosa.`,
-        icon: 'success',
+        text: 'Selecciona una ruta y traza al menos un segmento.',
+        icon: 'warning',
         confirmButtonColor: '#3085d6',
-        confirmButtonText: 'Confirmar',
+        confirmButtonText: 'Entendido',
       });
-    },
-    error: (error: any) => {
-      this.submitButton = 'Guardar';
-      this.loading = false;
-      Swal.close();
-      Swal.fire({
-        title: '¡Ops!',
-        background: '#002136',
-        text: error?.error,
-        icon: 'error',
-        confirmButtonColor: '#3085d6',
-        confirmButtonText: 'Confirmar',
-      });
+      return;
     }
-  });
-}
 
+    const res = await Swal.fire({
+      title: '¡Advertencia!',
+      text: '¿Está seguro de guardar el trayecto?',
+      icon: 'question',
+      background: '#002136',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Editar',
+      footer: '<small style="color:#9bb8cc">Si tienes cambios presiona editar.</small>',
+    });
+
+    if (!res.isConfirmed) {
+      this.showPreviewPayloadBtn = false;
+      this.showClearTraceBtn = true;
+      this.resumeTracingFromCurrent();
+      return;
+    }
+
+    Swal.fire({
+      title: 'Cargando…',
+      background: '#03131dff',
+      backdrop: 'rgba(0, 0, 0, 0.86)',
+      color: '#e3f8f2',
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    this.submitButton = 'Guardando...';
+    this.loading = true;
+
+    const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+    this.derroTService.agregarDerrotero(body).subscribe({
+      next: async (resp: any) => {
+        console.log('Operación Exitosa', 'Se agrego un derrotero correctamente.');
+
+        const createdId = Number(resp?.id ?? resp?.data?.id);
+        if (!isNaN(createdId) && createdId > 0) {
+          this.tarifaForm.patchValue({ idDerrotero: createdId });
+          this.tarifaForm.get('idDerrotero')?.markAsDirty();
+          this.tarifaForm.get('idDerrotero')?.updateValueAndValidity({ onlySelf: true });
+        }
+
+        this.submitButton = 'Guardar';
+        this.loading = false;
+        await sleep(2500);
+        Swal.close();
+        await sleep(500);
+        this.extraLarges(this.exlargeModalForm);
+      },
+      error: () => {
+        this.submitButton = 'Guardar';
+        this.loading = false;
+        Swal.close();
+
+        Swal.fire({
+          title: '¡Ops!',
+          background: '#002136',
+          text: 'Ocurrió un error al agregar el derrotero, vuelve a intentarlo.',
+          icon: 'error',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Confirmar',
+        });
+      }
+    });
+  }
 
   private resumeTracingFromCurrent(): void {
     if (!this.map || !this.polyline) return;
@@ -1770,4 +1601,9 @@ const etiquetasNum: Record<string, string> = {
     if (typeof v === 'string') v = v.replace(',', '.').trim();
     return Number(v);
   }
+
+  listaTipoTarifa = [
+    { id: 0, nombre: 'Estacionaria' },
+    { id: 1, nombre: 'Incremental' },
+  ];
 }
