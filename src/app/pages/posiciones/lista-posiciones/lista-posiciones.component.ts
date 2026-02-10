@@ -5,6 +5,7 @@ import CustomStore from 'devextreme/data/custom_store';
 import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { PosicioneService } from 'src/app/shared/services/posiciones.service';
+import { MAP_STYLES_NO_POI } from 'src/app/shared/utils/map-styles.util';
 import Swal from 'sweetalert2';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -335,7 +336,8 @@ export class ListaPosicionesComponent implements OnInit {
       zoom: 16,
       mapTypeControl: false,
       streetViewControl: true,
-      fullscreenControl: true
+      fullscreenControl: true,
+      styles: MAP_STYLES_NO_POI
     });
 
     const marker = new google.maps.Marker({

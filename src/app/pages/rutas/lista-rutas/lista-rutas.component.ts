@@ -7,6 +7,7 @@ import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { RutasService } from 'src/app/shared/services/rutas.service';
+import { MAP_STYLES_NO_POI } from 'src/app/shared/utils/map-styles.util';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -272,6 +273,7 @@ export class ListaRutasComponent implements OnInit {
       mapTypeControl: false,
       streetViewControl: true,
       fullscreenControl: true,
+      styles: MAP_STYLES_NO_POI
     });
 
     const markerA = new google.maps.Marker({ position: a, map, icon: this.markerIconInicio });

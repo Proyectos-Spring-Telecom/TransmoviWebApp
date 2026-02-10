@@ -6,6 +6,7 @@ import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation'
 import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { ClientesService } from 'src/app/shared/services/clientes.service';
 import { RegionesService } from 'src/app/shared/services/regiones.service';
+import { MAP_STYLES_NO_POI } from 'src/app/shared/utils/map-styles.util';
 import Swal from 'sweetalert2';
 
 declare const google: any;
@@ -521,6 +522,7 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
       mapTypeControl: false,
       fullscreenControl: false,
       streetViewControl: false,
+      styles: MAP_STYLES_NO_POI
     });
 
     setTimeout(() => {

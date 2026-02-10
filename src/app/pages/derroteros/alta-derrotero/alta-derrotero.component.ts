@@ -6,6 +6,7 @@ import { debounceTime, distinctUntilChanged, startWith } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { DerroterosService } from 'src/app/shared/services/derroteros.service';
 import { RutasService } from 'src/app/shared/services/rutas.service';
+import { MAP_STYLES_NO_POI } from 'src/app/shared/utils/map-styles.util';
 import Swal from 'sweetalert2';
 import {
   trigger, transition, style, animate, state, query, stagger
@@ -441,7 +442,8 @@ private normalizeFormToNumbers(): void {
         gestureHandling: 'greedy',
         disableDoubleClickZoom: true,
         draggableCursor: 'crosshair',
-        draggable: true
+        draggable: true,
+        styles: MAP_STYLES_NO_POI
       });
     } else {
       this.limpiarMapa();
@@ -500,7 +502,8 @@ private normalizeFormToNumbers(): void {
           gestureHandling: 'greedy',
           disableDoubleClickZoom: true,
           draggableCursor: 'crosshair',
-          draggable: true
+          draggable: true,
+          styles: MAP_STYLES_NO_POI
         });
       } else {
         this.map.setOptions({

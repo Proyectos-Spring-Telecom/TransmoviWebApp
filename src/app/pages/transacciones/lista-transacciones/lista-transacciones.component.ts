@@ -8,6 +8,7 @@ import { lastValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
 import { NgxPermissionsService } from 'ngx-permissions';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { MAP_STYLES_NO_POI } from 'src/app/shared/utils/map-styles.util';
 import Swal from 'sweetalert2';
 
 declare var google: any;
@@ -126,7 +127,8 @@ export class ListaTransaccionesComponent implements OnInit {
               pasajero: pasajero || 'Sin registro',
               nombreCliente: x?.nombreCliente ?? null,
               apellidoPaternoCliente: x?.apellidoPaternoCliente ?? null,
-              apellidoMaternoCliente: x?.apellidoMaternoCliente ?? null
+              apellidoMaternoCliente: x?.apellidoMaternoCliente ?? null,
+              contexto: x?.contexto ?? null
             };
           });
 
@@ -263,6 +265,7 @@ export class ListaTransaccionesComponent implements OnInit {
       mapTypeControl: false,
       streetViewControl: true,
       fullscreenControl: true,
+      styles: MAP_STYLES_NO_POI
     });
 
     new google.maps.Marker({

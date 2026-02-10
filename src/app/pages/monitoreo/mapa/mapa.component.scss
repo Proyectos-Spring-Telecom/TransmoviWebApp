@@ -1,6 +1,6 @@
 .total-registros-label {
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 500;
   color: #f7fb06;
   padding: 8px 15px;
   border-radius: 5px;
@@ -35,7 +35,7 @@
 
 .titulo {
   font-size: 24px;
-  font-weight: bold;
+  font-weight: 500;
   color: #fff;
 }
 
@@ -143,7 +143,7 @@
 
         h6 {
           margin-bottom: 0.3rem;
-          font-weight: bold;
+          font-weight: 500;
         }
 
         p {
@@ -163,32 +163,211 @@
 
 
 
-/* Mapa */
+/* Mapa - Estilos base (los responsive están más abajo) */
+.map-container {
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: #e9ecef;
+  width: 100%;
+}
+
+/* Responsividad */
+// Estilos responsive para formularios
+.form-control-responsive {
+  width: 100%;
+  min-height: 44px;
+}
+
+.btn-responsive {
+  min-width: auto;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    width: auto;
+    min-width: 150px;
+  }
+}
+
+// Estilos responsive para imágenes de vehículos
+.vehiculo-img-responsive {
+  width: 48px;
+  height: 48px;
+
+  @media (max-width: 576px) {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+// Estilos responsive para botones de acción
+.btn-action-responsive {
+  white-space: nowrap;
+  flex: 1;
+
+  @media (min-width: 576px) {
+    flex: 0 1 auto;
+  }
+}
+
+// Responsividad para el contenedor de tarjetas
+.content-cards {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+
+  @media (max-width: 991.98px) {
+    max-height: 50vh;
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 767.98px) {
+    max-height: 40vh;
+  }
+
+  @media (max-width: 575.98px) {
+    max-height: 35vh;
+  }
+}
+
+// Responsividad para el mapa
 .map-container {
   border-radius: 15px;
   height: 520px;
   flex: 1;
-  /* Se adapta al contenedor */
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   background-color: #e9ecef;
+  min-height: 400px;
+
+  @media (max-width: 1399.98px) {
+    height: 500px;
+  }
+
+  @media (max-width: 1199.98px) {
+    height: 480px;
+  }
+
+  @media (max-width: 991.98px) {
+    height: 450px;
+    min-height: 350px;
+  }
+
+  @media (max-width: 767.98px) {
+    height: 400px;
+    min-height: 300px;
+  }
+
+  @media (max-width: 575.98px) {
+    height: 350px;
+    min-height: 250px;
+    border-radius: 8px;
+  }
 }
 
-/* Responsividad */
-@media (max-width: 768px) {
-  .search-bar {
+// Responsividad para el banner
+.u-banner {
+  @media (max-width: 767.98px) {
     flex-direction: column;
+    text-align: center;
 
-    input {
-      margin-bottom: 10px;
-      width: 100%;
+    &__body {
+      margin-top: 1rem;
     }
 
-    button {
-      margin-left: 0;
-      width: 100%;
-      margin-bottom: 5px;
+    &__title {
+      font-size: 1.5rem;
     }
+
+    &__subtitle {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// Responsividad para items de vehículos
+.vehiculo-item {
+  padding: 1rem;
+
+  @media (max-width: 575.98px) {
+    padding: 0.75rem;
+  }
+
+  .vehiculo-detalles {
+    h6 {
+      font-size: 0.95rem;
+
+      @media (max-width: 575.98px) {
+        font-size: 0.85rem;
+      }
+    }
+
+    p {
+      font-size: 0.85rem;
+
+      @media (max-width: 575.98px) {
+        font-size: 0.75rem;
+      }
+    }
+  }
+}
+
+// Responsividad para el modal
+@media (max-width: 575.98px) {
+  .modal-header-historial {
+    padding: 1rem 1.25rem;
+
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+
+      .icon-wrapper-historial {
+        width: 48px;
+        height: 48px;
+        font-size: 1.2rem;
+      }
+
+      .title-wrapper {
+        .modal-title-historial {
+          font-size: 1.1rem;
+        }
+
+        .modal-subtitle-historial {
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+
+  .modal-body-historial {
+    padding: 1.25rem;
+  }
+
+  .modal-footer-historial {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .btn-historial {
+      width: 100%;
+      min-width: auto;
+    }
+  }
+}
+
+// Ajustes para pantallas extra pequeñas
+@media (max-width: 375px) {
+  .u-banner__title {
+    font-size: 1.25rem;
+  }
+
+  .vehiculo-item {
+    padding: 0.5rem;
+  }
+
+  .map-container {
+    height: 300px;
+    min-height: 200px;
   }
 }
 
@@ -265,7 +444,7 @@
 }
 
 .section-title {
-  font-weight: 700;
+  font-weight: 500;
   font-size: 1.1rem;
   margin: 20px 0 16px;
   color: white;
@@ -274,7 +453,7 @@
 }
 
 label {
-  font-weight: 600;
+  font-weight: 500;
   font-size: 0.85rem;
   margin-bottom: 6px;
   display: block;
@@ -329,7 +508,7 @@ label {
   .btn {
     padding: 10px 20px;
     border-radius: 10px;
-    font-weight: 600;
+    font-weight: 500;
     transition: 0.3s ease;
   }
 }
@@ -348,7 +527,7 @@ label {
     padding: 10px 16px;
     background: #00b4d8;
     color: #fff;
-    font-weight: 600;
+    font-weight: 500;
     border-radius: 8px;
     cursor: pointer;
     transition: background 0.3s ease;
@@ -417,7 +596,7 @@ label {
     }
 
     span {
-      font-weight: 600;
+      font-weight: 500;
       margin-bottom: 6px;
       font-size: 1rem;
     }
@@ -457,7 +636,7 @@ label {
 
 ::ng-deep .swal2-container .swal2-title {
   font-size: 24px;
-  font-weight: 200;
+  font-weight: 500;
   color: #ffffff;
 }
 
@@ -475,7 +654,7 @@ label {
   overflow: auto;
   color: #c8c8c8;
   font-size: 1.125em;
-  font-weight: normal;
+  font-weight: 500;
   line-height: normal;
   text-align: center;
   word-wrap: break-word;
@@ -490,7 +669,7 @@ div:where(.swal2-container) .swal2-html-container {
   overflow: auto;
   color: #c8c8c8;
   font-size: 1.125em;
-  font-weight: normal;
+  font-weight: 500;
   line-height: normal;
   text-align: center;
   word-wrap: break-word;
@@ -506,15 +685,41 @@ div:where(.swal2-container) .swal2-html-container {
 
 #map {
   position: relative;
-  /* NUEVO: para anclar ::before y evitar recortes */
   width: 100%;
-  height: clamp(320px, 70vh, 520px);
+  height: clamp(250px, 70vh, 520px);
   border-radius: 14px;
   border: 1px solid #2f395a;
   background: #343845;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  @media (max-width: 1399.98px) {
+    height: clamp(300px, 65vh, 500px);
+  }
+
+  @media (max-width: 1199.98px) {
+    height: clamp(280px, 60vh, 480px);
+  }
+
+  @media (max-width: 991.98px) {
+    height: clamp(250px, 55vh, 450px);
+    border-radius: 12px;
+  }
+
+  @media (max-width: 767.98px) {
+    height: clamp(220px, 50vh, 400px);
+    border-radius: 10px;
+  }
+
+  @media (max-width: 575.98px) {
+    height: clamp(200px, 45vh, 350px);
+    border-radius: 8px;
+  }
+
+  @media (max-width: 375px) {
+    height: clamp(180px, 40vh, 300px);
+  }
 
   &:hover {
     transform: translateY(-1px);
@@ -668,10 +873,246 @@ div:where(.swal2-container) .swal2-html-container {
 }
 
 ::ng-deep .dx-texteditor.dx-editor-outlined {
-    background-color: #1e2832;
-    border-radius: 4px;
-    height: 44px;
-    border-width: 1px;
-    border-style: solid;
-    border-color: #414b5f #414b5f #8996af;
+  background-color: #1e2832;
+  border-radius: 4px;
+  height: 44px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #414b5f #414b5f #8996af;
+}
+
+.modal-header-historial {
+  background: linear-gradient(135deg, #034a91, #0a66c2);;
+  padding: 1.5rem 1.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .icon-wrapper-historial {
+      background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.25);
+    transition: all 0.3s ease;
+    }
+
+    .title-wrapper {
+      flex: 1;
+
+      .modal-title-historial {
+        font-size: 1.4rem;
+        font-weight: 500;
+        color: #fff;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: 0.3px;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      .modal-subtitle-historial {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+.modal-body-historial {
+  padding: 1.75rem;
+  background: #022b46;
+
+  .historial-form {
+    .form-group-historial {
+      margin-bottom: 1.5rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .label-historial {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #fff;
+        margin-bottom: 0.75rem;
+        letter-spacing: 0.5px;
+
+        i {
+          color: #5d74e5;
+          font-size: 0.85rem;
+        }
+      }
+
+      .date-input-historial {
+        ::ng-deep .dx-texteditor {
+          background: rgba(30, 40, 50, 0.6) !important;
+          border: 1px solid rgba(137, 150, 175, 0.3) !important;
+          border-radius: 10px !important;
+          transition: all 0.3s ease;
+
+          &:hover {
+            border-color: rgba(93, 116, 229, 0.5) !important;
+            box-shadow: 0 0 0 3px rgba(93, 116, 229, 0.1) !important;
+          }
+
+          &.dx-state-focused {
+            border-color: #5d74e5 !important;
+            box-shadow: 0 0 0 3px rgba(93, 116, 229, 0.2) !important;
+          }
+
+          .dx-texteditor-input {
+            color: #fff !important;
+            padding: 12px 16px !important;
+            font-size: 0.95rem !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+.modal-footer-historial {
+  padding: 1.25rem 1.75rem;
+  background: #022b46;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+
+  .btn-historial {
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 130px;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+
+      &::before {
+        width: 300px;
+        height: 300px;
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    i {
+      font-size: 1rem;
+      z-index: 1;
+      position: relative;
+    }
+
+    span {
+      z-index: 1;
+      position: relative;
+    }
+
+    &.btn-al-dia {
+      background: linear-gradient(135deg, #5d74e5, #6b85f0);
+      color: #fff;
+
+      &:hover {
+        background: linear-gradient(135deg, #6b85f0, #7a96fb);
+        box-shadow: 0 6px 20px rgba(93, 116, 229, 0.4);
+      }
+    }
+
+    &.btn-buscar {
+      background: linear-gradient(135deg, #00836d, #00a085);
+      color: #fff;
+
+      &:hover {
+        background: linear-gradient(135deg, #00a085, #00bd9d);
+        box-shadow: 0 6px 20px rgba(0, 131, 109, 0.4);
+      }
+    }
+
+    &.btn-cerrar {
+      background: linear-gradient(135deg, #f46a6a, #ff7a7a);
+      color: #fff;
+
+      &:hover {
+        background: linear-gradient(135deg, #ff7a7a, #ff8a8a);
+        box-shadow: 0 6px 20px rgba(244, 106, 106, 0.4);
+      }
+    }
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+:host ::ng-deep .modal-holder-historial {
+  .modal-dialog {
+    max-width: 550px;
+    margin: 1.75rem auto;
+  }
+
+  .modal-content {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .modal-header,
+  .modal-footer {
+    display: none;
+  }
+
+  .modal-body {
+    padding: 0;
+  }
+
+  .modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+  }
 }

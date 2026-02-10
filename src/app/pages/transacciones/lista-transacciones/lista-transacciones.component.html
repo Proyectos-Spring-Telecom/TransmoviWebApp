@@ -85,7 +85,7 @@
                   {{f.data.monto | currency: '$'}}
                 </div>
               </dxi-column>
-              <dxi-column dataField="tipoTransaccion" caption="Tipo Transacción" alignment="center" cellTemplate="est">
+              <dxi-column dataField="tipoTransaccion" caption="Tipo Transacción" alignment="center" cellTemplate="est" [width]="250">
                 <div *dxTemplate="let f of 'est'">
                   <span *ngIf="f.data.tipoTransaccion === 'RECARGA' " class="estatus estatus-activo">
                     <i class="fa fa-arrow-up"></i> Recarga
@@ -93,9 +93,14 @@
                   <span *ngIf="f.data.tipoTransaccion === 'DEBITO' " class="estatus estatus-inactivo">
                     <i class="fa fa-arrow-down"></i> Débito
                   </span>
-                  <span *ngIf="f.data.tipoTransaccion === 'RECHAZADO' " class="estatus estatus-mantenimiento">
-                    Rechazado
-                  </span>
+                  <div *ngIf="f.data.tipoTransaccion === 'RECHAZADO'" class="d-flex flex-column align-items-center gap-1" style="width: 100%; max-width: 100%;">
+                    <span class="estatus estatus-mantenimiento">
+                      Rechazado
+                    </span>
+                    <span *ngIf="f.data.contexto" class="estatus-contexto">
+                      {{f.data.contexto}}
+                    </span>
+                  </div>
                 </div>
               </dxi-column>
               <dxi-column dataField="numeroSerieMonedero" caption="N° Serie de Monedero"

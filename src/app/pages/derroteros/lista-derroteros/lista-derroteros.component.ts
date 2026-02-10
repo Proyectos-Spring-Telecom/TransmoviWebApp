@@ -7,6 +7,7 @@ import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { DerroterosService } from 'src/app/shared/services/derroteros.service';
+import { MAP_STYLES_NO_POI } from 'src/app/shared/utils/map-styles.util';
 import Swal from 'sweetalert2';
 
 declare global { interface Window { google: any; } }
@@ -276,6 +277,7 @@ export class ListaDerroterosComponent implements OnInit {
       mapTypeControl: false,
       streetViewControl: true,
       fullscreenControl: true,
+      styles: MAP_STYLES_NO_POI
     });
 
     const markerA = new google.maps.Marker({ position: a, map, icon: this.markerIconInicio });

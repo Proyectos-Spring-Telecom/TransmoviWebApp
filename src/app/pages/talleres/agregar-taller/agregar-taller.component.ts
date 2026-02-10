@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { ClientesService } from 'src/app/shared/services/clientes.service';
 import { TallereService } from 'src/app/shared/services/talleres.service';
+import { MAP_STYLES_NO_POI } from 'src/app/shared/utils/map-styles.util';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -296,7 +297,11 @@ private async mostrarUbicacionEnMapa(lat: number, lng: number, direccion?: strin
   private initMap(): void {
     const center = { lat: 19.284, lng: -99.655 };
     const el = document.getElementById('map') as HTMLElement;
-    this.map = new google.maps.Map(el, { center, zoom: 14 });
+    this.map = new google.maps.Map(el, { 
+      center, 
+      zoom: 14,
+      styles: MAP_STYLES_NO_POI
+    });
     this.geocoder = new google.maps.Geocoder();
     this.infoWindow = new google.maps.InfoWindow();
 
