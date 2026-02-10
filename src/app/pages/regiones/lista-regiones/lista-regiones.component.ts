@@ -7,6 +7,7 @@ import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { RegionesService } from 'src/app/shared/services/regiones.service';
+import { MAP_STYLES_NO_POI } from 'src/app/shared/utils/map-styles.util';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -111,6 +112,7 @@ export class ListaRegionesComponent implements OnInit {
       mapTypeControl: false,
       streetViewControl: true,
       fullscreenControl: true,
+      styles: MAP_STYLES_NO_POI
     });
 
     const polygon = new google.maps.Polygon({

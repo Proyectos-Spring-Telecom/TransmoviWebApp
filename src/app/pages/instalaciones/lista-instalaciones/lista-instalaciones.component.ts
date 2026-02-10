@@ -268,4 +268,14 @@ export class ListaInstalacionesComponent implements OnInit {
     })
   }
 
+  getBluevoxDisplayText(rowData: any): string {
+    if (!rowData || !rowData.blueVoxs || !Array.isArray(rowData.blueVoxs) || rowData.blueVoxs.length === 0) {
+      return 'Sin registro';
+    }
+    return rowData.blueVoxs
+      .map((bv: any) => bv.numeroSerieBlueVox || '-')
+      .filter((serie: string) => serie !== '-')
+      .join(', ');
+  }
+
 }

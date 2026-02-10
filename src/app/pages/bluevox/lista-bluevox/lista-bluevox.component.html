@@ -86,6 +86,16 @@
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
                             <dxi-column dataField="diferencia" caption="Diferencia" alignment="center"></dxi-column>
                             <dxi-column dataField="numeroSerieBlueVox" caption="N° de BlueVox" alignment="center"></dxi-column>
+                            <dxi-column dataField="placaVehiculo" caption="Vehículo" alignment="center" cellTemplate="placaVehiculo">
+                                <div *dxTemplate="let f of 'placaVehiculo'">
+                                    <div *ngIf="f.data.placaVehiculo">
+                                        {{ f.data.placaVehiculo }}
+                                    </div>
+                                    <div *ngIf="!f.data.placaVehiculo">
+                                        <span>Sin registro</span>
+                                    </div>
+                                </div>
+                            </dxi-column>
                             <dxi-column dataField="entradas" caption="Entradas" alignment="center"></dxi-column>
                             <dxi-column dataField="salidas" caption="Salidas" alignment="center"></dxi-column>
                             <dxi-column dataField="fhRegistro" caption="Fecha y Hora" alignment="center"

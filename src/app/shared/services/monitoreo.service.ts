@@ -22,10 +22,12 @@ export class MonitoreoService {
         return this.http.get<any>(environment.API_SECURITY + '/monitoreo/list/' + idCliente);
     }
 
-    obtenerRecorridoDelDia(idCliente: number, numeroSerieDispositivo: string): Observable<any> {
+    obtenerRecorridoDelDia(idCliente: number, numeroSerieDispositivo: string, fechaInicio?: string | null, fechaFin?: string | null): Observable<any> {
         const body = {
             idCliente: idCliente,
-            NumeroSerieDispositivo: numeroSerieDispositivo
+            NumeroSerieDispositivo: numeroSerieDispositivo,
+            fechaInicio: fechaInicio || null,
+            fechaFin: fechaFin || null
         };
 
         return this.http.post<any>(
