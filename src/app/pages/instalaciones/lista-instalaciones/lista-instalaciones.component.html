@@ -53,11 +53,7 @@
                                 </div>
                             </dxi-column>
                             <dxi-column dataField="numeroSerieDispositivo" caption="Dispositivo" alignment="center"></dxi-column>
-                            <dxi-column caption="BlueVox" alignment="center" cellTemplate="bluevoxTemplate">
-                                <div *dxTemplate="let row of 'bluevoxTemplate'">
-                                    {{ getBluevoxDisplayText(row.data) }}
-                                </div>
-                            </dxi-column>
+                            <dxi-column dataField="numeroSerieBlueVox" caption="BlueVox" alignment="center"></dxi-column>
                             <dxi-column dataField="placaVehiculo" caption="Vehículo" alignment="center" cellTemplate="instalVehiculo">
                                 <div *dxTemplate="let t of 'instalVehiculo' ">
                                     {{'N° de Placa: ' + t.data.placaVehiculo}}
