@@ -560,6 +560,7 @@ div:where(.swal2-container) .swal2-html-container {
     letter-spacing: 0.5px;
 
     &.existing-heading {
+      margin-top: 16px;
       color: #86efac;
       border-bottom-color: rgba(74, 222, 128, 0.3);
     }
@@ -586,6 +587,10 @@ div:where(.swal2-container) .swal2-html-container {
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 12px;
     }
+  }
+
+  .indicator-text{
+    font-size: 12px;
   }
 
   // Tarjetas de Bluevox

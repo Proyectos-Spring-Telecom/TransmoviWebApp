@@ -8,6 +8,7 @@ import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { TallereService } from 'src/app/shared/services/talleres.service';
 import Swal from 'sweetalert2';
+import { MAP_STYLES_NO_POI } from 'src/app/shared/utils/map-styles.util';
 
 @Component({
   selector: 'app-lista-talleres',
@@ -177,6 +178,7 @@ export class ListaTalleresComponent implements OnInit {
       mapTypeControl: false,
       streetViewControl: true,
       fullscreenControl: true,
+      styles: MAP_STYLES_NO_POI
     });
 
     const marker = new google.maps.Marker({
@@ -312,6 +314,7 @@ export class ListaTalleresComponent implements OnInit {
       mapTypeControl: false,
       streetViewControl: true,
       fullscreenControl: true,
+      styles: MAP_STYLES_NO_POI
     });
 
     new google.maps.Marker({

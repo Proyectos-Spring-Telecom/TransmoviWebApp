@@ -1,10 +1,12 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, TemplateRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { AuthenticationService } from 'src/app/core/services/auth.service';
 import { MonitoreoService } from 'src/app/shared/services/monitoreo.service';
+import { MAP_STYLES_NO_POI } from 'src/app/shared/utils/map-styles.util';
 import Swal from 'sweetalert2';
-import { TransaccionesRoutingModule } from '../../transacciones/transacciones-routing.module';
 
 @Component({
   selector: 'app-mapa',
@@ -28,6 +30,9 @@ export class MapaComponent implements OnInit, AfterViewInit {
   filtroTipoItems = ['Todos', 'Con dispositivo', 'Sin dispositivo'];
   selectedDerroteroId: number | null = null;
   showCenterButton = true;
+  @ViewChild('historialPosicionesModal', { static: false }) historialPosicionesModal!: TemplateRef<any>;
+  historialForm!: FormGroup;
+  selectedOperation: any = null;
   private recorridoPolylines: google.maps.Polyline[] = [];
   private pathPointMarkers: google.maps.Marker[] = [];
   private readonly TRACE_COLOR = '#f30606';
@@ -49,13 +54,24 @@ export class MapaComponent implements OnInit, AfterViewInit {
   constructor(
     private route: Router,
     private auth: AuthenticationService,
-    private monitoreoService: MonitoreoService
+    private monitoreoService: MonitoreoService,
+    private modalService: NgbModal,
+    private fb: FormBuilder
   ) { }
 
   ngOnInit(): void {
     const user = this.auth.getUser();
     this.idCliente = user.idCliente;
+    this.initHistorialForm();
     this.obtenerMonitoreo();
+  }
+
+  initHistorialForm(): void {
+    const fechaHoy = new Date().toISOString().split('T')[0];
+    this.historialForm = this.fb.group({
+      fechaInicio: [fechaHoy, Validators.required],
+      fechaFin: [fechaHoy, Validators.required]
+    });
   }
 
   ngAfterViewInit(): void {
@@ -68,11 +84,12 @@ export class MapaComponent implements OnInit, AfterViewInit {
     const fecha = new Date(fechaStr);
     if (isNaN(fecha.getTime())) return 'Sin registro';
 
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const anio = fecha.getFullYear();
-    const horas = String(fecha.getHours()).padStart(2, '0');
-    const minutos = String(fecha.getMinutes()).padStart(2, '0');
+    // Usar métodos UTC para mantener la hora tal como viene del backend
+    const dia = String(fecha.getUTCDate()).padStart(2, '0');
+    const mes = String(fecha.getUTCMonth() + 1).padStart(2, '0');
+    const anio = fecha.getUTCFullYear();
+    const horas = String(fecha.getUTCHours()).padStart(2, '0');
+    const minutos = String(fecha.getUTCMinutes()).padStart(2, '0');
 
     return `${dia}/${mes}/${anio} ${horas}:${minutos}`;
   }
@@ -134,135 +151,355 @@ export class MapaComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    this.abrirModalHistorialPosiciones(op);
+  }
+
+  abrirModalHistorialPosiciones(op: any): void {
+    if (!this.map || !op?.numeroSerieDispositivo) {
+      return;
+    }
+
+    this.selectedOperation = op;
+    this.resetearFormulario();
+
+    const modalRef = this.modalService.open(this.historialPosicionesModal, {
+      size: 'md',
+      centered: true,
+      windowClass: 'modal-holder-historial',
+      backdrop: 'static',
+      keyboard: false
+    });
+  }
+
+  resetearFormulario(): void {
+    const fechaHoy = new Date().toISOString().split('T')[0];
+    this.historialForm.patchValue({
+      fechaInicio: fechaHoy,
+      fechaFin: fechaHoy
+    });
+    this.historialForm.markAsPristine();
+    this.historialForm.markAsUntouched();
+  }
+
+  cerrarModal(modal: any): void {
+    this.resetearFormulario();
+    modal.close();
+  }
+
+  buscarRecorrido(modal?: any): void {
+    if (this.historialForm.invalid) {
+      Swal.fire({
+        icon: 'warning',
+        background: '#002136',
+        title: 'Campos requeridos',
+        text: 'Por favor, selecciona ambas fechas.',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#00836d'
+      });
+      return;
+    }
+
+    const fechaInicio = this.historialForm.get('fechaInicio')?.value;
+    const fechaFin = this.historialForm.get('fechaFin')?.value;
+
+    if (!fechaInicio || !fechaFin) {
+      Swal.fire({
+        icon: 'warning',
+        background: '#002136',
+        title: 'Campos requeridos',
+        text: 'Por favor, selecciona ambas fechas.',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#00836d'
+      });
+      return;
+    }
+
+    if (new Date(fechaInicio) > new Date(fechaFin)) {
+      Swal.fire({
+        icon: 'warning',
+        background: '#002136',
+        title: 'Fecha inválida',
+        text: 'La fecha de inicio no puede ser mayor que la fecha fin.',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#00836d'
+      });
+      return;
+    }
+
+    if (modal) {
+      this.resetearFormulario();
+      modal.close();
+    }
+
+    const op = this.selectedOperation;
+    if (!this.map || !op?.numeroSerieDispositivo) {
+      return;
+    }
+
     const idCliente = this.idCliente;
     const numeroSerieDispositivo = op.numeroSerieDispositivo;
 
+    Swal.fire({
+      title: 'Buscando...',
+      text: 'Obteniendo historial de posiciones',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     this.monitoreoService
-      .obtenerRecorridoDelDia(idCliente, numeroSerieDispositivo)
-      .subscribe(resp => {
-        const posiciones = Array.isArray(resp.posicion) ? resp.posicion : [];
+      .obtenerRecorridoDelDia(idCliente, numeroSerieDispositivo, fechaInicio, fechaFin)
+      .subscribe({
+        next: (resp) => {
+          Swal.close();
+          const posiciones = Array.isArray(resp.posicion) ? resp.posicion : [];
 
-        if (!posiciones.length) {
-          op.recorridoBloqueado = true;
+          if (!posiciones.length) {
+            Swal.fire({
+              icon: 'info',
+              background: '#002136',
+              title: 'Sin registros',
+              text: `No se encontraron posiciones registradas entre ${fechaInicio} y ${fechaFin}.`,
+              confirmButtonText: 'Aceptar',
+              confirmButtonColor: '#00836d'
+            });
+            return;
+          }
 
+          this.mostrarRecorridoEnMapa(posiciones, op, numeroSerieDispositivo);
+        },
+        error: (error) => {
           Swal.fire({
-            icon: 'info',
+            icon: 'error',
             background: '#002136',
-            title: '¡Ops!',
-            text: 'Este vehículo no tiene recorrido registrado para el día de hoy.',
-            confirmButtonText: 'Aceptar'
-          });
-          this.showCenterButton = true;
-          return;
-        }
-
-        this.recorridoPolylines.forEach(p => p.setMap(null));
-        this.recorridoPolylines = [];
-        this.pathPointMarkers.forEach(m => m.setMap(null));
-        this.pathPointMarkers = [];
-
-        const bounds = new google.maps.LatLngBounds();
-
-        const points = posiciones
-          .map((p: any) => {
-            const lat = Number(p.latitud ?? p.lat);
-            const lng = Number(p.longitud ?? p.lng);
-            if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-              return null;
-            }
-            const ll = new google.maps.LatLng(lat, lng);
-            bounds.extend(ll);
-            return { ll, data: p };
-          })
-          .filter(Boolean) as { ll: google.maps.LatLng; data: any }[];
-
-        if (!points.length) {
-          return;
-        }
-
-        const path = points.map(pt => pt.ll);
-
-        const polyline = new google.maps.Polyline({
-          path,
-          geodesic: true,
-          clickable: false,
-          strokeColor: '#00836d',
-          strokeOpacity: 0.8,
-          strokeWeight: 4
-        });
-
-        polyline.setMap(this.map);
-        this.recorridoPolylines.push(polyline);
-
-        points.forEach((pt, index) => {
-          const mk = new google.maps.Marker({
-            position: pt.ll,
-            map: this.map,
-            zIndex: 1000,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              fillColor: this.VERTEX_FILL,
-              fillOpacity: 1,
-              strokeColor: this.VERTEX_STROKE,
-              strokeOpacity: 1,
-              strokeWeight: 2,
-              scale: this.VERTEX_SCALE
-            }
-          });
-
-          const key = `rec-${numeroSerieDispositivo}-${index}`;
-          const infoWindow = new google.maps.InfoWindow({
-            content: this.buildRecorridoPointContent(pt.data, key, op.placaVehiculo)
-          });
-
-          mk.addListener('mouseover', () => {
-            if (this.activeInfoWindow && this.activeInfoWindow !== infoWindow) {
-              this.activeInfoWindow.close();
-            }
-            infoWindow.open(this.map, mk);
-          });
-
-          mk.addListener('mouseout', () => {
-            if (this.activeInfoWindow === infoWindow) {
-              return;
-            }
-            infoWindow.close();
-          });
-
-          mk.addListener('click', () => {
-            if (this.activeInfoWindow && this.activeInfoWindow !== infoWindow) {
-              this.activeInfoWindow.close();
-            }
-            infoWindow.open(this.map, mk);
-            this.activeInfoWindow = infoWindow;
-          });
-
-          infoWindow.addListener('domready', () => {
-            const closeBtn = document.getElementById(`recorrido-close-${key}`);
-            if (closeBtn) {
-              closeBtn.onclick = () => {
-                infoWindow.close();
-                if (this.activeInfoWindow === infoWindow) {
-                  this.activeInfoWindow = null;
-                }
-              };
-            }
-          });
-
-          this.pathPointMarkers.push(mk);
-        });
-
-        if (!bounds.isEmpty()) {
-          this.map.fitBounds(bounds);
-          const listener = this.map.addListener('bounds_changed', () => {
-            const currentZoom = this.map.getZoom();
-            if (currentZoom && currentZoom > this.MAX_FIT_ZOOM_ROUTE) {
-              this.map.setZoom(this.MAX_FIT_ZOOM_ROUTE);
-            }
-            google.maps.event.removeListener(listener);
+            title: 'Error',
+            text: 'Ocurrió un error al obtener el historial de posiciones.',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#00836d'
           });
         }
       });
+  }
+
+  obtenerRecorridoAlDia(modal?: any): void {
+    if (modal) {
+      this.resetearFormulario();
+      modal.close();
+    }
+
+    const op = this.selectedOperation;
+    if (!this.map || !op?.numeroSerieDispositivo) {
+      return;
+    }
+
+    const idCliente = this.idCliente;
+    const numeroSerieDispositivo = op.numeroSerieDispositivo;
+
+    Swal.fire({
+      title: 'Buscando...',
+      text: 'Obteniendo posiciones del día',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    this.monitoreoService
+      .obtenerRecorridoDelDia(idCliente, numeroSerieDispositivo, null, null)
+      .subscribe({
+        next: (resp) => {
+          Swal.close();
+          const posiciones = Array.isArray(resp.posicion) ? resp.posicion : [];
+
+          if (!posiciones.length) {
+            Swal.fire({
+              icon: 'info',
+              background: '#002136',
+              title: 'Sin registros',
+              text: 'Este vehículo no tiene recorrido registrado para el día de hoy.',
+              confirmButtonText: 'Aceptar',
+              confirmButtonColor: '#00836d'
+            });
+            return;
+          }
+
+          this.mostrarRecorridoEnMapa(posiciones, op, numeroSerieDispositivo);
+        },
+        error: (error) => {
+          Swal.fire({
+            icon: 'error',
+            background: '#002136',
+            title: 'Error',
+            text: 'Ocurrió un error al obtener el recorrido del día.',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#00836d'
+          });
+        }
+      });
+  }
+
+  private mostrarRecorridoEnMapa(posiciones: any[], op: any, numeroSerieDispositivo: string): void {
+    this.recorridoPolylines.forEach(p => p.setMap(null));
+    this.recorridoPolylines = [];
+    this.pathPointMarkers.forEach(m => m.setMap(null));
+    this.pathPointMarkers = [];
+
+    const bounds = new google.maps.LatLngBounds();
+
+    // Ordenar posiciones por fechaHora ascendente (más antigua primero)
+    const posicionesOrdenadas = [...posiciones].sort((a: any, b: any) => {
+      const fechaA = new Date(a.fechaHora).getTime();
+      const fechaB = new Date(b.fechaHora).getTime();
+      return fechaA - fechaB; // Ascendente: más antigua primero
+    });
+
+    const points = posicionesOrdenadas
+      .map((p: any) => {
+        const lat = Number(p.latitud ?? p.lat);
+        const lng = Number(p.longitud ?? p.lng);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          return null;
+        }
+        const ll = new google.maps.LatLng(lat, lng);
+        bounds.extend(ll);
+        return { ll, data: p };
+      })
+      .filter(Boolean) as { ll: google.maps.LatLng; data: any }[];
+
+    if (!points.length) {
+      return;
+    }
+
+    const path = points.map(pt => pt.ll);
+
+    // Línea con patrón de derroteros (líneas discontinuas)
+    const polyline = new google.maps.Polyline({
+      path,
+      geodesic: true,
+      strokeOpacity: 0,
+      clickable: false,
+      icons: [
+        {
+          icon: {
+            path: 'M 0,-1 0,1',
+            strokeColor: '#00836d',
+            strokeOpacity: 1,
+            strokeWeight: this.TRACE_WEIGHT
+          },
+          offset: '0',
+          repeat: this.TRACE_REPEAT
+        }
+      ]
+    });
+
+    polyline.setMap(this.map);
+    this.recorridoPolylines.push(polyline);
+
+    points.forEach((pt, index) => {
+      let icon: any;
+
+      // Marcador verde para inicio, rojo para fin, puntos verdes para intermedios
+      if (index === 0) {
+        icon = {
+          url: 'assets/images/markerGreen.png',
+          scaledSize: new google.maps.Size(40, 40),
+          anchor: new google.maps.Point(20, 40)
+        };
+      } else if (index === points.length - 1) {
+        icon = {
+          url: 'assets/images/markerRed.png',
+          scaledSize: new google.maps.Size(40, 40),
+          anchor: new google.maps.Point(20, 40)
+        };
+      } else {
+        icon = {
+          path: google.maps.SymbolPath.CIRCLE,
+          fillColor: this.VERTEX_FILL,
+          fillOpacity: 1,
+          strokeColor: this.VERTEX_STROKE,
+          strokeOpacity: 1,
+          strokeWeight: 2,
+          scale: this.VERTEX_SCALE
+        };
+      }
+
+      const mk = new google.maps.Marker({
+        position: pt.ll,
+        map: this.map,
+        zIndex: 1000,
+        icon
+      });
+
+      const key = `rec-${numeroSerieDispositivo}-${index}`;
+      const fechaHora = this.formatFecha(pt.data.fechaHora);
+
+      // Tooltip inicial mientras busca la dirección
+      const infoWindow = new google.maps.InfoWindow({
+        content: this.buildRecorridoPointContent('Buscando dirección...', key, fechaHora)
+      });
+
+      // Reverse geocoding para obtener la dirección exacta
+      if (this.geocoder) {
+        this.geocoder.geocode({ location: pt.ll }, (results: any, status: any) => {
+          if (status === 'OK' && results && results[0]) {
+            const address = results[0].formatted_address || 'Sin dirección disponible';
+            infoWindow.setContent(this.buildRecorridoPointContent(address, key, fechaHora));
+          } else {
+            infoWindow.setContent(this.buildRecorridoPointContent('Sin dirección disponible', key, fechaHora));
+          }
+        });
+      }
+
+      mk.addListener('mouseover', () => {
+        if (this.activeInfoWindow && this.activeInfoWindow !== infoWindow) {
+          this.activeInfoWindow.close();
+        }
+        infoWindow.open(this.map, mk);
+      });
+
+      mk.addListener('mouseout', () => {
+        if (this.activeInfoWindow === infoWindow) {
+          return;
+        }
+        infoWindow.close();
+      });
+
+      mk.addListener('click', () => {
+        if (this.activeInfoWindow && this.activeInfoWindow !== infoWindow) {
+          this.activeInfoWindow.close();
+        }
+        infoWindow.open(this.map, mk);
+        this.activeInfoWindow = infoWindow;
+      });
+
+      infoWindow.addListener('domready', () => {
+        const closeBtn = document.getElementById(`recorrido-close-${key}`);
+        if (closeBtn) {
+          closeBtn.onclick = () => {
+            infoWindow.close();
+            if (this.activeInfoWindow === infoWindow) {
+              this.activeInfoWindow = null;
+            }
+          };
+        }
+      });
+
+      this.pathPointMarkers.push(mk);
+    });
+
+    if (!bounds.isEmpty()) {
+      this.map.fitBounds(bounds);
+      const listener = this.map.addListener('bounds_changed', () => {
+        const currentZoom = this.map.getZoom();
+        if (currentZoom && currentZoom > this.MAX_FIT_ZOOM_ROUTE) {
+          this.map.setZoom(this.MAX_FIT_ZOOM_ROUTE);
+        }
+        google.maps.event.removeListener(listener);
+      });
+    }
+
+    this.showCenterButton = false;
   }
 
 
@@ -324,7 +561,8 @@ export class MapaComponent implements OnInit, AfterViewInit {
     (window as any).initMap = () => {
       (this as any).map = new google.maps.Map(document.getElementById('map') as HTMLElement, {
         center: this.center,
-        zoom: this.zoom
+        zoom: this.zoom,
+        styles: MAP_STYLES_NO_POI
       });
 
       this.geocoder = new google.maps.Geocoder();
@@ -819,63 +1057,54 @@ export class MapaComponent implements OnInit, AfterViewInit {
     `;
   }
 
-  private buildRecorridoPointContent(p: any, key: string | number, placaVehiculo: string | null | undefined): string {
-    const lat = Number(p.latitud ?? p.lat);
-    const lng = Number(p.longitud ?? p.lng);
-    const fechaHora = this.formatFecha(p.fechaHora);
-    const placa = placaVehiculo || p.placaVehiculo || 'Sin registro';
+  private buildRecorridoPointContent(address: string, key: string | number, fechaHora: string): string {
+    const direccion = address || 'Sin dirección disponible';
 
     return `
+    <div style="
+      font-size: 12px;
+      line-height: 1.5;
+      min-width: 220px;
+      width: 260px;
+      max-width: 320px;
+      color: #111827;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    ">
       <div style="
-        font-size: 12px;
-        line-height: 1.5;
-        min-width: 220px;
-        color: #111827;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid #e5e7eb;
       ">
-        <div style="
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 6px;
-          padding-bottom: 4px;
-          border-bottom: 1px solid #e5e7eb;
-        ">
-          <span style="font-weight: 600; font-size: 12px; color: #3b82f6;">Punto del Recorrido</span>
-          <button
-            id="recorrido-close-${key}"
-            style="
-              background: transparent;
-              border: none;
-              font-size: 14px;
-              line-height: 1;
-              padding: 0 0 0 8px;
-              cursor: pointer;
-              color: #6b7280;
-            "
-          >
-            &times;
-          </button>
+        <span style="font-weight: 600; font-size: 12px; color: #3b82f6;">Punto del Recorrido</span>
+        <button
+          id="recorrido-close-${key}"
+          style="
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            line-height: 1;
+            padding: 0 0 0 8px;
+            cursor: pointer;
+            color: #6b7280;
+          "
+        >
+          &times;
+        </button>
+      </div>
+      <div>
+        <div style="margin-bottom: 4px;">
+          <span style="font-weight: 600; color: #374151;">Dirección:</span>
+          <span style="color: #4b5563; display: block; margin-top: 2px;"> ${direccion}</span>
         </div>
-        <div>
-          <div style="margin-bottom: 2px;">
-            <span style="font-weight: 600; color: #374151;">Vehículo:</span>
-            <span style="color: #4b5563;"> ${placa}</span>
-          </div>
-          <div style="margin-bottom: 2px;">
-            <span style="font-weight: 600; color: #374151;">Fecha/Hora:</span>
-            <span style="color: #4b5563;"> ${fechaHora}</span>
-          </div>
-          <div style="margin-bottom: 2px;">
-            <span style="font-weight: 600; color: #374151;">Latitud:</span>
-            <span style="color: #4b5563;"> ${Number.isFinite(lat) ? lat.toFixed(6) : ''}</span>
-          </div>
-          <div>
-            <span style="font-weight: 600; color: #374151;">Longitud:</span>
-            <span style="color: #4b5563;"> ${Number.isFinite(lng) ? lng.toFixed(6) : ''}</span>
-          </div>
+        <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #e5e7eb;">
+          <span style="font-weight: 600; color: #374151;">Fecha/Hora:</span>
+          <span style="color: #4b5563;"> ${fechaHora}</span>
         </div>
       </div>
-    `;
+    </div>
+  `;
   }
 }

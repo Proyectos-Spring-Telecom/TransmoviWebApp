@@ -83,6 +83,7 @@ export class AltaInstalacionComponent implements OnInit {
 
   initialDispositivoId?: number | null;
   initialBlueVoxIds?: number[] | null;
+  maxBluevoxEnEdicion?: number | null; // Límite máximo de Bluevox en modo edición (basado en los iniciales)
 
   estatusDispositivoAnterior?: number | null;
   estatusBluevoxsAnterior?: number | null;
@@ -1062,6 +1063,8 @@ export class AltaInstalacionComponent implements OnInit {
         );
         this.initialDispositivoId = idDispositivo ?? null;
         this.initialBlueVoxIds = idsBlueVoxs.length > 0 ? idsBlueVoxs : null;
+        // Establecer el límite máximo basado en los Bluevox iniciales (en modo edición no se pueden agregar más)
+        this.maxBluevoxEnEdicion = idsBlueVoxs.length > 0 ? idsBlueVoxs.length : null;
         // Inicializar el último valor con los IDs iniciales
         this.ultimoValorBluevox = idsBlueVoxs.length > 0 ? [...idsBlueVoxs] : [];
         this.pendingLabels = {
@@ -1285,6 +1288,38 @@ export class AltaInstalacionComponent implements OnInit {
     this.submitButton = 'Cargando...';
     this.loading = true;
 
+    // Validación: En modo edición, no permitir menos Bluevox que los iniciales
+    if (this.idInstalacion && this.maxBluevoxEnEdicion != null) {
+      const currentValue = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
+      const selectedIds = Array.isArray(currentValue) ? currentValue.map((id: any) => Number(id)).filter((id: any) => !isNaN(id)) : [];
+      
+      if (selectedIds.length < this.maxBluevoxEnEdicion) {
+        this.submitButton = 'Actualizar';
+        this.loading = false;
+        const faltantes = this.maxBluevoxEnEdicion - selectedIds.length;
+        Swal.fire({
+          title: '¡Bluevox Insuficientes!',
+          html: `
+            <p style="color: #e9eef5; margin-bottom: 12px;">
+              Esta instalación tiene <strong style="color: #60a5fa;">${this.maxBluevoxEnEdicion} Bluevox</strong> asignado${this.maxBluevoxEnEdicion !== 1 ? 's' : ''} inicialmente.
+            </p>
+            <p style="color: #fcd34d; font-weight: 600;">
+              Debes seleccionar <strong>${faltantes} Bluevox más</strong> para completar los ${this.maxBluevoxEnEdicion} requeridos antes de continuar.
+            </p>
+          `,
+          icon: 'warning',
+          background: '#002136',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Entendido',
+          customClass: {
+            popup: 'swal2-padding swal2-border',
+            htmlContainer: 'swal2-html-container-custom'
+          }
+        });
+        return; // No continuar con la actualización
+      }
+    }
+
     const base = this.getNumericFormPayload();
 
     // Construir el array de blueVoxsAnteriores con los bluevox removidos (los que iniciaron del GET por ID pero ya no están)
@@ -1408,6 +1443,36 @@ export class AltaInstalacionComponent implements OnInit {
    * Confirma y cierra el modal (mantiene los cambios)
    */
   confirmarModalBluevox(): void {
+    // Validación: En modo edición, no permitir menos Bluevox que los iniciales
+    if (this.idInstalacion && this.maxBluevoxEnEdicion != null) {
+      const currentValue = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
+      const selectedIds = Array.isArray(currentValue) ? currentValue.map((id: any) => Number(id)).filter((id: any) => !isNaN(id)) : [];
+      
+      if (selectedIds.length < this.maxBluevoxEnEdicion) {
+        const faltantes = this.maxBluevoxEnEdicion - selectedIds.length;
+        Swal.fire({
+          title: '¡Bluevox Insuficientes!',
+          html: `
+            <p style="color: #e9eef5; margin-bottom: 12px;">
+              Esta instalación tiene <strong style="color: #60a5fa;">${this.maxBluevoxEnEdicion} Bluevox</strong> asignado${this.maxBluevoxEnEdicion !== 1 ? 's' : ''} inicialmente.
+            </p>
+            <p style="color: #fcd34d; font-weight: 600;">
+              Debes seleccionar <strong>${faltantes} Bluevox más</strong> para completar los ${this.maxBluevoxEnEdicion} requeridos.
+            </p>
+          `,
+          icon: 'warning',
+          background: '#002136',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Entendido',
+          customClass: {
+            popup: 'swal2-padding swal2-border',
+            htmlContainer: 'swal2-html-container-custom'
+          }
+        });
+        return; // No cerrar el modal, mantener los cambios actuales
+      }
+    }
+    
     // Actualizar el último valor con el valor actual al confirmar
     const currentValue = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
     this.ultimoValorBluevox = Array.isArray(currentValue) ? [...currentValue] : [];
@@ -1581,6 +1646,7 @@ export class AltaInstalacionComponent implements OnInit {
     const max = this.getCantidadAccesosMax();
     
     if (event.target.checked) {
+      // Validación 1: Límite por cantidadAccesos del vehículo
       if (max != null && selectedIds.length >= max) {
         event.target.checked = false;
         Swal.fire({
@@ -1593,6 +1659,37 @@ export class AltaInstalacionComponent implements OnInit {
         });
         return;
       }
+      
+      // Validación 2: En modo edición, no se pueden agregar más Bluevox de los iniciales
+      if (this.idInstalacion && this.maxBluevoxEnEdicion != null) {
+        // Verificar si el Bluevox que se está intentando agregar es nuevo (no estaba en los iniciales)
+        const esBluevoxNuevo = !this.wasBluevoxOriginallyAssigned(id);
+        
+        if (esBluevoxNuevo && selectedIds.length >= this.maxBluevoxEnEdicion) {
+          event.target.checked = false;
+          Swal.fire({
+            title: '¡Límite de Bluevox Alcanzado!',
+            html: `
+              <p style="color: #e9eef5; margin-bottom: 12px;">
+                Esta instalación tiene <strong style="color: #60a5fa;">${this.maxBluevoxEnEdicion} Bluevox</strong> asignado${this.maxBluevoxEnEdicion !== 1 ? 's' : ''} inicialmente.
+              </p>
+              <p style="color: #e9eef5;">
+                No puedes agregar más Bluevox. Solo puedes mantener los mismos o quitar algunos.
+              </p>
+            `,
+            icon: 'warning',
+            background: '#002136',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Entendido',
+            customClass: {
+              popup: 'swal2-padding swal2-border',
+              htmlContainer: 'swal2-html-container-custom'
+            }
+          });
+          return;
+        }
+      }
+      
       if (!selectedIds.includes(id)) {
         selectedIds.push(id);
       }

@@ -40,20 +40,14 @@
           <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-3 mt-3">
             <label for="idsBlueVoxs" class="form-label d-flex align-items-center">
               Bluevox
-              <button 
-                *ngIf="idInstalacion"
-                type="button"
-                class="btn-info-bluevox"
-                (click)="mostrarInformacionBluevox($event)"
-                title="Información sobre Bluevox">
+              <button *ngIf="idInstalacion" type="button" class="btn-info-bluevox"
+                (click)="mostrarInformacionBluevox($event)" title="Información sobre Bluevox">
                 <i class="fas fa-question-circle"></i>
               </button>
             </label>
-            
+
             <!-- Campo tipo botón que abre el modal -->
-            <button 
-              type="button"
-              class="btn-bluevox-selector w-100"
+            <button type="button" class="btn-bluevox-selector w-100"
               [class.disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled"
               [disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled"
               (click)="$event.stopPropagation(); !instalacionesForm.get('idsBlueVoxs')?.disabled && abrirModalBluevox($event)">
@@ -87,7 +81,7 @@
           <i class="fas fa-times"></i>
         </button>
       </div>
-      
+
       <div class="bluevox-modal-body">
         <!-- Barra de búsqueda -->
         <div class="search-container mb-3">
@@ -95,29 +89,20 @@
             <span class="input-group-text">
               <i class="fas fa-search"></i>
             </span>
-            <input 
-              type="text" 
-              class="form-control search-input" 
-              placeholder="Buscar por número de serie..."
-              [(ngModel)]="searchBluevoxText"
-              name="searchBluevox">
-            <button 
-              *ngIf="searchBluevoxText" 
-              class="btn-clear-search" 
-              type="button"
-              (click)="searchBluevoxText = ''">
+            <input type="text" class="form-control search-input" placeholder="Buscar por número de serie..."
+              [(ngModel)]="searchBluevoxText" name="searchBluevox">
+            <button *ngIf="searchBluevoxText" class="btn-clear-search" type="button" (click)="searchBluevoxText = ''">
               <i class="fas fa-times"></i>
             </button>
           </div>
         </div>
 
         <!-- Indicador sutil de Bluevox originalmente asignados (solo cuando se va a reemplazar) -->
-        <div *ngIf="idInstalacion && getInitialBluevoxCount() > 0 && getBluevoxChangeType() === 'modifying'" 
-             class="bluevox-initial-indicator-modal">
+        <div *ngIf="idInstalacion && getInitialBluevoxCount() > 0 && getBluevoxChangeType() === 'modifying'"
+          class="bluevox-initial-indicator-modal">
           <i class="fas fa-info-circle indicator-icon"></i>
           <span class="indicator-text">
-            Esta instalación tiene <strong>{{ getInitialBluevoxCount() }}</strong> Bluevox asignado{{ getInitialBluevoxCount() !== 1 ? 's' : '' }} 
-            ({{ getInitialBluevoxDisplayText() }}). Al confirmar, algunos serán reemplazados.
+            Esta instalación tiene <strong>{{ getInitialBluevoxCount() }}</strong> Bluevox asignado{{ getInitialBluevoxCount() !== 1 ? 's' : '' }} ({{ getInitialBluevoxDisplayText() }}). Al confirmar, algunos serán reemplazados.
           </span>
         </div>
 
@@ -128,27 +113,21 @@
             Asignados a esta instalación
           </h6>
           <div class="bluevox-grid">
-            <div 
-              *ngFor="let bv of getFilteredBluevox(getExistingBluevox()); trackBy: trackId"
-              class="bluevox-card"
+            <div *ngFor="let bv of getFilteredBluevox(getExistingBluevox()); trackBy: trackId" class="bluevox-card"
               [class.card-selected]="isBluevoxSelected(bv.id)"
               [class.card-will-remove]="getBluevoxAction(bv.id) === 'remove'"
               [class.card-will-keep]="getBluevoxAction(bv.id) === 'keep'"
               [class.card-disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled || isBluevoxDisabled(bv.id)"
               (click)="onCardClick(bv, $event)">
               <div class="card-checkbox" (click)="$event.stopPropagation()">
-                <input 
-                  type="checkbox" 
-                  [id]="'modal-existing-' + bv.id"
-                  [checked]="isBluevoxSelected(bv.id)"
+                <input type="checkbox" [id]="'modal-existing-' + bv.id" [checked]="isBluevoxSelected(bv.id)"
                   [disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled || isBluevoxDisabled(bv.id)"
-                  (change)="toggleBluevox(bv.id, $event)"
-                  (click)="$event.stopPropagation()">
+                  (change)="toggleBluevox(bv.id, $event)" (click)="$event.stopPropagation()">
               </div>
               <div class="card-content">
                 <div class="card-serial">{{ displayBluevox(bv) || 'Sin número de serie' }}</div>
-                <div *ngIf="idInstalacion && getBluevoxAction(bv.id) !== 'none'" 
-                     [class]="'card-badge ' + getBluevoxActionBadgeClass(bv.id)">
+                <div *ngIf="idInstalacion && getBluevoxAction(bv.id) !== 'none'"
+                  [class]="'card-badge ' + getBluevoxActionBadgeClass(bv.id)">
                   <i class="fas" [class]="getBluevoxActionIcon(bv.id)"></i>
                   {{ getBluevoxActionText(bv.id) }}
                 </div>
@@ -164,31 +143,24 @@
             Disponibles
           </h6>
           <div class="bluevox-grid">
-            <div 
-              *ngFor="let bv of getFilteredBluevox(getAvailableBluevox()); trackBy: trackId"
-              class="bluevox-card card-available"
-              [class.card-selected]="isBluevoxSelected(bv.id)"
+            <div *ngFor="let bv of getFilteredBluevox(getAvailableBluevox()); trackBy: trackId"
+              class="bluevox-card card-available" [class.card-selected]="isBluevoxSelected(bv.id)"
               [class.card-will-add]="idInstalacion && getBluevoxAction(bv.id) === 'add'"
               [class.card-disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled || isBluevoxDisabled(bv.id)"
               (click)="onCardClick(bv, $event)">
               <div class="card-checkbox" (click)="$event.stopPropagation()">
-                <input 
-                  type="checkbox" 
-                  [id]="'modal-available-' + bv.id"
-                  [checked]="isBluevoxSelected(bv.id)"
+                <input type="checkbox" [id]="'modal-available-' + bv.id" [checked]="isBluevoxSelected(bv.id)"
                   [disabled]="instalacionesForm.get('idsBlueVoxs')?.disabled || isBluevoxDisabled(bv.id)"
-                  (change)="toggleBluevox(bv.id, $event)"
-                  (click)="$event.stopPropagation()">
+                  (change)="toggleBluevox(bv.id, $event)" (click)="$event.stopPropagation()">
               </div>
               <div class="card-content">
                 <div class="card-serial">{{ displayBluevox(bv) || 'Sin número de serie' }}</div>
-                <div *ngIf="idInstalacion && getBluevoxAction(bv.id) !== 'none'" 
-                     [class]="'card-badge ' + getBluevoxActionBadgeClass(bv.id)">
+                <div *ngIf="idInstalacion && getBluevoxAction(bv.id) !== 'none'"
+                  [class]="'card-badge ' + getBluevoxActionBadgeClass(bv.id)">
                   <i class="fas" [class]="getBluevoxActionIcon(bv.id)"></i>
                   {{ getBluevoxActionText(bv.id) }}
                 </div>
-                <div *ngIf="!idInstalacion && isBluevoxSelected(bv.id)" 
-                     class="card-badge badge-action-keep">
+                <div *ngIf="!idInstalacion && isBluevoxSelected(bv.id)" class="card-badge badge-action-keep">
                   <i class="fas fa-check-circle"></i>
                   Se instalará
                 </div>
@@ -215,12 +187,8 @@
           </span>
         </div>
         <div class="footer-actions">
-          <button 
-            *ngIf="idInstalacion && tieneCambiosBluevox()"
-            type="button" 
-            class="btn-restore-footer" 
-            (click)="restaurarBluevox()"
-            title="Restaurar al estado inicial">
+          <button *ngIf="idInstalacion && tieneCambiosBluevox()" type="button" class="btn-restore-footer"
+            (click)="restaurarBluevox()" title="Restaurar al estado inicial">
             <i class="fas fa-undo me-2"></i>
             Restaurar
           </button>

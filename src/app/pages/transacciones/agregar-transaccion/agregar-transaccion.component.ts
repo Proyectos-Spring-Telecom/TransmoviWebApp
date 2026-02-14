@@ -6,6 +6,7 @@ import { DispositivosService } from 'src/app/shared/services/dispositivos.servic
 import { MonederosServices } from 'src/app/shared/services/monederos.service';
 import { TransaccionesService } from 'src/app/shared/services/transacciones.service';
 import Swal from 'sweetalert2';
+import { MAP_STYLES_NO_POI } from 'src/app/shared/utils/map-styles.util';
 
 declare const google: any;
 
@@ -402,7 +403,11 @@ export class AgregarTransaccionComponent implements OnInit, AfterViewInit {
   private initMap(): void {
     const center = { lat: 19.284, lng: -99.655 };
     const el = document.getElementById('map') as HTMLElement;
-    this.map = new google.maps.Map(el, { center, zoom: 14 });
+    this.map = new google.maps.Map(el, { 
+      center, 
+      zoom: 14,
+      styles: MAP_STYLES_NO_POI
+    });
     this.geocoder = new google.maps.Geocoder();
     this.infoWindow = new google.maps.InfoWindow();
     this.map.addListener('click', (e: any) => {

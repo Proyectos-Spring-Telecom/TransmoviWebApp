@@ -8,6 +8,7 @@ import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { DerroterosService } from 'src/app/shared/services/derroteros.service';
 import Swal from 'sweetalert2';
+import { MAP_STYLES_NO_POI } from 'src/app/shared/utils/map-styles.util';
 
 declare global { interface Window { google: any; } }
 declare const google: any;
@@ -276,6 +277,7 @@ export class ListaDerroterosComponent implements OnInit {
       mapTypeControl: false,
       streetViewControl: true,
       fullscreenControl: true,
+      styles: MAP_STYLES_NO_POI
     });
 
     const markerA = new google.maps.Marker({ position: a, map, icon: this.markerIconInicio });
