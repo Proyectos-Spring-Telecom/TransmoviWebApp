@@ -8,6 +8,7 @@ import { NgxPermissionsService } from 'ngx-permissions';
 import { lastValueFrom } from 'rxjs';
 import { ViajeService } from 'src/app/shared/services/viajes.service';
 import Swal from 'sweetalert2';
+import { MAP_STYLES_NO_POI } from 'src/app/shared/utils/map-styles.util';
 
 @Component({
   selector: 'app-lista-viajes',
@@ -382,6 +383,7 @@ export class ListaViajesComponent implements OnInit {
       mapTypeControl: false,
       streetViewControl: true,
       fullscreenControl: true,
+      styles: MAP_STYLES_NO_POI
     });
 
     const markerA = new google.maps.Marker({ position: a, map, icon: this.markerIconInicio });

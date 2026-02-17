@@ -5,7 +5,8 @@ import { MonitoreoRoutingModule } from './monitoreo-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { MapaComponent } from './mapa/mapa.component';
-import { DxSelectBoxModule } from 'devextreme-angular';
+import { DxSelectBoxModule, DxDateBoxModule } from 'devextreme-angular';
+import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 @NgModule({
@@ -16,6 +17,8 @@ import { DxSelectBoxModule } from 'devextreme-angular';
     ReactiveFormsModule,
     GoogleMapsModule,
     DxSelectBoxModule,
+    DxDateBoxModule,
+    NgbModalModule,
     FormsModule
   ]
 })

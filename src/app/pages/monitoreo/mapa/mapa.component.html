@@ -14,57 +14,59 @@
                     </p>
                 </div>
             </div>
-            <div class="row mt-3">
-                <div class="col-lg-3 col-md-4 col-sm-12 mb-2 mb-md-0">
-                    <input type="text" class="form-control" placeholder="Buscar Económico o Vehículo"
+            <div class="row mt-3 g-2">
+                <div class="col-12 col-xl-3 col-lg-4 col-md-5 mb-2 mb-md-0">
+                    <input type="text" class="form-control form-control-responsive" placeholder="Buscar Económico o Vehículo"
                         [value]="searchTerm" (input)="searchTerm = $any($event.target).value" />
                 </div>
-                <div class="col-lg-9 col-md-8 col-sm-12">
-                    <div class="d-flex" style="gap: 10px;">
-                        <dx-select-box class="flex-grow-1" [items]="derroteros" displayExpr="nombreDerrotero"
+                <div class="col-12 col-xl-9 col-lg-8 col-md-7">
+                    <div class="d-flex flex-column flex-md-row gap-2 gap-md-2">
+                        <dx-select-box class="flex-grow-1 w-100 w-md-auto" [items]="derroteros" displayExpr="nombreDerrotero"
                             valueExpr="id" [(value)]="selectedDerroteroId" placeholder="Selecciona un Derrotero"
                             [showClearButton]="false" [searchEnabled]="false" width="100%"
                             (onValueChanged)="onDerroteroChange($event.value)">
                         </dx-select-box>
 
-                        <button type="button" class="u-btn u-btn--primary" style="min-width: 150px;" (click)="limpiarMapa()">
-                            Limpiar
+                        <button type="button" class="u-btn u-btn--primary btn-responsive"
+                            (click)="limpiarMapa()">
+                            <i class="fas fa-eraser me-1"></i>
+                            <span>Limpiar</span>
                         </button>
                     </div>
                 </div>
             </div>
-            <div class="row mt-4">
-                <div class="col-lg-3 col-md-4 col-sm-12">
+            <div class="row mt-4 g-3">
+                <div class="col-12 col-xl-3 col-lg-4 col-md-5 order-2 order-md-1">
                     <div class="content-cards">
                         <div class="lista-vehiculos">
                             <div class="vehiculo-item" *ngFor="let op of filteredOperations">
                                 <div class="vehiculo-detalles">
                                     <div class="d-flex align-items-center mb-2">
-                                        <div class="me-2">
-                                            <img [src]="op.foto" alt="Foto del vehículo" class="img-fluid rounded"
-                                                style="width: 48px; height: 48px; object-fit: cover;" />
+                                        <div class="me-2 flex-shrink-0">
+                                            <img [src]="op.foto" alt="Foto del vehículo" class="img-fluid rounded vehiculo-img-responsive"
+                                                style="object-fit: cover;" />
                                         </div>
-                                        <div>
-                                            <h6 class="mb-1">
+                                        <div class="flex-grow-1 min-w-0">
+                                            <h6 class="mb-1 text-truncate">
                                                 Económico: {{ op.eco || 'Sin registro' }}
                                             </h6>
-                                            <p class="mb-0">
+                                            <p class="mb-0 text-truncate">
                                                 <strong>Vehículo:</strong>
                                                 {{ op.placaVehiculo || 'Sin registro' }}
                                             </p>
                                         </div>
                                     </div>
-                                    <div class="mt-3"
-                                        style="display: flex; align-items: center; justify-content: end; gap: 8px;">
-                                        <button *ngIf="showCenterButton" type="button" class="btn btn-primary btn-sm"
+                                    <div class="mt-3 d-flex flex-column flex-sm-row align-items-stretch align-items-sm-end justify-content-end gap-2">
+                                        <button *ngIf="showCenterButton" type="button" class="btn btn-primary btn-sm btn-action-responsive"
                                             (click)="centrarEnUbicacion(op)">
-                                            <i class="uil uil-crosshair ml-2"></i>
-                                            Centrar
+                                            <i class="uil uil-crosshair"></i>
+                                            <span class="d-none d-sm-inline ms-1">Centrar</span>
                                         </button>
-                                        <button type="button" class="btn btn-success btn-sm"
+                                        <button type="button" class="btn btn-success btn-sm btn-action-responsive"
                                             (click)="verRecorridoDelDia(op)" [disabled]="op.recorridoBloqueado">
-                                            <i class="uil uil-map-pin ml-2"></i>
-                                            Recorrido del Día
+                                            <i class="uil uil-map-pin"></i>
+                                            <span class="d-none d-sm-inline ms-1">Historial</span>
+                                            <span class="d-sm-none ms-1">Posiciones</span>
                                         </button>
                                     </div>
                                 </div>
@@ -72,10 +74,66 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-9 col-md-8 col-sm-12">
+                <div class="col-12 col-xl-9 col-lg-8 col-md-7 order-1 order-md-2">
                     <div class="map-container" id="map"></div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Modal Historial de Posiciones -->
+<div class="col-lg-6">
+    <ng-template #historialPosicionesModal let-modal>
+        <div class="modal-content-historial p-0">
+            <div class="modal-header-historial">
+                <div class="header-content">
+                    <div class="icon-wrapper-historial">
+                        <i class="fa fa-history"></i>
+                    </div>
+                    <div class="title-wrapper">
+                        <h3 class="modal-title-historial">Historial de Posiciones</h3>
+                        <p class="modal-subtitle-historial">Selecciona el rango de fechas para consultar el recorrido
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body-historial">
+                <form [formGroup]="historialForm" class="historial-form">
+                    <div class="form-group-historial">
+                        <label class="label-historial">
+                            <i class="fa fa-calendar-alt"></i>
+                            Fecha Inicio
+                        </label>
+                        <dx-date-box type="date" displayFormat="dd/MM/yyyy" stylingMode="filled"
+                            formControlName="fechaInicio" [width]="'100%'" class="date-input-historial">
+                        </dx-date-box>
+                    </div>
+                    <div class="form-group-historial">
+                        <label class="label-historial">
+                            <i class="fa fa-calendar-check"></i>
+                            Fecha Fin
+                        </label>
+                        <dx-date-box type="date" displayFormat="dd/MM/yyyy" stylingMode="filled"
+                            formControlName="fechaFin" [width]="'100%'" class="date-input-historial">
+                        </dx-date-box>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer-historial">
+                <button type="button" class="btn-historial btn-al-dia" (click)="obtenerRecorridoAlDia(modal)">
+                    <i class="fa fa-calendar-day"></i>
+                    <span>Al Día</span>
+                </button>
+                <button type="button" class="btn-historial btn-buscar" (click)="buscarRecorrido(modal)">
+                    <i class="fa fa-search"></i>
+                    <span>Buscar</span>
+                </button>
+                <button type="button" class="btn-historial btn-cerrar" (click)="cerrarModal(modal)">
+                    <i class="fa fa-times"></i>
+                    <span>Cerrar</span>
+                </button>
+            </div>
+        </div>
+    </ng-template>
 </div>

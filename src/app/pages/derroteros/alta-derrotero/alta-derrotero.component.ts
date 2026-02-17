@@ -11,6 +11,7 @@ import {
   trigger, transition, style, animate, state, query, stagger
 } from '@angular/animations';
 import { TarifasService } from 'src/app/shared/services/tarifa.service';
+import { MAP_STYLES_NO_POI } from 'src/app/shared/utils/map-styles.util';
 
 declare global { interface Window { google: any; } }
 declare const google: any;
@@ -491,17 +492,7 @@ onIncrementoBlur(): void {
         disableDoubleClickZoom: true,
         draggableCursor: 'crosshair',
         draggable: true,
-        styles: [
-          {
-            featureType: 'poi',
-            elementType: 'labels',
-            stylers: [{ visibility: 'off' }]
-          },
-          {
-            featureType: 'poi',
-            stylers: [{ visibility: 'off' }]
-          }
-        ]
+        styles: MAP_STYLES_NO_POI,
       });
     } else {
       this.limpiarMapa();
@@ -572,17 +563,7 @@ onIncrementoBlur(): void {
           disableDoubleClickZoom: true,
           draggableCursor: 'crosshair',
           draggable: true,
-          styles: [
-            {
-              featureType: 'poi',
-              elementType: 'labels',
-              stylers: [{ visibility: 'off' }]
-            },
-            {
-              featureType: 'poi',
-              stylers: [{ visibility: 'off' }]
-            }
-          ]
+          styles: MAP_STYLES_NO_POI,
         });
       } else {
         this.map.setOptions({

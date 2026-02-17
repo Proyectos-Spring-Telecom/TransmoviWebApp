@@ -73,26 +73,19 @@
               <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
               <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
               <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-              <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="250"></dxi-column>
-              <!--
-                <dxi-column dataField="fechaHoraFinal" caption="Fecha" alignment="center" cellTemplate="fechFinal">
-                  <div *dxTemplate="let a of 'fechFinal'">
-                    {{ a.data.fechaHoraFinal | date:'dd/MM/yyyy HH:mm':'UTC' }}
-                  </div>
-                </dxi-column>
-                <dxi-column dataField="fechaHoraFinal" caption="Fecha" alignment="center" cellTemplate="fechFinal">
-                  <div *dxTemplate="let a of 'fechFinal'">
-                    {{ a.data.fechaHoraFinal | date:'dd/MM/yyyy HH:mm':'UTC' }}
-                  </div>
-                </dxi-column>
-              -->
+              <dxi-column caption="Acciones" cellTemplate="Acciones" alignment="center" [width]="200"></dxi-column>
+              <dxi-column dataField="fechaHoraFinal" caption="Fecha" alignment="center" cellTemplate="fechFinal">
+                <div *dxTemplate="let a of 'fechFinal'">
+                  {{ a.data.fechaHoraFinal | date:'dd/MM/yyyy HH:mm':'UTC' }}
+                </div>
+              </dxi-column>
 
               <dxi-column dataField="monto" caption="Monto" alignment="center" cellTemplate="sald">
                 <div *dxTemplate="let f of 'sald' ">
                   {{f.data.monto | currency: '$'}}
                 </div>
               </dxi-column>
-              <dxi-column dataField="tipoTransaccion" caption="Tipo Transacción" alignment="center" cellTemplate="est">
+              <dxi-column dataField="tipoTransaccion" caption="Tipo Transacción" alignment="center" cellTemplate="est" [width]="250">
                 <div *dxTemplate="let f of 'est'">
                   <span *ngIf="f.data.tipoTransaccion === 'RECARGA' " class="estatus estatus-activo">
                     <i class="fa fa-arrow-up"></i> Recarga
@@ -100,9 +93,14 @@
                   <span *ngIf="f.data.tipoTransaccion === 'DEBITO' " class="estatus estatus-inactivo">
                     <i class="fa fa-arrow-down"></i> Débito
                   </span>
-                  <span *ngIf="f.data.tipoTransaccion === 'RECHAZADO' " class="estatus estatus-mantenimiento">
-                    Rechazado
-                  </span>
+                  <div *ngIf="f.data.tipoTransaccion === 'RECHAZADO'" class="d-flex flex-column align-items-center gap-1" style="width: 100%; max-width: 100%;">
+                    <span class="estatus estatus-mantenimiento">
+                      Rechazado
+                    </span>
+                    <span *ngIf="f.data.contexto" class="estatus-contexto">
+                      {{f.data.contexto}}
+                    </span>
+                  </div>
                 </div>
               </dxi-column>
               <dxi-column dataField="numeroSerieMonedero" caption="N° Serie de Monedero"
@@ -123,34 +121,12 @@
               </dxi-column>
 
               <div *dxTemplate="let transaccion of 'Acciones'" class="d-flex gap-3 justify-content-center">
-                <!-- Para RECARGA: mostrar solo un botón verde -->
-                <div *ngIf="(transaccion.data.tipoTransaccion || '').toUpperCase() === 'RECARGA'">
-                  <button type="button" class="btn btn-success"
+                <div>
+                  <button type="button" class="btn btn-secondary"
                     (click)="centerModal(centerDataModal, transaccion.data.id, transaccion.data.latitudFinal, transaccion.data.longitudFinal, transaccion.data.fechaHoraFinal, transaccion.data.monto, transaccion.data.tipoTransaccion)"
                     style="border-radius: 5px;">
                     <i class="uil uil-map-pin ml-2"></i> Ubicar
                   </button>
-                </div>
-                <!-- Para DEBITO: mostrar dos botones (Inicio y Fin) -->
-                <ng-container *ngIf="(transaccion.data.tipoTransaccion || '').toUpperCase() === 'DEBITO'">
-                  <div>
-                    <button type="button" class="btn btn-primary"
-                      (click)="centerModalInicial(centerDataModal, transaccion.data.id, transaccion.data.latitudInicial, transaccion.data.longitudInicial, transaccion.data.fechaHoraInicio, transaccion.data.monto, transaccion.data.tipoTransaccion)"
-                      style="border-radius: 5px;">
-                      <i class="uil uil-map-pin ml-2"></i> Inicio
-                    </button>
-                  </div>
-                  <div>
-                    <button type="button" class="btn btn-danger"
-                      (click)="centerModal(centerDataModal, transaccion.data.id, transaccion.data.latitudFinal, transaccion.data.longitudFinal, transaccion.data.fechaHoraFinal, transaccion.data.monto, transaccion.data.tipoTransaccion)"
-                      style="border-radius: 5px;">
-                      <i class="uil uil-map-pin ml-2"></i> Fin
-                    </button>
-                  </div>
-                </ng-container>
-                <!-- Para RECHAZADO: mostrar texto informativo -->
-                <div *ngIf="(transaccion.data.tipoTransaccion || '').toUpperCase() === 'RECHAZADO'" class="text-muted" style="font-style: italic;">
-                  RECHAZADO
                 </div>
               </div>
               <dxo-export [enabled]="false" [allowExportSelectedData]="true"
@@ -184,12 +160,6 @@
             </span>
           </div>
           <div class="card-body d-flex flex-column justify-content-center align-items-center text-white">
-            <div class="w-100 text-center mb-3" *ngIf="viajeType !== null">
-              <strong class="text-white" style="font-size: 1.1rem;">
-                <i class="fa" [ngClass]="viajeType === 'inicio' ? 'fa-play-circle' : 'fa-stop-circle'"></i>
-                {{ viajeType === 'inicio' ? 'Inicio del Viaje' : 'Fin del Viaje' }}
-              </strong>
-            </div>
             <div class="d-flex justify-content-between w-100 text-white">
               <div><strong>Fecha:</strong> {{ selectedTransactionDate | date: 'dd-MM-yyyy HH:mm a' }}</div>
               <div><strong>Monto:</strong> {{ selectedTransactionAmount | currency }}</div>

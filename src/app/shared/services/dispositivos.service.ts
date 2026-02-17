@@ -52,4 +52,8 @@ export class DispositivosService {
     const body = { estadoActual };
     return this.http.patch<any>(url, body);
   }
+
+  obtenerDispositivosByClienteInstalacion(idCliente: any): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/dispositivos/clientes/${idCliente}`);
+  }
 }

@@ -50,4 +50,8 @@ export class VehiculosService {
   obtenerCombustibles(): Observable<any> {
     return this.http.get(`${environment.API_SECURITY}/cat-tipo-combustible/list`);
   }
+
+  obtenerVehiculosByClienteInstalacion(idCliente: number): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/vehiculos/clientes/${idCliente}`);
+  }
 }

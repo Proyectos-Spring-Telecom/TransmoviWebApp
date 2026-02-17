@@ -85,6 +85,11 @@
                                     <i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Observar
                                 </button>
                             </div>
+                            <dxi-column dataField="id" caption="Id Cliente" [width]="150" alignment="center" cellTemplate="id" dataType="string">
+                                <div *dxTemplate="let f of 'id'">
+                                    {{ 'Id:' + ' ' + f.data.id }}
+                                </div>
+                            </dxi-column>
                             <dxi-column dataField="NombreCompleto" caption="Nombre" alignment="center" dataType="string"></dxi-column>
                             <dxi-column dataField="telefono" caption="Teléfono" alignment="center" dataType="string"></dxi-column>
                             <dxi-column dataField="rfc" caption="RFC" alignment="center" dataType="string"></dxi-column>

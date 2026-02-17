@@ -15,15 +15,6 @@
 
                 <div class="row">
                     <div class="col-12 col-sm-6 col-md-4 mt-3">
-                        <label>Transacción</label>
-                        <dx-select-box class="tm-select w-100" formControlName="tipoTransaccion" [items]="[
-                { id: 'RECARGA', nombre: 'Recarga' },
-                { id: 'DEBITO',  nombre: 'Débito'  }
-              ]" [valueExpr]="'id'" [displayExpr]="'nombre'" [searchEnabled]="true" [showClearButton]="true"
-                            placeholder="Seleccione un tipo de transacción">
-                        </dx-select-box>
-                    </div>
-                    <div class="col-12 col-sm-6 col-md-4 mt-3">
                         <label>Monto</label>
                         <input type="text" class="form-control" formControlName="monto" placeholder="100.00"
                             (focus)="onComisionFocus()" (blur)="onComisionBlur()" inputmode="decimal"
@@ -31,31 +22,29 @@
                     </div>
                     <div class="col-12 col-sm-6 col-md-4 mt-3">
                         <label>Método de Pago</label>
-                        <dx-select-box class="tm-select w-100" formControlName="idMetodoPago"
-                            [items]="listaMetodosPago" [valueExpr]="'id'" [displayExpr]="'nombre'"
-                            [searchEnabled]="true" [showClearButton]="true" placeholder="Seleccione un método de pago">
+                        <dx-select-box class="tm-select w-100" formControlName="idMetodoPago" [items]="listaMetodosPago"
+                            [valueExpr]="'id'" [displayExpr]="'nombre'" [searchEnabled]="true" [showClearButton]="true"
+                            placeholder="Seleccione un método de pago">
                         </dx-select-box>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-12 col-sm-6 col-md-4 mt-3">
-                        <label>N° de Monedero</label>
-                        <dx-select-box class="tm-select w-100" formControlName="numeroSerieMonedero"
-                            [items]="listaMonederos || []" [valueExpr]="getSerie" [displayExpr]="getSerie"
-                            [searchEnabled]="true" [showClearButton]="true" placeholder="Seleccione un monedero">
-                            <div *dxTemplate="let d of 'item'">{{ getSerie(d) }}</div>
-                            <div *dxTemplate="let d of 'field'">{{ getSerie(d) }}</div>
-                        </dx-select-box>
-                    </div>
-                    <div class="col-12 col-sm-6 col-md-4 mt-3">
-                        <label>N° de Serie de Dispositivo</label>
-                        <dx-select-box class="tm-select w-100" formControlName="numeroSerieDispositivo"
-                            [items]="listaDispositivos || []" [valueExpr]="getSerie" [displayExpr]="getSerie"
-                            [searchEnabled]="true" [showClearButton]="true" placeholder="Seleccione un dispositivo">
-                            <div *dxTemplate="let d of 'item'">{{ getSerie(d) }}</div>
-                            <div *dxTemplate="let d of 'field'">{{ getSerie(d) }}</div>
-                        </dx-select-box>
-                    </div>
+                <div class="col-12 col-sm-6 col-md-4 mt-3">
+                    <label>N° de Monedero</label>
+                    <dx-select-box class="tm-select w-100" formControlName="numeroSerieMonedero"
+                        [items]="listaMonederos || []" [valueExpr]="getSerie" [displayExpr]="getSerie"
+                        [searchEnabled]="true" [showClearButton]="true" placeholder="Seleccione un monedero">
+                        <div *dxTemplate="let d of 'item'">{{ getSerie(d) }}</div>
+                        <div *dxTemplate="let d of 'field'">{{ getSerie(d) }}</div>
+                    </dx-select-box>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4 mt-3">
+                    <label>N° de Serie de Dispositivo</label>
+                    <dx-select-box class="tm-select w-100" formControlName="numeroSerieDispositivo"
+                        [items]="listaDispositivos || []" [valueExpr]="getSerie" [displayExpr]="getSerie"
+                        [searchEnabled]="true" [showClearButton]="true" placeholder="Seleccione un dispositivo">
+                        <div *dxTemplate="let d of 'item'">{{ getSerie(d) }}</div>
+                        <div *dxTemplate="let d of 'field'">{{ getSerie(d) }}</div>
+                    </dx-select-box>
                 </div>
                 <h6 class="section-title mt-5">Seleccione una ubicación para la transacción</h6>
                 <div class="col-12 mt-1">

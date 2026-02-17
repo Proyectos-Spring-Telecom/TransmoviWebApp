@@ -63,5 +63,8 @@ export class MonederosServices {
       catchError(error => throwError(() => error))
     );
   }
+  obtenerMetodosPago(): Observable<any> {
+    return this.http.get(`${environment.API_SECURITY}/catmetodopago/list`);
+  }
 
 }

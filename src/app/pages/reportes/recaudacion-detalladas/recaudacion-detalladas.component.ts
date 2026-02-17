@@ -7,6 +7,7 @@ import { OperadoresService } from 'src/app/shared/services/operadores.service';
 import { VehiculosService } from 'src/app/shared/services/vehiculos.service';
 import { DispositivosService } from 'src/app/shared/services/dispositivos.service';
 import { DerroterosService } from 'src/app/shared/services/derroteros.service';
+import { ReportesService, ValidacionesDetalladasRequest } from '../reportes.service';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 
 @Component({
@@ -117,6 +118,7 @@ export class RecaudacionDetalladasComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private reportesService: ReportesService,
     private clientesService: ClientesService,
     private rutasService: RutasService,
     private operadoresService: OperadoresService,
@@ -363,8 +365,84 @@ export class RecaudacionDetalladasComponent implements OnInit {
       this.filtroForm.markAllAsTouched();
       return;
     }
-    // Aquí se implementaría la lógica para obtener los datos del reporte
-    console.log('Aplicar filtros:', this.filtroForm.value);
+
+    const payload = this.construirPayload();
+    this.loading = true;
+    this.reportesService.obtenerValidacionesDetalladas(payload).subscribe({
+      next: (data) => {
+        const respuesta = Array.isArray(data) ? data : (data?.data ?? data ?? []);
+        this.informacion = this.mapearRespuesta(respuesta);
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error al obtener validaciones detalladas', error);
+        this.informacion = [];
+        this.loading = false;
+      },
+    });
+  }
+
+  private construirPayload(): ValidacionesDetalladasRequest {
+    const raw = this.filtroForm.value;
+    return {
+      fechaInicio: this.formatearFechaHora(raw.fechaInicio),
+      fechaFin: this.formatearFechaHora(raw.fechaFin),
+      idCliente: raw.idCliente ? Number(raw.idCliente) : null,
+      idRuta: raw.idRuta ? Number(raw.idRuta) : null,
+      idDerrotero: raw.idDerrotero ? Number(raw.idDerrotero) : null,
+      idOperador: raw.idOperador ? Number(raw.idOperador) : null,
+      idVehiculo: raw.idVehiculo ? Number(raw.idVehiculo) : null,
+      idDispositivo: raw.idDispositivo ? Number(raw.idDispositivo) : null,
+    };
+  }
+
+  private formatearFechaHora(valor: Date | string | null): string {
+    if (!valor) {
+      return '';
+    }
+
+    if (typeof valor === 'string') {
+      // Si ya viene en formato ISO o datetime, validarlo y ajustar
+      if (valor.includes('T')) {
+        return valor.endsWith('Z') ? valor : `${valor}Z`;
+      }
+      // Si viene en formato local datetime, convertirlo
+      const date = new Date(valor);
+      return date.toISOString();
+    }
+
+    // Si es un objeto Date
+    return valor.toISOString();
+  }
+
+  private mapearRespuesta(data: any[]): any[] {
+    if (!Array.isArray(data)) {
+      return [];
+    }
+
+    return data.map((item, index) => ({
+      id: item?.id ?? item?.idTx ?? this.generarIdTemporal(item, index),
+      idTx: item?.idTx ?? item?.idTransaccion ?? item?.id ?? 'Sin información',
+      fechaHora: item?.fechaHora ?? item?.fechaHoraFinal ?? item?.fechaHoraTransaccion ?? null,
+      monto: item?.monto ?? item?.montoTransaccion ?? 0,
+      monederoSerie: item?.monederoSerie ?? item?.numeroSerieMonedero ?? item?.serieMonedero ?? 'Sin información',
+      dispositivoSerie: item?.dispositivoSerie ?? item?.numeroSerieDispositivo ?? item?.serieDispositivo ?? 'Sin información',
+      latitud: item?.latitud ?? item?.latitudFinal ?? null,
+      longitud: item?.longitud ?? item?.longitudFinal ?? null,
+      rutaDerrotero: item?.rutaDerrotero ?? item?.ruta ?? item?.derrotero ?? item?.nombreRuta ?? item?.nombreDerrotero ?? 'Sin información',
+      viaje: item?.viaje ?? item?.idViaje ?? item?.numeroViaje ?? null,
+      turno: item?.turno ?? item?.numeroTurno ?? item?.turnoNumero ?? 'Sin información',
+    }));
+  }
+
+  private generarIdTemporal(item: any, index: number): string {
+    const base =
+      item?.idTx ??
+      item?.idTransaccion ??
+      item?.monederoSerie ??
+      item?.dispositivoSerie ??
+      'row';
+    return `${base}-${index}`;
   }
 
 }

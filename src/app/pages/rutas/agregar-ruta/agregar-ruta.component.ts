@@ -7,6 +7,7 @@ import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation'
 import { RegionesService } from 'src/app/shared/services/regiones.service';
 import { RutasService } from 'src/app/shared/services/rutas.service';
 import Swal from 'sweetalert2';
+import { MAP_STYLES_NO_POI } from 'src/app/shared/utils/map-styles.util';
 
 declare global {
   interface Window { google: any; }
@@ -132,6 +133,7 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: true,
+      styles: MAP_STYLES_NO_POI
     });
   }
 

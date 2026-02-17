@@ -91,7 +91,7 @@
                     <div class="table-responsive mb-4 col-12 col-lg-12">
                         <dx-data-grid id="gridContainer" [columnHidingEnabled]="true" [showBorders]="true"
                             [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
-                            [dataSource]="informacion" [keyExpr]="'id'" [width]="'100%'">
+                            [dataSource]="informacion" [keyExpr]="'id'" [noDataText]="'Sin información'" [width]="'100%'">
                             <dxo-search-panel [visible]="true" [width]="200" placeholder="Buscar..."></dxo-search-panel>
                             <dxo-paging [pageSize]="20"></dxo-paging>
                             <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[20]"

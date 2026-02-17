@@ -294,13 +294,13 @@ export const MENU: MenuItem[] = [
         link: '/reportes/recaudacion-dispositivoInstalacion',
         permiso: Permiso.Consultar_Recaudacion_Dispositivo,
     },
-    {
-        id: 116,
-        label: 'Recaudación Detalladas',
-        icon: 'uil-list-ul',
-        link: '/reportes/recaudacion-detalladas',
-        permiso: Permiso.Consultar_Recaudacion_Detallada,
-    },
+    //{
+    //    id: 116,
+    //    label: 'Recaudación Detalladas',
+    //    icon: 'uil-list-ul',
+    //    link: '/reportes/recaudacion-detalladas',
+    //    permiso: Permiso.Consultar_Recaudacion_Detallada,
+    //},
 
     // {
     //     id: 13,

@@ -35,6 +35,17 @@ export interface RecaudacionDispositivoRequest {
   idInstalacion?: number | null;
 }
 
+export interface ValidacionesDetalladasRequest {
+  fechaInicio: string;
+  fechaFin: string;
+  idCliente?: number | null;
+  idRuta?: number | null;
+  idDerrotero?: number | null;
+  idOperador?: number | null;
+  idVehiculo?: number | null;
+  idDispositivo?: number | null;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -73,6 +84,15 @@ export class ReportesService {
   ): Observable<any> {
     return this.http.post(
       `${environment.API_SECURITY}/reportes/recaudacion-por-dispositivo`,
+      payload
+    );
+  }
+
+  obtenerValidacionesDetalladas(
+    payload: ValidacionesDetalladasRequest
+  ): Observable<any> {
+    return this.http.post(
+      `${environment.API_SECURITY}/reportes/validaciones-detalladas`,
       payload
     );
   }
