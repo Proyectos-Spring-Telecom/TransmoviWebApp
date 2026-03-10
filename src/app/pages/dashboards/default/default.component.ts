@@ -522,11 +522,12 @@ export class DefaultComponent implements OnInit {
       this.dsBrecha = [];
     }
 
-    // Procesar graficaPasajerosPorRutas para dsPasajerosPorHora
-    if (data.graficaPasajerosPorRutas && Array.isArray(data.graficaPasajerosPorRutas) && data.graficaPasajerosPorRutas.length > 0) {
+    // Procesar graficaDerroteros para dsPasajerosPorHora (el servicio devuelve graficaDerroteros)
+    const datosPasajeros = data.graficaDerroteros || data.graficaPasajerosPorRutas;
+    if (datosPasajeros && Array.isArray(datosPasajeros) && datosPasajeros.length > 0) {
       // Obtener todas las rutas únicas
       const rutasUnicas = new Set<string>();
-      data.graficaPasajerosPorRutas.forEach((item: any) => {
+      datosPasajeros.forEach((item: any) => {
         const nombreRuta = item.ruta ?? item.Ruta ?? '';
         if (nombreRuta) {
           rutasUnicas.add(nombreRuta);
@@ -546,7 +547,7 @@ export class DefaultComponent implements OnInit {
       // Agrupar datos por periodo
       const datosPorPeriodo = new Map<string, any>();
       
-      data.graficaPasajerosPorRutas.forEach((item: any) => {
+      datosPasajeros.forEach((item: any) => {
         const periodo = item.periodo ?? '';
         const nombreRuta = item.ruta ?? item.Ruta ?? '';
         const pasajeros = Number(item.pasajeros) || 0;
@@ -558,7 +559,9 @@ export class DefaultComponent implements OnInit {
         }
         
         const valueField = nombreRuta.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-        datosPorPeriodo.get(periodo)[valueField] = pasajeros;
+        // Sumar pasajeros si ya existe un valor para esta ruta en este periodo
+        const valorActual = datosPorPeriodo.get(periodo)[valueField] || 0;
+        datosPorPeriodo.get(periodo)[valueField] = valorActual + pasajeros;
       });
 
       // Convertir a array y asegurar que todas las rutas tengan valor 0 si no están presentes
