@@ -233,7 +233,7 @@ export class DefaultComponent implements OnInit {
   };
 
   customizePasajerosTooltip = (arg: any) => {
-    // Para gráficas apiladas, arg puede tener información de la serie específica o del punto completo
+    // Para gráficas apiladas, arg puede tener información de la serie específica o del punto completossss
     const data = arg.point?.data || arg.point?.tag || arg.series?.data || {};
     const periodo = arg.argumentText || '';
     let texto = `Periodo: ${periodo}\n`;
