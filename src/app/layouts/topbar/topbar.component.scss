@@ -4,6 +4,162 @@
   --tb-accent: #09fa3a;
 }
 
+#page-topbar .language-switcher .lang-trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.2rem;
+  padding: 0.58rem 1.35rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: var(--tb-fg);
+  line-height: 1.2;
+  transition:
+    background .2s ease,
+    color .2s ease,
+    border-color .2s ease,
+    transform .05s ease,
+    box-shadow .2s ease;
+}
+
+#page-topbar .language-switcher .lang-trigger:hover,
+#page-topbar .language-switcher .lang-trigger:focus {
+  background: transparent;
+  color: var(--tb-fg);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: none;
+  transform: none;
+}
+
+#page-topbar .language-switcher .lang-trigger:focus-visible,
+#page-topbar .language-switcher .show > .lang-trigger,
+#page-topbar .language-switcher .lang-trigger:active {
+  background: transparent !important;
+  color: var(--tb-fg) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: none !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+#page-topbar .language-switcher .lang-trigger:hover::before,
+#page-topbar .language-switcher .lang-trigger:hover::after,
+#page-topbar .language-switcher .lang-trigger:hover i {
+  animation: none !important;
+  content: none !important;
+  box-shadow: none !important;
+}
+
+#page-topbar .language-switcher .lang-trigger:active {
+  transform: translateY(1px);
+}
+
+#page-topbar .language-switcher .lang-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #09fa3a;
+  box-shadow: 0 0 0 0 rgba(9, 250, 58, 0.6);
+  animation: langDotPulse 1.7s ease-out infinite;
+}
+
+#page-topbar .language-switcher .lang-flag-current {
+  width: 17px;
+  height: 17px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+#page-topbar .language-switcher .lang-label {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  font-size: 0.95rem;
+}
+
+#page-topbar .language-switcher .lang-caret {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+#page-topbar .language-switcher .lang-menu {
+  min-width: 225px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(180deg, rgba(2, 35, 54, 0.96), rgba(1, 28, 44, 0.96));
+  backdrop-filter: blur(8px);
+  padding: 0.35rem;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+}
+
+#page-topbar .language-switcher .lang-option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.22rem;
+  border-radius: 10px;
+  color: #eaf2ff;
+  padding: 0.5rem 0.65rem;
+  transition: all 0.18s ease;
+}
+
+#page-topbar .language-switcher .lang-option:last-child {
+  margin-bottom: 0;
+}
+
+#page-topbar .language-switcher .lang-option:hover {
+  background: rgba(9, 250, 58, 0.13);
+  color: #fff;
+  transform: translateX(2px);
+}
+
+#page-topbar .language-switcher .lang-option.active {
+  background: linear-gradient(90deg, rgba(9, 250, 58, 0.2), rgba(9, 250, 58, 0.06));
+  border: 1px solid rgba(9, 250, 58, 0.34);
+}
+
+#page-topbar .language-switcher .lang-flag-option {
+  width: 16px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+#page-topbar .language-switcher .lang-active-chip {
+  margin-left: auto;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 700;
+  padding: 0.2rem 0.38rem;
+  border-radius: 999px;
+  background: rgba(9, 250, 58, 0.19);
+  border: 1px solid rgba(9, 250, 58, 0.4);
+  color: #a8ffc0;
+}
+
+@keyframes langDotPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(9, 250, 58, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 9px rgba(9, 250, 58, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(9, 250, 58, 0);
+  }
+}
+
+@media (max-width: 576px) {
+  #page-topbar .language-switcher .lang-trigger {
+    padding: 0.52rem 0.85rem;
+    border-radius: 10px;
+    min-height: 2.05rem;
+  }
+}
+
 #page-topbar .row.g-2.align-items-center.me-2 .btn {
   border-color: rgba(255, 255, 255, 0.28);
   color: var(--tb-fg);

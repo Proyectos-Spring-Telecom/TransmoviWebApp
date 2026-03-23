@@ -1,4 +1,4 @@
-<div class="vertical-menu" style="background-color: #002136;">
+<div class="vertical-menu notranslate" style="background-color: #002136;">
   <div class="navbar-brand-box" style="background-color: #002136;">
     <a class="logo logo-light" style="background-color: #002136;">
       <span class="logo-sm" style="background-color: #002136;">
@@ -24,7 +24,7 @@
 </div>
 
 <ng-template #contentTemplate>
-  <div id="sidebar-menu">
+  <div id="sidebar-menu" class="notranslate">
     <ul class="metismenu list-unstyled" id="side-menu" #sideMenu>
       @for (item of menuItems; track $index) {
       <ng-container *ngIf="!item.permiso || hasPermission(item.permiso)">
