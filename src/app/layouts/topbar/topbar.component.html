@@ -26,25 +26,29 @@
     </div>
 
     <div class="d-flex">
-      <div class="dropdown d-inline-block me-2" ngbDropdown>
-        <button type="button" class="btn btn-outline-light btn-sm header-item waves-effect" ngbDropdownToggle>
-          <img [src]="flagvalue || valueset" alt="Idioma" height="14" class="me-1">
-          <span class="d-none d-md-inline">{{ countryName }}</span>
-        </button>
-        <div class="dropdown-menu dropdown-menu-end" ngbDropdownMenu>
-          @for(item of listLang; track $index){
-          <a href="javascript:void(0);" class="dropdown-item notify-item"
-            (click)="setLanguage(item.text, item.lang, item.flag)"
-            [ngClass]="{'active': cookieValue === item.lang}">
-            <img [src]="item.flag" alt="language-flag" class="me-1" height="12">
-            <span class="align-middle">{{ item.text }}</span>
-          </a>
-          }
-        </div>
-      </div>
-
       <!-- ======= NUEVO: BOTONES DE ALERTAS (RESPONSIVE con row/col) ======= -->
       <div class="row g-2 align-items-center me-2">
+        <div class="col-auto">
+          <div class="dropdown d-inline-block language-switcher" ngbDropdown>
+            <button type="button" class="btn btn-outline-light btn-sm lang-trigger notranslate" ngbDropdownToggle>
+              <span class="lang-live-dot"></span>
+              <img [src]="flagvalue || valueset" alt="Idioma" height="14" class="me-1 lang-flag-current">
+              <span class="d-none d-md-inline lang-label notranslate">{{ countryName }}</span>
+              <i class="uil uil-angle-down lang-caret"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end lang-menu" ngbDropdownMenu>
+              @for(item of listLang; track $index){
+              <a href="javascript:void(0);" class="dropdown-item notify-item lang-option"
+                (click)="setLanguage(item.text, item.lang, item.flag)"
+                [ngClass]="{'active': cookieValue === item.lang}">
+                <img [src]="item.flag" alt="language-flag" class="me-1 lang-flag-option" height="12">
+                <span class="align-middle notranslate">{{ item.text }}</span>
+                <span class="lang-active-chip notranslate" *ngIf="cookieValue === item.lang">Activo</span>
+              </a>
+              }
+            </div>
+          </div>
+        </div>
         <div class="col-auto">
           <button type="button" class="btn btn-outline-light btn-sm" [attr.title]="'LAYOUT.ALERTS.GENERAL' | translate">
             <i class="uil uil-bell"></i>

@@ -99,7 +99,12 @@ export class LanguageService {
       return;
     }
 
-    const target = this.pendingLang === 'en' ? 'en' : '';
+    const target =
+      this.pendingLang === 'en'
+        ? 'en'
+        : Array.from(combo.options).some((o) => o.value === 'es')
+          ? 'es'
+          : '';
 
     if (forceEvent && combo.value === target) {
       combo.dispatchEvent(new Event('change'));
