@@ -80,13 +80,13 @@
                                         <i class="fa fa-plus"></i>
                                     </button>
                                 </div>
-                                <div>
+                                <!-- <div>
                                     <button [disabled]="monedero.data.saldo === 0"
                                         (click)="centerModalDebito(centerDataModalDebito, monedero.data.id, monedero.data.numeroSerie, monedero.data.saldo, monedero.data.idCliente, monedero.data.idPasajero)"
                                         class="btnAcciones btnDebito" type="button" placement="top" role="button">
                                         <i class="fa fa-minus"></i>
                                     </button>
-                                </div>
+                                </div> -->
                                 <div *ngIf="monedero.data.estadoSolicitud != 0 ">
                                     <button id="pinButtonBlue" class="btnAcciones" (click)="onCambiarTipoPasajeroMonedero(monedero.data)">
                                         <i class="fa fa-refresh"></i>
@@ -125,6 +125,15 @@
                         <label style="color: white;"><i class="fa fa-money"></i> Monto</label>
                         <input formControlName="monto" class="form-control" type="number"
                             placeholder="Ingrese un monto" />
+                    </div>
+                </div>
+                <div class="card mb-3 mt-0">
+                    <div class="card-body" style="background-color: #002136;">
+                        <label style="color: white;"><i class="fa fa-credit-card"></i> Método de Pago</label>
+                        <dx-select-box class="tm-select w-100" formControlName="idMetodoPago" [items]="listaMetodosPago"
+                            [valueExpr]="'id'" [displayExpr]="'nombre'" [searchEnabled]="true" [showClearButton]="true"
+                            placeholder="Seleccione un método de pago">
+                        </dx-select-box>
                     </div>
                 </div>
                 <div class="modal-footer border-top-0">
