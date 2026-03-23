@@ -30,6 +30,7 @@ export class ListaMonederosComponent implements OnInit {
   public submitButton: string = 'Aceptar';
   public recargaForm: FormGroup;
   public debitoForm: FormGroup;
+  public listaMetodosPago: any[] = [];
   public selectedTransactionId: number | null = null;
   public selectedSerie: any | null = null;
   public selectedMonto: number | null = null;
@@ -69,6 +70,24 @@ export class ListaMonederosComponent implements OnInit {
     this.initForm();
     this.obtenerMonederos();
     this.obtenerTipoPasajero()
+    this.obtenerMetodosPago();
+  }
+
+  obtenerMetodosPago() {
+    this.moneService.obtenerMetodosPago().subscribe({
+      next: (response: any) => {
+        const raw = response?.data ?? response ?? [];
+        this.listaMetodosPago = Array.isArray(raw)
+          ? raw.map((m: any) => ({
+            id: Number(m?.id ?? m?.Id ?? m?.idMetodoPago ?? m?.ID),
+            nombre: m?.nombre ?? m?.Nombre ?? m?.descripcion ?? m?.Descripcion ?? 'Sin nombre',
+          }))
+          : [];
+      },
+      error: () => {
+        this.listaMetodosPago = [];
+      },
+    });
   }
 
   hasPermission(permission: string): boolean {
@@ -198,6 +217,7 @@ export class ListaMonederosComponent implements OnInit {
       fechaHoraFinal: [null],
       numeroSerieMonedero: [null],
       numeroSerieDispositivo: [null],
+      idMetodoPago: [null, [Validators.required]],
     });
 
     this.debitoForm = this.fb.group({
@@ -208,6 +228,7 @@ export class ListaMonederosComponent implements OnInit {
       fechaHoraFinal: [null],
       numeroSerieMonedero: [null],
       numeroSerieDispositivo: [null],
+      idMetodoPago: [null],
     });
   }
 
@@ -460,6 +481,10 @@ export class ListaMonederosComponent implements OnInit {
       fechaHoraFinal: formValue?.fechaHoraFinal || fechaActual,
       numeroSerieMonedero: formValue?.numeroSerieMonedero || serie,
       numeroSerieDispositivo: null,
+      idMetodoPago:
+        formValue?.idMetodoPago != null && formValue?.idMetodoPago !== ''
+          ? Number(formValue.idMetodoPago)
+          : null,
     };
 
     this.loading = true;

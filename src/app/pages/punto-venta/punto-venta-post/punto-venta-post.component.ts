@@ -8,18 +8,13 @@ import { MonederosServices } from 'src/app/shared/services/monederos.service';
 import { TransaccionesService } from 'src/app/shared/services/transacciones.service';
 import Swal from 'sweetalert2';
 
-/* Tipado */
-interface Monedero {
-  id: number;
-  numeroSerie: string;
-  titular: string;
-  saldo: number;
-}
 @Component({
   selector: 'app-punto-venta-post',
   templateUrl: './punto-venta-post.component.html',
   styleUrl: './punto-venta-post.component.scss',
-  animations: [fadeInUpAnimation],
+  animations: [
+    fadeInUpAnimation,
+  ],
 })
 export class PuntoVentaPostComponent implements OnInit {
 
@@ -30,21 +25,10 @@ export class PuntoVentaPostComponent implements OnInit {
    * @param exlargeModal extra large modal data
    */
   monederoSeleccionado: any = null;
-  selectedWalletId: number | null = null;
+  showContinueForId: number | null = null;
   step = 1;
 
   query = '';
-  monederos = [
-    { id: 1, numeroSerie: 'MX-001-AB', pasajero: 'Andrea López', cliente: 'Transp. Aurora', saldo: 320.50 },
-    { id: 2, numeroSerie: 'MX-002-CD', pasajero: 'Luis Pérez', cliente: 'Transp. Aurora', saldo: 150.00 },
-    { id: 3, numeroSerie: 'MX-003-EF', pasajero: 'María Ruiz', cliente: 'Logística Sol', saldo: 980.75 },
-  ];
-
-  monederosFiltrados = [...this.monederos];
-  monederosPaginados: any[] = [];
-  pageIndex = 0;
-  pageSize = 9;
-  totalPages = 1;
 
   monto = 0;
   montoView = '';
@@ -102,8 +86,6 @@ export class PuntoVentaPostComponent implements OnInit {
     this.initForm();
     setTimeout(() => this.extraLarge(this.exlargeModal), 0);
     this.obtenerMonerderos()
-    this.recalcPages();
-    this.aplicarPaginacion();
   }
 
   public mensajeMonederos: string = '';
@@ -191,13 +173,19 @@ export class PuntoVentaPostComponent implements OnInit {
   public metodoPago: string | null = null;
 
   agregarTransaccion() {
-  if (!this.monederoSeleccionado || !this.monto || this.monto <= 0) {
+  const faltantes: string[] = [];
+  const metodoPagoSeleccionado = this.transaccionForm.get('idMetodoPago')?.value;
+  if (!this.monederoSeleccionado) faltantes.push('Monedero: selecciona uno en la pantalla anterior (botón "Cambiar monedero").');
+  if (!this.monto || this.monto <= 0) faltantes.push('Monto: Escribe una cantidad a recargar.');
+  if (!metodoPagoSeleccionado) faltantes.push('Método de Pago: Marca una opción.');
+
+  if (faltantes.length > 0) {
     Swal.fire({
-      title: 'Atención',
-      text: 'Debes seleccionar un monedero y definir un monto válido.',
+      title: '¡Ops!',
+      html: `<div>Para continuar, completa lo siguiente:</div><div style="text-align:left;">${faltantes.map((item) => `• ${item}`).join('<br>')}</div>`,
       icon: 'warning',
       background: '#002136',
-      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'Ir a completar',
     });
     return;
   }
@@ -310,6 +298,11 @@ export class PuntoVentaPostComponent implements OnInit {
   }
 
   seleccionarMonedero(m: any) {
+    if (this.monederoSeleccionado?.id === m?.id) {
+      this.showContinueForId = this.showContinueForId === m.id ? null : m.id;
+      return;
+    }
+
     // Crear una copia del objeto para asegurar que tenemos la referencia correcta
     this.monederoSeleccionado = {
       id: m.id,
@@ -324,6 +317,7 @@ export class PuntoVentaPostComponent implements OnInit {
       clienteApellidoMaterno: m.clienteApellidoMaterno,
       ...m // Incluir cualquier otra propiedad
     };
+    this.showContinueForId = m.id;
     console.log('Monedero seleccionado:', this.monederoSeleccionado);
   }
 
@@ -335,6 +329,13 @@ export class PuntoVentaPostComponent implements OnInit {
         numeroSerieMonedero: numSerie,
         fechaHoraFinal: this.nowZulu(),
       });
+      return;
+    }
+
+    if (n === 1) {
+      if (!this.modalRef && this.exlargeModal) {
+        this.extraLarge(this.exlargeModal);
+      }
     }
   }
 
@@ -394,6 +395,11 @@ export class PuntoVentaPostComponent implements OnInit {
     }
   }
 
+  realizarOtraRecarga(): void {
+    this.showRecargaExitosa = false;
+    this.openModalFromStart();
+  }
+
   onInputMonto(ev: Event) {
     const val = (ev.target as HTMLInputElement).value;
     this.monto = Math.max(0, this.sanitizeNumber(val));
@@ -413,36 +419,19 @@ export class PuntoVentaPostComponent implements OnInit {
     this.transaccionForm.patchValue({ monto: this.monto });
   }
 
-  filtrarMonederos() {
+  getMonederosFiltrados(): any[] {
+    const base = Array.isArray(this.listaMonederos) ? this.listaMonederos : [];
     const q = (this.query || '').toLowerCase().trim();
-    this.monederosFiltrados = q
-      ? this.monederos.filter(m =>
-        `${m.numeroSerie} ${m.pasajero} ${m.cliente}`.toLowerCase().includes(q)
-      )
-      : [...this.monederos];
-    this.pageIndex = 0;
-    this.recalcPages();
-    this.aplicarPaginacion();
-  }
+    if (!q) return base;
 
-  private recalcPages() {
-    this.totalPages = Math.max(1, Math.ceil(this.monederosFiltrados.length / this.pageSize));
-  }
-
-  private aplicarPaginacion() {
-    const start = this.pageIndex * this.pageSize;
-    const end = start + this.pageSize;
-    this.monederosPaginados = this.monederosFiltrados.slice(start, end);
-  }
-
-  goFirst() { if (this.pageIndex > 0) { this.pageIndex = 0; this.aplicarPaginacion(); } }
-  goPrev() { if (this.pageIndex > 0) { this.pageIndex--; this.aplicarPaginacion(); } }
-  goNext() { if (this.pageIndex < this.totalPages - 1) { this.pageIndex++; this.aplicarPaginacion(); } }
-  goLast() { if (this.pageIndex < this.totalPages - 1) { this.pageIndex = this.totalPages - 1; this.aplicarPaginacion(); } }
-
-  getIniciales(nombre: string): string {
-    if (!nombre) return '?';
-    return nombre.split(' ').filter(Boolean).slice(0, 2).map(p => p[0]?.toUpperCase()).join('');
+    return base.filter((m: any) => {
+      const numeroSerie = String(m?.numeroSerie || m?.numeroserie || '').toLowerCase();
+      const clienteNombre = String(m?.clienteNombre || '').toLowerCase();
+      const clienteApellidoPaterno = String(m?.clienteApellidoPaterno || '').toLowerCase();
+      const clienteApellidoMaterno = String(m?.clienteApellidoMaterno || '').toLowerCase();
+      const clienteCompleto = `${clienteNombre} ${clienteApellidoPaterno} ${clienteApellidoMaterno}`.trim();
+      return numeroSerie.includes(q) || clienteCompleto.includes(q);
+    });
   }
 
   private sanitizeNumber(str: string): number {
@@ -496,10 +485,6 @@ export class PuntoVentaPostComponent implements OnInit {
     this.monto = 0;
     this.montoView = '';
     this.monederoSeleccionado = null;
-    this.monederosFiltrados = [...this.monederos];
-    this.pageIndex = 0;
-    this.recalcPages();
-    this.aplicarPaginacion();
     if (this.modalRef) {
     this.modalRef.close();
     this.modalRef = null;

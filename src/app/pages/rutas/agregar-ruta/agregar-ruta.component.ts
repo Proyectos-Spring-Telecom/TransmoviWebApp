@@ -695,10 +695,9 @@ export class AgregarRutaComponent implements OnInit, AfterViewInit, OnDestroy {
             icon: 'success',
             confirmButtonColor: '#3085d6',
             confirmButtonText: 'Confirmar',
-          }).then(() => {
-            this.modalService.dismissAll();
-            this.regresar();
-          });
+          })
+          this.modalService.dismissAll();
+          this.regresar();
         },
         error: (error) => {
           console.error('Error al agregar ruta:', error);

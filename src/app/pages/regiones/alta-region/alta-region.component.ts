@@ -44,6 +44,8 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
   private resizeObserver?: ResizeObserver;
   private drawingManager?: any;
   private polygon?: any;
+  private isDrawing = false;
+  private drawToggleBtn?: HTMLButtonElement;
 
   private readonly defaultCenter = { lat: 19.2826, lng: -99.6557 };
   private readonly defaultZoom = 13;
@@ -486,7 +488,7 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         const script = document.createElement('script');
         script.setAttribute('data-gmaps', 'js');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${this.googleMapsApiKey}&libraries=drawing&v=weekly`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${this.googleMapsApiKey}&libraries=drawing&v=quarterly`;
         script.async = true;
         script.defer = true;
         script.onload = () => resolve();
@@ -578,6 +580,7 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
       'drawingmode_changed',
       () => {
         const mode = this.drawingManager.getDrawingMode();
+        this.setDrawingState(mode === google.maps.drawing.OverlayType.POLYGON);
         console.log('[Drawing] modo:', mode);
       }
     );
@@ -606,7 +609,7 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.syncPolygonToForm();
         this.logPolygonPath('polygoncomplete');
-        this.drawingManager.setDrawingMode(null);
+        this.stopDrawingMode();
       }
     );
   }
@@ -683,7 +686,14 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
     btn.style.color = '#fff';
     btn.style.fontSize = '13px';
 
+    this.drawToggleBtn = btn;
+
     btn.onclick = () => {
+      if (this.isDrawing) {
+        this.tryStopDrawingMode();
+        return;
+      }
+
       if (this.polygon) {
         this.polygon.setMap(null);
         this.polygon = undefined;
@@ -695,6 +705,7 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
         this.drawingManager.setDrawingMode(
           google.maps.drawing.OverlayType.POLYGON
         );
+        this.setDrawingState(true);
       }
 
       this.logPolygonPath('cleared');
@@ -702,6 +713,64 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
 
     controlDiv.appendChild(btn);
     this.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(controlDiv);
+  }
+
+  private setDrawingState(drawing: boolean): void {
+    this.isDrawing = drawing;
+    this.updateDrawToggleLabel();
+    this.setMapLocked(drawing);
+  }
+
+  private stopDrawingMode(): void {
+    if (this.drawingManager) {
+      this.drawingManager.setDrawingMode(null);
+    }
+    this.setDrawingState(false);
+  }
+
+  private isPolygonValidForFinish(): boolean {
+    if (!this.polygon) return false;
+    const vertices = this.polygon.getPath()?.getLength?.() ?? 0;
+    return Number(vertices) >= 3;
+  }
+
+  private tryStopDrawingMode(): void {
+    if (!this.isPolygonValidForFinish()) {
+      this.toast(
+        'Debes cerrar la geocerca en el mapa para terminar (mínimo 3 vértices).',
+        'warning'
+      );
+      if (this.drawingManager && (window as any).google?.maps?.drawing) {
+        this.drawingManager.setDrawingMode(
+          google.maps.drawing.OverlayType.POLYGON
+        );
+      }
+      this.setDrawingState(true);
+      return;
+    }
+
+    this.stopDrawingMode();
+  }
+
+  private updateDrawToggleLabel(): void {
+    if (!this.drawToggleBtn) return;
+    this.drawToggleBtn.textContent = this.isDrawing
+      ? 'Terminar geocerca'
+      : 'Dibujar geocerca';
+  }
+
+  private setMapLocked(locked: boolean): void {
+    if (!this.map) return;
+    this.map.setOptions({
+      draggable: !locked,
+      scrollwheel: !locked,
+      disableDoubleClickZoom: locked,
+      zoomControl: !locked,
+      streetViewControl: !locked,
+      fullscreenControl: !locked,
+      keyboardShortcuts: !locked,
+      gestureHandling: locked ? 'none' : 'auto',
+    });
   }
 
   private addClearControl(): void {
@@ -734,6 +803,7 @@ export class AltaRegionComponent implements OnInit, AfterViewInit, OnDestroy {
         this.drawingManager.setDrawingMode(
           google.maps.drawing.OverlayType.POLYGON
         );
+        this.setDrawingState(true);
       }
       console.log('[UI] Geocerca borrada.');
     };

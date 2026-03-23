@@ -1331,24 +1331,22 @@ export class AltaInstalacionComponent implements OnInit {
     const dispositivoCambio = dispositivoInicial != null && dispositivoActual != null && 
                               Number(dispositivoActual) !== Number(dispositivoInicial);
 
-    // Construir el payload EXACTAMENTE como se requiere
-    // Solo incluir idDispositivo, estatusDispositivoAnterior y comentariosDispositivo si el dispositivo cambió
+    // Construir el payload de actualización.
+    // idDispositivo debe enviarse siempre para evitar perder la asignación actual.
     const payload: any = {
       idVehiculo: base.idVehiculo,
       idCliente: base.idCliente,
       estatus: base.estatus,
+      idDispositivo: base.idDispositivo,
+      estatusDispositivoAnterior: this.estatusDispositivoAnterior ?? null,
+      comentariosDispositivo: this.comentariosDispositivo ?? null,
       idsBlueVoxs: base.idsBlueVoxs, // Los nuevos bluevox seleccionados (los que están ahora en el formulario)
       estatusBluevoxsAnterior: this.estatusBluevoxsAnterior ?? null,
       comentariosBluevox: this.comentariosBluevox ?? null,
       blueVoxsAnteriores: blueVoxsAnteriores // Los bluevox que estaban en el GET por ID pero ya no están
     };
 
-    // Solo incluir idDispositivo, estatusDispositivoAnterior y comentariosDispositivo si el dispositivo cambió
-    if (dispositivoCambio) {
-      payload.idDispositivo = base.idDispositivo;
-      payload.estatusDispositivoAnterior = this.estatusDispositivoAnterior ?? null;
-      payload.comentariosDispositivo = this.comentariosDispositivo ?? null;
-    }
+    // Si hubo cambio de dispositivo, se conserva el flujo actual de captura previa.
 
     this.instService
       .actualizarInstalacion(this.idInstalacion, payload)

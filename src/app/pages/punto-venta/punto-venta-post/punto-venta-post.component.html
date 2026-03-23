@@ -5,7 +5,8 @@
         <div class="col-lg-12">
           <section class="recarga-ok container-fluid my-4">
             <div class="card glass-card success-header mb-3">
-              <div class="card-body d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2 gap-md-3 position-relative">
+              <div
+                class="card-body d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2 gap-md-3 position-relative">
                 <div class="ok-icon">
                   <i class="fa fa-check"></i>
                 </div>
@@ -100,10 +101,17 @@
                   </div>
                 </div>
                 <hr class="my-4 soft-divider">
-                <div class="cta-bar d-flex flex-wrap gap-2 justify-content-center justify-content-md-end">
-                  <button type="button" class="btn btn-success w-100 w-md-auto" (click)="irTransacciones()">
-                    Ver transacciones
-                  </button>
+                <div class="row g-2">
+                  <div class="col-12 col-md-6">
+                    <button type="button" class="btn btn-primary w-100" (click)="realizarOtraRecarga()">
+                      Realizar otra recarga
+                    </button>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <button type="button" class="btn btn-success w-100" (click)="irTransacciones()">
+                      Ver transacciones
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -119,7 +127,8 @@
     <div class="icon-wrapper">
       <i class="fas fa-plus"></i>
     </div>
-    <div class="header-text d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between w-100 gap-2">
+    <div
+      class="header-text d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between w-100 gap-2">
       <div class="titles d-flex flex-column">
         <h5 class="mb-0">{{ 'Realizar Recarga' }}</h5>
         <span class="d-none d-sm-block">Completa los datos necesarios para realizar tu recarga.</span>
@@ -138,17 +147,23 @@
               <div class="col-12 col-lg-12">
                 <div *ngIf="step===1" class="topup2b-card card shadow-sm glass-card flex-fill h-100">
                   <div class="card-body d-flex flex-column">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
                       <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-wallet2 fs-5 text-accent"></i>
                         <h5 class="m-0 fs-6 fs-md-5">Selecciona un Monedero</h5>
                       </div>
+                      <div class="ms-auto" style="width: 320px; max-width: 45%;">
+                        <input type="text" class="form-control" placeholder="Busqueda..." [(ngModel)]="query"
+                          [ngModelOptions]="{ standalone: true }" />
+                      </div>
                     </div>
                     <div class="row g-2 g-md-3">
-                      <div class="wallet-grid-scroll" *ngIf="listaMonederos?.length > 0; else noWallets">
-                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2 g-md-3">
-                          <div class="col" *ngFor="let m of listaMonederos">
-                            <label class="wallet-tile mt-1 w-100" [class.selected]="monederoSeleccionado?.id===m.id" (click)="seleccionarMonedero(m)">
+                      <div class="wallet-grid-scroll" *ngIf="getMonederosFiltrados() as filteredMonederos">
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2 g-md-3"
+                          *ngIf="filteredMonederos.length > 0; else noWallets">
+                          <div class="col" *ngFor="let m of filteredMonederos">
+                            <label class="wallet-tile mt-1 w-100" [class.selected]="monederoSeleccionado?.id===m.id"
+                              (click)="seleccionarMonedero(m)">
                               <span class="tile-ring"></span>
                               <div class="tile-top d-flex align-items-start gap-2">
                                 <div class="avatar-ring flex-shrink-0">
@@ -159,12 +174,13 @@
                                     {{ m?.pasajeroNombre || 'Sin registro' }} {{ m?.pasajeroApellidoPaterno || ' ' }} {{
                                     m?.pasajeroApellidoMaterno || ' ' }}
                                   </div>
-                                  <div class="sub text-truncate">Cliente · <b>{{ m?.clienteNombre }} {{ m?.clienteApellidoPaterno || '
+                                  <div class="sub text-truncate">Cliente · <b>{{ m?.clienteNombre }} {{
+                                      m?.clienteApellidoPaterno || '
                                       ' }} {{ m?.clienteApellidoMaterno || ' ' }}</b></div>
                                 </div>
                                 <div class="form-check flex-shrink-0 ms-2" (click)="$event.stopPropagation()">
                                   <input class="form-check-input" type="radio" name="monederoRadio"
-                                    [checked]="monederoSeleccionado?.id===m.id" (change)="seleccionarMonedero(m)">
+                                    [checked]="monederoSeleccionado?.id===m.id" (click)="$event.preventDefault()">
                                 </div>
                               </div>
                               <div class="tile-mid">
@@ -182,7 +198,7 @@
                               </div>
                             </label>
                             <div class="d-flex justify-content-center mt-3" [@fadeInUp]
-                              *ngIf="monederoSeleccionado?.id===m.id">
+                              *ngIf="showContinueForId===m.id">
                               <button type="button" class="btn btn-outline-accent w-100" (click)="irPaso(2)">
                                 Continuar <i class="bi bi-arrow-right-short"></i>
                               </button>
@@ -192,9 +208,19 @@
                       </div>
 
                       <ng-template #noWallets>
-                        <div class="w-100 text-center text-muted py-5">
-                          <i class="bi bi-wallet2 fs-1 d-block mb-2"></i>
-                          <div class="fw-semibold">{{ mensajeMonederos || 'Sin monederos.' }}</div>
+                        <div [@fadeInUp] class="wallet-empty-state">
+                          <div class="empty-icon-wrap">
+                            <i class="fa fa-times"></i>
+                          </div>
+                          <h6 class="empty-title">No encontramos monederos</h6>
+                          <p class="empty-subtitle">
+                            {{ (query || '').trim() ? 'Prueba con otro número de serie o nombre de cliente.' :
+                            (mensajeMonederos || 'Aún no hay monederos disponibles para mostrar.') }}
+                          </p>
+                          <button type="button" class="btn btn-ghost btn-sm" *ngIf="(query || '').trim()"
+                            (click)="query = ''">
+                            Limpiar búsqueda
+                          </button>
                         </div>
                       </ng-template>
                     </div>
@@ -228,7 +254,7 @@
                     </nav>-->
                   </div>
                 </div>
-                <div *ngIf="step===2" class="topup2b-card card shadow-sm glass-card flex-fill h-100">
+                <div *ngIf="step===2" [@fadeInUp] class="topup2b-card card shadow-sm glass-card flex-fill h-100">
                   <div class="card-body d-flex flex-column">
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                       <div class="d-flex align-items-center gap-2">
@@ -257,24 +283,20 @@
                       <button class="btn btn-outline-accent btn-sm" (click)="setMonto(50)">$50</button>
                       <button class="btn btn-outline-accent btn-sm" (click)="setMonto(100)">$100</button>
                       <!-- <button class="btn btn-outline-accent btn-sm" (click)="setMonto(200)">$200</button>
-                      <button class="btn btn-outline-accent btn-sm" (click)="setMonto(300)">$300</button> -->
+                  <button class="btn btn-outline-accent btn-sm" (click)="setMonto(300)">$300</button> -->
                     </div>
                     <div class="metodos-pago-section mt-3 mb-3">
                       <label class="metodos-pago-label">
                         <i class="bi bi-credit-card me-2"></i>Métodos de Pago
                       </label>
                       <div class="metodos-pago-options d-flex flex-wrap gap-2 gap-sm-3 justify-content-center">
-                        <label class="metodo-pago-item" 
-                               *ngFor="let metodo of listaMetodosPago" 
-                               [class.selected]="isMetodoPagoSelected(metodo.id)"
-                               (click)="onMetodoPagoChange(metodo.id)">
-                          <input 
-                            class="metodo-pago-checkbox" 
-                            type="checkbox" 
-                            [checked]="isMetodoPagoSelected(metodo.id)"
-                            (change)="onMetodoPagoChange(metodo.id)"
+                        <label class="metodo-pago-item" *ngFor="let metodo of listaMetodosPago"
+                          [class.selected]="isMetodoPagoSelected(metodo.id)" (click)="onMetodoPagoChange(metodo.id)">
+                          <input class="metodo-pago-checkbox" type="checkbox"
+                            [checked]="isMetodoPagoSelected(metodo.id)" (change)="onMetodoPagoChange(metodo.id)"
                             style="position: absolute; opacity: 0; pointer-events: none;">
-                          <span class="metodo-pago-checkbox-custom" [class.checked]="isMetodoPagoSelected(metodo.id)"></span>
+                          <span class="metodo-pago-checkbox-custom"
+                            [class.checked]="isMetodoPagoSelected(metodo.id)"></span>
                           <span class="metodo-pago-label-item">{{ metodo.nombre }}</span>
                         </label>
                       </div>
@@ -287,7 +309,8 @@
             <div class="row mt-2" [@fadeInUp] *ngIf="step===2">
               <div class="col-12">
                 <div class="topup2b-bottombar card shadow-sm glass-bar">
-                  <div class="card-body d-flex flex-column flex-md-row flex-wrap align-items-stretch align-items-md-center justify-content-between gap-3">
+                  <div
+                    class="card-body d-flex flex-column flex-md-row flex-wrap align-items-stretch align-items-md-center justify-content-between gap-3">
                     <div class="d-flex flex-column flex-sm-row flex-wrap gap-2 gap-sm-3 gap-md-4 info-mini">
                       <div class="text-center text-sm-start">
                         <small class="d-block d-sm-inline">Monedero:&nbsp;</small>
@@ -303,17 +326,19 @@
                       </div>
                       <div class="text-center text-sm-start">
                         <small class="d-block d-sm-inline">Cliente:&nbsp;</small>
-                        <strong class="d-block d-sm-inline">{{ monederoSeleccionado.clienteNombre }} {{ monederoSeleccionado.clienteApellidoPaterno
+                        <strong class="d-block d-sm-inline">{{ monederoSeleccionado.clienteNombre }} {{
+                          monederoSeleccionado.clienteApellidoPaterno
                           || ' ' }} {{ monederoSeleccionado.clienteApellidoMaterno || ' ' }}</strong>
                       </div>
                       <div class="text-center text-sm-start">
                         <small class="d-block d-sm-inline">Monto:&nbsp;</small>
-                        <strong class="text-success d-block d-sm-inline">{{ monto | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
+                        <strong class="text-success d-block d-sm-inline">{{ monto |
+                          currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
                       </div>
                     </div>
                     <div class="d-flex flex-column flex-sm-row gap-2 ms-auto">
                       <button class="btn btn-ghost-danger w-100 w-sm-auto" (click)="cancelar()">Cancelar</button>
-                      <button class="btn btn-accent w-100 w-sm-auto" [disabled]="!monto || monto<=0 || !transaccionForm.get('idMetodoPago')?.value" (click)="agregarTransaccion()">
+                      <button class="btn btn-accent w-100 w-sm-auto" (click)="agregarTransaccion()">
                         {{ submitButton }} <i class="bi bi-lightning-charge-fill"></i>
                       </button>
                     </div>
