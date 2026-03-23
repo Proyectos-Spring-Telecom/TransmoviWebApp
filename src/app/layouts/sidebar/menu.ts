@@ -4,53 +4,53 @@ import { MenuItem } from './menu.model';
 export const MENU: MenuItem[] = [
     {
         id: 1,
-        label: 'Coordinación',
+        label: 'NAV.COORDINACION',
         permiso: Permiso.Consultar_Dashboard,
         isTitle: true
     },
     {
         id: 12,
-        label: 'Dashboard',
+        label: 'NAV.DASHBOARD',
         icon: 'uil-home',
         permiso: Permiso.Consultar_Dashboard,
         link: '/',
     },
     {
         id: 20,
-        label: 'Administración',
+        label: 'NAV.ADMINISTRACION',
         icon: 'uil-store-alt',
         permiso: Permiso.Desplegable_Administracion,
         subItems: [
             {
                 id: 16,
-                label: 'Módulos',
+                label: 'NAV.MODULOS',
                 icon: 'uil-apps',
                 link: '/modulos',
                 permiso: Permiso.Listado_Modulos
             },
             {
                 id: 15,
-                label: 'Permisos',
+                label: 'NAV.PERMISOS',
                 icon: 'uil-clipboard-notes',
                 link: '/permisos',
                 permiso: Permiso.Listado_Permisos
             },
             {
                 id: 15,
-                label: 'Roles',
+                label: 'NAV.ROLES',
                 icon: 'uil-clipboard-notes',
                 link: '/roles',
                 permiso: Permiso.Listado_Roles
             },
             {
                 id: 15,
-                label: 'Tipo Pasajero',
+                label: 'NAV.TIPO_PASAJERO',
                 link: '/tipo-pasajero',
                 permiso: Permiso.Listado_Monederos
             },
             {
                 id: 8,
-                label: 'Bitácora',
+                label: 'NAV.BITACORA',
                 icon: 'uil-list-ul',
                 link: '/bitacora/lista-bitacora',
                 permiso: Permiso.Listado_Bitacora
@@ -59,99 +59,99 @@ export const MENU: MenuItem[] = [
     },
     {
         id: 15,
-        label: 'Usuarios',
+        label: 'NAV.USUARIOS',
         icon: 'uil-user',
         link: '/usuarios',
         permiso: Permiso.Listado_Usuarios
     },
     {
         id: 14,
-        label: 'Clientes',
+        label: 'NAV.CLIENTES',
         icon: 'uil-users-alt',
         link: '/clientes',
         permiso: Permiso.Listado_Cliente
     },
     {
         id: 1,
-        label: 'Configuración',
+        label: 'NAV.CONFIGURACION',
         isTitle: true
     },
     {
         id: 2,
-        label: 'Dispositivos',
+        label: 'NAV.DISPOSITIVOS',
         icon: 'uil-document-layout-left',
         link: '/dispositivos',
         permiso: Permiso.Listado_Dispositivos
     },
     {
         id: 2,
-        label: 'Bluevox',
+        label: 'NAV.BLUEVOX',
         icon: 'uil-book',
         link: '/bluevox/dispositivo-bluevox',
         permiso: Permiso.Listado_BlueVoxs
     },
     {
         id: 3,
-        label: 'Vehículos',
+        label: 'NAV.VEHICULOS',
         icon: 'uil-car',
         link: '/vehiculos',
         permiso: Permiso.Listado_Vehiculos
     },
     {
         id: 4,
-        label: 'Operadores',
+        label: 'NAV.OPERADORES',
         icon: 'uil-users-alt',
         link: '/operadores',
         permiso: Permiso.Listado_Operadores
     },
     {
         id: 4,
-        label: 'Instalaciones',
+        label: 'NAV.INSTALACIONES',
         icon: 'uil-plug',
         link: '/instalaciones',
         permiso: Permiso.Listado_Instalaciones
     },
     {
         id: 6,
-        label: 'Pasajeros',
+        label: 'NAV.PASAJEROS',
         icon: 'uil-user-circle',
         link: '/pasajeros',
         permiso: Permiso.Listado_Pasajeros
     },
     {
         id: 13,
-        label: 'Perfil',
+        label: 'NAV.PERFIL',
         icon: 'uil-user-circle',
         link: '/contacts/profile',
     },
     {
         id: 1,
-        label: 'Operación',
+        label: 'NAV.OPERACION',
         isTitle: true
     },
     {
         id: 20,
-        label: 'Centro de Pagos',
+        label: 'NAV.CENTRO_PAGOS',
         icon: 'uil-refresh',
         permiso: Permiso.Desplegable_Centro_Pagos,
         subItems: [
             {
                 id: 16,
-                label: 'Punto de Venta',
+                label: 'NAV.PUNTO_VENTA',
                 icon: 'uil-apps',
                 link: '/punto-venta',
                 permiso: Permiso.Punto_Venta
             },
             {
                 id: 5,
-                label: 'Monederos',
+                label: 'NAV.MONEDEROS',
                 icon: 'uil-moneybag-alt',
                 link: '/monederos',
                 permiso: Permiso.Listado_Monederos
             },
             {
                 id: 7,
-                label: 'Transacciones',
+                label: 'NAV.TRANSACCIONES',
                 icon: 'uil-refresh',
                 link: '/transacciones',
                 permiso: Permiso.Listado_Transacciones
@@ -160,37 +160,37 @@ export const MENU: MenuItem[] = [
     },
     {
         id: 15,
-        label: 'Gestión de Viajes',
+        label: 'NAV.GESTION_VIAJES',
         icon: 'uil-arrows-right-down',
         permiso: Permiso.Desplegable_Gestion_Viajes,
         subItems: [
             {
                 id: 9,
-                label: 'Regiones',
+                label: 'NAV.REGIONES',
                 link: '/regiones',
                 permiso: Permiso.Listado_Regiones
             },
             {
                 id: 9,
-                label: 'Rutas',
+                label: 'NAV.RUTAS',
                 link: '/rutas',
                 permiso: Permiso.Listado_Rutas,
             },
             {
                 id: 9,
-                label: 'Derroteros',
+                label: 'NAV.DERROTEROS',
                 link: '/derroteros',
                 permiso: Permiso.Listado_Derroteros
             },
             {
                 id: 9,
-                label: 'Tarifas',
+                label: 'NAV.TARIFAS',
                 link: '/tarifas',
                 permiso: Permiso.Listado_Tarifas
             },
             {
                 id: 9,
-                label: 'Viajes',
+                label: 'NAV.VIAJES',
                 link: '/viajes',
                 permiso: Permiso.Listado_Viajes
             },
@@ -198,55 +198,55 @@ export const MENU: MenuItem[] = [
     },
     {
         id: 11,
-        label: 'Monitoreo',
+        label: 'NAV.MONITOREO',
         icon: 'uil-map',
         link: '/monitoreo',
         permiso: Permiso.Consultar_Monitoreo
     },
     {
         id: 9,
-        label: 'Turnos',
+        label: 'NAV.TURNOS',
         link: '/turnos',
         icon: 'uil-schedule',
         permiso: Permiso.Listado_Turnos
     },
     {
         id: 10,
-        label: 'Bitácora de Viajes',
+        label: 'NAV.BITACORA_VIAJES',
         icon: 'uil-bag-alt',
         link: '/bluevox/lista-bluevox',
         permiso: Permiso.Listado_ConteoPasajeros
     },
     {
         id: 20,
-        label: 'Gestión Vehícular',
+        label: 'NAV.GESTION_VEHICULAR',
         permiso: Permiso.Desplegable_Vehicular,
         icon: 'uil-wrench',
         subItems: [
             {
                 id: 16,
-                label: 'Mantenimiento',
+                label: 'NAV.MANTENIMIENTO',
                 icon: 'uil-apps',
                 link: '/mantenimientos',
                 permiso: Permiso.Consultar_Mantenimientos
             },
             {
                 id: 16,
-                label: 'Verificaciones',
+                label: 'NAV.VERIFICACIONES',
                 icon: 'uil-apps',
                 link: '/verificaciones',
                 permiso: Permiso.Consultar_Verificacion
             },
             {
                 id: 16,
-                label: 'Incidentes',
+                label: 'NAV.INCIDENTES',
                 icon: 'uil-apps',
                 link: '/incidentes',
                 permiso: Permiso.Consultar_Siniestro
             },
             {
                 id: 16,
-                label: 'Talleres',
+                label: 'NAV.TALLERES',
                 icon: 'uil-apps',
                 link: '/talleres',
                 permiso: Permiso.Consultar_Taller
@@ -255,41 +255,41 @@ export const MENU: MenuItem[] = [
     },
     {
         id: 115,
-        label: 'Reportes',
+        label: 'NAV.REPORTES',
         permiso: Permiso.Consultar_Reportes,
         isTitle: true
     },
     {
         id: 11,
-        label: 'Historial de Posiciones',
+        label: 'NAV.HISTORIAL_POSICIONES',
         icon: 'uil-history',
         link: '/posiciones',
         permiso: Permiso.Consultar_Historial_Posiciones
     },
     {
         id: 116,
-        label: 'Recaudación Día',
+        label: 'NAV.RECAUDACION_DIA',
         icon: 'uil-calendar-alt',
         permiso: Permiso.Consultar_Recaudacion_Dia,
         link: '/reportes/recaudacion-diaria-ruta',
     },
     {
         id: 116,
-        label: 'Recaudación Operador',
+        label: 'NAV.RECAUDACION_OPERADOR',
         icon: 'uil-user-check',
         link: '/reportes/recaudacion-operador',
         permiso: Permiso.Consultar_Recaudacion_Operador,
     },
     {
         id: 116,
-        label: 'Recaudación Vehículo',
+        label: 'NAV.RECAUDACION_VEHICULO',
         icon: 'uil-car-sideview',
         link: '/reportes/recaudacion-vehiculo',
         permiso: Permiso.Consultar_Recaudacion_Vehiculo,
     },
     {
         id: 116,
-        label: 'Recaudación Disp/Inst.',
+        label: 'NAV.RECAUDACION_DISPOSITIVO',
         icon: 'uil-plug',
         link: '/reportes/recaudacion-dispositivoInstalacion',
         permiso: Permiso.Consultar_Recaudacion_Dispositivo,

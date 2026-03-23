@@ -1,3 +1,34 @@
+.skiptranslate,
+#goog-gt-tt,
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+
+@keyframes langSwitchPulse {
+  0% {
+    opacity: 0.94;
+    transform: scale(0.996);
+    filter: saturate(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: saturate(1);
+  }
+}
+
+body.lang-switching .main-content,
+body.lang-switching .page-content,
+body.lang-switching .content-page,
+body.lang-switching .container-fluid {
+  animation: langSwitchPulse 360ms ease-out;
+  will-change: opacity, transform, filter;
+}
 /* You can add global styles to this file, and also import other style files */
 
 // ng-select2

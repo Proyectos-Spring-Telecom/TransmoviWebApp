@@ -26,31 +26,47 @@
     </div>
 
     <div class="d-flex">
+      <div class="dropdown d-inline-block me-2" ngbDropdown>
+        <button type="button" class="btn btn-outline-light btn-sm header-item waves-effect" ngbDropdownToggle>
+          <img [src]="flagvalue || valueset" alt="Idioma" height="14" class="me-1">
+          <span class="d-none d-md-inline">{{ countryName }}</span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end" ngbDropdownMenu>
+          @for(item of listLang; track $index){
+          <a href="javascript:void(0);" class="dropdown-item notify-item"
+            (click)="setLanguage(item.text, item.lang, item.flag)"
+            [ngClass]="{'active': cookieValue === item.lang}">
+            <img [src]="item.flag" alt="language-flag" class="me-1" height="12">
+            <span class="align-middle">{{ item.text }}</span>
+          </a>
+          }
+        </div>
+      </div>
 
       <!-- ======= NUEVO: BOTONES DE ALERTAS (RESPONSIVE con row/col) ======= -->
       <div class="row g-2 align-items-center me-2">
         <div class="col-auto">
-          <button type="button" class="btn btn-outline-light btn-sm" ngbTooltip="Alertas generales">
+          <button type="button" class="btn btn-outline-light btn-sm" [attr.title]="'LAYOUT.ALERTS.GENERAL' | translate">
             <i class="uil uil-bell"></i>
-            <span class="d-none d-md-inline ms-1">Alertas</span>
+            <span class="d-none d-md-inline ms-1">{{ 'LAYOUT.ALERTS.ALERTS' | translate }}</span>
           </button>
         </div>
         <div class="col-auto">
-          <button type="button" class="btn btn-outline-light btn-sm" ngbTooltip="Advertencias">
+          <button type="button" class="btn btn-outline-light btn-sm" [attr.title]="'LAYOUT.ALERTS.WARNINGS_TOOLTIP' | translate">
             <i class="uil uil-exclamation-triangle"></i>
-            <span class="d-none d-md-inline ms-1">Warnings</span>
+            <span class="d-none d-md-inline ms-1">{{ 'LAYOUT.ALERTS.WARNINGS' | translate }}</span>
           </button>
         </div>
         <div class="col-auto">
-          <button type="button" class="btn btn-outline-light btn-sm" ngbTooltip="Seguridad">
+          <button type="button" class="btn btn-outline-light btn-sm" [attr.title]="'LAYOUT.ALERTS.SECURITY_TOOLTIP' | translate">
             <i class="uil uil-shield-exclamation"></i>
-            <span class="d-none d-md-inline ms-1">Seguridad</span>
+            <span class="d-none d-md-inline ms-1">{{ 'LAYOUT.ALERTS.SECURITY' | translate }}</span>
           </button>
         </div>
         <div class="col-auto">
-          <button type="button" class="btn btn-outline-light btn-sm" ngbTooltip="Mensajes del sistema">
+          <button type="button" class="btn btn-outline-light btn-sm" [attr.title]="'LAYOUT.ALERTS.MESSAGES_TOOLTIP' | translate">
             <i class="uil uil-envelope-alt"></i>
-            <span class="d-none d-md-inline ms-1">Mensajes</span>
+            <span class="d-none d-md-inline ms-1">{{ 'LAYOUT.ALERTS.MESSAGES' | translate }}</span>
           </button>
         </div>
       </div>
@@ -73,7 +89,7 @@
         <div class="dropdown-menu dropdown-menu-end" ngbDropdownMenu>
           <a class="dropdown-item" style="color: white;" href="javascript: void(0);" (click)="perfilUsuario()">
             <i class="uil uil-user-circle font-size-18 align-middle me-1 text-muted"></i>
-            <span class="align-middle">{{ 'Perfil Usuario'}}</span>
+            <span class="align-middle">{{ 'LAYOUT.USER_PROFILE' | translate }}</span>
           </a>
           <div class="dropdown-item" style="color: white; cursor: pointer;" (click)="logout($event)">
             <i class="uil uil-sign-out-alt font-size-18 align-middle me-1 text-muted"></i>
