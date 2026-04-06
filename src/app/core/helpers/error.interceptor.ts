@@ -11,17 +11,18 @@ export class ErrorInterceptor implements HttpInterceptor {
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         return next.handle(request).pipe(catchError(err => {
-            if (err.status === 401) {
-                // auto logout if 401 response returned from api
+            const isLoginRequest = request.url.includes('/login');
+
+            if (err.status === 401 && !isLoginRequest) {
+                // Auto logout on protected endpoints, but never reload on login errors.
                 this.authenticationService.logout();
-                location.reload();
             }
 
             const backendMessage =
-                err.error?.message 
-                err.error?.error 
-                err.message 
-                err.statusText 
+                err.error?.message ||
+                err.error?.error ||
+                err.message ||
+                err.statusText ||
                 'Error desconocido';
 
             return throwError(() => ({
