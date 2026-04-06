@@ -109,6 +109,36 @@
                             </dxo-export>
                         </dx-data-grid>
                     </div>
+                    <!-- <div class="mt-3">
+                        <h5 class="mb-2">Comparativa Conteo vs Transacciones</h5>
+                        <div class="table-responsive mb-4 col-12 col-lg-12">
+                            <dx-data-grid [dataSource]="comparativaViajes" [showBorders]="true" [showColumnLines]="true"
+                                [showRowLines]="true" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
+                                [columnHidingEnabled]="true" [paging]="{ pageSize: 20 }">
+                                <dxo-search-panel [visible]="true" [width]="220"
+                                    placeholder="Buscar comparativa..."></dxo-search-panel>
+                                <dxo-filter-row [visible]="true"></dxo-filter-row>
+                                <dxo-header-filter [visible]="true"></dxo-header-filter>
+                                <dxi-column dataField="idViaje" caption="Viaje" alignment="center"></dxi-column>
+                                <dxi-column dataField="numeroSerieBlueVox" caption="N° BlueVox"
+                                    alignment="center"></dxi-column>
+                                <dxi-column dataField="entradasConteo" caption="Entradas Conteo"
+                                    alignment="center"></dxi-column>
+                                <dxi-column dataField="salidasConteo" caption="Salidas Conteo"
+                                    alignment="center"></dxi-column>
+                                <dxi-column dataField="diferenciaConteo" caption="Diferencia Conteo"
+                                    alignment="center"></dxi-column>
+                                <dxi-column dataField="transaccionesDebito" caption="Débitos Transacciones"
+                                    alignment="center"></dxi-column>
+                                <dxi-column dataField="transaccionesTotal" caption="Total Transacciones"
+                                    alignment="center"></dxi-column>
+                                <dxi-column dataField="diferenciaEntradasVsDebitos" caption="Dif. Entradas - Débitos"
+                                    alignment="center"></dxi-column>
+                                <dxi-column dataField="diferenciaConteoVsTransacciones"
+                                    caption="Dif. (Diferencia Conteo) - Débitos" alignment="center"></dxi-column>
+                            </dx-data-grid>
+                        </div>
+                    </div> -->
                 </div>
             </div>
         </div>
