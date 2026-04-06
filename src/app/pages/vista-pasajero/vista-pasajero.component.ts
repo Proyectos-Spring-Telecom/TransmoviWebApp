@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import CustomStore from 'devextreme/data/custom_store';
+import { DxDataGridComponent } from 'devextreme-angular';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { AuthenticationService } from 'src/app/core/services/auth.service';
@@ -27,6 +29,9 @@ export class VistaPasajeroComponent implements OnInit {
   totalPaginasTx = 0;
   paginaActualDataTx: any[] = [];
   filtroActivoTx = '';
+  filtrosFormTx!: FormGroup;
+  fechaInicioFiltroTx: string | null = null;
+  fechaFinFiltroTx: string | null = null;
 
   loadingMone = false;
   paginaActualM = 1;
@@ -40,6 +45,7 @@ export class VistaPasajeroComponent implements OnInit {
   showHeaderFilterTx = false;
   showFilterRowM = false;
   showHeaderFilterM = false;
+  @ViewChild('gridTransacciones', { static: false }) dataGridTx!: DxDataGridComponent;
 
   mensajeAgruparTx = 'Arrastre un encabezado de columna aquí para agrupar por esa columna';
   mensajeAgruparM = 'Arrastre un encabezado de columna aquí para agrupar por esa columna';
@@ -95,7 +101,8 @@ export class VistaPasajeroComponent implements OnInit {
     private tranService: TransaccionesService,
     private moneService: MonederosServices,
     private pasjService: PasajerosService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private fb: FormBuilder
   ) {
     this.mesActualLabel = this.obtenerNombreMesActual();
     const sanitize = (value: any): string => {
@@ -150,6 +157,10 @@ export class VistaPasajeroComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.filtrosFormTx = this.fb.group({
+      fechaInicio: [null],
+      fechaFin: [null]
+    });
     this.setupTransaccionesDataSource();
     this.obtenerUsuarioOperador();
   }
@@ -172,8 +183,8 @@ export class VistaPasajeroComponent implements OnInit {
         const body = {
           page,
           limit: take,
-          fechaInicio: null,
-          fechaFin: null
+          fechaInicio: this.fechaInicioFiltroTx,
+          fechaFin: this.fechaFinFiltroTx
         };
 
         try {
@@ -229,6 +240,88 @@ export class VistaPasajeroComponent implements OnInit {
       const s = String(v).replace(',', '.').replace(/[^0-9.-]/g, '');
       const n = Number(s);
       return Number.isFinite(n) ? Number(n.toFixed(2)) : null;
+    }
+  }
+
+  private formatDateForApi(value: any): string | null {
+    if (!value) return null;
+    const d = value instanceof Date ? value : new Date(value);
+    if (isNaN(d.getTime())) return null;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  aplicarFiltrosTx() {
+    const { fechaInicio, fechaFin } = this.filtrosFormTx.value;
+
+    this.fechaInicioFiltroTx = this.formatDateForApi(fechaInicio);
+    this.fechaFinFiltroTx = this.formatDateForApi(fechaFin);
+
+    this.paginaActualTx = 1;
+    if (this.dataGridTx?.instance) {
+      this.dataGridTx.instance.pageIndex(0);
+      this.dataGridTx.instance.refresh();
+    }
+  }
+
+  limpiarFiltrosTx() {
+    this.filtrosFormTx.reset();
+    this.fechaInicioFiltroTx = null;
+    this.fechaFinFiltroTx = null;
+    this.paginaActualTx = 1;
+    if (this.dataGridTx?.instance) {
+      this.dataGridTx.instance.pageIndex(0);
+      this.dataGridTx.instance.refresh();
+    }
+  }
+
+  onFechaFinChangeTx(value: any) {
+    if (!value) return;
+
+    const seleccionada = new Date(value);
+    const hoy = new Date();
+
+    seleccionada.setHours(0, 0, 0, 0);
+    hoy.setHours(0, 0, 0, 0);
+
+    if (seleccionada > hoy) {
+      Swal.fire({
+        background: '#002136',
+        icon: 'warning',
+        title: '¡Ops!',
+        text: 'La fecha fin no puede ser mayor a la fecha actual.',
+        confirmButtonText: 'Aceptar'
+      }).then(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        this.filtrosFormTx.patchValue({ fechaFin: today });
+      });
+    }
+  }
+
+  onFechaInicioChangeTx(value: any) {
+    if (!value) return;
+
+    const seleccionada = new Date(value);
+    const hoy = new Date();
+
+    seleccionada.setHours(0, 0, 0, 0);
+    hoy.setHours(0, 0, 0, 0);
+
+    if (seleccionada > hoy) {
+      Swal.fire({
+        background: '#002136',
+        icon: 'warning',
+        title: '¡Ops!',
+        text: 'La fecha inicio no puede ser mayor a la fecha actual.',
+        confirmButtonText: 'Aceptar'
+      }).then(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        this.filtrosFormTx.patchValue({ fechaInicio: today });
+      });
     }
   }
 
