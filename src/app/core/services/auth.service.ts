@@ -66,21 +66,11 @@ export class AuthenticationService extends BaseServicesService {
 
   public async logout(): Promise<void> {
     try {
-      window.location.reload();
-        // Verificar datos antes de limpiar
-        console.log('Datos en sessionStorage antes de limpiar:', sessionStorage);
-        console.log('Datos en localStorage antes de limpiar:', localStorage);
-
-        // Limpiar todos los datos de sessionStorage y localStorage
+        // Limpiar sesión sin recargar la página.
         sessionStorage.clear();
         localStorage.clear();
-        
-        // Verificar datos después de limpiar
-        console.log('Datos en sessionStorage después de limpiar:', sessionStorage);
-        console.log('Datos en localStorage después de limpiar:', localStorage);
-
-        // Emitir cambio en la autenticación
         this.authenticationChanged.next(false);
+        await this.router.navigate(['/login']);
     } catch (error) {
         console.error('Error during logout:', error);
     }
