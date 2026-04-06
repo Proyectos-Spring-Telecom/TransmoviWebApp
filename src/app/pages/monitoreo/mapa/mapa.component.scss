@@ -1116,3 +1116,36 @@ div:where(.swal2-container) .swal2-html-container {
     backdrop-filter: blur(4px);
   }
 }
+
+.empty-vehicles-state {
+  min-height: 220px;
+  border: 1px dashed #3a4a6a;
+  border-radius: 12px;
+  background: rgba(10, 30, 50, 0.5);
+  color: #d9e6ff;
+  padding: 24px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.empty-vehicles-state__icon {
+  font-size: 32px;
+  color: #66d6ff;
+  margin-bottom: 10px;
+}
+
+.empty-vehicles-state__title {
+  margin: 0 0 6px 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.empty-vehicles-state__text {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #b8c9e6;
+  max-width: 260px;
+}

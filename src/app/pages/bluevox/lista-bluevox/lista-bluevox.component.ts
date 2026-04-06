@@ -5,6 +5,7 @@ import CustomStore from 'devextreme/data/custom_store';
 import { lastValueFrom } from 'rxjs';
 import { fadeInUpAnimation } from 'src/app/core/animations/fade-in-up.animation';
 import { BlueVoxService } from 'src/app/shared/services/bitacora-conteo.service';
+import { TransaccionesService } from 'src/app/shared/services/transacciones.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -36,11 +37,16 @@ export class ListaBluevoxComponent implements OnInit {
   isGrouped: boolean = false;
   public paginaActualData: any[] = [];
   public filtroActivo: string = '';
+  public comparativaViajes: any[] = [];
 
   fechaInicial: Date;
   fechaFinal: Date;
 
-  constructor(private serviceBlue: BlueVoxService, private route: Router) {
+  constructor(
+    private serviceBlue: BlueVoxService,
+    private tranService: TransaccionesService,
+    private route: Router
+  ) {
     this.showFilterRow = true;
     this.showHeaderFilter = true;
   }
@@ -110,6 +116,7 @@ export class ListaBluevoxComponent implements OnInit {
           this.paginaActual = paginaActual;
           this.totalPaginas = totalPaginas;
           this.paginaActualData = dataTransformada;
+          this.comparativaViajes = await this.generarComparativa(dataTransformada);
 
           return {
             data: dataTransformada,
@@ -118,6 +125,7 @@ export class ListaBluevoxComponent implements OnInit {
         } catch (err) {
           this.loading = false;
           console.error('Error en la solicitud de datos:', err);
+          this.comparativaViajes = [];
           return { data: [], totalCount: 0 };
         }
       }
@@ -258,6 +266,7 @@ export class ListaBluevoxComponent implements OnInit {
           this.paginaActual = paginaActual;
           this.totalPaginas = totalPaginas;
           this.paginaActualData = dataTransformada;
+          this.comparativaViajes = await this.generarComparativa(dataTransformada);
 
           return {
             data: dataTransformada,
@@ -266,6 +275,7 @@ export class ListaBluevoxComponent implements OnInit {
         } catch (err) {
           this.loading = false;
           console.error('Error en la solicitud de datos (rango):', err);
+          this.comparativaViajes = [];
           return { data: [], totalCount: 0 };
         }
       }
@@ -277,6 +287,97 @@ export class ListaBluevoxComponent implements OnInit {
       this.dataGrid.instance.pageIndex(0);
       this.dataGrid.instance.refresh();
     }
+  }
+
+  private async generarComparativa(conteoRows: any[]): Promise<any[]> {
+    const filasConteo = Array.isArray(conteoRows) ? conteoRows : [];
+    if (!filasConteo.length) return [];
+
+    const fechas = filasConteo
+      .map((r: any) => new Date(r?.fhRegistro || r?.fechaHora))
+      .filter((d: Date) => !isNaN(d.getTime()));
+
+    let fechaInicio: string | null = null;
+    let fechaFin: string | null = null;
+    if (fechas.length) {
+      const min = new Date(Math.min(...fechas.map((d: Date) => d.getTime())));
+      const max = new Date(Math.max(...fechas.map((d: Date) => d.getTime())));
+      fechaInicio = this.formatYMD(min);
+      fechaFin = this.formatYMD(max);
+    }
+
+    let transacciones: any[] = [];
+    try {
+      const respTrans: any = await lastValueFrom(
+        this.tranService.obtenerTransaccionesData({
+          page: 1,
+          limit: 500,
+          fechaInicio,
+          fechaFin
+        })
+      );
+      transacciones = Array.isArray(respTrans?.data) ? respTrans.data : [];
+    } catch (error) {
+      console.error('Error al obtener transacciones para comparativa:', error);
+      transacciones = [];
+    }
+
+    const conteoPorViaje = new Map<string, any>();
+    for (const row of filasConteo) {
+      const idViajeKey = String(row?.idViaje ?? '').trim();
+      if (!idViajeKey) continue;
+
+      const prev = conteoPorViaje.get(idViajeKey) || {
+        idViaje: idViajeKey,
+        numeroSerieBlueVox: row?.numeroSerieBlueVox || null,
+        entradasConteo: 0,
+        salidasConteo: 0,
+        diferenciaConteo: 0
+      };
+
+      prev.entradasConteo += Number(row?.entradas ?? 0) || 0;
+      prev.salidasConteo += Number(row?.salidas ?? 0) || 0;
+      prev.diferenciaConteo += Number(row?.diferencia ?? 0) || 0;
+      if (!prev.numeroSerieBlueVox && row?.numeroSerieBlueVox) {
+        prev.numeroSerieBlueVox = row.numeroSerieBlueVox;
+      }
+
+      conteoPorViaje.set(idViajeKey, prev);
+    }
+
+    const transPorViaje = new Map<string, { total: number; debitos: number }>();
+    for (const trx of transacciones) {
+      const idViajeKey = String(trx?.idViaje ?? '').trim();
+      if (!idViajeKey) continue;
+      const tipo = String(trx?.tipoTransaccion ?? '').toUpperCase();
+
+      const prev = transPorViaje.get(idViajeKey) || { total: 0, debitos: 0 };
+      prev.total += 1;
+      if (tipo === 'DEBITO') prev.debitos += 1;
+      transPorViaje.set(idViajeKey, prev);
+    }
+
+    const comparativa = Array.from(conteoPorViaje.values()).map((c: any, idx: number) => {
+      const t = transPorViaje.get(String(c.idViaje)) || { total: 0, debitos: 0 };
+      const diferenciaEntradasVsDebitos = c.entradasConteo - t.debitos;
+      const diferenciaConteoVsTransacciones = c.diferenciaConteo - t.debitos;
+
+      return {
+        id: idx + 1,
+        idViaje: c.idViaje,
+        numeroSerieBlueVox: c.numeroSerieBlueVox,
+        entradasConteo: c.entradasConteo,
+        salidasConteo: c.salidasConteo,
+        diferenciaConteo: c.diferenciaConteo,
+        transaccionesTotal: t.total,
+        transaccionesDebito: t.debitos,
+        diferenciaEntradasVsDebitos,
+        diferenciaConteoVsTransacciones
+      };
+    });
+
+    comparativa.sort((a: any, b: any) => Number(a.idViaje) - Number(b.idViaje));
+    return comparativa;
   }
 
 }

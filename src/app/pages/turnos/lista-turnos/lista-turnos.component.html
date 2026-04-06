@@ -50,7 +50,12 @@
                             </dxi-column>
                             <dxi-column dataField="fin" caption="Fin del Turno" cellTemplate="fechFin" alignment="center">
                                 <div *dxTemplate="let a of 'fechFin'">
-                                    {{ a.data.fin | date:'dd/MM/yyyy HH:mm' : '+0000' }}
+                                    <div *ngIf="a.data.fin">
+                                        {{ a.data.fin | date:'dd/MM/yyyy HH:mm' : '+0000' }}
+                                    </div>
+                                    <div *ngIf="!a.data.fin">
+                                        En Turno
+                                    </div>
                                 </div>
                             </dxi-column>
                             <dxi-column caption="Operador" alignment="center" cellTemplate="nomOperador">
@@ -79,7 +84,14 @@
                             </dxi-column>
                             <dxi-column caption="Bluevox" alignment="center" cellTemplate="blueVo">
                                 <div *dxTemplate="let re of 'blueVo'">
-                                    {{ re.data?.numeroSerieBlueVox }}
+                                    <ng-container *ngIf="re.data?.blueVoxs?.length; else blueVoxUnico">
+                                        <div *ngFor="let item of re.data.blueVoxs">
+                                            -{{ item?.numeroSerieBlueVox }}
+                                        </div>
+                                    </ng-container>
+                                    <ng-template #blueVoxUnico>
+                                        {{ re.data?.numeroSerieBlueVox }}
+                                    </ng-template>
                                 </div>
                             </dxi-column>
                             <dxi-column dataField="fechaCreacion" caption="Fecha Creación" alignment="center"

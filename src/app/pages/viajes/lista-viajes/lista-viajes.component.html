@@ -97,8 +97,18 @@
 
                             <dxi-column dataField="numeroSerieDispositivo" caption="Serie Dispositivo" dataType="string"
                                 alignment="center"></dxi-column>
-                            <dxi-column dataField="numeroSerieBlueVox" caption="Serie BlueVox" dataType="string"
-                                alignment="center"></dxi-column>
+                            <dxi-column caption="Serie BlueVox"  alignment="center" cellTemplate="blueVo">
+                                <div *dxTemplate="let re of 'blueVo'">
+                                    <ng-container *ngIf="re.data?.blueVoxs?.length; else blueVoxUnico">
+                                        <div *ngFor="let item of re.data.blueVoxs">
+                                            -{{ item?.numeroSerieBlueVox }}
+                                        </div>
+                                    </ng-container>
+                                    <ng-template #blueVoxUnico>
+                                        {{ re.data?.numeroSerieBlueVox }}
+                                    </ng-template>
+                                </div>
+                            </dxi-column>
 
                             <dxi-column dataField="placaVehiculo" caption="Placa Vehículo" dataType="string"
                                 alignment="center"></dxi-column>

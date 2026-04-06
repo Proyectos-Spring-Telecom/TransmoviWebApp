@@ -39,38 +39,54 @@
                 <div class="col-12 col-xl-3 col-lg-4 col-md-5 order-2 order-md-1">
                     <div class="content-cards">
                         <div class="lista-vehiculos">
-                            <div class="vehiculo-item" *ngFor="let op of filteredOperations">
-                                <div class="vehiculo-detalles">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="me-2 flex-shrink-0">
-                                            <img [src]="op.foto" alt="Foto del vehículo" class="img-fluid rounded vehiculo-img-responsive"
-                                                style="object-fit: cover;" />
+                            <ng-container *ngIf="filteredOperations.length > 0; else sinVehiculosTemplate">
+                                <div class="vehiculo-item" *ngFor="let op of filteredOperations">
+                                    <div class="vehiculo-detalles">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="me-2 flex-shrink-0">
+                                                <img [src]="op.foto" alt="Foto del vehículo" class="img-fluid rounded vehiculo-img-responsive"
+                                                    style="object-fit: cover;" />
+                                            </div>
+                                            <div class="flex-grow-1 min-w-0">
+                                                <h6 class="mb-1 text-truncate">
+                                                    Económico: {{ op.eco || 'Sin registro' }}
+                                                </h6>
+                                                <p class="mb-0 text-truncate">
+                                                    <strong>Vehículo:</strong>
+                                                    {{ op.placaVehiculo || 'Sin registro' }}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div class="flex-grow-1 min-w-0">
-                                            <h6 class="mb-1 text-truncate">
-                                                Económico: {{ op.eco || 'Sin registro' }}
-                                            </h6>
-                                            <p class="mb-0 text-truncate">
-                                                <strong>Vehículo:</strong>
-                                                {{ op.placaVehiculo || 'Sin registro' }}
-                                            </p>
+                                        <div class="mt-3 d-flex flex-column flex-sm-row align-items-stretch align-items-sm-end justify-content-end gap-2">
+                                            <button *ngIf="showCenterButton" type="button" class="btn btn-primary btn-sm btn-action-responsive"
+                                                (click)="centrarEnUbicacion(op)">
+                                                <i class="uil uil-crosshair"></i>
+                                                <span class="d-none d-sm-inline ms-1">Centrar</span>
+                                            </button>
+                                            <button type="button" class="btn btn-success btn-sm btn-action-responsive"
+                                                (click)="verRecorridoDelDia(op)" [disabled]="op.recorridoBloqueado">
+                                                <i class="uil uil-map-pin"></i>
+                                                <span class="d-none d-sm-inline ms-1">Historial</span>
+                                                <span class="d-sm-none ms-1">Posiciones</span>
+                                            </button>
                                         </div>
-                                    </div>
-                                    <div class="mt-3 d-flex flex-column flex-sm-row align-items-stretch align-items-sm-end justify-content-end gap-2">
-                                        <button *ngIf="showCenterButton" type="button" class="btn btn-primary btn-sm btn-action-responsive"
-                                            (click)="centrarEnUbicacion(op)">
-                                            <i class="uil uil-crosshair"></i>
-                                            <span class="d-none d-sm-inline ms-1">Centrar</span>
-                                        </button>
-                                        <button type="button" class="btn btn-success btn-sm btn-action-responsive"
-                                            (click)="verRecorridoDelDia(op)" [disabled]="op.recorridoBloqueado">
-                                            <i class="uil uil-map-pin"></i>
-                                            <span class="d-none d-sm-inline ms-1">Historial</span>
-                                            <span class="d-sm-none ms-1">Posiciones</span>
-                                        </button>
                                     </div>
                                 </div>
-                            </div>
+                            </ng-container>
+
+                            <ng-template #sinVehiculosTemplate>
+                                <div class="empty-vehicles-state">
+                                    <i class="fas fa-info-circle empty-vehicles-state__icon"></i>
+                                    <h6 class="empty-vehicles-state__title">
+                                        {{ operations.length === 0 ? 'Sin informacion de monitoreo' : 'Sin coincidencias' }}
+                                    </h6>
+                                    <p class="empty-vehicles-state__text">
+                                        {{ operations.length === 0
+                                        ? 'Por el momento no hay posiciones disponibles para mostrar.'
+                                        : 'No se encontraron vehiculos con el filtro actual.' }}
+                                    </p>
+                                </div>
+                            </ng-template>
                         </div>
                     </div>
                 </div>
