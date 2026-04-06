@@ -81,7 +81,7 @@
                   <div class="panel-head mt-5">
                     <div class="title d-flex align-items-center gap-2">
                       <span class="dot"></span>
-                      <span>Transacciones</span>
+                      <span>Información del Pasajero</span>
                     </div>
                   </div>
 
@@ -120,12 +120,40 @@
                 style="background-color: #002136; display: flex; align-items: center; justify-content: center;">
                 <div class="grids-body d-flex flex-column">
                   <div class="panel-head">
-                    <div class="title d-flex align-items-center gap-0">
+                    <div class="title d-flex align-items-center gap-2">
                       <span class="dot"></span>
                       <span>Transacciones</span>
                     </div>
                   </div>
                   <div class="grid-wrap">
+                    <form [formGroup]="filtrosFormTx" class="mb-3">
+                      <div class="row gx-2 gy-2 align-items-end">
+                        <div class="col-12 col-md-4">
+                          <label class="text-white">Fecha Inicio</label>
+                          <dx-date-box type="date" displayFormat="dd/MM/yyyy" stylingMode="filled"
+                            formControlName="fechaInicio" [width]="'100%'"
+                            (onValueChanged)="onFechaInicioChangeTx($event.value)">
+                          </dx-date-box>
+                        </div>
+                        <div class="col-12 col-md-4">
+                          <label class="text-white">Fecha Fin</label>
+                          <dx-date-box type="date" displayFormat="dd/MM/yyyy" stylingMode="filled"
+                            formControlName="fechaFin" [width]="'100%'"
+                            (onValueChanged)="onFechaFinChangeTx($event.value)">
+                          </dx-date-box>
+                        </div>
+                        <div class="col-6 col-md-auto">
+                          <button class="btn btn-success w-100" type="button" (click)="aplicarFiltrosTx()">
+                            <i class="fa fa-search"></i> Buscar
+                          </button>
+                        </div>
+                        <div class="col-6 col-md-auto">
+                          <button class="btn btn-secondary w-100" type="button" (click)="limpiarFiltrosTx()">
+                            <i class="fas fa-rotate-left"></i> Limpiar
+                          </button>
+                        </div>
+                      </div>
+                    </form>
                     <dx-data-grid class="dx-dark grid-responsive" id="gridTransacciones" #gridTransacciones
                       [dataSource]="listaTransacciones || ' '" [keyExpr]="'id'" [columnHidingEnabled]="true"
                       [showBorders]="true" [showColumnLines]="true" [showRowLines]="true" [rowAlternationEnabled]="true"
