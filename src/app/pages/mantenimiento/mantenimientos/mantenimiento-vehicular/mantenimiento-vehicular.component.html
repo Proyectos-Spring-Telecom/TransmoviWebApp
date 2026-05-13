@@ -28,7 +28,7 @@
               [dataSource]="listaManVehicular" [keyExpr]="'id'" [width]="'100%'" [remoteOperations]="{ paging: true }"
               [paging]="{ pageSize: pageSize }" [pager]="{ 
                 showPageSizeSelector: true, 
-                allowedPageSizes: [50], 
+                allowedPageSizes: [20], 
                 showInfo: true,
                 infoText: 'Página {0} de {1}', 
                 visible: true 
@@ -127,11 +127,11 @@
                     <i class="fa fa-arrow-down"></i>
                   </button>
                 </div>
-                <div *appHasPermission="'67'">
+                <!-- <div *appHasPermission="'67'">
                   <button id="pinButtonBlue" class="btnAcciones">
                     <i class="fa fa-refresh"></i>
                   </button>
-                </div>
+                </div> -->
               </div>
               <div *dxTemplate="let d of 'costoTpl'">
                 {{ d.data.costo | currency:'$' }}

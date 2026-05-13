@@ -69,7 +69,7 @@ export class AgregarVerificacionComponent implements OnInit {
 
   displayInstalacion = (item: any) => {
     if (!item) return '';
-    return `Placa: ${item.placaVehiculo}  |  BlueVox: ${item.numeroSerieBlueVox}  |  Dispositivo: ${item.numeroSerieDispositivo}`;
+    return `Placa Vehículo: ${item.placaVehiculo}`;
   };
 
   obtenerInstalaciones() {
