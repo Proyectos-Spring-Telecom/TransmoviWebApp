@@ -68,22 +68,37 @@ export class AltaInstalacionComponent implements OnInit {
   private lastLoadedCliente: number | null = null;
 
   private pendingSelecciones: {
-    idDispositivo?: number;
+    idsDispositivos?: number[];
+    idDispositivoPrincipal?: number | null;
     idsBlueVoxs?: number[];
     idVehiculo?: number;
   } = {};
   private pendingLabels: {
     dispositivo?: string | null;
+    dispositivos?: string | null;
     bluevox?: string | null;
     vehiculo?: string | null;
   } = {};
   private blueVoxsDataFromService: { [key: number]: any } = {}; // Almacenar datos completos de bluevox por ID
+  private dispositivosDataFromService: { [key: number]: any } = {};
   private blueVoxsEstatusAnterior: { [key: number]: number } = {}; // Almacenar estatus anterior de cada bluevox por ID
   private ultimoValorBluevox: number[] = []; // Guardar el último valor de idsBlueVoxs antes del cambio
+  private ultimoValorDispositivos: number[] = [];
 
-  initialDispositivoId?: number | null;
+  initialDispositivoIds?: number[] | null;
   initialBlueVoxIds?: number[] | null;
+  maxDispositivosEnEdicion?: number | null;
   maxBluevoxEnEdicion?: number | null; // Límite máximo de Bluevox en modo edición (basado en los iniciales)
+
+  @ViewChild('dispositivosModal', { static: false }) dispositivosModal!: TemplateRef<any>;
+  dispositivosModalRef?: NgbModalRef;
+  searchDispositivosText = '';
+  estadoDispositivosAlAbrirModal?: number[];
+  /** Principal al abrir el modal (cancelar restaura esto, no el primer ID). */
+  estadoPrincipalAlAbrirModal: number | null = null;
+  /** Principal guardado al cargar la instalación (restaurar inicio / modal). */
+  initialDispositivoPrincipal: number | null = null;
+  restaurandoDispositivos = false;
 
   estatusDispositivoAnterior?: number | null;
   estatusBluevoxsAnterior?: number | null;
@@ -118,10 +133,13 @@ export class AltaInstalacionComponent implements OnInit {
       this.idInstalacion = Number(params['idInstalacion']);
       if (this.idInstalacion) {
         this.title = 'Actualizar Instalación';
+        this.submitButton = 'Actualizar';
         this.obtenerInstalacion();
         const opts = { emitEvent: false };
         this.instalacionesForm.get('idCliente')?.disable(opts);
         this.instalacionesForm.get('idVehiculo')?.disable(opts);
+      } else {
+        this.initialDispositivoPrincipal = null;
       }
     });
   }
@@ -141,7 +159,8 @@ export class AltaInstalacionComponent implements OnInit {
         this.isAdmin ? null : this.idClienteUser,
         Validators.required,
       ],
-      idDispositivo: [{ value: null, disabled: true }, Validators.required],
+      idsDispositivos: [{ value: [], disabled: true }, Validators.required],
+      idDispositivoPrincipal: [{ value: null, disabled: true }],
       idsBlueVoxs: [{ value: [], disabled: true }, Validators.required],
       idVehiculo: [{ value: null, disabled: true }, Validators.required],
     });
@@ -186,12 +205,14 @@ export class AltaInstalacionComponent implements OnInit {
   private desactivarCamposDependientes(disabled: boolean) {
     if (!this.instalacionesForm) return;
     const opts = { emitEvent: false };
-    const idDispositivo = this.instalacionesForm.get('idDispositivo');
+    const idsDispositivos = this.instalacionesForm.get('idsDispositivos');
+    const idDispositivoPrincipal = this.instalacionesForm.get('idDispositivoPrincipal');
     const idsBlueVoxs = this.instalacionesForm.get('idsBlueVoxs');
     const idVehiculo = this.instalacionesForm.get('idVehiculo');
 
     if (disabled) {
-      idDispositivo?.disable(opts);
+      idsDispositivos?.disable(opts);
+      idDispositivoPrincipal?.disable(opts);
       idsBlueVoxs?.disable(opts);
       idVehiculo?.disable(opts);
       // Cerrar el dropdown si estaba abierto
@@ -199,7 +220,8 @@ export class AltaInstalacionComponent implements OnInit {
         this.showBluevoxDropdown = false;
       }
     } else {
-      idDispositivo?.enable(opts);
+      idsDispositivos?.enable(opts);
+      idDispositivoPrincipal?.enable(opts);
       idsBlueVoxs?.enable(opts);
       idVehiculo?.enable(opts);
       this.keepEditLocks();
@@ -209,7 +231,7 @@ export class AltaInstalacionComponent implements OnInit {
   private limpiarDependientes(): void {
     const opts = { emitEvent: false };
     this.instalacionesForm.patchValue(
-      { idDispositivo: null, idsBlueVoxs: [], idVehiculo: null },
+      { idsDispositivos: [], idDispositivoPrincipal: null, idsBlueVoxs: [], idVehiculo: null },
       opts
     );
     this.listaDipositivos = [];
@@ -259,36 +281,67 @@ export class AltaInstalacionComponent implements OnInit {
 
   private validarCantidadAccesos(idVehiculo: any): void {
     const idsBlueVoxsCtrl = this.instalacionesForm.get('idsBlueVoxs');
-    
+    const idsDispositivosCtrl = this.instalacionesForm.get('idsDispositivos');
+    const idPrincipalCtrl = this.instalacionesForm.get('idDispositivoPrincipal');
+
     if (!idVehiculo) {
       idsBlueVoxsCtrl?.clearValidators();
       idsBlueVoxsCtrl?.setValidators([Validators.required]);
       idsBlueVoxsCtrl?.setValue([], { emitEvent: false });
       idsBlueVoxsCtrl?.updateValueAndValidity({ emitEvent: false });
+
+      idsDispositivosCtrl?.clearValidators();
+      idsDispositivosCtrl?.setValidators([Validators.required]);
+      idsDispositivosCtrl?.setValue([], { emitEvent: false });
+      idsDispositivosCtrl?.updateValueAndValidity({ emitEvent: false });
+      idPrincipalCtrl?.setValue(null, { emitEvent: false });
+      idPrincipalCtrl?.updateValueAndValidity({ emitEvent: false });
       this.showBluevoxDropdown = false;
       return;
     }
 
     const vehiculo = this.listaVehiculos.find((v: any) => Number(v.id) === Number(idVehiculo));
     const cantidadAccesos = vehiculo?.cantidadAccesos != null ? Number(vehiculo.cantidadAccesos) : null;
-    
+
     if (cantidadAccesos != null && cantidadAccesos >= 1) {
       idsBlueVoxsCtrl?.setValidators([
         Validators.required,
-        this.maxBluevoxValidator.bind(this)
+        this.maxBluevoxValidator.bind(this),
       ]);
-      // No recortar la selección: mantener los elegidos en la vista; solo validar y bloquear agregar más.
+      idsDispositivosCtrl?.setValidators([
+        Validators.required,
+        this.maxDispositivosValidator.bind(this),
+      ]);
     } else {
+      // Sin cantidadAccesos en el catálogo del vehículo: no forzar vaciar selección múltiple
+      // (rompe edición cuando el GET trae 2+ dispositivos/BlueVox y el vehículo no incluye el campo).
       idsBlueVoxsCtrl?.clearValidators();
       idsBlueVoxsCtrl?.setValidators([Validators.required]);
-      const currentValue = idsBlueVoxsCtrl?.value || [];
-      if (Array.isArray(currentValue) && currentValue.length > 1) {
-        idsBlueVoxsCtrl?.setValue([], { emitEvent: false });
-      }
+
+      idsDispositivosCtrl?.clearValidators();
+      idsDispositivosCtrl?.setValidators([Validators.required]);
     }
-    
+
     idsBlueVoxsCtrl?.updateValueAndValidity({ emitEvent: false });
+    idsDispositivosCtrl?.updateValueAndValidity({ emitEvent: false });
+    this.syncDispositivoPrincipal();
+    idPrincipalCtrl?.updateValueAndValidity({ emitEvent: false });
     this.cdr.detectChanges();
+  }
+
+  private maxDispositivosValidator(control: any) {
+    if (!control.value || !Array.isArray(control.value)) {
+      return { required: true };
+    }
+    const count = control.value.length;
+    if (count === 0) {
+      return { required: true };
+    }
+    const max = this.getCantidadAccesosMax();
+    if (max != null && count > max) {
+      return { maxDispositivos: true, actual: count, max };
+    }
+    return null;
   }
 
   private maxBluevoxValidator(control: any) {
@@ -332,23 +385,104 @@ export class AltaInstalacionComponent implements OnInit {
     return `${selected} seleccionado${selected !== 1 ? 's' : ''}`;
   }
 
+  getDispositivosHelpText(): string {
+    const selected = this.getSelectedDispositivosCount();
+    const max = this.getCantidadAccesosMax();
+    if (max != null) {
+      return `Hasta ${max} dispositivos (${selected} seleccionado${selected !== 1 ? 's' : ''})`;
+    }
+    return `${selected} seleccionado${selected !== 1 ? 's' : ''}`;
+  }
+
+  private syncDispositivoPrincipal(): void {
+    const ids = this.instalacionesForm.get('idsDispositivos')?.value || [];
+    const principalCtrl = this.instalacionesForm.get('idDispositivoPrincipal');
+    if (!Array.isArray(ids) || ids.length === 0) {
+      principalCtrl?.setValue(null, { emitEvent: false });
+      return;
+    }
+    const nums = ids.map((x: any) => Number(x)).filter((n: number) => !isNaN(n));
+    const current = principalCtrl?.value != null ? Number(principalCtrl.value) : null;
+    if (nums.length === 1) {
+      if (current != null && nums.includes(current)) {
+        return;
+      }
+      principalCtrl?.setValue(null, { emitEvent: false });
+      return;
+    }
+    if (current == null || !nums.includes(current)) {
+      principalCtrl?.setValue(null, { emitEvent: false });
+    }
+  }
+
   private suscribirCambioEquipos(): void {
     this.instalacionesForm
-      .get('idDispositivo')
-      ?.valueChanges.subscribe(async (nuevo: any) => {
-        if (this.bootstrapping || !this.idInstalacion) return;
-        const prev = this.initialDispositivoId;
-        if (prev != null && Number(nuevo) !== Number(prev)) {
-          const r = await this.solicitarEstadoYComentarios(
-            '¿A qué estado deseas cambiar el dispositivo anterior?'
-          );
-          if (r) {
-            this.estatusDispositivoAnterior = r.estado ?? null;
-            this.comentariosDispositivo =
-              r.comentarios ?? this.comentariosDispositivo ?? null;
-            this.initialDispositivoId = Number(nuevo);
-          }
+      .get('idsDispositivos')
+      ?.valueChanges.subscribe(async (nuevos: any) => {
+        if (this.restaurandoDispositivos) {
+          const nuevosIds = Array.isArray(nuevos)
+            ? nuevos.map((id: any) => Number(id)).filter((id: any) => !isNaN(id))
+            : [];
+          this.ultimoValorDispositivos = [...nuevosIds];
+          this.syncDispositivoPrincipal();
+          return;
         }
+        if (this.bootstrapping || !this.idInstalacion) {
+          const nuevosIds = Array.isArray(nuevos)
+            ? nuevos.map((id: any) => Number(id)).filter((id: any) => !isNaN(id))
+            : [];
+          this.ultimoValorDispositivos = [...nuevosIds];
+          this.syncDispositivoPrincipal();
+          return;
+        }
+        const prev = this.initialDispositivoIds || [];
+        const nuevosIds = Array.isArray(nuevos)
+          ? nuevos.map((id: any) => Number(id)).filter((id: any) => !isNaN(id))
+          : [];
+        const prevIds = Array.isArray(prev)
+          ? prev.map((id: any) => Number(id)).filter((id: any) => !isNaN(id))
+          : [];
+        const ultimoValor = Array.isArray(this.ultimoValorDispositivos)
+          ? [...this.ultimoValorDispositivos]
+          : [];
+        if (prevIds.length === 0) {
+          this.ultimoValorDispositivos = [...nuevosIds];
+          this.syncDispositivoPrincipal();
+          return;
+        }
+        const removidosEnEsteCambio = ultimoValor.filter(
+          (idAnterior: number) =>
+            prevIds.includes(idAnterior) && !nuevosIds.includes(idAnterior)
+        );
+        if (removidosEnEsteCambio.length === 0) {
+          this.ultimoValorDispositivos = [...nuevosIds];
+          this.syncDispositivoPrincipal();
+          return;
+        }
+        const idsSnapshot = [...ultimoValor];
+        const principalSnapshot = this.toNumOrNull(
+          this.instalacionesForm.get('idDispositivoPrincipal')?.value
+        );
+        const r = await this.solicitarEstadoYComentarios(
+          '¿A qué estado deseas cambiar los dispositivos anteriores?',
+          undefined,
+          'dispositivo',
+          {
+            idsDispositivos: idsSnapshot,
+            idDispositivoPrincipal: principalSnapshot,
+          }
+        );
+        if (r) {
+          this.estatusDispositivoAnterior = r.estado ?? null;
+          this.comentariosDispositivo =
+            r.comentarios ?? this.comentariosDispositivo ?? null;
+          this.cdr.detectChanges();
+        }
+        this.syncDispositivoPrincipal();
+        const curDev = this.instalacionesForm.get('idsDispositivos')?.value || [];
+        this.ultimoValorDispositivos = Array.isArray(curDev)
+          ? curDev.map((id: any) => Number(id)).filter((id: any) => !isNaN(id))
+          : [];
       });
 
     this.instalacionesForm
@@ -407,7 +541,9 @@ export class AltaInstalacionComponent implements OnInit {
 
         const r = await this.solicitarEstadoYComentarios(
           '¿A qué estado deseas cambiar los BlueVox anteriores?',
-          bluevoxRemovidosData
+          bluevoxRemovidosData,
+          'bluevox',
+          { idsBlueVoxs: [...ultimoValor] }
         );
         if (r) {
           // Si acepta, guardar el estado y comentarios
@@ -417,13 +553,11 @@ export class AltaInstalacionComponent implements OnInit {
             r.comentarios ?? this.comentariosBluevox ?? null;
           // Forzar actualización de la vista para que desaparezca el indicador
           this.cdr.detectChanges();
-        } else {
-          // Si cancela el modal de estado, mantener el estatus anterior como null para que siga apareciendo el indicador
-          // No hacer nada, el indicador seguirá visible
         }
-        
-        // Actualizar el último valor después de procesar el cambio
-        this.ultimoValorBluevox = [...nuevosIds];
+        const curBv = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
+        this.ultimoValorBluevox = Array.isArray(curBv)
+          ? curBv.map((id: any) => Number(id)).filter((id: any) => !isNaN(id))
+          : [];
       });
   }
 
@@ -440,7 +574,14 @@ export class AltaInstalacionComponent implements OnInit {
 
   private async solicitarEstadoYComentarios(
     titulo: string,
-    bluevoxRemovidos?: string[]
+    bluevoxRemovidos?: string[],
+    contexto: 'bluevox' | 'dispositivo' = 'bluevox',
+    /** Si cierran/cancelan sin confirmar: volver a esta selección (no al GET inicial). */
+    restoreIfDismiss?: {
+      idsDispositivos?: number[];
+      idDispositivoPrincipal?: number | null;
+      idsBlueVoxs?: number[];
+    }
   ): Promise<{ estado: number; comentarios: string | null } | null> {
     // Ya no mostramos la información de Bluevox removidos aquí, se muestra en el modal de selección
 
@@ -489,8 +630,9 @@ export class AltaInstalacionComponent implements OnInit {
     `,
       background: 'transparent',
       showCancelButton: true,
-      allowOutsideClick: false,
-      allowEscapeKey: false,
+      showCloseButton: true,
+      allowOutsideClick: true,
+      allowEscapeKey: true,
       confirmButtonText: '<i class="fas fa-check me-2"></i>Confirmar',
       cancelButtonText: '<i class="fas fa-undo me-2"></i>Restaurar',
       confirmButtonColor: '#3085d6',
@@ -788,9 +930,60 @@ export class AltaInstalacionComponent implements OnInit {
       },
     });
     
-    // Si se canceló (no confirmado), restaurar bluevox y retornar null
+    // Cerrar sin confirmar (X, Esc, fuera, Restaurar): volver a la selección previa al cambio
     if (result && !result.isConfirmed) {
-      this.restaurarBluevox();
+      if (
+        contexto === 'dispositivo' &&
+        restoreIfDismiss?.idsDispositivos &&
+        restoreIfDismiss.idsDispositivos.length > 0
+      ) {
+        this.restaurandoDispositivos = true;
+        this.instalacionesForm.patchValue(
+          {
+            idsDispositivos: [...restoreIfDismiss.idsDispositivos],
+            idDispositivoPrincipal:
+              restoreIfDismiss.idDispositivoPrincipal ?? null,
+          },
+          { emitEvent: false }
+        );
+        this.syncDispositivoPrincipal();
+        this.instalacionesForm
+          .get('idsDispositivos')
+          ?.updateValueAndValidity({ emitEvent: false });
+        this.instalacionesForm
+          .get('idDispositivoPrincipal')
+          ?.updateValueAndValidity({ emitEvent: false });
+        this.ultimoValorDispositivos = restoreIfDismiss.idsDispositivos.map(
+          (id: any) => Number(id)
+        );
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.restaurandoDispositivos = false;
+        }, 100);
+      } else if (
+        contexto === 'bluevox' &&
+        Array.isArray(restoreIfDismiss?.idsBlueVoxs)
+      ) {
+        this.restaurandoBluevox = true;
+        this.instalacionesForm.patchValue(
+          { idsBlueVoxs: [...restoreIfDismiss.idsBlueVoxs] },
+          { emitEvent: false }
+        );
+        this.instalacionesForm
+          .get('idsBlueVoxs')
+          ?.updateValueAndValidity({ emitEvent: false });
+        this.ultimoValorBluevox = restoreIfDismiss.idsBlueVoxs.map((id: any) =>
+          Number(id)
+        );
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.restaurandoBluevox = false;
+        }, 100);
+      } else if (contexto === 'dispositivo') {
+        this.restaurarDispositivosAInicial();
+      } else {
+        this.restaurarBluevox();
+      }
       return null;
     }
     
@@ -871,12 +1064,34 @@ export class AltaInstalacionComponent implements OnInit {
           })) : [];
 
           if (!this.listaDipositivos?.length) this.listaDipositivos = [];
-          this.listaDipositivos = this.ensureSelectedOptionVisible(
-            this.listaDipositivos,
-            this.pendingSelecciones?.idDispositivo,
-            this.pendingLabels.dispositivo,
-            'numeroSerie'
-          );
+          if (
+            applyPending &&
+            this.pendingSelecciones.idsDispositivos &&
+            Array.isArray(this.pendingSelecciones.idsDispositivos)
+          ) {
+            this.pendingSelecciones.idsDispositivos.forEach((pendingId: any) => {
+              const numPendingId = Number(pendingId);
+              const exists = this.listaDipositivos.some((d: any) => {
+                const did = Number(d?.id ?? d?.idDispositivo ?? 0);
+                return did === numPendingId;
+              });
+              if (!exists && numPendingId > 0) {
+                const dd = this.dispositivosDataFromService[numPendingId];
+                if (dd) {
+                  this.listaDipositivos.push(dd);
+                } else {
+                  this.listaDipositivos.push({
+                    id: numPendingId,
+                    idDispositivo: numPendingId,
+                    numeroSerie:
+                      this.pendingLabels.dispositivo ||
+                      this.pendingLabels.dispositivos ||
+                      '',
+                  });
+                }
+              }
+            });
+          }
 
           if (!this.listaBlueVox?.length) this.listaBlueVox = [];
           
@@ -918,10 +1133,37 @@ export class AltaInstalacionComponent implements OnInit {
 
           if (applyPending) {
             const f = this.instalacionesForm;
-            f.get('idDispositivo')?.setValue(
-              n(this.pendingSelecciones.idDispositivo),
+            f.get('idVehiculo')?.setValue(
+              n(this.pendingSelecciones.idVehiculo),
               { emitEvent: false }
             );
+            if (
+              this.pendingSelecciones.idsDispositivos &&
+              Array.isArray(this.pendingSelecciones.idsDispositivos) &&
+              this.pendingSelecciones.idsDispositivos.length > 0
+            ) {
+              const normalizedDevIds = this.pendingSelecciones.idsDispositivos
+                .map((id: any) => {
+                  const numId = n(id);
+                  if (numId == null) return null;
+                  const found = this.listaDipositivos.find((d: any) => {
+                    const did = Number(d?.id ?? d?.idDispositivo ?? 0);
+                    return did === numId;
+                  });
+                  return found ? Number(found.id) : numId;
+                })
+                .filter((id: any) => id != null) as number[];
+              const principal = n(this.pendingSelecciones.idDispositivoPrincipal);
+              f.get('idsDispositivos')?.setValue(normalizedDevIds, { emitEvent: false });
+              f.get('idDispositivoPrincipal')?.setValue(
+                principal != null && normalizedDevIds.includes(principal)
+                  ? principal
+                  : null,
+                { emitEvent: false }
+              );
+              this.syncDispositivoPrincipal();
+              this.ultimoValorDispositivos = [...normalizedDevIds];
+            }
             if (this.pendingSelecciones.idsBlueVoxs && Array.isArray(this.pendingSelecciones.idsBlueVoxs) && this.pendingSelecciones.idsBlueVoxs.length > 0) {
               // Normalizar IDs para que coincidan con los IDs de listaBlueVox
               const normalizedIds = this.pendingSelecciones.idsBlueVoxs
@@ -941,10 +1183,7 @@ export class AltaInstalacionComponent implements OnInit {
               this.ultimoValorBluevox = [...normalizedIds];
               this.cdr.detectChanges();
             }
-            f.get('idVehiculo')?.setValue(
-              n(this.pendingSelecciones.idVehiculo),
-              { emitEvent: false }
-            );
+            this.validarCantidadAccesos(f.get('idVehiculo')?.value);
             this.pendingSelecciones = {};
           }
 
@@ -957,13 +1196,25 @@ export class AltaInstalacionComponent implements OnInit {
         error: (err) => {
           console.error('[cargarListasPorCliente] error:', err);
 
-          this.listaDipositivos = this.ensureSelectedOptionVisible(
-            [],
-            this.pendingSelecciones?.idDispositivo,
-            this.pendingLabels.dispositivo,
-            'numeroSerie'
-          );
-          // No necesitamos ensureSelectedOptionVisible para múltiples selecciones
+          this.listaDipositivos = [];
+          if (
+            this.pendingSelecciones.idsDispositivos &&
+            Array.isArray(this.pendingSelecciones.idsDispositivos)
+          ) {
+            this.pendingSelecciones.idsDispositivos.forEach((pid: any) => {
+              const numId = Number(pid);
+              if (!numId) return;
+              const dd = this.dispositivosDataFromService[numId];
+              this.listaDipositivos.push(
+                dd || {
+                  id: numId,
+                  idDispositivo: numId,
+                  numeroSerie: this.pendingLabels.dispositivo || '',
+                }
+              );
+            });
+          }
+
           this.listaVehiculos = this.ensureSelectedOptionVisible(
             [],
             this.pendingSelecciones?.idVehiculo,
@@ -973,11 +1224,22 @@ export class AltaInstalacionComponent implements OnInit {
 
           const f = this.instalacionesForm;
           const n = (v: any) => (v == null ? null : Number(v));
-          if (this.pendingSelecciones.idDispositivo != null)
-            f.get('idDispositivo')?.setValue(
-              n(this.pendingSelecciones.idDispositivo),
+          if (
+            this.pendingSelecciones.idsDispositivos &&
+            Array.isArray(this.pendingSelecciones.idsDispositivos) &&
+            this.pendingSelecciones.idsDispositivos.length > 0
+          ) {
+            const pendingDev = this.pendingSelecciones.idsDispositivos
+              .map((id: any) => n(id))
+              .filter((id: any) => id != null) as number[];
+            f.get('idsDispositivos')?.setValue(pendingDev, { emitEvent: false });
+            const pr = n(this.pendingSelecciones.idDispositivoPrincipal);
+            f.get('idDispositivoPrincipal')?.setValue(
+              pr != null && pendingDev.includes(pr) ? pr : null,
               { emitEvent: false }
             );
+            this.ultimoValorDispositivos = [...pendingDev];
+          }
           if (this.pendingSelecciones.idsBlueVoxs && Array.isArray(this.pendingSelecciones.idsBlueVoxs) && this.pendingSelecciones.idsBlueVoxs.length > 0) {
             const pendingIds = this.pendingSelecciones.idsBlueVoxs.map((id: any) => n(id)).filter((id: any) => id != null);
             f.get('idsBlueVoxs')?.setValue(pendingIds, { emitEvent: false });
@@ -1014,9 +1276,74 @@ export class AltaInstalacionComponent implements OnInit {
           raw.idCliente ?? raw?.idCliente2?.id
         );
         const estatus = this.toNumOrNull(raw.estatus) ?? 1;
-        const idDispositivo = this.toNumOrNull(
-          raw.idDispositivo ?? raw?.dispositivos?.id
-        );
+
+        this.dispositivosDataFromService = {};
+        let idsDispositivos: number[] = [];
+        let idDispositivoPrincipal: number | null = null;
+        if (Array.isArray(raw.dispositivos) && raw.dispositivos.length > 0) {
+          idsDispositivos = raw.dispositivos
+            .map((d: any) => {
+              const devId = this.toNumOrNull(
+                d?.idDispositivo ?? d?.id ?? d?.IdDispositivo ?? null
+              );
+              if (devId != null) {
+                this.dispositivosDataFromService[devId] = {
+                  ...d,
+                  id: devId,
+                  idDispositivo: devId,
+                };
+              }
+              return devId;
+            })
+            .filter((id: any) => id != null) as number[];
+          const principalObj = raw.dispositivos.find(
+            (d: any) => d?.principal === 1 || d?.principal === true
+          );
+          idDispositivoPrincipal = this.toNumOrNull(
+            raw.idDispositivoPrincipal ??
+              principalObj?.idDispositivo ??
+              principalObj?.id
+          );
+          if (
+            idDispositivoPrincipal != null &&
+            !idsDispositivos.includes(idDispositivoPrincipal)
+          ) {
+            idDispositivoPrincipal = null;
+          }
+        } else if (Array.isArray(raw.idsDispositivos) && raw.idsDispositivos.length > 0) {
+          idsDispositivos = raw.idsDispositivos
+            .map((id: any) => this.toNumOrNull(id))
+            .filter((id: any) => id != null) as number[];
+          idDispositivoPrincipal = this.toNumOrNull(raw.idDispositivoPrincipal);
+          if (
+            idDispositivoPrincipal != null &&
+            !idsDispositivos.includes(idDispositivoPrincipal)
+          ) {
+            idDispositivoPrincipal = null;
+          }
+        } else {
+          const idUnico = this.toNumOrNull(
+            raw.idDispositivo ?? raw?.dispositivos?.id
+          );
+          if (idUnico != null) {
+            idsDispositivos = [idUnico];
+            idDispositivoPrincipal = this.toNumOrNull(raw.idDispositivoPrincipal);
+            this.dispositivosDataFromService[idUnico] = {
+              id: idUnico,
+              idDispositivo: idUnico,
+              numeroSerie:
+                raw?.numeroSerieDispositivo ?? raw?.numeroSerie ?? '',
+            };
+          }
+        }
+
+        if (
+          idDispositivoPrincipal != null &&
+          !idsDispositivos.includes(idDispositivoPrincipal)
+        ) {
+          idDispositivoPrincipal = null;
+        }
+
         // Manejar blueVoxs si viene como array de objetos
         let idsBlueVoxs: number[] = [];
         this.blueVoxsDataFromService = {}; // Limpiar datos previos
@@ -1061,12 +1388,16 @@ export class AltaInstalacionComponent implements OnInit {
         const idVehiculo = this.toNumOrNull(
           raw.idVehiculo ?? raw?.vehiculos?.id
         );
-        this.initialDispositivoId = idDispositivo ?? null;
+        this.initialDispositivoIds =
+          idsDispositivos.length > 0 ? [...idsDispositivos] : null;
+        this.initialDispositivoPrincipal = idDispositivoPrincipal;
         this.initialBlueVoxIds = idsBlueVoxs.length > 0 ? idsBlueVoxs : null;
-        // Establecer el límite máximo basado en los Bluevox iniciales (en modo edición no se pueden agregar más)
+        this.maxDispositivosEnEdicion =
+          idsDispositivos.length > 0 ? idsDispositivos.length : null;
         this.maxBluevoxEnEdicion = idsBlueVoxs.length > 0 ? idsBlueVoxs.length : null;
-        // Inicializar el último valor con los IDs iniciales
         this.ultimoValorBluevox = idsBlueVoxs.length > 0 ? [...idsBlueVoxs] : [];
+        this.ultimoValorDispositivos =
+          idsDispositivos.length > 0 ? [...idsDispositivos] : [];
         this.pendingLabels = {
           dispositivo: raw?.numeroSerieDispositivo ?? raw?.numeroSerie ?? null,
           bluevox: raw?.numeroSerieBlueVox ?? raw?.numeroSerie ?? null,
@@ -1081,17 +1412,26 @@ export class AltaInstalacionComponent implements OnInit {
           { idCliente, estatus },
           { emitEvent: false }
         );
-        this.pendingSelecciones = { idDispositivo, idsBlueVoxs: idsBlueVoxs.length > 0 ? idsBlueVoxs : undefined, idVehiculo };
+        this.pendingSelecciones = {
+          idsDispositivos: idsDispositivos.length > 0 ? idsDispositivos : undefined,
+          idDispositivoPrincipal,
+          idsBlueVoxs: idsBlueVoxs.length > 0 ? idsBlueVoxs : undefined,
+          idVehiculo,
+        };
         if (idCliente) {
           this.cargarListasPorCliente(idCliente, true);
         } else {
-          this.listaDipositivos = this.ensureSelectedOptionVisible(
-            [],
-            idDispositivo,
-            this.pendingLabels.dispositivo,
-            'numeroSerie'
-          );
-          // No necesitamos ensureSelectedOptionVisible para múltiples selecciones
+          this.listaDipositivos = [];
+          idsDispositivos.forEach((did) => {
+            const dd = this.dispositivosDataFromService[did];
+            this.listaDipositivos.push(
+              dd || {
+                id: did,
+                idDispositivo: did,
+                numeroSerie: this.pendingLabels.dispositivo || '',
+              }
+            );
+          });
           this.listaVehiculos = this.ensureSelectedOptionVisible(
             [],
             idVehiculo,
@@ -1100,8 +1440,14 @@ export class AltaInstalacionComponent implements OnInit {
           );
           const f = this.instalacionesForm;
           const opts = { emitEvent: false };
-          if (idDispositivo != null)
-            f.get('idDispositivo')?.patchValue(idDispositivo, opts);
+          if (idsDispositivos.length > 0) {
+            f.get('idsDispositivos')?.patchValue([...idsDispositivos], opts);
+            f.get('idDispositivoPrincipal')?.patchValue(
+              idDispositivoPrincipal,
+              opts
+            );
+            this.syncDispositivoPrincipal();
+          }
           if (idsBlueVoxs.length > 0) {
             f.get('idsBlueVoxs')?.patchValue(idsBlueVoxs, opts);
             this.ultimoValorBluevox = [...idsBlueVoxs];
@@ -1110,6 +1456,7 @@ export class AltaInstalacionComponent implements OnInit {
             f.get('idVehiculo')?.patchValue(idVehiculo, opts);
 
           this.desactivarCamposDependientes(false);
+          this.validarCantidadAccesos(idVehiculo);
           f.updateValueAndValidity({ emitEvent: false });
           this.bootstrapping = false;
           this.cdr.detectChanges();
@@ -1131,15 +1478,54 @@ export class AltaInstalacionComponent implements OnInit {
 
   private getNumericFormPayload() {
     const raw = this.instalacionesForm.getRawValue();
+    const idsDispositivos = Array.isArray(raw.idsDispositivos)
+      ? raw.idsDispositivos
+          .map((id: any) => this.toNumOrNull(id))
+          .filter((id: any) => id != null)
+      : [];
+    const idDispositivoPrincipal = this.toNumOrNull(raw.idDispositivoPrincipal);
     return {
       estatus: this.toNumOrNull(raw.estatus) ?? 1,
       idCliente: this.toNumOrNull(raw.idCliente) ?? this.idClienteUser,
-      idDispositivo: this.toNumOrNull(raw.idDispositivo),
-      idsBlueVoxs: Array.isArray(raw.idsBlueVoxs) 
-        ? raw.idsBlueVoxs.map((id: any) => this.toNumOrNull(id)).filter((id: any) => id != null)
+      idsDispositivos,
+      idDispositivoPrincipal:
+        idsDispositivos.length === 1
+          ? idsDispositivos[0]
+          : idDispositivoPrincipal != null &&
+              idsDispositivos.includes(idDispositivoPrincipal)
+            ? idDispositivoPrincipal
+            : null,
+      idsBlueVoxs: Array.isArray(raw.idsBlueVoxs)
+        ? raw.idsBlueVoxs
+            .map((id: any) => this.toNumOrNull(id))
+            .filter((id: any) => id != null)
         : [],
       idVehiculo: this.toNumOrNull(raw.idVehiculo),
     };
+  }
+
+  /** Con más de un dispositivo debe existir principal explícito. */
+  private validarPrincipalDispositivosSiAplica(): boolean {
+    const ids = (this.instalacionesForm.get('idsDispositivos')?.value || []) as any[];
+    const nums = ids
+      .map((x: any) => Number(x))
+      .filter((n: number) => !isNaN(n));
+    if (nums.length <= 1) return true;
+    const pr = this.toNumOrNull(
+      this.instalacionesForm.get('idDispositivoPrincipal')?.value
+    );
+    if (pr == null || !nums.includes(pr)) {
+      Swal.fire({
+        title: 'Dispositivo principal',
+        html: '<p style="color:#e9eef5;text-align:center">Con más de un dispositivo debes elegir <strong>uno</strong> como principal (control dorado en la tarjeta).</p>',
+        icon: 'info',
+        background: '#002136',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Entendido',
+      });
+      return false;
+    }
+    return true;
   }
 
   submit(): void {
@@ -1157,7 +1543,7 @@ export class AltaInstalacionComponent implements OnInit {
       this.submitButton = 'Guardar';
       this.loading = false;
       const etiquetas: any = {
-        idDispositivo: 'Dispositivo',
+        idsDispositivos: 'Dispositivos',
         idsBlueVoxs: 'Bluevox',
         idVehiculo: 'Vehículo',
         idCliente: 'Cliente',
@@ -1174,6 +1560,10 @@ export class AltaInstalacionComponent implements OnInit {
             const actual = control.errors['maxBluevox'].actual ?? 0;
             const max = control.errors['maxBluevox'].max ?? maxBv ?? '?';
             camposFaltantes.push(`Bluevox: Solo puedes seleccionar hasta ${max} (tienes ${actual})`);
+          } else if (control.errors?.['maxDispositivos']) {
+            const actual = control.errors['maxDispositivos'].actual ?? 0;
+            const max = control.errors['maxDispositivos'].max ?? maxBv ?? '?';
+            camposFaltantes.push(`Dispositivos: Solo puedes seleccionar hasta ${max} (tienes ${actual})`);
           }
         }
       });
@@ -1207,6 +1597,12 @@ export class AltaInstalacionComponent implements OnInit {
       return;
     }
 
+    if (!this.validarPrincipalDispositivosSiAplica()) {
+      this.submitButton = 'Guardar';
+      this.loading = false;
+      return;
+    }
+
     const payload = this.getNumericFormPayload();
 
     this.instService.agregarInstalacion(payload).subscribe(
@@ -1236,6 +1632,58 @@ export class AltaInstalacionComponent implements OnInit {
         });
       }
     );
+  }
+
+  /**
+   * Dispositivos que estaban en el GET inicial y ya no están en el formulario.
+   * Misma forma que espera el API: { idDispositivo, estatusAnterior }.
+   */
+  private construirDispositivosAnteriores(): Array<{
+    idDispositivo: number;
+    estatusAnterior: number;
+  }> {
+    const initialIds = this.initialDispositivoIds || [];
+    const currentIds = this.instalacionesForm.get('idsDispositivos')?.value || [];
+
+    if (!Array.isArray(initialIds) || initialIds.length === 0) {
+      return [];
+    }
+
+    const currentIdsNum = Array.isArray(currentIds)
+      ? currentIds.map((id: any) => Number(id)).filter((id: any) => !isNaN(id))
+      : [];
+    const initialIdsNum = initialIds
+      .map((id: any) => Number(id))
+      .filter((id: any) => !isNaN(id));
+
+    const removidos = initialIdsNum.filter(
+      (id: number) => !currentIdsNum.includes(id)
+    );
+
+    if (removidos.length === 0) {
+      return [];
+    }
+
+    const estatusSeleccionado = this.estatusDispositivoAnterior;
+    if (estatusSeleccionado == null || estatusSeleccionado === undefined) {
+      console.warn(
+        'construirDispositivosAnteriores: estatusDispositivoAnterior es null/undefined.'
+      );
+      return [];
+    }
+
+    return removidos
+      .map((idDispositivo: number) => ({
+        idDispositivo: Number(idDispositivo),
+        estatusAnterior: Number(estatusSeleccionado),
+      }))
+      .filter(
+        (item: any) =>
+          item.idDispositivo != null &&
+          !isNaN(item.idDispositivo) &&
+          item.estatusAnterior != null &&
+          !isNaN(item.estatusAnterior)
+      );
   }
 
   /**
@@ -1288,6 +1736,39 @@ export class AltaInstalacionComponent implements OnInit {
     this.submitButton = 'Cargando...';
     this.loading = true;
 
+    // Validación: En modo edición, no permitir menos dispositivos que los iniciales
+    if (this.idInstalacion && this.maxDispositivosEnEdicion != null) {
+      const currentDev = this.instalacionesForm.get('idsDispositivos')?.value || [];
+      const selectedDev = Array.isArray(currentDev)
+        ? currentDev.map((id: any) => Number(id)).filter((id: any) => !isNaN(id))
+        : [];
+      if (selectedDev.length < this.maxDispositivosEnEdicion) {
+        this.submitButton = 'Actualizar';
+        this.loading = false;
+        const faltantes = this.maxDispositivosEnEdicion - selectedDev.length;
+        Swal.fire({
+          title: '¡Dispositivos insuficientes!',
+          html: `
+            <p style="color: #e9eef5; margin-bottom: 12px;">
+              Esta instalación tiene <strong style="color: #60a5fa;">${this.maxDispositivosEnEdicion}</strong> dispositivo${this.maxDispositivosEnEdicion !== 1 ? 's' : ''} asignado${this.maxDispositivosEnEdicion !== 1 ? 's' : ''} inicialmente.
+            </p>
+            <p style="color: #fcd34d; font-weight: 600;">
+              Debes seleccionar <strong>${faltantes} dispositivo${faltantes !== 1 ? 's' : ''} más</strong> para completar los ${this.maxDispositivosEnEdicion} requeridos antes de continuar.
+            </p>
+          `,
+          icon: 'warning',
+          background: '#002136',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Entendido',
+          customClass: {
+            popup: 'swal2-padding swal2-border',
+            htmlContainer: 'swal2-html-container-custom',
+          },
+        });
+        return;
+      }
+    }
+
     // Validación: En modo edición, no permitir menos Bluevox que los iniciales
     if (this.idInstalacion && this.maxBluevoxEnEdicion != null) {
       const currentValue = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
@@ -1320,33 +1801,28 @@ export class AltaInstalacionComponent implements OnInit {
       }
     }
 
+    if (!this.validarPrincipalDispositivosSiAplica()) {
+      this.submitButton = 'Actualizar';
+      this.loading = false;
+      return;
+    }
+
     const base = this.getNumericFormPayload();
 
-    // Construir el array de blueVoxsAnteriores con los bluevox removidos (los que iniciaron del GET por ID pero ya no están)
+    const dispositivosAnteriores = this.construirDispositivosAnteriores();
     const blueVoxsAnteriores = this.construirBlueVoxsAnteriores();
 
-    // Verificar si el dispositivo cambió
-    const dispositivoActual = base.idDispositivo;
-    const dispositivoInicial = this.initialDispositivoId;
-    const dispositivoCambio = dispositivoInicial != null && dispositivoActual != null && 
-                              Number(dispositivoActual) !== Number(dispositivoInicial);
-
-    // Construir el payload de actualización.
-    // idDispositivo debe enviarse siempre para evitar perder la asignación actual.
     const payload: any = {
       idVehiculo: base.idVehiculo,
       idCliente: base.idCliente,
-      estatus: base.estatus,
-      idDispositivo: base.idDispositivo,
-      estatusDispositivoAnterior: this.estatusDispositivoAnterior ?? null,
+      idsDispositivos: base.idsDispositivos,
+      idDispositivoPrincipal: base.idDispositivoPrincipal,
+      dispositivosAnteriores,
       comentariosDispositivo: this.comentariosDispositivo ?? null,
-      idsBlueVoxs: base.idsBlueVoxs, // Los nuevos bluevox seleccionados (los que están ahora en el formulario)
-      estatusBluevoxsAnterior: this.estatusBluevoxsAnterior ?? null,
+      idsBlueVoxs: base.idsBlueVoxs,
+      blueVoxsAnteriores,
       comentariosBluevox: this.comentariosBluevox ?? null,
-      blueVoxsAnteriores: blueVoxsAnteriores // Los bluevox que estaban en el GET por ID pero ya no están
     };
-
-    // Si hubo cambio de dispositivo, se conserva el flujo actual de captura previa.
 
     this.instService
       .actualizarInstalacion(this.idInstalacion, payload)
@@ -1385,6 +1861,284 @@ export class AltaInstalacionComponent implements OnInit {
 
   regresar(): void {
     this.route.navigateByUrl('/instalaciones');
+  }
+
+  getSelectedDispositivosCount(): number {
+    const selected = this.instalacionesForm.get('idsDispositivos')?.value || [];
+    return Array.isArray(selected) ? selected.length : 0;
+  }
+
+  getDispositivosDisplayText(): string {
+    const selected = this.instalacionesForm.get('idsDispositivos')?.value || [];
+    if (!Array.isArray(selected) || selected.length === 0) {
+      return 'Seleccione dispositivos';
+    }
+    const labels = selected
+      .map((id: number) => {
+        const devId = Number(id);
+        const d =
+          this.listaDipositivos.find(
+            (x: any) => Number(x?.id ?? x?.idDispositivo ?? 0) === devId
+          ) ?? this.dispositivosDataFromService[devId];
+        return d ? this.displayDispositivo(d) : String(devId);
+      })
+      .filter((s: string) => s && String(s).trim() !== '');
+    if (!labels.length) {
+      return 'Seleccione dispositivos';
+    }
+    let base = labels.join(', ');
+    const pr = this.toNumOrNull(
+      this.instalacionesForm.get('idDispositivoPrincipal')?.value
+    );
+    if (selected.length > 1 && (pr == null || !selected.map(Number).includes(pr))) {
+      base += ' · sin principal';
+    }
+    return base;
+  }
+
+  isDispositivoSelected(id: number): boolean {
+    const selected = this.instalacionesForm.get('idsDispositivos')?.value || [];
+    if (!Array.isArray(selected) || !selected.length) return false;
+    return selected.map((x: any) => Number(x)).includes(Number(id));
+  }
+
+  wasDispositivoOriginallyAssigned(id: number): boolean {
+    if (!this.idInstalacion || !this.initialDispositivoIds) return false;
+    const initial = this.initialDispositivoIds.map((x: any) => Number(x));
+    return initial.includes(Number(id));
+  }
+
+  /** Principal: todos los chips visibles; inicia apagado; al elegir uno el resto queda bloqueado; clic otra vez en el mismo apaga. */
+  clickPrincipalDispositivo(id: number, event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    if (this.instalacionesForm.get('idsDispositivos')?.disabled) return;
+    if (!this.isDispositivoSelected(id)) return;
+    if (this.isPrincipalPillLockedOut(id)) return;
+    const cur = this.instalacionesForm.get('idDispositivoPrincipal')?.value;
+    const idn = Number(id);
+    if (cur != null && Number(cur) === idn) {
+      this.instalacionesForm.patchValue(
+        { idDispositivoPrincipal: null },
+        { emitEvent: false }
+      );
+    } else {
+      this.instalacionesForm.patchValue(
+        { idDispositivoPrincipal: idn },
+        { emitEvent: false }
+      );
+    }
+    this.instalacionesForm.get('idDispositivoPrincipal')?.updateValueAndValidity({ emitEvent: false });
+    this.cdr.detectChanges();
+  }
+
+  /** Hay otro dispositivo marcado como principal (esta tarjeta no puede activarse hasta que se apague el otro). */
+  isPrincipalPillLockedOut(id: number): boolean {
+    if (!this.isDispositivoSelected(id)) return false;
+    const p = this.instalacionesForm.get('idDispositivoPrincipal')?.value;
+    if (p == null) return false;
+    return Number(p) !== Number(id);
+  }
+
+  isDispositivoPrincipal(id: number): boolean {
+    const p = this.instalacionesForm.get('idDispositivoPrincipal')?.value;
+    return p != null && Number(p) === Number(id);
+  }
+
+  getFilteredDispositivos(lista: any[]): any[] {
+    if (!this.searchDispositivosText || this.searchDispositivosText.trim() === '') {
+      return lista;
+    }
+    const search = this.searchDispositivosText.toLowerCase().trim();
+    return lista.filter((d: any) => {
+      const did = Number(d?.id ?? d?.idDispositivo ?? 0);
+      if (this.isDispositivoSelected(did)) return true;
+      const serie = this.displayDispositivo(d).toLowerCase();
+      return serie.includes(search);
+    });
+  }
+
+  toggleDispositivo(id: number, event: any): void {
+    const currentValue = this.instalacionesForm.get('idsDispositivos')?.value || [];
+    const selectedIds = Array.isArray(currentValue) ? [...currentValue] : [];
+    const max = this.getCantidadAccesosMax();
+
+    if (event.target.checked) {
+      if (max != null && selectedIds.length >= max) {
+        event.target.checked = false;
+        Swal.fire({
+          title: '¡Límite alcanzado!',
+          text: `Este vehículo permite hasta ${max} dispositivo${max !== 1 ? 's' : ''} (cantidad de accesos).`,
+          icon: 'warning',
+          background: '#002136',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Entendido',
+        });
+        return;
+      }
+      if (
+        this.idInstalacion &&
+        this.maxDispositivosEnEdicion != null
+      ) {
+        const esNuevo = !this.wasDispositivoOriginallyAssigned(id);
+        if (esNuevo && selectedIds.length >= this.maxDispositivosEnEdicion) {
+          event.target.checked = false;
+          Swal.fire({
+            title: '¡Límite de dispositivos!',
+            html: `<p style="color:#e9eef5">No puedes agregar más dispositivos. Solo reemplaza los existentes.</p>`,
+            icon: 'warning',
+            background: '#002136',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Entendido',
+          });
+          return;
+        }
+      }
+      if (!selectedIds.map(Number).includes(Number(id))) {
+        selectedIds.push(id);
+      }
+    } else {
+      const idx = selectedIds.findIndex((x: any) => Number(x) === Number(id));
+      if (idx > -1) selectedIds.splice(idx, 1);
+    }
+
+    this.instalacionesForm.patchValue({ idsDispositivos: selectedIds });
+    this.syncDispositivoPrincipal();
+    this.instalacionesForm.get('idsDispositivos')?.updateValueAndValidity({ emitEvent: false });
+    this.instalacionesForm.get('idDispositivoPrincipal')?.updateValueAndValidity({ emitEvent: false });
+    this.cdr.detectChanges();
+    if (this.dispositivosModalRef) this.cdr.detectChanges();
+  }
+
+  abrirModalDispositivos(event?: MouseEvent): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    if (this.dispositivosModalRef) return;
+    const idsCtrl = this.instalacionesForm.get('idsDispositivos');
+    if (idsCtrl?.disabled || !this.dispositivosModal) return;
+    const currentValue = idsCtrl.value || [];
+    this.estadoDispositivosAlAbrirModal = Array.isArray(currentValue)
+      ? [...currentValue]
+      : [];
+    this.estadoPrincipalAlAbrirModal = this.toNumOrNull(
+      this.instalacionesForm.get('idDispositivoPrincipal')?.value
+    );
+    this.ultimoValorDispositivos = Array.isArray(currentValue)
+      ? [...currentValue]
+      : [];
+    this.searchDispositivosText = '';
+    this.dispositivosModalRef = this.modalService.open(this.dispositivosModal, {
+      size: 'xl',
+      windowClass: 'bluevox-modal-custom',
+      centered: true,
+      backdrop: 'static',
+      keyboard: true,
+      scrollable: true,
+    });
+  }
+
+  cerrarModalDispositivos(): void {
+    if (this.dispositivosModalRef) {
+      this.dispositivosModalRef.close();
+      this.dispositivosModalRef = undefined;
+    }
+    this.searchDispositivosText = '';
+  }
+
+  confirmarModalDispositivos(): void {
+    if (this.idInstalacion && this.maxDispositivosEnEdicion != null) {
+      const currentValue = this.instalacionesForm.get('idsDispositivos')?.value || [];
+      const selectedIds = Array.isArray(currentValue)
+        ? currentValue.map((id: any) => Number(id)).filter((id: any) => !isNaN(id))
+        : [];
+      if (selectedIds.length < this.maxDispositivosEnEdicion) {
+        const faltantes = this.maxDispositivosEnEdicion - selectedIds.length;
+        Swal.fire({
+          title: '¡Dispositivos insuficientes!',
+          html: `<p style="color:#e9eef5">Debes seleccionar <strong>${faltantes}</strong> dispositivo${faltantes !== 1 ? 's' : ''} más.</p>`,
+          icon: 'warning',
+          background: '#002136',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Entendido',
+        });
+        return;
+      }
+    }
+    if (!this.validarPrincipalDispositivosSiAplica()) {
+      return;
+    }
+    const currentValue = this.instalacionesForm.get('idsDispositivos')?.value || [];
+    this.ultimoValorDispositivos = Array.isArray(currentValue) ? [...currentValue] : [];
+    this.cerrarModalDispositivos();
+  }
+
+  cancelarModalDispositivos(): void {
+    this.restaurandoDispositivos = true;
+    const estadoAlAbrir = this.estadoDispositivosAlAbrirModal || [];
+    const ids = estadoAlAbrir.map((x: any) => Number(x)).filter((x: any) => !isNaN(x));
+    const pr = this.toNumOrNull(this.estadoPrincipalAlAbrirModal);
+    const principalRest =
+      pr != null && ids.map(Number).includes(Number(pr)) ? pr : null;
+    this.instalacionesForm.patchValue(
+      { idsDispositivos: [...ids], idDispositivoPrincipal: principalRest },
+      { emitEvent: false }
+    );
+    this.syncDispositivoPrincipal();
+    this.instalacionesForm.get('idsDispositivos')?.updateValueAndValidity({ emitEvent: false });
+    this.ultimoValorDispositivos = [...ids];
+    this.cdr.detectChanges();
+    this.cerrarModalDispositivos();
+    setTimeout(() => {
+      this.restaurandoDispositivos = false;
+    }, 100);
+  }
+
+  restaurarDispositivosModal(): void {
+    this.restaurandoDispositivos = true;
+    const initialIds = this.initialDispositivoIds || [];
+    const pr = this.toNumOrNull(this.initialDispositivoPrincipal);
+    const principalOk =
+      pr != null &&
+      initialIds.map((x: any) => Number(x)).includes(Number(pr))
+        ? pr
+        : null;
+    this.instalacionesForm.patchValue(
+      {
+        idsDispositivos: [...initialIds],
+        idDispositivoPrincipal: principalOk,
+      },
+      { emitEvent: false }
+    );
+    this.syncDispositivoPrincipal();
+    this.instalacionesForm.get('idsDispositivos')?.updateValueAndValidity({ emitEvent: false });
+    this.ultimoValorDispositivos = [...initialIds];
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.restaurandoDispositivos = false;
+    }, 100);
+  }
+
+  onCardClickDispositivo(d: any, event: MouseEvent): void {
+    if (
+      (event.target as HTMLElement).tagName === 'INPUT' ||
+      (event.target as HTMLElement).closest('.card-checkbox')
+    ) {
+      return;
+    }
+    const idsCtrl = this.instalacionesForm.get('idsDispositivos');
+    if (idsCtrl?.disabled) return;
+    const did = Number(d?.id ?? d?.idDispositivo ?? 0);
+    const checkbox = (event.target as HTMLElement)
+      .closest('.bluevox-card')
+      ?.querySelector('input[type="checkbox"]') as HTMLInputElement;
+    if (checkbox && !checkbox.disabled) {
+      checkbox.checked = !checkbox.checked;
+      this.toggleDispositivo(did, { target: checkbox });
+    }
   }
 
   toggleBluevoxDropdown(): void {
@@ -1600,6 +2354,32 @@ export class AltaInstalacionComponent implements OnInit {
     }, 100);
   }
 
+  /** Restaura dispositivos al estado inicial del GET (cancelar modal de estatus al retirar). */
+  private restaurarDispositivosAInicial(): void {
+    const idsCtrl = this.instalacionesForm.get('idsDispositivos');
+    if (idsCtrl?.disabled) {
+      return;
+    }
+    this.restaurandoDispositivos = true;
+    const initialIds = this.initialDispositivoIds || [];
+    const ids = initialIds.map((id: any) => Number(id)).filter((id: any) => !isNaN(id));
+    const pr = this.toNumOrNull(this.initialDispositivoPrincipal);
+    const principalOk =
+      pr != null && ids.includes(Number(pr)) ? pr : null;
+    this.instalacionesForm.patchValue(
+      { idsDispositivos: [...ids], idDispositivoPrincipal: principalOk },
+      { emitEvent: false }
+    );
+    this.syncDispositivoPrincipal();
+    this.instalacionesForm.get('idsDispositivos')?.updateValueAndValidity({ emitEvent: false });
+    this.instalacionesForm.get('idDispositivoPrincipal')?.updateValueAndValidity({ emitEvent: false });
+    this.ultimoValorDispositivos = [...ids];
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.restaurandoDispositivos = false;
+    }, 100);
+  }
+
   /**
    * Verifica si hay cambios respecto al estado inicial
    */
@@ -1725,10 +2505,12 @@ export class AltaInstalacionComponent implements OnInit {
     const selectedBluevox = selected
       .map((id: number) => {
         const bvId = Number(id);
-        return this.listaBlueVox.find((b: any) => {
-          const bId = Number(b?.id ?? b?.idBlueVox ?? 0);
-          return bId === bvId;
-        });
+        return (
+          this.listaBlueVox.find((b: any) => {
+            const bId = Number(b?.id ?? b?.idBlueVox ?? 0);
+            return bId === bvId;
+          }) ?? this.blueVoxsDataFromService[bvId]
+        );
       })
       .filter((bv: any) => bv != null)
       .map((bv: any) => this.displayBluevox(bv))

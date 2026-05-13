@@ -69,9 +69,17 @@ export class AltaPasajeroComponent implements OnInit {
         this.idPasajero = params['idPasajero'];
         if (this.idPasajero) {
           this.title = 'Actualizar Pasajero';
-          this.obtenerPasajeroID();
+          this.submitButton = 'Actualizar';
           this.showCorreo = false;
           this.showInputsNoUpdate = false;
+          this.relajarValidadoresSoloAlta();
+          this.obtenerPasajeroID();
+        } else {
+          this.title = 'Agregar Pasajero';
+          this.submitButton = 'Guardar';
+          this.showCorreo = true;
+          this.showInputsNoUpdate = true;
+          this.restaurarValidadoresSoloAlta();
         }
       }
     )
@@ -138,7 +146,10 @@ export class AltaPasajeroComponent implements OnInit {
       };
 
       const fechaNac = get(raw, ['fechaNacimiento', 'FechaNacimiento']);
-      const fecha = typeof fechaNac === 'string' ? fechaNac.split('T')[0] : '';
+      const fecha =
+        typeof fechaNac === 'string' && fechaNac.trim()
+          ? fechaNac.split('T')[0]
+          : null;
 
       this.pasajeroForm.patchValue({
         estatus: Number(get(raw, ['estatus', 'Estatus'])) ?? 1,
@@ -149,12 +160,72 @@ export class AltaPasajeroComponent implements OnInit {
         correo: get(raw, ['correo', 'Correo']) ?? '',
         fechaNacimiento: fecha,
         passwordHash: '',
-        idTipoPasajero: Number(get(raw, ['idTipoPasajero', 'idtipopasajero'])) ?? 0,
+        idTipoPasajero: this.resolveIdTipoPasajeroFromPasajero(raw),
         documentacion: get(raw, ['documentacion', 'Documentacion']) ?? '',
         curp: get(raw, ['curp', 'CURP']) ?? '',
         numeroSerieMonedero: get(raw, ['numeroSerieMonedero', 'NumeroSerieMonedero']) ?? ''
       });
     });
+  }
+
+  /**
+   * El detalle del pasajero puede traer el catálogo como idTipoPasajero, IdCatPasajero, tipoPasajero.id, etc.
+   */
+  private pickFirstDefined(o: any, keys: string[]): any {
+    if (!o) return null;
+    for (const k of keys) {
+      const v = o[k];
+      if (v !== undefined && v !== null && v !== '') return v;
+    }
+    return null;
+  }
+
+  private resolveIdTipoPasajeroFromPasajero(raw: any): number {
+    const directKeys = [
+      'idTipoPasajero',
+      'IdTipoPasajero',
+      'IDTipoPasajero',
+      'idtipopasajero',
+      'idCatPasajero',
+      'IdCatPasajero',
+      'IDCatPasajero',
+      'idCatTipoPasajero',
+      'IdCatTipoPasajero',
+    ];
+    let v = this.pickFirstDefined(raw, directKeys);
+    if (v != null && typeof v === 'object') {
+      v = (v as { id?: number; Id?: number }).id ?? (v as { Id?: number }).Id ?? null;
+    }
+    if (v == null) {
+      const tp = this.pickFirstDefined(raw, ['tipoPasajero', 'TipoPasajero']);
+      if (tp != null && typeof tp === 'object') {
+        v = (tp as { id?: number; Id?: number }).id ?? (tp as { Id?: number }).Id;
+      } else if (typeof tp === 'number') {
+        v = tp;
+      }
+    }
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  }
+
+  /** En alta: el API puede aceptar `tipoPasajero` como alias del id de catálogo. */
+  private applyTipoPasajeroAliasToPayload(body: Record<string, unknown>): void {
+    const idRaw = body['idTipoPasajero'];
+    const id = typeof idRaw === 'number' ? idRaw : Number(idRaw);
+    if (!Number.isFinite(id) || id <= 0) return;
+    body['tipoPasajero'] = id;
+  }
+
+  /** En edición no se envía `idTipoPasajero`; si hay id válido, solo `tipoPasajero`. */
+  private aplicarPoliticaTipoPasajeroEnActualizacion(body: Record<string, unknown>): void {
+    const idRaw = body['idTipoPasajero'];
+    const id = typeof idRaw === 'number' ? idRaw : Number(idRaw);
+    delete body['idTipoPasajero'];
+    if (Number.isFinite(id) && id > 0) {
+      body['tipoPasajero'] = id;
+    } else {
+      delete body['tipoPasajero'];
+    }
   }
 
   allowOnlyNumbers(event: KeyboardEvent): void {
@@ -169,7 +240,7 @@ export class AltaPasajeroComponent implements OnInit {
       nombre: ['', Validators.required],
       apellidoPaterno: ['', Validators.required],
       apellidoMaterno: ['', Validators.required],
-      fechaNacimiento: ['', Validators.required],
+      fechaNacimiento: [null, Validators.required],
       correo: ['', [Validators.required, Validators.email]],
       telefono: ['', Validators.required],
       passwordHash: ['', Validators.required],
@@ -179,6 +250,22 @@ export class AltaPasajeroComponent implements OnInit {
       curp: ['', Validators.required],
       numeroSerieMonedero: ['', Validators.required],
     });
+  }
+
+  /** Contraseña y monedero no aplican en edición (no se muestran ni se envían al PUT). */
+  private relajarValidadoresSoloAlta(): void {
+    ['passwordHash', 'numeroSerieMonedero'].forEach((name) => {
+      const c = this.pasajeroForm.get(name);
+      c?.clearValidators();
+      c?.updateValueAndValidity({ emitEvent: false });
+    });
+  }
+
+  private restaurarValidadoresSoloAlta(): void {
+    this.pasajeroForm.get('passwordHash')?.setValidators([Validators.required]);
+    this.pasajeroForm.get('numeroSerieMonedero')?.setValidators([Validators.required]);
+    this.pasajeroForm.get('passwordHash')?.updateValueAndValidity({ emitEvent: false });
+    this.pasajeroForm.get('numeroSerieMonedero')?.updateValueAndValidity({ emitEvent: false });
   }
 
   submit() {
@@ -278,6 +365,7 @@ export class AltaPasajeroComponent implements OnInit {
     }
 
     if ('id' in this.pasajeroForm.controls) this.pasajeroForm.removeControl('id');
+    this.applyTipoPasajeroAliasToPayload(raw as Record<string, unknown>);
     this.pasajService.agregarPasajero(raw).subscribe(
       (response) => {
         this.submitButton = 'Guardar';
@@ -365,6 +453,8 @@ export class AltaPasajeroComponent implements OnInit {
     }
 
     const { correo, ...payload } = this.pasajeroForm.value;
+    delete (payload as Record<string, unknown>).passwordHash;
+    delete (payload as Record<string, unknown>).numeroSerieMonedero;
 
     if (payload.fechaNacimiento instanceof Date && !isNaN(payload.fechaNacimiento.getTime())) {
       const y = payload.fechaNacimiento.getFullYear();
@@ -393,6 +483,8 @@ export class AltaPasajeroComponent implements OnInit {
         }
       }
     }
+
+    this.aplicarPoliticaTipoPasajeroEnActualizacion(payload as Record<string, unknown>);
 
     this.pasajService.actualizarPasajero(this.idPasajero, payload).subscribe(
       () => {

@@ -55,7 +55,7 @@
                     <div class="table-responsive mb-4 col-12 col-lg-12">
                         <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
                             [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
-                            [rowAlternationEnabled]="'true'" [dataSource]="listaViajes" [keyExpr]="'Id'"
+                            [rowAlternationEnabled]="'true'" [dataSource]="listaViajes" [keyExpr]="'id'"
                             [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
                             [pager]="{ 
                                 showPageSizeSelector: true, 
@@ -89,14 +89,21 @@
                             <!-- <dxi-column dataField="estatus" caption="Estatus" dataType="number"
                                 alignment="center"></dxi-column> -->
 
-                            <dxi-column dataField="nombreCliente" caption="Cliente" dataType="string"
-                                alignment="center"></dxi-column>
-
                             <dxi-column dataField="inicioTurno" caption="Inicio Turno" dataType="datetime"
                                 alignment="center"></dxi-column>
 
-                            <dxi-column dataField="numeroSerieDispositivo" caption="Serie Dispositivo" dataType="string"
-                                alignment="center"></dxi-column>
+                            <dxi-column caption="Dispositivos" alignment="center" cellTemplate="dispoSi">
+                                <div *dxTemplate="let re of 'dispoSi'">
+                                    <ng-container *ngIf="re.data?.dispositivos?.length; else dispositivoPlano">
+                                        <div *ngFor="let d of re.data.dispositivos">
+                                            -{{ d?.numeroSerieDispositivo }}
+                                        </div>
+                                    </ng-container>
+                                    <ng-template #dispositivoPlano>
+                                        <span *ngIf="re.data?.numeroSerieDispositivo">-{{ re.data.numeroSerieDispositivo }}</span>
+                                    </ng-template>
+                                </div>
+                            </dxi-column>
                             <dxi-column caption="Serie BlueVox"  alignment="center" cellTemplate="blueVo">
                                 <div *dxTemplate="let re of 'blueVo'">
                                     <ng-container *ngIf="re.data?.blueVoxs?.length; else blueVoxUnico">
@@ -105,7 +112,7 @@
                                         </div>
                                     </ng-container>
                                     <ng-template #blueVoxUnico>
-                                        {{ re.data?.numeroSerieBlueVox }}
+                                        <span *ngIf="re.data?.numeroSerieBlueVox">-{{ re.data.numeroSerieBlueVox }}</span>
                                     </ng-template>
                                 </div>
                             </dxi-column>
@@ -113,12 +120,11 @@
                             <dxi-column dataField="placaVehiculo" caption="Placa Vehículo" dataType="string"
                                 alignment="center"></dxi-column>
 
-                            <dxi-column dataField="nombreOperador" caption="Nombre Operador" dataType="string"
-                                alignment="center"></dxi-column>
-                            <dxi-column dataField="apellidoPaternoOperador" caption="Apellido Paterno Operador"
-                                dataType="string" alignment="center"></dxi-column>
-                            <dxi-column dataField="apellidoMaternoOperador" caption="Apellido Materno Operador"
-                                dataType="string" alignment="center"></dxi-column>
+                            <dxi-column caption="Operador" alignment="center" cellTemplate="nomOperador">
+                                <div *dxTemplate="let re of 'nomOperador'">
+                                    {{ nombreCompletoOperador(re.data) }}
+                                </div>
+                            </dxi-column>
 
                             <dxi-column dataField="nombreDerrotero" caption="Derrotero" dataType="string"
                                 alignment="center"></dxi-column>
@@ -135,6 +141,11 @@
 
                             <dxi-column dataField="nombreRegionInicio" caption="Región Inicio" dataType="string"
                                 alignment="center"></dxi-column>
+                            <dxi-column caption="Cliente" alignment="center" cellTemplate="nomCliente">
+                                <div *dxTemplate="let re of 'nomCliente'">
+                                    {{ nombreCompletoCliente(re.data) }}
+                                </div>
+                            </dxi-column>
                             <dxi-column dataField="nombreRegionFin" caption="Región Fin" dataType="string"
                                 alignment="center"></dxi-column>
 

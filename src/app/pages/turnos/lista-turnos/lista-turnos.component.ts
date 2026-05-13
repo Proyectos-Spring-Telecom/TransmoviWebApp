@@ -211,6 +211,32 @@ export class ListaTurnosComponent implements OnInit {
     }
   }
 
+  nombreCompletoOperador(row: any): string {
+    return [row?.nombreOperador, row?.apellidoPaternoOperador, row?.apellidoMaternoOperador]
+      .filter((p) => p != null && String(p).trim() !== '')
+      .join(' ');
+  }
+
+  nombreCompletoCliente(row: any): string {
+    return [row?.nombreCliente, row?.apellidoPaternoCliente, row?.apellidoMaternoCliente]
+      .filter((p) => p != null && String(p).trim() !== '')
+      .join(' ');
+  }
+
+  textoVehiculo(row: any): string {
+    const placa = row?.placaVehiculo != null ? String(row.placaVehiculo).trim() : '';
+    const economico =
+      row?.numeroEconomicoVehiculo != null ? String(row.numeroEconomicoVehiculo).trim() : '';
+    const partes: string[] = [];
+    if (placa) {
+      partes.push(`Placa: ${placa}`);
+    }
+    if (economico) {
+      partes.push(`Economico: ${economico}`);
+    }
+    return partes.join(' · ');
+  }
+
   onGridOptionChanged(e: any) {
     if (e.fullName === 'searchPanel.text') {
       this.filtroActivo = e.value || '';

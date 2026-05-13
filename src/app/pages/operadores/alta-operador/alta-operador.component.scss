@@ -283,6 +283,14 @@ select.disabled {
 
 
 :host ::ng-deep .tm-range {
+  .dx-daterangebox {
+    width: 100%;
+  }
+
+  .dx-daterangebox .dx-texteditor-input {
+    min-width: 9rem;
+  }
+
   .dx-daterangebox,
   .dx-texteditor,
   .dx-texteditor-input-container,
