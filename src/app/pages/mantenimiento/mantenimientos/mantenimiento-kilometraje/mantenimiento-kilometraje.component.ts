@@ -188,6 +188,23 @@ export class MantenimientoKilometrajeComponent {
     return `${mes.text}`;
   }
 
+  /** Texto para grid / búsqueda a partir de `instalacionCliente` del API */
+  formatNombreInstalacionCliente(c: any): string {
+    if (!c) return '';
+    const parts = [c.nombre, c.apellidoPaterno, c.apellidoMaterno].filter(
+      (p) => p != null && String(p).trim() !== ''
+    );
+    return parts.map((p) => String(p).trim()).join(' ');
+  }
+
+  /** Marca y modelo desde `instalacionVehiculo` del API */
+  formatInstalacionVehiculoTexto(v: any): string {
+    if (!v) return '';
+    const parts = [v.marca, v.modelo].filter(
+      (p) => p != null && String(p).trim() !== ''
+    );
+    return parts.map((p) => String(p).trim()).join(' ');
+  }
 
   setupDataSource() {
     this.loading = true;
@@ -224,6 +241,10 @@ export class MantenimientoKilometrajeComponent {
                 : item?.estatus === 0
                   ? 'Inactivo'
                   : null,
+            instalacionClienteNombre:
+              this.formatNombreInstalacionCliente(item?.instalacionCliente),
+            instalacionVehiculoTexto:
+              this.formatInstalacionVehiculoTexto(item?.instalacionVehiculo),
           }));
 
           this.totalRegistros = totalRegistros;

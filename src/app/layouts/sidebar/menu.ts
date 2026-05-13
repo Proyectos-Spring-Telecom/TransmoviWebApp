@@ -225,6 +225,13 @@ export const MENU: MenuItem[] = [
         subItems: [
             {
                 id: 16,
+                label: 'NAV.TALLERES',
+                icon: 'uil-apps',
+                link: '/talleres',
+                permiso: Permiso.Consultar_Taller
+            },
+            {
+                id: 16,
                 label: 'NAV.MANTENIMIENTO',
                 icon: 'uil-apps',
                 link: '/mantenimientos',
@@ -243,13 +250,6 @@ export const MENU: MenuItem[] = [
                 icon: 'uil-apps',
                 link: '/incidentes',
                 permiso: Permiso.Consultar_Siniestro
-            },
-            {
-                id: 16,
-                label: 'NAV.TALLERES',
-                icon: 'uil-apps',
-                link: '/talleres',
-                permiso: Permiso.Consultar_Taller
             },
         ],
     },
