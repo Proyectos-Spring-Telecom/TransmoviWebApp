@@ -6,7 +6,8 @@
       </div>
       <div class="header-text">
         <h5>{{ title }}</h5>
-        <span>Completa la información para registrar un nuevo pasajero.</span>
+        <span *ngIf="showInputsNoUpdate">Completa la información para registrar un nuevo pasajero.</span>
+        <span *ngIf="!showInputsNoUpdate">Modifica los datos visibles y guarda los cambios.</span>
       </div>
     </div>
 
@@ -43,8 +44,9 @@
 
           <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-3">
             <label>Fecha de Nacimiento</label>
-            <dx-date-box class="tm-select w-100" formControlName="fechaNacimiento" type="date" [useMaskBehavior]="true"
-              [showClearButton]="true" displayFormat="dd/MM/yyyy" placeholder="02/05/1999">
+            <dx-date-box class="tm-select w-100" formControlName="fechaNacimiento" type="date"
+              [showClearButton]="true" [openOnFieldClick]="true" displayFormat="dd/MM/yyyy"
+              dateSerializationFormat="yyyy-MM-dd" placeholder="dd/mm/aaaa">
             </dx-date-box>
           </div>
 

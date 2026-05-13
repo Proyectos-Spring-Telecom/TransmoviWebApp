@@ -37,7 +37,7 @@
                         <dx-select-box class="tm-select w-100" formControlName="idUsuario"
                             [items]="listaUsuarios || ['Sin registros']" [valueExpr]="'id'"
                             [noDataText]="'Sin registros'" [displayExpr]="displayUsuario" [searchEnabled]="true"
-                            [showClearButton]="true"
+                            [showClearButton]="!idOperador"
                             placeholder="Seleccione un usuario operador">
                             <div *dxTemplate="let d of 'item'">
                                 {{ d.nombre }} {{ d.apellidoPaterno }}
@@ -48,10 +48,10 @@
                     <div class="col-12 col-sm-6 col-md-4 mt-3">
                         <label>Vigencia (Expedición – Expiración)</label>
                         <dx-date-range-box class="tm-range" [displayFormat]="'dd/MM/yyyy'" [labelMode]="'hidden'"
-                            [showClearButton]="true" [startDatePlaceholder]="'dd/mm/aaaa'"
-                            [endDatePlaceholder]="'dd/mm/aaaa'" [openOnFieldClick]="true"
-                            [startDate]="operadorForm.value.fechaExpedicion"
-                            [endDate]="operadorForm.value.fechaVencimiento"
+                            [showClearButton]="!idOperador" [startDatePlaceholder]="'dd/mm/aaaa'"
+                            [endDatePlaceholder]="'dd/mm/aaaa'" [openOnFieldClick]="!idOperador"
+                            [readOnly]="!!idOperador"
+                            [startDate]="vigencia.start" [endDate]="vigencia.end"
                             (onValueChanged)="onRangoVigenciaChanged($event)">
                         </dx-date-range-box>
                     </div>

@@ -21,7 +21,24 @@ export class AltaOperadorComponent implements OnInit {
   public idOperador: number;
   public listaUsuarios: any;
   public title = 'Agregar Operador';
-  displayUsuario = (it: any) => it ? `${it.nombre} ${it.apellidoPaterno ?? ''}`.trim() : '';
+  displayUsuario = (it: any) => {
+    if (!it) return '';
+    const n = it.nombre ?? it.nombreUsuario ?? it.Nombre ?? '';
+    const ap = it.apellidoPaterno ?? it.apellidoPaternoUsuario ?? it.ApellidoPaterno ?? '';
+    const am = it.apellidoMaterno ?? it.apellidoMaternoUsuario ?? it.ApellidoMaterno ?? '';
+    const nombreCompleto = [n, ap, am].filter(Boolean).join(' ').trim();
+    if (nombreCompleto) return nombreCompleto;
+    return it.userName ?? it.userNameUsuario ?? it.correo ?? it.Correo ?? '';
+  };
+
+  /** Fechas para dx-date-range-box (Date; no enlazar solo strings ISO al widget). */
+  vigencia = {
+    start: null as Date | null,
+    end: null as Date | null,
+  };
+
+  /** Usuario del operador cargado por API (puede no estar en la lista rol operador o llegar antes que la lista). */
+  private usuarioOperadorDesdeApi: Record<string, unknown> | null = null;
   public idClienteUser: any;
   public listaCategorias: any;
   selectedFileName: string = '';
@@ -51,7 +68,13 @@ export class AltaOperadorComponent implements OnInit {
         if (this.idOperador) {
           this.title = 'Actualizar Operador';
           this.obtenerOperadorID();
-          this.operadorForm.controls['idUsuario'].disable();
+          this.operadorForm.controls['idUsuario'].disable({ emitEvent: false });
+        } else {
+          this.title = 'Agregar Operador';
+          this.usuarioOperadorDesdeApi = null;
+          this.vigencia.start = null;
+          this.vigencia.end = null;
+          this.operadorForm.controls['idUsuario'].enable({ emitEvent: false });
         }
       }
     )
@@ -93,11 +116,45 @@ export class AltaOperadorComponent implements OnInit {
   }
 
   onRangoVigenciaChanged(e: any) {
-    const [start, end] = e?.value || [];
-    this.operadorForm.patchValue({
-      fechaExpedicion: this.toISODate(start),
-      fechaVencimiento: this.toISODate(end),
-    });
+    const raw = Array.isArray(e?.value) ? e.value : [];
+    let start: Date | null = raw[0] ?? null;
+    let end: Date | null = raw.length > 1 ? (raw[1] ?? null) : null;
+
+    // dx-date-range-box a veces emite solo una fecha al sincronizar; no borrar la otra si el formulario ya la tiene.
+    if (start && (end === null || end === undefined)) {
+      const fv = this.operadorForm?.get('fechaVencimiento')?.value;
+      if (fv) end = this.parseISO(String(fv).split('T')[0]);
+    }
+    if (end && (start === null || start === undefined)) {
+      const fe = this.operadorForm?.get('fechaExpedicion')?.value;
+      if (fe) start = this.parseISO(String(fe).split('T')[0]);
+    }
+
+    this.vigencia.start = start || null;
+    this.vigencia.end = end || null;
+    this.operadorForm.patchValue(
+      {
+        fechaExpedicion: this.toISODate(start),
+        fechaVencimiento: this.toISODate(end),
+      },
+      { emitEvent: false }
+    );
+  }
+
+  private parseISO(d?: string | null): Date | null {
+    if (!d) return null;
+    return new Date(String(d).split('T')[0] + 'T00:00:00');
+  }
+
+  private mergeUsuarioOperadorEnLista(): void {
+    if (!this.usuarioOperadorDesdeApi) return;
+    const id = Number((this.usuarioOperadorDesdeApi as any).id);
+    if (!id || isNaN(id)) return;
+    const list = Array.isArray(this.listaUsuarios) ? [...this.listaUsuarios] : [];
+    if (!list.some((u: any) => Number(u.id) === id)) {
+      list.push({ ...(this.usuarioOperadorDesdeApi as any) });
+      this.listaUsuarios = list;
+    }
   }
 
   // Añade esto en tu componente
@@ -161,6 +218,20 @@ export class AltaOperadorComponent implements OnInit {
       const examenMedico = get(raw, ['certificadoMedico', 'CertificadoMedico', 'examenMedico', 'ExamenMedico']);
       const fotoOperador = get(raw, ['fotoOperador', 'FotoOperador', 'foto', 'Foto']);
 
+      const idUsuarioNum = idUsuario != null ? Number(idUsuario) : null;
+      if (idUsuarioNum) {
+        this.usuarioOperadorDesdeApi = {
+          id: idUsuarioNum,
+          nombre: get(raw, ['nombreUsuario', 'NombreUsuario']) ?? '',
+          apellidoPaterno: get(raw, ['apellidoPaternoUsuario', 'ApellidoPaternoUsuario']) ?? '',
+          apellidoMaterno: get(raw, ['apellidoMaternoUsuario', 'ApellidoMaternoUsuario']) ?? '',
+          userNameUsuario: get(raw, ['userNameUsuario', 'UserNameUsuario']) ?? '',
+        };
+        this.mergeUsuarioOperadorEnLista();
+      } else {
+        this.usuarioOperadorDesdeApi = null;
+      }
+
       this.operadorForm.patchValue({
         numeroLicencia: numeroLicencia ?? '',
         fechaNacimiento,
@@ -168,7 +239,7 @@ export class AltaOperadorComponent implements OnInit {
         fechaVencimiento,
         idTipoLicencia: idTipoLicencia != null ? Number(idTipoLicencia) : null,
         idCategoriaLicencia: idCategoriaLicencia != null ? Number(idCategoriaLicencia) : null,
-        idUsuario: idUsuario != null ? Number(idUsuario) : null,
+        idUsuario: idUsuarioNum,
         estatus: estatus != null ? Number(estatus) : 1,
         identificacion: identificacion ?? null,
         comprobanteDomicilio: comprobanteDomicilio ?? null,
@@ -177,6 +248,9 @@ export class AltaOperadorComponent implements OnInit {
         examenMedico: examenMedico ?? null,
         fotoOperador: fotoOperador ?? null,
       });
+
+      this.vigencia.start = this.parseISO(fechaExpedicion);
+      this.vigencia.end = this.parseISO(fechaVencimiento);
     });
   }
 
@@ -191,7 +265,22 @@ export class AltaOperadorComponent implements OnInit {
           c?.Id ??
           c?.ID
         ),
+        nombre: c?.nombre ?? c?.Nombre ?? c?.nombreUsuario ?? c?.NombreUsuario ?? '',
+        apellidoPaterno:
+          c?.apellidoPaterno ??
+          c?.ApellidoPaterno ??
+          c?.apellidoPaternoUsuario ??
+          c?.ApellidoPaternoUsuario ??
+          '',
+        apellidoMaterno:
+          c?.apellidoMaterno ??
+          c?.ApellidoMaterno ??
+          c?.apellidoMaternoUsuario ??
+          c?.ApellidoMaternoUsuario ??
+          '',
+        userNameUsuario: c?.userNameUsuario ?? c?.UserNameUsuario ?? c?.userName ?? c?.correo ?? '',
       }));
+      this.mergeUsuarioOperadorEnLista();
     });
   }
 

@@ -163,6 +163,20 @@ export class ListaInstalacionesComponent implements OnInit {
     e.component.refresh();
   }
 
+  textoVehiculo(row: any): string {
+    const placa = row?.placaVehiculo != null ? String(row.placaVehiculo).trim() : '';
+    const economico =
+      row?.numeroEconomicoVehiculo != null ? String(row.numeroEconomicoVehiculo).trim() : '';
+    const partes: string[] = [];
+    if (placa) {
+      partes.push(`Placa: ${placa}`);
+    }
+    if (economico) {
+      partes.push(`Economico: ${economico}`);
+    }
+    return partes.join(' · ');
+  }
+
   setupDataSource() {
     this.loading = true;
     this.listaInstalaciones = new CustomStore({
@@ -266,16 +280,6 @@ export class ListaInstalacionesComponent implements OnInit {
     this.vehiService.obtenerVehiculos().subscribe((response)=> {
       this.listaVehiculos = response;
     })
-  }
-
-  getBluevoxDisplayText(rowData: any): string {
-    if (!rowData || !rowData.blueVoxs || !Array.isArray(rowData.blueVoxs) || rowData.blueVoxs.length === 0) {
-      return 'Sin registro';
-    }
-    return rowData.blueVoxs
-      .map((bv: any) => bv.numeroSerieBlueVox || '-')
-      .filter((serie: string) => serie !== '-')
-      .join(', ');
   }
 
 }

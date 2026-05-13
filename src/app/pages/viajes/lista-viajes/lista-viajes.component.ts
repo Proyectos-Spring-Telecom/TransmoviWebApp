@@ -187,6 +187,18 @@ export class ListaViajesComponent implements OnInit {
     e.component.refresh();
   }
 
+  nombreCompletoOperador(row: any): string {
+    return [row?.nombreOperador, row?.apellidoPaternoOperador, row?.apellidoMaternoOperador]
+      .filter((p) => p != null && String(p).trim() !== '')
+      .join(' ');
+  }
+
+  nombreCompletoCliente(row: any): string {
+    return [row?.nombreCliente, row?.apellidoPaternoCliente, row?.apellidoMaternoCliente]
+      .filter((p) => p != null && String(p).trim() !== '')
+      .join(' ');
+  }
+
   showInfo(id: any): void {
     console.log('Mostrar información de la transacción con ID:', id);
   }

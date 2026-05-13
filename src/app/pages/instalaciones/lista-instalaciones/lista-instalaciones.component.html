@@ -25,7 +25,7 @@
                     <div class="table-responsive mb-4 col-12 col-lg-12">
                         <dx-data-grid #gridContainer id="gridContainer" [columnHidingEnabled]="true"
                             [showBorders]="'true'" [showColumnLines]="true" [showRowLines]="true"
-                            [rowAlternationEnabled]="'true'" [dataSource]="listaInstalaciones" [keyExpr]="'Id'"
+                            [rowAlternationEnabled]="'true'" [dataSource]="listaInstalaciones" [keyExpr]="'id'"
                             [width]="'100%'" [remoteOperations]="{ paging: true }" [paging]="{ pageSize: pageSize }"
                             [pager]="{ 
                                 showPageSizeSelector: true, 
@@ -52,15 +52,34 @@
                                     {{ a.data.fechaActualizacion | date:'dd/MM/yyyy HH:mm' : '+0000' }}
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="numeroSerieDispositivo" caption="Dispositivo" alignment="center"></dxi-column>
-                            <dxi-column caption="BlueVox" alignment="center" cellTemplate="bluevoxTemplate">
-                                <div *dxTemplate="let row of 'bluevoxTemplate'">
-                                    {{ getBluevoxDisplayText(row.data) }}
+                            <dxi-column caption="Dispositivos" alignment="center" cellTemplate="dispoSi" [width]="150">
+                                <div *dxTemplate="let re of 'dispoSi'">
+                                    <ng-container *ngIf="re.data?.dispositivos?.length; else dispositivoPlano">
+                                        <div *ngFor="let d of re.data.dispositivos">
+                                            -{{ d?.numeroSerieDispositivo }}
+                                        </div>
+                                    </ng-container>
+                                    <ng-template #dispositivoPlano>
+                                        <span *ngIf="re.data?.numeroSerieDispositivo">-{{ re.data.numeroSerieDispositivo }}</span>
+                                    </ng-template>
                                 </div>
                             </dxi-column>
-                            <dxi-column dataField="placaVehiculo" caption="Vehículo" alignment="center" cellTemplate="instalVehiculo">
-                                <div *dxTemplate="let t of 'instalVehiculo' ">
-                                    {{'N° de Placa: ' + t.data.placaVehiculo}}
+                            <dxi-column caption="BlueVox" alignment="center" cellTemplate="bluevoxTemplate" [width]="150">
+                                <div *dxTemplate="let row of 'bluevoxTemplate'">
+                                    <ng-container *ngIf="row.data?.blueVoxs?.length; else blueVoxPlanoInst">
+                                        <div *ngFor="let bv of row.data.blueVoxs">
+                                            -{{ bv?.numeroSerieBlueVox }}
+                                        </div>
+                                    </ng-container>
+                                    <ng-template #blueVoxPlanoInst>
+                                        <span *ngIf="row.data?.numeroSerieBlueVox">-{{ row.data.numeroSerieBlueVox }}</span>
+                                        <span *ngIf="!row.data?.blueVoxs?.length && !row.data?.numeroSerieBlueVox">Sin registro</span>
+                                    </ng-template>
+                                </div>
+                            </dxi-column>
+                            <dxi-column caption="Vehículo" alignment="center" cellTemplate="instalVehiculo">
+                                <div *dxTemplate="let t of 'instalVehiculo'">
+                                    {{ textoVehiculo(t.data) }}
                                 </div>
                             </dxi-column>
                             <dxi-column dataField="estatus" caption="Estatus" alignment="center" cellTemplate="est">
