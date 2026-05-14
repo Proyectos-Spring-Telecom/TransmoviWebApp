@@ -30,4 +30,18 @@ export class BlueVoxService {
     );
   }
 
+  /** Resumen ascensos vs boletos por viaje (paginado). fechas en YYYY-MM-DD */
+  obtenerResumenPorViaje(
+    fechaInicio: string,
+    fechaFin: string,
+    page: number = 1,
+    limit: number = 10
+  ): Observable<any> {
+    const fi = encodeURIComponent(fechaInicio);
+    const ff = encodeURIComponent(fechaFin);
+    return this.http.get(
+      `${environment.API_SECURITY}/conteopasajeros/resumen-por-viaje/${fi}/${ff}?page=${page}&limit=${limit}`
+    );
+  }
+
 }

@@ -32,12 +32,20 @@ export class ListaBluevoxComponent implements OnInit {
   public totalRegistros: number = 0;
   public pageSize: number = 20;
   public totalPaginas: number = 0;
-  @ViewChild(DxDataGridComponent, { static: false }) dataGrid: DxDataGridComponent;
+  @ViewChild('gridContainer', { static: false }) dataGrid: DxDataGridComponent;
   public autoExpandAllGroups: boolean = true;
   isGrouped: boolean = false;
   public paginaActualData: any[] = [];
   public filtroActivo: string = '';
   public comparativaViajes: any[] = [];
+
+  /** Comparativa API resumen-por-viaje */
+  fechaComparativaInicio: Date;
+  fechaComparativaFin: Date;
+  resumenComparativaStore!: CustomStore;
+  public pageSizeComparativa = 10;
+  loadingComparativa = false;
+  @ViewChild('gridResumenComparativa', { static: false }) gridResumenComparativa: DxDataGridComponent;
 
   fechaInicial: Date;
   fechaFinal: Date;
@@ -52,7 +60,11 @@ export class ListaBluevoxComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const hoy = new Date();
+    this.fechaComparativaInicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+    this.fechaComparativaFin = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
     this.setupDataSource();
+    this.setupResumenComparativaStore();
   }
 
   realizarRegistro() {
@@ -378,6 +390,178 @@ export class ListaBluevoxComponent implements OnInit {
 
     comparativa.sort((a: any, b: any) => Number(a.idViaje) - Number(b.idViaje));
     return comparativa;
+  }
+
+  setupResumenComparativaStore(): void {
+    const toNum = (v: any): number | null => {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    };
+
+    this.resumenComparativaStore = new CustomStore({
+      key: '_resumenKey',
+      load: async (loadOptions: any) => {
+        const take = Number(loadOptions?.take) || this.pageSizeComparativa || 10;
+        const skip = Number(loadOptions?.skip) || 0;
+        const page = Math.floor(skip / take) + 1;
+
+        const fi = this.formatYMD(new Date(this.fechaComparativaInicio));
+        const ff = this.formatYMD(new Date(this.fechaComparativaFin));
+
+        if (new Date(fi) > new Date(ff)) {
+          return { data: [], totalCount: 0 };
+        }
+
+        this.loadingComparativa = true;
+        try {
+          const resp: any = await lastValueFrom(
+            this.serviceBlue.obtenerResumenPorViaje(fi, ff, page, take)
+          );
+          this.loadingComparativa = false;
+
+          const rows: any[] = Array.isArray(resp?.data) ? resp.data : [];
+          const meta = resp?.paginated || {};
+          const totalRegistros =
+            toNum(meta.total) ?? toNum(resp?.total) ?? rows.length;
+
+          const dataNormalizada = rows.map((row: any, idx: number) => {
+            const idViaje = row?.idViaje ?? row?.id_viaje;
+            const _resumenKey = String(
+              idViaje ?? `${row?.inicioViaje ?? 'viaje'}-${skip + idx}`
+            );
+            return { ...row, idViaje, _resumenKey };
+          });
+
+          return {
+            data: dataNormalizada,
+            totalCount: totalRegistros
+          };
+        } catch (err) {
+          this.loadingComparativa = false;
+          console.error('Error resumen-por-viaje:', err);
+          return { data: [], totalCount: 0 };
+        }
+      }
+    });
+  }
+
+  consultarResumenComparativa(): void {
+    if (!this.fechaComparativaInicio || !this.fechaComparativaFin) {
+      Swal.fire('Faltan fechas', 'Selecciona fecha inicial y final de la comparativa.', 'warning');
+      return;
+    }
+    const fi = this.formatYMD(new Date(this.fechaComparativaInicio));
+    const ff = this.formatYMD(new Date(this.fechaComparativaFin));
+    if (new Date(fi) > new Date(ff)) {
+      Swal.fire('Rango inválido', 'La fecha inicial no puede ser mayor que la final.', 'error');
+      return;
+    }
+    this.setupResumenComparativaStore();
+    if (this.gridResumenComparativa?.instance) {
+      this.gridResumenComparativa.instance.option('dataSource', this.resumenComparativaStore);
+      this.gridResumenComparativa.instance.pageIndex(0);
+      this.gridResumenComparativa.instance.refresh();
+    }
+  }
+
+  /** Columna Viaje del resumen: con id muestra `Viaje: n`; si no, guión. */
+  textoIdViajeResumen(row: any): string {
+    const v = row?.idViaje ?? row?.id_viaje;
+    if (v === null || v === undefined || String(v).trim() === '') {
+      return '—';
+    }
+    return `Viaje: ${v}`;
+  }
+
+  /** inicioViaje / finViaje ISO o texto legible */
+  formatoResumenFechaHora(val: any): string {
+    if (val == null || val === '') return '—';
+    if (val instanceof Date) {
+      const d = val;
+      return isNaN(d.getTime()) ? '—' : this.formatearSoloFechaHora(d);
+    }
+    const s = String(val).trim();
+    const normalizado =
+      /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(s) && !s.includes('T')
+        ? s.replace(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})/, '$1T$2')
+        : s;
+    const d = new Date(normalizado);
+    if (isNaN(d.getTime())) return s;
+    return this.formatearSoloFechaHora(d);
+  }
+
+  private formatearSoloFechaHora(d: Date): string {
+    return d.toLocaleString('es-MX', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  textoFinViajeResumen(row: any): string {
+    const v = row?.finViaje;
+    if (v == null || v === '') return 'En transcurso';
+    return this.formatoResumenFechaHora(v);
+  }
+
+  /** Filas etiqueta/valor para la celda Vehículo (objeto `vehiculo` o campos planos). */
+  vehiculoResumenFilas(row: any): { etiqueta: string; valor: string }[] {
+    const out: { etiqueta: string; valor: string }[] = [];
+    const v = row?.vehiculo;
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      const push = (etiqueta: string, val: any) => {
+        if (val == null || String(val).trim() === '') return;
+        out.push({ etiqueta, valor: String(val) });
+      };
+      push('Placa', v.placa);
+      push('N° económico', v.numeroEconomico);
+      push('Marca', v.marca);
+      push('Modelo', v.modelo);
+    }
+    if (!out.length) {
+      const push = (etiqueta: string, val: any) => {
+        if (val == null || String(val).trim() === '') return;
+        out.push({ etiqueta, valor: String(val) });
+      };
+      push('Placa', row?.placaVehiculo ?? row?.placa);
+      push('N° económico', row?.numeroEconomicoVehiculo ?? row?.numeroEconomico);
+    }
+    return out;
+  }
+
+  /** Lista `blueVoxs` del renglón resumen-por-viaje. */
+  blueVoxsResumenLista(row: any): any[] {
+    const arr = row?.blueVoxs ?? row?.blue_voxs;
+    return Array.isArray(arr) ? arr : [];
+  }
+
+  /** Fechas ISO o SQL `yyyy-MM-dd HH:mm:ss.ffffff` para conteos. */
+  formatearFechaConteoResumen(val: any): string {
+    if (val == null || val === '') {
+      return '—';
+    }
+    if (val instanceof Date) {
+      return this.formatoResumenFechaHora(val);
+    }
+    const s = String(val).trim();
+    const normalizado =
+      /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(s) && !s.includes('T')
+        ? s.replace(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})/, '$1T$2')
+        : s;
+    const d = new Date(normalizado);
+    if (isNaN(d.getTime())) {
+      return s;
+    }
+    return d.toLocaleString('es-MX', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
   }
 
 }

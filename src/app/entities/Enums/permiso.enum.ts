@@ -223,5 +223,16 @@ export enum Permiso {
   Consultar_Recaudacion_Detallada = "133",
   /** #endregion */
 
+  /* #region Transacciones */
+  Visualizar_Transacciones = "134",
+  /* #endregion */
+
+  /**#region Tipo Pasajero */
+  Listado_TipoPasajero = "135",
+  Crear_TipoPasajero = "136",
+  Actualizar_TipoPasajero = "137",
+  CambiarEstatus_TipoPasajero = "138",
+  /** #endregion */
+
 }
 

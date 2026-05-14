@@ -46,7 +46,7 @@ export const MENU: MenuItem[] = [
                 id: 15,
                 label: 'NAV.TIPO_PASAJERO',
                 link: '/tipo-pasajero',
-                permiso: Permiso.Listado_Monederos
+                permiso: Permiso.Listado_TipoPasajero
             },
             {
                 id: 8,

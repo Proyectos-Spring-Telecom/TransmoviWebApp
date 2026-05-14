@@ -62,13 +62,16 @@ export class RecaudacionDipositivoInstalacionComponent implements OnInit {
         ''
       : '';
 
-  public instalacionDisplayExpr = (i: any) =>
-    i
-      ? i.nombre ??
-        i.descripcion ??
-        i.codigo ??
-        ''
-      : '';
+  public instalacionDisplayExpr = (i: any) => {
+    if (!i) {
+      return '';
+    }
+    const placa = i.placaVehiculo ?? i.placa ?? '';
+    if (placa) {
+      return `Placa: ${placa}`;
+    }
+    return i.nombre ?? i.descripcion ?? i.codigo ?? '';
+  };
   public dispositivoDisabled: boolean = true;
 
   constructor(
@@ -200,27 +203,107 @@ export class RecaudacionDipositivoInstalacionComponent implements OnInit {
       return [];
     }
 
-    return data.map((item, index) => ({
-      id: item?.id ?? this.generarIdTemporal(item, index),
-      serieDispositivo: item?.serieDispositivo ?? item?.serie ?? 'Sin información',
-      serieBluevox: item?.serieBlueVox ?? item?.serieBluevox ?? 'Sin información',
-      vehiculo: item?.vehiculo ?? item?.numeroEconomico ?? item?.placa ?? 'Sin información',
-      validaciones: item?.validaciones ?? 0,
-      ingresos: item?.ingresos ?? 0,
-      ultimaPosicion: item?.ultimaPosicion
-        ? new Date(item.ultimaPosicion).toLocaleString('es-MX')
-        : 'Sin información',
-      estado: item?.estadoDispositivo ?? item?.estado ?? 'Sin información',
-    }));
+    return data.map((item, index) => {
+      const v = item?.vehiculo;
+      const vehiculoEsObjeto = v != null && typeof v === 'object' && !Array.isArray(v);
+      const placa = vehiculoEsObjeto
+        ? (v.placa ?? '')
+        : typeof v === 'string'
+          ? v
+          : (item?.placa ?? '');
+      const economico = vehiculoEsObjeto ? (v.numeroEconomico ?? '') : (item?.numeroEconomico ?? '');
+
+      const blueVoxs = Array.isArray(item?.blueVoxs) ? item.blueVoxs : [];
+
+      const tieneViaje = item?.inicioViaje != null && item.inicioViaje !== '';
+
+      return {
+        id: item?.id ?? this.generarIdTemporal(item, index),
+        inicioViaje: tieneViaje
+          ? this.formatearFechaHoraCampo(item.inicioViaje)
+          : item?.ultimaPosicion
+            ? this.formatearDateLocal(new Date(item.ultimaPosicion))
+            : '—',
+        finViaje:
+          item?.finViaje != null && item.finViaje !== ''
+            ? this.formatearFechaHoraCampo(item.finViaje)
+            : tieneViaje
+              ? 'En curso'
+              : '—',
+        vehiculoPlaca: placa || '—',
+        vehiculoEconomico: economico || '—',
+        totalAscensos: item?.totalAscensos ?? 0,
+        totalBoletos: item?.totalBoletos ?? 0,
+        diferenciaAscensoBoleto: item?.diferenciaAscensoBoleto ?? 0,
+        blueVoxs,
+        blueVoxsCount: blueVoxs.length,
+        serieDispositivo: item?.serieDispositivo ?? item?.serie ?? '—',
+        serieBluevox:
+          this.resumirSeriesBlueVox(blueVoxs) ||
+          (item?.serieBlueVox ?? item?.serieBluevox ?? '—'),
+        validaciones: item?.validaciones ?? 0,
+        ingresos: item?.ingresos ?? 0,
+        ultimaPosicion: item?.ultimaPosicion
+          ? this.formatearDateLocal(new Date(item.ultimaPosicion))
+          : '—',
+        estado: item?.estadoDispositivo ?? item?.estado ?? '—',
+      };
+    });
+  }
+
+  /** Opciones Intl compatibles con lib "es2018" (sin dateStyle/timeStyle). */
+  private static readonly opcionesFechaHora: Intl.DateTimeFormatOptions = {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  };
+
+  private formatearDateLocal(d: Date): string {
+    return d.toLocaleString('es-MX', RecaudacionDipositivoInstalacionComponent.opcionesFechaHora);
+  }
+
+  /** Usado en plantilla de detalle (conteos / fechas API). */
+  formatearFechaHoraCampo(valor: string | Date | null | undefined): string {
+    if (valor == null || valor === '') {
+      return '—';
+    }
+    if (valor instanceof Date) {
+      return this.formatearDateLocal(valor);
+    }
+    const s = String(valor).trim();
+    const normalizado =
+      /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(s) && !s.includes('T')
+        ? s.replace(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})/, '$1T$2')
+        : s;
+    const d = new Date(normalizado);
+    if (isNaN(d.getTime())) {
+      return s;
+    }
+    return this.formatearDateLocal(d);
+  }
+
+  private resumirSeriesBlueVox(blueVoxs: any[]): string {
+    if (!Array.isArray(blueVoxs) || blueVoxs.length === 0) {
+      return '';
+    }
+    return blueVoxs
+      .map((b) => b?.numeroSerie ?? b?.serie ?? '')
+      .filter(Boolean)
+      .join(', ');
   }
 
   private generarIdTemporal(item: any, index: number): string {
+    const placa = item?.vehiculo?.placa ?? item?.placa ?? '';
     const base =
-      item?.idInstalacion ??
-      item?.serieDispositivo ??
-      item?.serieBlueVox ??
-      item?.vehiculo ??
-      'row';
+      (item?.id ??
+        item?.idInstalacion ??
+        item?.inicioViaje ??
+        item?.serieDispositivo ??
+        item?.serieBlueVox ??
+        placa) || 'row';
     return `${base}-${index}`;
   }
 

@@ -254,6 +254,26 @@
     }
   }
 
+  /* Botones rápidos de monto — estado activo */
+  .amt-preset-row .amt-preset {
+    min-width: 2.75rem;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+
+    &.amt-preset--active {
+      color: #fff !important;
+      background: color-mix(in oklab, var(--accent) 72%, #1a4a6e) !important;
+      border-color: var(--accent) !important;
+      box-shadow:
+        0 0 0 1px rgba(90, 169, 255, 0.35) inset,
+        0 4px 14px rgba(90, 169, 255, 0.22);
+      font-weight: 700;
+    }
+
+    &.amt-preset--active:hover {
+      filter: brightness(1.06);
+    }
+  }
+
   /* =========================================================
      Paginación
      ========================================================= */
@@ -620,6 +640,40 @@
     cursor: pointer;
     user-select: none;
     flex: 1;
+  }
+
+  .metodo-pago-checkbox-custom--muted {
+    opacity: 0.45;
+    border-style: dashed;
+  }
+
+  /* Mercado Pago — solo visual (sin id en catálogo); sin interacción */
+  .metodo-pago-item--mp.metodo-pago-item--no-disponible {
+    pointer-events: none;
+    cursor: default;
+    background: linear-gradient(
+      135deg,
+      rgba(0, 158, 227, 0.12) 0%,
+      rgba(0, 47, 108, 0.2) 100%
+    );
+    border-color: rgba(0, 158, 227, 0.45);
+    box-shadow: 0 0 0 1px rgba(0, 158, 227, 0.1) inset;
+
+    &:hover {
+      background: linear-gradient(
+        135deg,
+        rgba(0, 158, 227, 0.14) 0%,
+        rgba(0, 47, 108, 0.22) 100%
+      );
+      border-color: rgba(0, 158, 227, 0.55);
+    }
+
+    .metodo-pago-label-item {
+      cursor: default;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+      color: #e8f7fc;
+    }
   }
 }
 
