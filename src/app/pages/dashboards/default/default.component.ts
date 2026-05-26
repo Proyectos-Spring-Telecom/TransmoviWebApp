@@ -190,14 +190,6 @@ export class DefaultComponent implements OnInit {
     const tarjetasUnicas = Array.from(new Set(debitos.filter(d => !!d.monedero).map(d => d.monedero!)));
     const pasajerosValidados = tarjetasUnicas.length;
     const ticket = pasajerosValidados ? ingresosDelDia / pasajerosValidados : 0;
-    const ascensos = this.conteosAsc.reduce((s, c) => s + c.ascensos, 0);
-    const efectivo = Math.max(ascensos - pasajerosValidados, 0);
-    const electronicos = debitos.filter(d => !!d.monedero).length;
-    const totalMedios = electronicos + efectivo;
-    const pctElec = totalMedios ? Math.round((electronicos / totalMedios) * 100) : 0;
-    const pctEfec = 100 - pctElec;
-    const unidadesTotales = 42;
-    const unidadesServ = Math.floor(unidadesTotales * (0.6 + Math.random() * 0.35));
     const turnosInicio = Math.floor(30 + Math.random() * 20);
     const turnosFin = Math.floor(turnosInicio * (0.75 + Math.random() * 0.2));
     const cumplimiento = Math.round((turnosFin / turnosInicio) * 100);
@@ -205,11 +197,11 @@ export class DefaultComponent implements OnInit {
 
     this.kpis = [
       { t: 'Ingresos del día (MXN)', v: ingresosDelDia.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }), s: `${debitos.length} movimientos` },
-      { t: 'Pasajeros alidados hoy', v: pasajerosValidados, s: `${tarjetasUnicas.length} Monederos Únicos` },
+      { t: 'Pasajeros validados hoy', v: '—', s: '' },
       { t: 'Ticket Promedio', v: ticket.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }) },
-      { t: '% Pagos electrónicos vs efectivo', v: `${pctElec}% / ${pctEfec}%`, s: `${ascensos} Ascensos • ${pasajerosValidados} Validados` },
+      { t: '% Pagos electrónicos vs efectivo', v: '—', s: '' },
       { t: 'Validaciones', v: `${debitos.length} / ${Math.floor(5 + Math.random() * 20)} fallidas` },
-      { t: 'Unidades en servicio / total', v: `${unidadesServ} / ${unidadesTotales}`, s: 'Últimos 15 min' },
+      { t: 'Unidades en servicio / total', v: '—', s: 'Últimos 15 min' },
       { t: 'Cumplimiento de turnos', v: `${cumplimiento}%`, s: `${turnosFin}/${turnosInicio} Cerrados` },
       { t: 'Ocupación promedio', v: `${ocupacion}%`, s: 'Capacidad Teórica' }
     ];
@@ -483,15 +475,16 @@ export class DefaultComponent implements OnInit {
     return 'Ingresos por hora (hoy)';
   }
 
-  private procesarRespuestaKPIs(data: any): void {
-    if (!data) return;
+  private procesarRespuestaKPIs(payload: any): void {
+    if (!payload) return;
+    const root = (payload as any)?.data ?? payload;
 
     // Procesar graficaIngresos para dsIngresosHora
-    if (data.graficaIngresos && Array.isArray(data.graficaIngresos)) {
+    if (root.graficaIngresos && Array.isArray(root.graficaIngresos)) {
       // Determinar el título basado en el formato del periodo
-      this.tituloIngresos = this.determinarTituloIngresos(data.graficaIngresos);
+      this.tituloIngresos = this.determinarTituloIngresos(root.graficaIngresos);
       
-      this.dsIngresosHora = data.graficaIngresos.map((item: any, index: number) => {
+      this.dsIngresosHora = root.graficaIngresos.map((item: any, index: number) => {
         const periodoFormateado = this.formatearPeriodo(item.periodo, index);
         
         return {
@@ -503,8 +496,8 @@ export class DefaultComponent implements OnInit {
     }
 
     // Procesar graficaAscensoBoleto para dsBrecha
-    if (data.graficaAscensoBoleto && Array.isArray(data.graficaAscensoBoleto) && data.graficaAscensoBoleto.length > 0) {
-      this.dsBrecha = data.graficaAscensoBoleto.map((item: any, index: number) => {
+    if (root.graficaAscensoBoleto && Array.isArray(root.graficaAscensoBoleto) && root.graficaAscensoBoleto.length > 0) {
+      this.dsBrecha = root.graficaAscensoBoleto.map((item: any, index: number) => {
         const periodoFormateado = this.formatearPeriodo(item.periodo, index);
         
         // Convertir explícitamente a números para asegurar que se muestren en la gráfica
@@ -523,10 +516,10 @@ export class DefaultComponent implements OnInit {
     }
 
     // Procesar graficaPasajerosPorRutas para dsPasajerosPorHora
-    if (data.graficaPasajerosPorRutas && Array.isArray(data.graficaPasajerosPorRutas) && data.graficaPasajerosPorRutas.length > 0) {
+    if (root.graficaPasajerosPorRutas && Array.isArray(root.graficaPasajerosPorRutas) && root.graficaPasajerosPorRutas.length > 0) {
       // Obtener todas las rutas únicas
       const rutasUnicas = new Set<string>();
-      data.graficaPasajerosPorRutas.forEach((item: any) => {
+      root.graficaPasajerosPorRutas.forEach((item: any) => {
         const nombreRuta = item.ruta ?? item.Ruta ?? '';
         if (nombreRuta) {
           rutasUnicas.add(nombreRuta);
@@ -546,7 +539,7 @@ export class DefaultComponent implements OnInit {
       // Agrupar datos por periodo
       const datosPorPeriodo = new Map<string, any>();
       
-      data.graficaPasajerosPorRutas.forEach((item: any) => {
+      root.graficaPasajerosPorRutas.forEach((item: any) => {
         const periodo = item.periodo ?? '';
         const nombreRuta = item.ruta ?? item.Ruta ?? '';
         const pasajeros = Number(item.pasajeros) || 0;
@@ -577,8 +570,8 @@ export class DefaultComponent implements OnInit {
     }
 
     // Procesar velocidadPromedioPorRuta para dsVelocidadPromedio
-    if (data.velocidadPromedioPorRuta && Array.isArray(data.velocidadPromedioPorRuta)) {
-      this.dsVelocidadPromedio = data.velocidadPromedioPorRuta.map((item: any) => {
+    if (root.velocidadPromedioPorRuta && Array.isArray(root.velocidadPromedioPorRuta)) {
+      this.dsVelocidadPromedio = root.velocidadPromedioPorRuta.map((item: any) => {
         const nombreRuta = item.ruta ?? item.Ruta ?? 'Sin nombre';
         const velocidad = Number(item.velocidad_promedio) || 0;
         
@@ -593,11 +586,11 @@ export class DefaultComponent implements OnInit {
     }
 
     // Procesar grafica4 para topRutas
-    if (data.grafica4 && Array.isArray(data.grafica4)) {
+    if (root.grafica4 && Array.isArray(root.grafica4)) {
       // Agrupar por ruta y sumar ingresosTotales
       const rutasMap = new Map<string, number>();
       
-      data.grafica4.forEach((item: any) => {
+      root.grafica4.forEach((item: any) => {
         const nombreRuta = item.Ruta ?? item.ruta ?? 'Sin nombre';
         const ingresos = item.ingresosTotales ?? 0;
         
@@ -625,8 +618,8 @@ export class DefaultComponent implements OnInit {
       
       // Ingresos del día
       if (titulo.includes('ingresos') && (titulo.includes('día') || titulo.includes('dia'))) {
-        const valor = data.ingresosAlDia ?? 0;
-        const totalMovimientos = data.totalMovimientos ?? 0;
+        const valor = root.ingresosAlDia ?? 0;
+        const totalMovimientos = root.totalMovimientos ?? 0;
         return {
           ...kpi,
           v: valor.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }),
@@ -636,26 +629,42 @@ export class DefaultComponent implements OnInit {
       
       // Pasajeros validados
       if (titulo.includes('pasajeros') && titulo.includes('validados')) {
-        const valor = data.pasajerosValidados ?? 0;
+        const valor = Number(root.pasajerosValidados ?? root.PasajerosValidados ?? 0) || 0;
+        const asc = this.ascensosParaSubtitulo(root);
+        const mon = this.primerValorNumerico(root, ['monederosUnicos', 'totalMonederosUnicos', 'MonederosUnicos']);
+        let s = '';
+        if (asc != null) {
+          s = `${asc} Ascensos • ${valor} Validados`;
+        } else if (mon != null) {
+          s = `${mon} Monederos únicos`;
+        }
         return {
           ...kpi,
-          v: valor
+          v: valor,
+          s
         };
       }
       
       // Ticket promedio
       if (titulo.includes('ticket') && titulo.includes('promedio')) {
-        const valor = data.ticketPromedio ?? 0;
+        const valor = root.ticketPromedio ?? 0;
         return {
           ...kpi,
           v: valor.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })
         };
       }
+
+      // % Pagos electrónicos vs efectivo (solo datos del servicio)
+      if (titulo.includes('pagos') && titulo.includes('electr')) {
+        const validados = Number(root.pasajerosValidados ?? root.PasajerosValidados ?? 0) || 0;
+        const { v, s } = this.textoPagosElectronicosVsEfectivo(root, validados);
+        return { ...kpi, v, s };
+      }
       
       // Validaciones
       if (titulo.includes('validaciones')) {
-        const exitosas = data.validacionesExitosas ?? 0;
-        const fallidas = data.validacionesFallidas ?? 0;
+        const exitosas = root.validacionesExitosas ?? 0;
+        const fallidas = root.validacionesFallidas ?? 0;
         return {
           ...kpi,
           v: `${exitosas} / ${fallidas} fallidas`
@@ -664,17 +673,18 @@ export class DefaultComponent implements OnInit {
       
       // Unidades en servicio
       if (titulo.includes('unidades') && titulo.includes('servicio')) {
-        const enServicio = data.unidadesEnServicio ?? 0;
-        const total = data.totalUnidades ?? 0;
+        const enServicio = root.unidadesEnServicio ?? 0;
+        const total = root.totalUnidades ?? 0;
         return {
           ...kpi,
-          v: `${enServicio} / ${total}`
+          v: `${enServicio} / ${total}`,
+          s: 'Últimos 15 min'
         };
       }
       
       // Cumplimiento de turnos
       if (titulo.includes('cumplimiento') && titulo.includes('turnos')) {
-        const valor = data.cumplimientoTurnos;
+        const valor = root.cumplimientoTurnos;
         if (valor !== null && valor !== undefined) {
           return {
             ...kpi,
@@ -692,7 +702,7 @@ export class DefaultComponent implements OnInit {
       
       // Ocupación promedio
       if (titulo.includes('ocupación') || titulo.includes('ocupacion')) {
-        const valor = data.ocupacionPromedio ?? 0;
+        const valor = root.ocupacionPromedio ?? 0;
         return {
           ...kpi,
           v: `${valor}%`
@@ -701,6 +711,83 @@ export class DefaultComponent implements OnInit {
       
       return kpi;
     });
+  }
+
+  private primerValorNumerico(obj: any, keys: string[]): number | undefined {
+    if (!obj || typeof obj !== 'object') return undefined;
+    for (const key of keys) {
+      const raw = obj[key];
+      if (raw === null || raw === undefined || raw === '') continue;
+      const n = Number(raw);
+      if (!Number.isNaN(n)) return n;
+    }
+    return undefined;
+  }
+
+  /** Ascensos reportados por el API o suma de la gráfica ascenso/boleto (sin datos de demostración). */
+  private ascensosParaSubtitulo(root: any): number | undefined {
+    const direct = this.primerValorNumerico(root, ['totalAscensos', 'ascensosTotales', 'ascensos', 'TotalAscensos']);
+    if (direct != null) return direct;
+    const arr = root.graficaAscensoBoleto;
+    if (!Array.isArray(arr) || arr.length === 0) return undefined;
+    const suma = arr.reduce((s: number, item: any) => s + (Number(item.ascensos) || 0), 0);
+    return suma > 0 ? suma : undefined;
+  }
+
+  private textoPagosElectronicosVsEfectivo(root: any, pasajerosValidados: number): { v: string; s: string } {
+    const pctEl = this.primerValorNumerico(root, [
+      'porcentajePagosElectronicos',
+      'porcentajeElectronicos',
+      'pctPagosElectronicos',
+      'pctElectronicos',
+      'porcentajeElectronico',
+    ]);
+    const pctEf = this.primerValorNumerico(root, [
+      'porcentajePagosEfectivo',
+      'porcentajeEfectivo',
+      'pctPagosEfectivo',
+      'pctEfectivo',
+    ]);
+    const subtitulo = (): string => {
+      const asc = this.ascensosParaSubtitulo(root);
+      if (asc != null) {
+        return `${asc} Ascensos • ${pasajerosValidados} Validados`;
+      }
+      return '';
+    };
+
+    if (pctEl != null && pctEf != null) {
+      return {
+        v: `${Math.round(pctEl)}% / ${Math.round(pctEf)}%`,
+        s: subtitulo(),
+      };
+    }
+    if (pctEl != null) {
+      const e = Math.max(0, Math.min(100, Math.round(pctEl)));
+      return { v: `${e}% / ${100 - e}%`, s: subtitulo() };
+    }
+
+    const pe = this.primerValorNumerico(root, [
+      'pagosElectronicos',
+      'totalPagosElectronicos',
+      'cantidadPagosElectronicos',
+      'boletosElectronicos',
+    ]);
+    const pf = this.primerValorNumerico(root, [
+      'pagosEfectivo',
+      'totalPagosEfectivo',
+      'cantidadPagosEfectivo',
+      'boletosEfectivo',
+    ]);
+    if (pe != null && pf != null) {
+      const t = pe + pf;
+      if (t > 0) {
+        const e = Math.round((pe / t) * 100);
+        return { v: `${e}% / ${100 - e}%`, s: subtitulo() };
+      }
+    }
+
+    return { v: '—', s: '' };
   }
 
   private formatearFechaISO(fecha: Date | string): string {

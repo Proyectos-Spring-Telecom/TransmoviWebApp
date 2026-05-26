@@ -8,6 +8,14 @@ import { MonederosServices } from 'src/app/shared/services/monederos.service';
 import { TransaccionesService } from 'src/app/shared/services/transacciones.service';
 import Swal from 'sweetalert2';
 
+export type MetodoPagoUiVariant = 'efectivo' | 'grupo';
+
+export interface OpcionMetodoPagoUi {
+  id: number;
+  nombre: string;
+  variant: MetodoPagoUiVariant;
+}
+
 @Component({
   selector: 'app-punto-venta-post',
   templateUrl: './punto-venta-post.component.html',
@@ -38,6 +46,8 @@ export class PuntoVentaPostComponent implements OnInit {
   public transaccionForm: FormGroup;
   public showForm = false;
   public listaMetodosPago: any[] = [];
+  /** Paso 2: efectivo y el resto del catálogo agrupado (un id representativo: el menor del grupo). */
+  public opcionesMetodoPagoUi: OpcionMetodoPagoUi[] = [];
 
   constructor(
     private modalService: NgbModal,
@@ -57,10 +67,12 @@ export class PuntoVentaPostComponent implements OnInit {
           id: Number(m?.id ?? m?.Id ?? m?.idMetodoPago ?? m?.ID),
           nombre: m?.nombre ?? m?.Nombre ?? m?.descripcion ?? m?.Descripcion ?? 'Sin nombre',
         })) : [];
+        this.rebuildOpcionesMetodoPago();
       },
       error: (error) => {
         console.error('Error al cargar métodos de pago', error);
         this.listaMetodosPago = [];
+        this.opcionesMetodoPagoUi = [];
       }
     });
   }
@@ -413,6 +425,12 @@ export class PuntoVentaPostComponent implements OnInit {
     this.transaccionForm.patchValue({ monto: this.monto });
   }
 
+  /** Indica si el monto actual coincide con un botón rápido ($1, $5, etc.). */
+  isMontoPresetActivo(valorPreset: number): boolean {
+    const m = Number((this.monto ?? 0).toFixed(2));
+    return m === Number(valorPreset);
+  }
+
   inc(delta: number) {
     this.monto = Math.max(0, (this.monto || 0) + delta);
     this.montoView = this.monto.toFixed(2);
@@ -468,6 +486,59 @@ export class PuntoVentaPostComponent implements OnInit {
   isMetodoPagoSelected(metodoId: number): boolean {
     const currentValue = this.transaccionForm.get('idMetodoPago')?.value;
     return currentValue === metodoId;
+  }
+
+  private static isEfectivoNombre(nombre: string): boolean {
+    return /efectivo|cash/i.test(String(nombre || '').trim());
+  }
+
+  private static isMercadoPagoNombre(nombre: string): boolean {
+    const n = String(nombre || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+    return /mercado\s*pago|mercadopago/.test(n);
+  }
+
+  /** Muestra chip «Mercado Pago» solo si el catálogo aún no trae ese método (sin id usable). */
+  get mostrarMercadoPagoPlaceholder(): boolean {
+    const raw = this.listaMetodosPago;
+    if (!Array.isArray(raw) || raw.length === 0) return false;
+    return !raw.some((m) => PuntoVentaPostComponent.isMercadoPagoNombre(String(m?.nombre ?? '')));
+  }
+
+  /**
+   * Métodos de pago en UI:
+   * - Efectivo: tal cual el catálogo (p. ej. id 1, nombre «Efectivo»).
+   * - «Tarjeta y pago electrónico»: agrupa todo lo que no es efectivo; al elegirla se envía un solo
+   *   `idMetodoPago` representativo: el **menor id** del grupo (p. ej. con Transferencia=2,
+   *   Tarjetas crédito=3, Débito=4 → se usa **2**). Si el catálogo cambia, sigue siendo el mínimo
+   *   entre los no-efectivo.
+   * - Mercado Pago: tarjeta solo visual en plantilla mientras no exista en el catálogo (sin id ni clic).
+   */
+  private rebuildOpcionesMetodoPago(): void {
+    const raw = Array.isArray(this.listaMetodosPago) ? [...this.listaMetodosPago] : [];
+    const out: OpcionMetodoPagoUi[] = [];
+
+    const efectivo = raw.filter((m) => PuntoVentaPostComponent.isEfectivoNombre(m.nombre));
+    const grupo = raw.filter((m) => !PuntoVentaPostComponent.isEfectivoNombre(m.nombre));
+
+    if (efectivo.length) {
+      const m = efectivo[0];
+      out.push({ id: m.id, nombre: m.nombre, variant: 'efectivo' });
+    }
+
+    if (grupo.length) {
+      const sorted = [...grupo].sort((a, b) => a.id - b.id);
+      const m = sorted[0];
+      out.push({
+        id: m.id,
+        nombre: 'Tarjeta y pago electrónico',
+        variant: 'grupo',
+      });
+    }
+
+    this.opcionesMetodoPagoUi = out;
   }
 
   confirmarRecarga() {

@@ -12,7 +12,7 @@
                     <p class="u-banner__subtitle">
                         Consulta, busca y navega entre tus tipos pasajeros registrados
                     </p>
-                    <div *appHasPermission="'18'">
+                    <div *appHasPermission="'136'">
                         <button class="u-btn u-btn--primary" (click)="agregarTipo()">
                             <i class="fas fa-plus"></i>
                             <span>Agregar Tipo Pasajero</span>
@@ -34,7 +34,7 @@
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column *appHasPermission="['19', '20']" caption="Acciones" cellTemplate="Acciones"
+                            <dxi-column *appHasPermission="['137', '138']" caption="Acciones" cellTemplate="Acciones"
                                 alignment="center" dataType="string" [width]="180">
                             </dxi-column>
                             <dxi-column dataField="nombre" caption="Nombre" alignment="center"
@@ -76,13 +76,13 @@
                                 [texts]="{ exportAll: 'Exportar todos los datos a Excel', exportSelectedRows: 'Exportar filas seleccionadas a Excel' }">
                             </dxo-export>
                             <div *dxTemplate="let row of 'Acciones'" class="d-flex gap-3 justify-content-center">
-                                <div *appHasPermission="'19'">
+                                <div *appHasPermission="'137'">
                                     <button valueExpr="id" id="actualizarButton" class="btnAcciones"
                                         (click)="actualizarTipo(row.data.id)">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </div>
-                                <div *appHasPermission="'20'">
+                                <div *appHasPermission="'138'">
                                     <button *ngIf="row.data.estatus === 0" id="pinButton" class="btnAcciones"
                                         (click)="activar(row.data)">
                                         <i class="fa fa-arrow-up"></i>

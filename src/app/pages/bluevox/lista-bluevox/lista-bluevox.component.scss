@@ -179,3 +179,154 @@ div:where(.swal2-container) .swal2-html-container {
   border: none;
   background-color: #002136;
 }
+
+/* Bitácora: celdas con plantilla alineadas al centro */
+.bv-cell-center {
+  text-align: center;
+  width: 100%;
+}
+
+/* Comparativa resumen-por-viaje: contenido centrado y bloques legibles */
+.resumen-cell-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  padding: 6px 4px;
+  box-sizing: border-box;
+}
+
+.resumen-dash {
+  color: #9ec5fe;
+  opacity: 0.85;
+}
+
+.resumen-vehiculo-card {
+  border: 1px solid rgba(46, 113, 132, 0.5);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: rgba(9, 46, 60, 0.5);
+  max-width: 280px;
+}
+
+.resumen-kv {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  justify-content: center;
+  align-items: baseline;
+  font-size: 13px;
+  line-height: 1.35;
+  margin-bottom: 4px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.resumen-kv__k {
+  color: #9ec5fe;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.resumen-kv__v {
+  color: #eaf3ff;
+  font-weight: 600;
+}
+
+.resumen-bv-root {
+  min-width: 0;
+}
+
+.resumen-bv-list {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.resumen-bv-card {
+  border: 1px solid rgba(46, 113, 132, 0.55);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(9, 46, 60, 0.55);
+  text-align: center;
+}
+
+.resumen-bv-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(15, 163, 127, 0.12);
+  border-bottom: 1px solid rgba(46, 113, 132, 0.4);
+  color: #eaf3ff;
+  font-size: 13px;
+
+  i {
+    color: #0fa37f;
+  }
+}
+
+.resumen-bv-label {
+  font-weight: 600;
+  color: #9ec5fe;
+}
+
+.resumen-bv-serie {
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+}
+
+.resumen-bv-table-wrap {
+  padding: 0;
+  overflow-x: auto;
+}
+
+.resumen-bv-table {
+  color: #eaf3ff;
+  --bs-table-bg: transparent;
+  --bs-table-border-color: rgba(46, 113, 132, 0.35);
+  font-size: 12px;
+
+  thead th {
+    text-align: center;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #9ec5fe;
+    font-weight: 600;
+    padding: 8px 6px;
+    white-space: nowrap;
+    border-color: rgba(46, 113, 132, 0.35);
+  }
+
+  tbody td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 7px 6px;
+    border-color: rgba(46, 113, 132, 0.25);
+  }
+
+  tbody tr:nth-child(even) {
+    background: rgba(0, 0, 0, 0.1);
+  }
+}
+
+.resumen-bv-empty {
+  padding: 10px;
+  font-size: 12px;
+  color: #9ec5fe;
+}
+
+::ng-deep #gridResumenComparativa .dx-datagrid-rowsview .dx-data-row > td {
+  vertical-align: middle;
+}

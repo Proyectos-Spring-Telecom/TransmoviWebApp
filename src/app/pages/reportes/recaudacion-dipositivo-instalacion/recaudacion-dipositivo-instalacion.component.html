@@ -74,27 +74,70 @@
                             <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
                             <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
                             <dxo-grouping [autoExpandAll]="true"></dxo-grouping>
-                            <dxi-column dataField="serieDispositivo" caption="Serie Dispositivo" dataType="string"
-                                alignment="center"></dxi-column>
 
-                            <dxi-column dataField="serieBluevox" caption="Serie BlueVox" dataType="string"
-                                alignment="center"></dxi-column>
+                            <dxo-master-detail [enabled]="true" template="detalleBlueVoxConteos"></dxo-master-detail>
 
-                            <dxi-column dataField="vehiculo" caption="Vehículo" dataType="string"
-                                alignment="center"></dxi-column>
+                            <dxi-column dataField="inicioViaje" caption="Inicio de viaje" dataType="string"
+                                alignment="center" [width]="170"></dxi-column>
+                            <dxi-column dataField="finViaje" caption="Fin de viaje" dataType="string"
+                                alignment="center" [width]="170"></dxi-column>
+                            <dxi-column dataField="vehiculoPlaca" caption="Placa" dataType="string"
+                                alignment="center" [width]="120"></dxi-column>
+                            <dxi-column dataField="vehiculoEconomico" caption="N° económico" dataType="string"
+                                alignment="center" [width]="130"></dxi-column>
+                            <dxi-column dataField="totalAscensos" caption="Total ascensos" dataType="number"
+                                alignment="right" [width]="120"></dxi-column>
+                            <dxi-column dataField="totalBoletos" caption="Total boletos" dataType="number"
+                                alignment="right" [width]="120"></dxi-column>
+                            <dxi-column dataField="diferenciaAscensoBoleto" caption="Dif. ascenso − boleto"
+                                dataType="number" alignment="right" [width]="150"></dxi-column>
+                            <dxi-column dataField="blueVoxsCount" caption="BlueVox" dataType="number"
+                                alignment="center" [width]="90"></dxi-column>
 
-                            <dxi-column dataField="validaciones" caption="Validaciones" dataType="number"
-                                alignment="center"></dxi-column>
+                            <dxi-column dataField="serieDispositivo" caption="Serie dispositivo" dataType="string"
+                                alignment="center" [visible]="false"></dxi-column>
+                            <dxi-column dataField="serieBluevox" caption="Series BlueVox" dataType="string"
+                                alignment="center" [visible]="false"></dxi-column>
 
-                            <dxi-column dataField="ingresos" caption="Ingresos (MXN)" dataType="number"
-                                alignment="center"></dxi-column>
-
-                            <dxi-column dataField="ultimaPosicion" caption="Última Posición" dataType="string"
-                                alignment="center"></dxi-column>
-
-                            <dxi-column dataField="estado" caption="Estado" dataType="string"
-                                alignment="center"></dxi-column>
-
+                            <div *dxTemplate="let row of 'detalleBlueVoxConteos'">
+                                <div class="detalle-recaudacion-bv">
+                                    <ng-container *ngIf="row.data.blueVoxs?.length">
+                                        <div *ngFor="let bv of row.data.blueVoxs" class="bv-card">
+                                            <div class="bv-card-header">
+                                                <i class="fas fa-broadcast-tower" aria-hidden="true"></i>
+                                                <span class="bv-label">BlueVox</span>
+                                                <span class="bv-serie">{{ bv.numeroSerie ?? bv.serie ?? '—' }}</span>
+                                            </div>
+                                            <div *ngIf="bv.conteos?.length" class="table-responsive bv-conteos-table-wrap">
+                                                <table class="table table-sm bv-conteos-table mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Fecha y hora</th>
+                                                            <th class="text-end">Entradas</th>
+                                                            <th class="text-end">Salidas</th>
+                                                            <th class="text-end">Diferencia</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr *ngFor="let c of bv.conteos">
+                                                            <td>{{ formatearFechaHoraCampo(c.fechaHora) }}</td>
+                                                            <td class="text-end">{{ c.entradas ?? 0 }}</td>
+                                                            <td class="text-end">{{ c.salidas ?? 0 }}</td>
+                                                            <td class="text-end">{{ c.diferencia ?? 0 }}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <p *ngIf="!bv.conteos?.length" class="bv-sin-conteos mb-0">
+                                                Sin conteos para este BlueVox.
+                                            </p>
+                                        </div>
+                                    </ng-container>
+                                    <p *ngIf="!row.data.blueVoxs?.length" class="bv-sin-conteos mb-0">
+                                        Sin equipos BlueVox en este registro.
+                                    </p>
+                                </div>
+                            </div>
                         </dx-data-grid>
                     </div>
                 </div>

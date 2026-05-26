@@ -274,14 +274,21 @@
                       </div>
                       <button class="btn btn-ghost amt-side flex-shrink-0" (click)="inc(50)">+ $50</button>
                     </div>
-                    <div class="d-flex flex-wrap gap-1 gap-sm-2 justify-content-center mb-2">
-                      <button class="btn btn-outline-accent btn-sm" (click)="setMonto(1)">$1</button>
-                      <button class="btn btn-outline-accent btn-sm" (click)="setMonto(2)">$2</button>
-                      <button class="btn btn-outline-accent btn-sm" (click)="setMonto(5)">$5</button>
-                      <button class="btn btn-outline-accent btn-sm" (click)="setMonto(10)">$10</button>
-                      <button class="btn btn-outline-accent btn-sm" (click)="setMonto(20)">$20</button>
-                      <button class="btn btn-outline-accent btn-sm" (click)="setMonto(50)">$50</button>
-                      <button class="btn btn-outline-accent btn-sm" (click)="setMonto(100)">$100</button>
+                    <div class="d-flex flex-wrap gap-1 gap-sm-2 justify-content-center mb-2 amt-preset-row">
+                      <button type="button" class="btn btn-outline-accent btn-sm amt-preset"
+                        [class.amt-preset--active]="isMontoPresetActivo(1)" (click)="setMonto(1)">$1</button>
+                      <button type="button" class="btn btn-outline-accent btn-sm amt-preset"
+                        [class.amt-preset--active]="isMontoPresetActivo(2)" (click)="setMonto(2)">$2</button>
+                      <button type="button" class="btn btn-outline-accent btn-sm amt-preset"
+                        [class.amt-preset--active]="isMontoPresetActivo(5)" (click)="setMonto(5)">$5</button>
+                      <button type="button" class="btn btn-outline-accent btn-sm amt-preset"
+                        [class.amt-preset--active]="isMontoPresetActivo(10)" (click)="setMonto(10)">$10</button>
+                      <button type="button" class="btn btn-outline-accent btn-sm amt-preset"
+                        [class.amt-preset--active]="isMontoPresetActivo(20)" (click)="setMonto(20)">$20</button>
+                      <button type="button" class="btn btn-outline-accent btn-sm amt-preset"
+                        [class.amt-preset--active]="isMontoPresetActivo(50)" (click)="setMonto(50)">$50</button>
+                      <button type="button" class="btn btn-outline-accent btn-sm amt-preset"
+                        [class.amt-preset--active]="isMontoPresetActivo(100)" (click)="setMonto(100)">$100</button>
                       <!-- <button class="btn btn-outline-accent btn-sm" (click)="setMonto(200)">$200</button>
                   <button class="btn btn-outline-accent btn-sm" (click)="setMonto(300)">$300</button> -->
                     </div>
@@ -290,15 +297,21 @@
                         <i class="bi bi-credit-card me-2"></i>Métodos de Pago
                       </label>
                       <div class="metodos-pago-options d-flex flex-wrap gap-2 gap-sm-3 justify-content-center">
-                        <label class="metodo-pago-item" *ngFor="let metodo of listaMetodosPago"
-                          [class.selected]="isMetodoPagoSelected(metodo.id)" (click)="onMetodoPagoChange(metodo.id)">
+                        <label class="metodo-pago-item" *ngFor="let op of opcionesMetodoPagoUi"
+                          [class.selected]="isMetodoPagoSelected(op.id)" (click)="onMetodoPagoChange(op.id)">
                           <input class="metodo-pago-checkbox" type="checkbox"
-                            [checked]="isMetodoPagoSelected(metodo.id)" (change)="onMetodoPagoChange(metodo.id)"
+                            [checked]="isMetodoPagoSelected(op.id)" (change)="onMetodoPagoChange(op.id)"
                             style="position: absolute; opacity: 0; pointer-events: none;">
                           <span class="metodo-pago-checkbox-custom"
-                            [class.checked]="isMetodoPagoSelected(metodo.id)"></span>
-                          <span class="metodo-pago-label-item">{{ metodo.nombre }}</span>
+                            [class.checked]="isMetodoPagoSelected(op.id)"></span>
+                          <span class="metodo-pago-label-item">{{ op.nombre }}</span>
                         </label>
+                        <div 
+                          class="metodo-pago-item metodo-pago-item--mp metodo-pago-item--no-disponible"
+                          aria-hidden="true">
+                          <span class="metodo-pago-checkbox-custom metodo-pago-checkbox-custom--muted"></span>
+                          <span class="metodo-pago-label-item mb-0">Mercado Pago</span>
+                        </div>
                       </div>
                     </div>
                     <div class="flex-grow-1"></div>
