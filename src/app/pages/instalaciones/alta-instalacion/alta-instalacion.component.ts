@@ -300,27 +300,12 @@ export class AltaInstalacionComponent implements OnInit {
       return;
     }
 
-    const vehiculo = this.listaVehiculos.find((v: any) => Number(v.id) === Number(idVehiculo));
-    const cantidadAccesos = vehiculo?.cantidadAccesos != null ? Number(vehiculo.cantidadAccesos) : null;
+    // Regla actual: la selección de dispositivos/bluevox es libre y NO depende de cantidadAccesos.
+    idsBlueVoxsCtrl?.clearValidators();
+    idsBlueVoxsCtrl?.setValidators([Validators.required]);
 
-    if (cantidadAccesos != null && cantidadAccesos >= 1) {
-      idsBlueVoxsCtrl?.setValidators([
-        Validators.required,
-        this.maxBluevoxValidator.bind(this),
-      ]);
-      idsDispositivosCtrl?.setValidators([
-        Validators.required,
-        this.maxDispositivosValidator.bind(this),
-      ]);
-    } else {
-      // Sin cantidadAccesos en el catálogo del vehículo: no forzar vaciar selección múltiple
-      // (rompe edición cuando el GET trae 2+ dispositivos/BlueVox y el vehículo no incluye el campo).
-      idsBlueVoxsCtrl?.clearValidators();
-      idsBlueVoxsCtrl?.setValidators([Validators.required]);
-
-      idsDispositivosCtrl?.clearValidators();
-      idsDispositivosCtrl?.setValidators([Validators.required]);
-    }
+    idsDispositivosCtrl?.clearValidators();
+    idsDispositivosCtrl?.setValidators([Validators.required]);
 
     idsBlueVoxsCtrl?.updateValueAndValidity({ emitEvent: false });
     idsDispositivosCtrl?.updateValueAndValidity({ emitEvent: false });
@@ -361,11 +346,7 @@ export class AltaInstalacionComponent implements OnInit {
 
   /** Límite de Bluevox según cantidadAccesos del vehículo seleccionado. */
   getCantidadAccesosMax(): number | null {
-    const idVehiculo = this.instalacionesForm.get('idVehiculo')?.value;
-    if (!idVehiculo) return null;
-    const vehiculo = this.listaVehiculos.find((v: any) => Number(v.id) === Number(idVehiculo));
-    const n = vehiculo?.cantidadAccesos != null ? Number(vehiculo.cantidadAccesos) : null;
-    return n != null && n >= 1 ? n : null;
+    return null;
   }
 
   tieneLimiteBluevox(): boolean {
@@ -1963,21 +1944,8 @@ export class AltaInstalacionComponent implements OnInit {
   toggleDispositivo(id: number, event: any): void {
     const currentValue = this.instalacionesForm.get('idsDispositivos')?.value || [];
     const selectedIds = Array.isArray(currentValue) ? [...currentValue] : [];
-    const max = this.getCantidadAccesosMax();
 
     if (event.target.checked) {
-      if (max != null && selectedIds.length >= max) {
-        event.target.checked = false;
-        Swal.fire({
-          title: '¡Límite alcanzado!',
-          text: `Este vehículo permite hasta ${max} dispositivo${max !== 1 ? 's' : ''} (cantidad de accesos).`,
-          icon: 'warning',
-          background: '#002136',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Entendido',
-        });
-        return;
-      }
       if (
         this.idInstalacion &&
         this.maxDispositivosEnEdicion != null
@@ -2421,24 +2389,9 @@ export class AltaInstalacionComponent implements OnInit {
   toggleBluevox(id: number, event: any): void {
     const currentValue = this.instalacionesForm.get('idsBlueVoxs')?.value || [];
     const selectedIds = Array.isArray(currentValue) ? [...currentValue] : [];
-    const max = this.getCantidadAccesosMax();
     
     if (event.target.checked) {
-      // Validación 1: Límite por cantidadAccesos del vehículo
-      if (max != null && selectedIds.length >= max) {
-        event.target.checked = false;
-        Swal.fire({
-          title: '¡Límite Alcanzado!',
-          text: `Este vehículo tiene ${max} acceso${max !== 1 ? 's' : ''}. Solo puedes seleccionar hasta ${max} Bluevox.`,
-          icon: 'warning',
-          background: '#002136',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Entendido',
-        });
-        return;
-      }
-      
-      // Validación 2: En modo edición, no se pueden agregar más Bluevox de los iniciales
+      // En modo edición, no se pueden agregar más Bluevox de los iniciales
       if (this.idInstalacion && this.maxBluevoxEnEdicion != null) {
         // Verificar si el Bluevox que se está intentando agregar es nuevo (no estaba en los iniciales)
         const esBluevoxNuevo = !this.wasBluevoxOriginallyAssigned(id);
